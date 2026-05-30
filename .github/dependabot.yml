@@ -6,5 +6,7 @@ updates:
       interval: weekly
       day: monday
       time: "09:00"
-      timezone: America/Vancouver
+      timezone: Asia/Tehran
     open-pull-requests-limit: 5
+    commit-message:
+      prefix: "[bot] "
