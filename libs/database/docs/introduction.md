@@ -1,17 +1,17 @@
 # Introduction
 
-`libscidup-database` is a C++ chess database library. It provides database
+`libscid-database` is a C++ chess database library. It provides database
 sessions, game storage, metadata indexing, name tables, filters, searches and
 format codecs for applications that need direct access to chess database data.
 
 # 1. Roots
 
 The code descends from Scid, Shane's Chess Information Database, and later
-modernisation work in ScidUp. That history matters because the library carries a
+modernisation work in Scid. That history matters because the library carries a
 mature chess database model rather than a newly invented storage API.
 
-The rest of this documentation treats `libscidup-database` as a library in its
-own right. You do not need to use it through ScidUp.
+The rest of this documentation treats `libscid-database` as a library in its
+own right. You do not need to use it through Scid.
 
 # 2. Mental Model
 

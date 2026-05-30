@@ -1,4 +1,4 @@
-#include "scidup/core/game_cursor.h"
+#include "scid/core/game_cursor.h"
 
 #include <gtest/gtest.h>
 

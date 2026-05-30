@@ -14,7 +14,7 @@
 * along with Scid. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "scidup/database/misc.h"
+#include "scid/database/misc.h"
 #include <algorithm>
 #include <cstring>
 #include <cctype>

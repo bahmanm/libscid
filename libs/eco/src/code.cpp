@@ -1,9 +1,9 @@
-#include "scidup/eco/code.h"
+#include "scid/eco/code.h"
 
 #include <cassert>
 #include <cmath>
 
-namespace scidup::eco {
+namespace scid::eco {
 
 Code fromString(const char* ecoStr) {
 	Code eco = ECO_None;
@@ -107,4 +107,4 @@ Code lastSubCode(Code ecoCode) {
 	return ecoCode + 1;
 }
 
-} // namespace scidup::eco
+} // namespace scid::eco

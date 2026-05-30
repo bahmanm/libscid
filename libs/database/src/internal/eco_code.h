@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scidup/database/common.h"
+#include "scid/database/common.h"
 
 namespace scid::database::eco_code {
 

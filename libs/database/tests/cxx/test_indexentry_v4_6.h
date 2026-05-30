@@ -21,11 +21,11 @@
 #ifndef SCID_INDEXENTRY_V4_6_H
 #define SCID_INDEXENTRY_V4_6_H
 
-#include "scidup/core/date.h"
-#include "scidup/core/game_result.h"
-#include "scidup/database/common.h"
-#include "scidup/database/matsig.h"
-#include "scidup/database/namebase.h"
+#include "scid/core/date.h"
+#include "scid/core/game_result.h"
+#include "scid/database/common.h"
+#include "scid/database/matsig.h"
+#include "scid/database/namebase.h"
 
 // HPSIG_SIZE = size of HomePawnData array in an scid::database::IndexEntry.
 // It is nine bytes: the first scid::core::byte contains the number of valid entries

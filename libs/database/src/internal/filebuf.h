@@ -23,7 +23,7 @@
 #ifndef FILEBUF_H
 #define FILEBUF_H
 
-#include "scidup/database/common.h"
+#include "scid/database/common.h"
 #include <climits>
 #include <fstream>
 

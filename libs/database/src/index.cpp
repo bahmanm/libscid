@@ -1,5 +1,5 @@
-#include "scidup/database/index.h"
-#include "scidup/database/game_id.h"
+#include "scid/database/index.h"
+#include "scid/database/game_id.h"
 #include "internal/containers.h"
 
 namespace scid::database {

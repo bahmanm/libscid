@@ -19,7 +19,7 @@
 #ifndef SCID_STORED_H
 #define SCID_STORED_H
 
-#include "scidup/core/fullmove.h"
+#include "scid/core/fullmove.h"
 
 namespace scid::database {
 

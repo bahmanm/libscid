@@ -1,4 +1,4 @@
-#include "scidup/core/square_collections.h"
+#include "scid/core/square_collections.h"
 
 #include <gtest/gtest.h>
 

@@ -16,12 +16,12 @@
 
 #include "bytebuf.h"
 #include "codec.h"
-#include "scidup/core/game_cursor.h"
-#include "scidup/core/movetext_cursor.h"
-#include "scidup/core/game.h"
-#include "scidup/database/index.h"
-#include "scidup/database/misc.h"
-#include "scidup/database/namebase.h"
+#include "scid/core/game_cursor.h"
+#include "scid/core/movetext_cursor.h"
+#include "scid/core/game.h"
+#include "scid/database/index.h"
+#include "scid/database/misc.h"
+#include "scid/database/namebase.h"
 #include "game_storage.h"
 #include <cstring>
 #include <gtest/gtest.h>

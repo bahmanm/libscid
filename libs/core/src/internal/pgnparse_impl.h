@@ -1,11 +1,11 @@
-#ifndef SCIDUP_CORE_INTERNAL_PGN_PARSE_IMPL_H
-#define SCIDUP_CORE_INTERNAL_PGN_PARSE_IMPL_H
+#ifndef SCID_CORE_INTERNAL_PGN_PARSE_IMPL_H
+#define SCID_CORE_INTERNAL_PGN_PARSE_IMPL_H
 
-#include "scidup/core/game_cursor.h"
-#include "scidup/core/movetext_cursor.h"
-#include "scidup/core/nags.h"
+#include "scid/core/game_cursor.h"
+#include "scid/core/movetext_cursor.h"
+#include "scid/core/nags.h"
 #include "pgn_lexer.h"
-#include "scidup/core/pgn/decode.h"
+#include "scid/core/pgn/decode.h"
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>

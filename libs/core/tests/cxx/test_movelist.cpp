@@ -1,5 +1,5 @@
-#include "scidup/core/movelist.h"
-#include "scidup/core/notation.h"
+#include "scid/core/movelist.h"
+#include "scid/core/notation.h"
 
 #include <algorithm>
 #include <gtest/gtest.h>

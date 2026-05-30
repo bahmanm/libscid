@@ -28,8 +28,8 @@
 #include "codec.h"
 #include "codec_memory.h"
 #include "game_storage.h"
-#include "scidup/core/game.h"
-#include "scidup/database/game_id.h"
+#include "scid/core/game.h"
+#include "scid/database/game_id.h"
 
 #include <array>
 #include <atomic>

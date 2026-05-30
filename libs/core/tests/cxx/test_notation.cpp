@@ -1,6 +1,6 @@
-#include "scidup/core/game.h"
-#include "scidup/core/game_cursor.h"
-#include "scidup/core/notation.h"
+#include "scid/core/game.h"
+#include "scid/core/game_cursor.h"
+#include "scid/core/notation.h"
 
 #include <gtest/gtest.h>
 

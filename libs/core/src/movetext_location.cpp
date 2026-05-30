@@ -1,4 +1,4 @@
-#include "scidup/core/movetext_location.h"
+#include "scid/core/movetext_location.h"
 
 #include <utility>
 

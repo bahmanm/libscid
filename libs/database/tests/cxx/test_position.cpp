@@ -1,7 +1,7 @@
-#include "scidup/core/game_cursor.h"
-#include "scidup/core/pgn/traversal.h"
-#include "scidup/core/game.h"
-#include "scidup/core/pgn/decode.h"
+#include "scid/core/game_cursor.h"
+#include "scid/core/pgn/traversal.h"
+#include "scid/core/game.h"
+#include "scid/core/pgn/decode.h"
 
 #include <gtest/gtest.h>
 #include <string>

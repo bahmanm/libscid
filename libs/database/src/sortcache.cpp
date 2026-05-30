@@ -22,11 +22,11 @@
  */
 
 #include "sortcache.h"
-#include "scidup/database/game_id.h"
-#include "scidup/database/hfilter.h"
-#include "scidup/database/index.h"
-#include "scidup/database/misc.h"
-#include "scidup/database/namebase.h"
+#include "scid/database/game_id.h"
+#include "scid/database/hfilter.h"
+#include "scid/database/index.h"
+#include "scid/database/misc.h"
+#include "scid/database/namebase.h"
 #include <algorithm>
 #include <climits>
 #include <cstring>

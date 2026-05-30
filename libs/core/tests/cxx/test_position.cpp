@@ -1,8 +1,8 @@
 /** @file
- * Position regressions that depend only on libscidup-core.
+ * Position regressions that depend only on libscid-core.
  */
 
-#include "scidup/core/position.h"
+#include "scid/core/position.h"
 
 #include <cstring>
 #include <gtest/gtest.h>

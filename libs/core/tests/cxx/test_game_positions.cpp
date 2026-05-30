@@ -1,6 +1,6 @@
-#include "scidup/core/game_positions.h"
-#include "scidup/core/pgn/decode.h"
-#include "scidup/core/primitives.h"
+#include "scid/core/game_positions.h"
+#include "scid/core/pgn/decode.h"
+#include "scid/core/primitives.h"
 
 #include <algorithm>
 #include <cassert>

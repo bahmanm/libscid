@@ -1,4 +1,4 @@
-#include "scidup/core/board.h"
+#include "scid/core/board.h"
 
 #include <gtest/gtest.h>
 

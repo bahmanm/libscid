@@ -1,4 +1,4 @@
-#include "scidup/core/fullmove.h"
+#include "scid/core/fullmove.h"
 
 #include <gtest/gtest.h>
 

@@ -28,8 +28,8 @@
 
 #pragma once
 
-#include "scidup/core/primitives.h"
-#include "scidup/core/error.h"
+#include "scid/core/primitives.h"
+#include "scid/core/error.h"
 #include <algorithm>
 #include <cassert>
 #include <cstring>

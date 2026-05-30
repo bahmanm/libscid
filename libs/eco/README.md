@@ -1,3 +1,3 @@
-# libscidup-eco
+# libscid-eco
 
-`libscidup-eco` owns ECO code parsing/formatting and opening-book lookup over core positions. It depends on `ScidUp::Core` but is not required by `ScidUp::Database`.
+`libscid-eco` owns ECO code parsing/formatting and opening-book lookup over core positions. It depends on `Scid::Core` but is not required by `Scid::Database`.

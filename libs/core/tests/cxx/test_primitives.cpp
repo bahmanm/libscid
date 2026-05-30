@@ -1,4 +1,4 @@
-#include "scidup/core/primitives.h"
+#include "scid/core/primitives.h"
 
 #include <gtest/gtest.h>
 

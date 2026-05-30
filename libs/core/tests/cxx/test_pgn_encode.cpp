@@ -1,6 +1,6 @@
-#include "scidup/core/pgn/encode.h"
-#include "scidup/core/game.h"
-#include "scidup/core/nags.h"
+#include "scid/core/pgn/encode.h"
+#include "scid/core/game.h"
+#include "scid/core/nags.h"
 
 #include <gtest/gtest.h>
 #include <string>

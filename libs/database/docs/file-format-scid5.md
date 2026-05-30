@@ -1,7 +1,7 @@
 # SCID5 File Format
 
 This document describes the SCID5 storage model used by
-`libscidup-database`.
+`libscid-database`.
 
 # 1. Database Unit
 

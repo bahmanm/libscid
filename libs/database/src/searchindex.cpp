@@ -16,11 +16,11 @@
 * along with Scid. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "scidup/core/game_result.h"
-#include "scidup/database/common.h"
-#include "scidup/database/game_id.h"
-#include "scidup/database/misc.h"
-#include "scidup/database/scidbase.h"
+#include "scid/core/game_result.h"
+#include "scid/database/common.h"
+#include "scid/database/game_id.h"
+#include "scid/database/misc.h"
+#include "scid/database/scidbase.h"
 #include "eco_code.h"
 #include <algorithm>
 #include <string>

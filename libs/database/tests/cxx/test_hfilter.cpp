@@ -14,8 +14,8 @@
 * along with Scid. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "scidup/database/game_id.h"
-#include "scidup/database/hfilter.h"
+#include "scid/database/game_id.h"
+#include "scid/database/hfilter.h"
 #include <algorithm>
 #include <functional>
 #include <gtest/gtest.h>
