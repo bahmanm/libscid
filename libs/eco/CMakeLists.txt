@@ -4,6 +4,8 @@ project(
     libscid-eco
     LANGUAGES CXX )
 
+include( GNUInstallDirs )
+
 set(
     SCID_ECO_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/code.cpp"
@@ -32,7 +34,9 @@ target_compile_features(
     PUBLIC cxx_std_20 )
 target_include_directories(
     scid_eco
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>" )
 target_link_libraries(
     scid_eco
     PUBLIC Scid::Core )

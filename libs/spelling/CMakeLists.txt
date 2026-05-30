@@ -4,6 +4,8 @@ project(
     libscid-spelling
     LANGUAGES CXX )
 
+include( GNUInstallDirs )
+
 set(
     SCID_SPELLING_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/spelling.cpp" )
@@ -30,7 +32,9 @@ target_compile_features(
     PUBLIC cxx_std_20 )
 target_include_directories(
     scid_spelling
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>" )
 target_link_libraries(
     scid_spelling
     PUBLIC Scid::Database )

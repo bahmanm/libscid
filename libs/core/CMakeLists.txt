@@ -4,6 +4,8 @@ project(
     libscid-core
     LANGUAGES CXX )
 
+include( GNUInstallDirs )
+
 set(
     SCID_CORE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/game_cursor.cpp"
@@ -64,7 +66,9 @@ target_compile_features(
     PUBLIC cxx_std_20 )
 target_include_directories(
     scid_core
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
 
 if( PROJECT_IS_TOP_LEVEL )

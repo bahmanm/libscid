@@ -4,6 +4,8 @@ project(
     libscid-database
     LANGUAGES CXX )
 
+include( GNUInstallDirs )
+
 find_package( Threads REQUIRED )
 
 set(
@@ -75,7 +77,9 @@ target_compile_features(
     PUBLIC cxx_std_20 )
 target_include_directories(
     scid_database
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
 target_link_libraries(
     scid_database
