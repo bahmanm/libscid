@@ -1,0 +1,4 @@
+# Minimal ECO file for the example.
+A00a "Start position" *
+C68 "Ruy Lopez: Exchange Variation" 1.e4 e5 2.Nf3 Nc6 3.Bb5 a6 4.Bxc6 *
+D30 "Queen's Gambit Declined" 1.d4 d5 2.c4 e6 *
