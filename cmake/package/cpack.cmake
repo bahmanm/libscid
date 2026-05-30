@@ -1,4 +1,5 @@
 set( LIBSCID_PACKAGE_PLATFORM "" CACHE STRING "Platform label used in libscid package file names." )
+set( LIBSCID_PACKAGE_VERSION_LABEL "${PROJECT_VERSION}" CACHE STRING "Version label used in libscid package file names." )
 
 if( LIBSCID_PACKAGE_PLATFORM STREQUAL "" )
     set( _scid_package_platform "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}" )
@@ -18,7 +19,7 @@ set( CPACK_PACKAGE_NAME "libscid" )
 set( CPACK_PACKAGE_VENDOR "libscid contributors" )
 set( CPACK_PACKAGE_VERSION "${PROJECT_VERSION}" )
 set( CPACK_PACKAGE_DESCRIPTION_SUMMARY "Standalone C++ library extracted from Scid chess database functionality." )
-set( CPACK_PACKAGE_FILE_NAME "libscid__${PROJECT_VERSION}__${_scid_package_platform}" )
+set( CPACK_PACKAGE_FILE_NAME "libscid__${LIBSCID_PACKAGE_VERSION_LABEL}__${_scid_package_platform}" )
 set( CPACK_PACKAGE_DIRECTORY "${CMAKE_BINARY_DIR}" )
 set( CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/COPYING" )
 
