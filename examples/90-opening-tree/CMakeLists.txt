@@ -24,7 +24,7 @@ set_target_properties(
 target_compile_definitions(
     libscid-example-90-opening-tree
     PRIVATE
-        LIBSCID_EXAMPLE_DATABASE="${CMAKE_CURRENT_SOURCE_DIR}/../40-open-database/data/dr-lasker" )
+        LIBSCID_EXAMPLE_DATABASE="${CMAKE_CURRENT_SOURCE_DIR}/../fixtures/dr-lasker/dr-lasker" )
 
 target_link_libraries(
     libscid-example-90-opening-tree

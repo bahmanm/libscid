@@ -24,7 +24,7 @@ set_target_properties(
 target_compile_definitions(
     libscid-example-100-import-pgn
     PRIVATE
-        LIBSCID_EXAMPLE_PGN_FILE="${CMAKE_CURRENT_SOURCE_DIR}/data/import.pgn" )
+        LIBSCID_EXAMPLE_PGN_FILE="${CMAKE_CURRENT_SOURCE_DIR}/../fixtures/import.pgn" )
 
 target_link_libraries(
     libscid-example-100-import-pgn

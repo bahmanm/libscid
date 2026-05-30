@@ -24,7 +24,7 @@ set_target_properties(
 target_compile_definitions(
     libscid-example-50-eco-classification
     PRIVATE
-        LIBSCID_EXAMPLE_ECO_FILE="${CMAKE_CURRENT_SOURCE_DIR}/data/mini.eco" )
+        LIBSCID_EXAMPLE_ECO_FILE="${CMAKE_CURRENT_SOURCE_DIR}/../fixtures/mini.eco" )
 
 target_link_libraries(
     libscid-example-50-eco-classification

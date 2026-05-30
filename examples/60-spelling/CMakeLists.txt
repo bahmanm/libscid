@@ -24,7 +24,7 @@ set_target_properties(
 target_compile_definitions(
     libscid-example-60-spelling
     PRIVATE
-        LIBSCID_EXAMPLE_SPELLING_FILE="${CMAKE_CURRENT_SOURCE_DIR}/data/mini.ssp" )
+        LIBSCID_EXAMPLE_SPELLING_FILE="${CMAKE_CURRENT_SOURCE_DIR}/../fixtures/mini.ssp" )
 
 target_link_libraries(
     libscid-example-60-spelling

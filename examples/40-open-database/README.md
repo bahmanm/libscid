@@ -3,8 +3,8 @@
 This example opens a SCID5 database in read-only mode and prints a small summary
 of its first game.
 
-It expects a SCID5 database at `data/dr-lasker`, made from the three files
-`dr-lasker.si5`, `dr-lasker.sg5`, and `dr-lasker.sn5`.
+It expects the shared SCID5 fixture at `examples/fixtures/dr-lasker/dr-lasker`,
+made from the three files `dr-lasker.si5`, `dr-lasker.sg5`, and `dr-lasker.sn5`.
 
 The only prerequisite is to have a libscid release already installed. For instance:
 

@@ -1,7 +1,7 @@
-# 70 List Database
+# 110 Database Stats
 
-This example opens the Dr Lasker SCID5 database, creates a sort cache, and lists
-the first few games in date order.
+This example opens the Dr Lasker SCID5 database and reads aggregate database
+statistics: date range, result buckets, rating coverage, and ECO coverage.
 
 It reuses the SCID5 database from `examples/fixtures/dr-lasker/dr-lasker`.
 
@@ -24,7 +24,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/70-list-database -B _build/examples/70-list-database -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/70-list-database
-ctest --test-dir _build/examples/70-list-database --output-on-failure
+cmake -S examples/110-database-stats -B _build/examples/110-database-stats -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/110-database-stats
+ctest --test-dir _build/examples/110-database-stats --output-on-failure
 ```

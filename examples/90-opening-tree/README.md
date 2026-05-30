@@ -4,7 +4,7 @@ This example finds the Dr Lasker-Capablanca game in the Dr Lasker SCID5
 database, searches for a position from that game, and builds opening-tree
 statistics for the matching games.
 
-It reuses the SCID5 database from `examples/40-open-database/data/dr-lasker`.
+It reuses the SCID5 database from `examples/fixtures/dr-lasker/dr-lasker`.
 
 The only prerequisite is to have a libscid release already installed. For instance:
 
