@@ -4,6 +4,8 @@ project(
     libscid-core
     LANGUAGES CXX )
 
+include( GNUInstallDirs )
+
 set(
     SCID_CORE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/game_cursor.cpp"
@@ -50,7 +52,7 @@ add_library(
     scid_core
     ${SCID_CORE_SOURCES} )
 add_library(
-    Scid::Core
+    LibScid::Core
     ALIAS scid_core )
 target_sources(
     scid_core
@@ -64,7 +66,9 @@ target_compile_features(
     PUBLIC cxx_std_20 )
 target_include_directories(
     scid_core
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
 
 if( PROJECT_IS_TOP_LEVEL )
@@ -98,14 +102,14 @@ if( BUILD_TESTING )
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
     target_link_libraries(
         scid_tests_core_cpp
-        PRIVATE Scid::Core gtest_main )
+        PRIVATE LibScid::Core gtest_main )
     add_executable(
-        Scid::Tests::Core::Cpp
+        LibScid::Tests::Core::Cpp
         ALIAS scid_tests_core_cpp )
 
     add_test(
         NAME core_cpp_test
-        COMMAND $<TARGET_FILE:Scid::Tests::Core::Cpp> )
+        COMMAND $<TARGET_FILE:LibScid::Tests::Core::Cpp> )
     set_tests_properties(
         core_cpp_test
         PROPERTIES LABELS "cpp;core" )

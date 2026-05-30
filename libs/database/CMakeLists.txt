@@ -4,6 +4,8 @@ project(
     libscid-database
     LANGUAGES CXX )
 
+include( GNUInstallDirs )
+
 find_package( Threads REQUIRED )
 
 set(
@@ -59,7 +61,7 @@ add_library(
     scid_database
     ${SCID_DATABASE_SOURCES} )
 add_library(
-    Scid::Database
+    LibScid::Database
     ALIAS scid_database )
 target_sources(
     scid_database
@@ -75,11 +77,13 @@ target_compile_features(
     PUBLIC cxx_std_20 )
 target_include_directories(
     scid_database
-    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
 target_link_libraries(
     scid_database
-    PUBLIC Scid::Core Threads::Threads )
+    PUBLIC LibScid::Core Threads::Threads )
 
 if( PROJECT_IS_TOP_LEVEL )
     include( CTest )
@@ -115,14 +119,14 @@ if( BUILD_TESTING )
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
     target_link_libraries(
         scid_tests_database_cpp
-        PRIVATE Scid::Database gtest_main )
+        PRIVATE LibScid::Database gtest_main )
     add_executable(
-        Scid::Tests::Database::Cpp
+        LibScid::Tests::Database::Cpp
         ALIAS scid_tests_database_cpp )
 
     add_test(
         NAME database_cpp_test
-        COMMAND $<TARGET_FILE:Scid::Tests::Database::Cpp> )
+        COMMAND $<TARGET_FILE:LibScid::Tests::Database::Cpp> )
     set_tests_properties(
         database_cpp_test
         PROPERTIES LABELS "cpp;database" )

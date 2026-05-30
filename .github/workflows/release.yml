@@ -1,0 +1,260 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  unix-build-and-package:
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            asset_label: linux
+            cpp_compiler: g++
+          - os: macos-15
+            asset_label: macos-arm
+            cpp_compiler: clang++
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set release identity
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#v}"
+          version="${version%%-*}"
+
+          if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
+            echo "Tag '$tag' does not contain a CMake-compatible numeric version." >&2
+            exit 1
+          fi
+
+          echo "LIBSCID_RELEASE_VERSION=$version" >> "$GITHUB_ENV"
+          echo "LIBSCID_PACKAGE_VERSION_LABEL=$tag" >> "$GITHUB_ENV"
+
+      - name: Configure
+        run: >
+          cmake
+          --preset package
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DLIBSCID_VERSION="$LIBSCID_RELEASE_VERSION"
+          -DLIBSCID_PACKAGE_VERSION_LABEL="$LIBSCID_PACKAGE_VERSION_LABEL"
+          -DLIBSCID_PACKAGE_PLATFORM="${{ matrix.asset_label }}"
+
+      - name: Build
+        run: >
+          cmake
+          --build
+          --preset package
+          --verbose
+
+      - name: Package
+        run: cpack --preset portable-tgz
+
+      - name: Smoke-test package
+        run: |
+          archives=( _build/package/*.tar.gz )
+          if [[ ${#archives[@]} -ne 1 ]]; then
+            echo "Expected exactly one .tar.gz in _build/package, found ${#archives[@]}." >&2
+            ls -la _build/package || true
+            exit 1
+          fi
+
+          archive="${archives[0]}"
+          smoke_root="${RUNNER_TEMP}/libscid-package-smoke"
+          source_dir="$smoke_root/source"
+          install_root="$smoke_root/install"
+          build_dir="$smoke_root/build"
+
+          rm -rf "$smoke_root"
+          mkdir -p "$source_dir" "$install_root" "$build_dir"
+          tar -xzf "$archive" -C "$install_root" --strip-components=1
+
+          cat > "$source_dir/CMakeLists.txt" <<'EOF'
+          cmake_minimum_required( VERSION 3.23 )
+          project( libscid_package_smoke LANGUAGES CXX )
+
+          find_package( LibScid CONFIG REQUIRED )
+
+          add_executable( smoke smoke.cpp )
+          target_link_libraries( smoke PRIVATE LibScid::Core LibScid::Eco LibScid::Database LibScid::Spelling )
+          EOF
+
+          cat > "$source_dir/smoke.cpp" <<'EOF'
+          #include <scid/core/position.h>
+          #include <scid/database/namebase.h>
+          #include <scid/eco/code.h>
+          #include <scid/spelling/spelling.h>
+
+          int main()
+          {
+              scid::core::Position position;
+              scid::database::NameBase names;
+              scid::eco::Code code = scid::eco::fromString( "A00" );
+              scid::spelling::NameNormalizer normalizer;
+
+              (void)position;
+              (void)names;
+              (void)code;
+              (void)normalizer;
+              return 0;
+          }
+          EOF
+
+          cmake -S "$source_dir" -B "$build_dir" -DCMAKE_PREFIX_PATH="$install_root"
+          cmake --build "$build_dir" --verbose
+          "$build_dir/smoke"
+
+          echo "ASSET_PATH=$archive" >> "$GITHUB_ENV"
+          echo "ASSET_NAME=$(basename "$archive" .tar.gz)" >> "$GITHUB_ENV"
+
+      - name: Upload archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ASSET_NAME }}
+          path: ${{ env.ASSET_PATH }}
+          if-no-files-found: error
+
+  windows-build-and-package:
+    runs-on: windows-2022
+
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Set release identity
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $version = $tag -replace '^v', ''
+          $version = $version -replace '-.*$', ''
+
+          if ($version -notmatch '^[0-9]+(\.[0-9]+){0,3}$') {
+            Write-Error "Tag '$tag' does not contain a CMake-compatible numeric version."
+            exit 1
+          }
+
+          "LIBSCID_RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_PACKAGE_VERSION_LABEL=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Configure
+        run: >
+          cmake
+          --preset package
+          "-DLIBSCID_VERSION=$env:LIBSCID_RELEASE_VERSION"
+          "-DLIBSCID_PACKAGE_VERSION_LABEL=$env:LIBSCID_PACKAGE_VERSION_LABEL"
+          "-DLIBSCID_PACKAGE_PLATFORM=windows"
+
+      - name: Build
+        run: >
+          cmake
+          --build
+          --preset package
+          --config Release
+          --verbose
+
+      - name: Package
+        run: cpack --preset portable-tgz -C Release
+
+      - name: Smoke-test package
+        run: |
+          $archives = Get-ChildItem -Path "_build\\package" -Filter "*.tar.gz"
+          if ($archives.Count -ne 1) {
+            Write-Error "Expected exactly one .tar.gz in _build\\package, found $($archives.Count)."
+            Get-ChildItem -Path "_build\\package" | Format-List
+            exit 1
+          }
+
+          $archive = $archives[0].FullName
+          $smokeRoot = Join-Path $env:RUNNER_TEMP "libscid-package-smoke"
+          $sourceDir = Join-Path $smokeRoot "source"
+          $installRoot = Join-Path $smokeRoot "install"
+          $buildDir = Join-Path $smokeRoot "build"
+
+          Remove-Item -Recurse -Force -ErrorAction Ignore $smokeRoot
+          New-Item -ItemType Directory -Force -Path $sourceDir, $installRoot, $buildDir | Out-Null
+          tar -xzf $archive -C $installRoot --strip-components=1
+
+          @'
+          cmake_minimum_required( VERSION 3.23 )
+          project( libscid_package_smoke LANGUAGES CXX )
+
+          find_package( LibScid CONFIG REQUIRED )
+
+          add_executable( smoke smoke.cpp )
+          target_link_libraries( smoke PRIVATE LibScid::Core LibScid::Eco LibScid::Database LibScid::Spelling )
+          '@ | Out-File -FilePath (Join-Path $sourceDir "CMakeLists.txt") -Encoding utf8
+
+          @'
+          #include <scid/core/position.h>
+          #include <scid/database/namebase.h>
+          #include <scid/eco/code.h>
+          #include <scid/spelling/spelling.h>
+
+          int main()
+          {
+              scid::core::Position position;
+              scid::database::NameBase names;
+              scid::eco::Code code = scid::eco::fromString( "A00" );
+              scid::spelling::NameNormalizer normalizer;
+
+              (void)position;
+              (void)names;
+              (void)code;
+              (void)normalizer;
+              return 0;
+          }
+          '@ | Out-File -FilePath (Join-Path $sourceDir "smoke.cpp") -Encoding utf8
+
+          cmake -S $sourceDir -B $buildDir "-DCMAKE_PREFIX_PATH=$installRoot"
+          cmake --build $buildDir --config Release --verbose
+          & (Join-Path $buildDir "Release\\smoke.exe")
+
+          "ASSET_PATH=$archive" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "ASSET_NAME=$($archives[0].BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ASSET_NAME }}
+          path: ${{ env.ASSET_PATH }}
+          if-no-files-found: error
+
+  publish-github-release:
+    needs:
+      - unix-build-and-package
+      - windows-build-and-package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download archives
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: LibScid ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-testing') }}
+          files: dist/*.tar.gz
+          fail_on_unmatched_files: true
+          generate_release_notes: true
