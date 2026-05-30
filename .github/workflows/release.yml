@@ -251,7 +251,7 @@ jobs:
           merge-multiple: true
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: LibScid ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-testing') }}
