@@ -253,7 +253,7 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v3
         with:
-          name: LibScid ${{ github.ref_name }}
+          name: libscid ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-testing') }}
           files: dist/*.tar.gz
           fail_on_unmatched_files: true
