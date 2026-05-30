@@ -1,0 +1,53 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "release",
+      "displayName": "Release",
+      "description": "Release build for libscid.",
+      "binaryDir": "${sourceDir}/_build/release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_TESTING": "OFF",
+        "SCID_INSTALL": "ON"
+      }
+    },
+    {
+      "name": "package",
+      "displayName": "Package",
+      "description": "Release build configured for portable SDK archive packaging.",
+      "binaryDir": "${sourceDir}/_build/package",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_TESTING": "OFF",
+        "SCID_INSTALL": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "package",
+      "configurePreset": "package"
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "portable-tgz",
+      "displayName": "Portable TGZ",
+      "description": "Creates a portable libscid .tar.gz archive.",
+      "configurePreset": "package",
+      "generators": [
+        "TGZ"
+      ]
+    }
+  ]
+}

@@ -25,4 +25,5 @@ add_subdirectory( libs/spelling )
 
 if( SCID_INSTALL )
     include( cmake/install/main.cmake )
+    include( cmake/packaging.cmake )
 endif()
