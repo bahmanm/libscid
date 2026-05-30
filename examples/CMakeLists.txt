@@ -8,3 +8,4 @@ enable_testing()
 
 add_subdirectory( 00-minimal-consumer )
 add_subdirectory( 10-pgn-roundtrip )
+add_subdirectory( 20-position-and-moves )
