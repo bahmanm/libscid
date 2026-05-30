@@ -28,7 +28,7 @@ jobs:
             cpp_compiler: clang++
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set release identity
         run: |
@@ -135,7 +135,7 @@ jobs:
         shell: pwsh
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -251,7 +251,7 @@ jobs:
           merge-multiple: true
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: LibScid ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-testing') }}
