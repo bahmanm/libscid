@@ -1,9 +1,9 @@
-set( SCID_PACKAGE_PLATFORM "" CACHE STRING "Platform label used in libscid package file names." )
+set( LIBSCID_PACKAGE_PLATFORM "" CACHE STRING "Platform label used in libscid package file names." )
 
-if( SCID_PACKAGE_PLATFORM STREQUAL "" )
+if( LIBSCID_PACKAGE_PLATFORM STREQUAL "" )
     set( _scid_package_platform "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}" )
 else()
-    set( _scid_package_platform "${SCID_PACKAGE_PLATFORM}" )
+    set( _scid_package_platform "${LIBSCID_PACKAGE_PLATFORM}" )
 endif()
 
 string( TOLOWER "${_scid_package_platform}" _scid_package_platform )

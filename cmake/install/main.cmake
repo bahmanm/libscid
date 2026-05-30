@@ -1,6 +1,6 @@
 include( CMakePackageConfigHelpers )
 
-set( SCID_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/Scid" )
+set( LIBSCID_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/LibScid" )
 
 set_property( TARGET scid_core PROPERTY EXPORT_NAME Core )
 set_property( TARGET scid_database PROPERTY EXPORT_NAME Database )
@@ -13,32 +13,33 @@ install(
         scid_database
         scid_eco
         scid_spelling
-    EXPORT ScidTargets
+    EXPORT LibScidTargets
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
     FILE_SET public_headers DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" )
 
 install(
-    EXPORT ScidTargets
-    NAMESPACE Scid::
-    DESTINATION "${SCID_INSTALL_CMAKEDIR}" )
+    EXPORT LibScidTargets
+    NAMESPACE LibScid::
+    FILE LibScidTargets.cmake
+    DESTINATION "${LIBSCID_INSTALL_CMAKEDIR}" )
 
 configure_package_config_file(
-    "${CMAKE_CURRENT_LIST_DIR}/../package/ScidConfig.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/ScidConfig.cmake"
-    INSTALL_DESTINATION "${SCID_INSTALL_CMAKEDIR}" )
+    "${CMAKE_CURRENT_LIST_DIR}/../package/LibScidConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/LibScidConfig.cmake"
+    INSTALL_DESTINATION "${LIBSCID_INSTALL_CMAKEDIR}" )
 
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/ScidConfigVersion.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/LibScidConfigVersion.cmake"
     VERSION "${PROJECT_VERSION}"
     COMPATIBILITY SameMajorVersion )
 
 install(
     FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/ScidConfig.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/ScidConfigVersion.cmake"
-    DESTINATION "${SCID_INSTALL_CMAKEDIR}" )
+        "${CMAKE_CURRENT_BINARY_DIR}/LibScidConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/LibScidConfigVersion.cmake"
+    DESTINATION "${LIBSCID_INSTALL_CMAKEDIR}" )
 
 install(
     FILES

@@ -14,7 +14,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "OFF",
-        "SCID_INSTALL": "ON"
+        "LIBSCID_INSTALL": "ON"
       }
     },
     {
@@ -25,7 +25,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "OFF",
-        "SCID_INSTALL": "ON"
+        "LIBSCID_INSTALL": "ON"
       }
     }
   ],
