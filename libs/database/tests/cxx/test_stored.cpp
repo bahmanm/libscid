@@ -20,8 +20,8 @@
  * THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "scidup/core/primitives.h"
-#include "scidup/core/position.h"
+#include "scid/core/primitives.h"
+#include "scid/core/position.h"
 #include "stored.h"
 #include <gtest/gtest.h>
 

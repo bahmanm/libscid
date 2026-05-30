@@ -1,7 +1,7 @@
 #pragma once
 
-#include "scidup/core/game.h"
-#include "scidup/database/scidbase.h"
+#include "scid/core/game.h"
+#include "scid/database/scidbase.h"
 
 #include <cstddef>
 

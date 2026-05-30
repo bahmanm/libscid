@@ -5,7 +5,7 @@ These examples show common tasks using the public library headers.
 # 1. Create An In-Memory Database
 
 ```cpp
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 scidBaseT database;
 errorT err = database.open("MEMORY", FMODE_Create, "Memory");
@@ -20,8 +20,8 @@ programmatic workflows.
 # 2. Parse PGN And Save A Game
 
 ```cpp
-#include "scidup/database/pgnparse.h"
-#include "scidup/database/scidbase.h"
+#include "scid/database/pgnparse.h"
+#include "scid/database/scidbase.h"
 
 #include <string_view>
 
@@ -48,7 +48,7 @@ Use `Game` when the game needs to be parsed, edited or saved.
 # 3. Open A SCID5 Database
 
 ```cpp
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 scidBaseT database;
 errorT err = database.open("SCID5", FMODE_Both, "/path/to/database");
@@ -65,7 +65,7 @@ Use `FMODE_ReadOnly` when the caller must not modify the database.
 # 4. Iterate Game Metadata
 
 ```cpp
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 for (gamenumT gnum = 0; gnum < database.numGames(); ++gnum) {
     const IndexEntry* entry = database.getIndexEntry(gnum);
@@ -81,7 +81,7 @@ for (gamenumT gnum = 0; gnum < database.numGames(); ++gnum) {
 # 5. Load A Full Editable Game
 
 ```cpp
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 Game game;
 if (database.loadGame(0, game) == OK) {
@@ -95,7 +95,7 @@ serialisation.
 # 6. Inspect Moves With GameView
 
 ```cpp
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 const IndexEntry* entry = database.getIndexEntry_bounds(0);
 if (entry != nullptr) {
@@ -110,7 +110,7 @@ read-only move inspection and search helpers.
 # 7. Work With Filters
 
 ```cpp
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 std::string filterId = database.newFilter();
 HFilter filter = database.getFilter(filterId);
@@ -130,7 +130,7 @@ or by name through `database.getFilter("dbfilter")`.
 # 8. List Games In Sorted Order
 
 ```cpp
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 HFilter filter = database.defaultFilter();
 std::vector<gamenumT> rows(100);
@@ -147,7 +147,7 @@ Creating a matching sort cache first can make repeated list operations faster.
 # 9. Import PGN Into An Existing Database
 
 ```cpp
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 #include <string>
 
@@ -165,7 +165,7 @@ successfully imported.
 # 10. Compact A Database
 
 ```cpp
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 unsigned long long deleted = 0;
 unsigned long long unused = 0;

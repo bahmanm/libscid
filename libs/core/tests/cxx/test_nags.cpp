@@ -1,4 +1,4 @@
-#include "scidup/core/nags.h"
+#include "scid/core/nags.h"
 
 #include <gtest/gtest.h>
 

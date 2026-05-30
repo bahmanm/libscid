@@ -5,7 +5,7 @@ header is for, not a generated symbol reference.
 
 # 1. Primary Entry Point
 
-Use `scidup/database/scidbase.h` first.
+Use `scid/database/scidbase.h` first.
 
 `scidBaseT` is the database session facade. It owns one open database session
 and coordinates:
@@ -38,7 +38,7 @@ workflows:
 - `gameview.h`: lightweight read-only cursor over encoded moves
 
 Use `Game` when you need mutation. Use `GameView` when you need fast read-only
-inspection of encoded moves. Use `scidup/core/position.h` for standalone board
+inspection of encoded moves. Use `scid/core/position.h` for standalone board
 state, move generation and FEN/UCI position support.
 
 # 3. Database Metadata
@@ -53,8 +53,8 @@ Use these headers when working with game lists, tags and names:
 
 Most consumers should retrieve metadata through `scidBaseT` instead of owning
 `Index` or `NameBase` directly. Game and index metadata dates use the compact
-`scidup/core/date.h` value type, and game results use the compact
-`scidup/core/game_result.h` value type. Database ECO metadata is stored as a
+`scid/core/date.h` value type, and game results use the compact
+`scid/core/game_result.h` value type. Database ECO metadata is stored as a
 compact `EcoCode` integer; presentation and opening-book classification live
 outside the database library.
 
@@ -90,24 +90,24 @@ but they should be treated as lower-level building blocks:
 Board constants, primitive chess types, square helpers, attack tables, position
 state, position hashing and shared status codes live in core headers:
 
-- `scidup/core/primitives.h`: scalar aliases and primitive chess encodings
-- `scidup/core/board.h`: board constants, piece helpers, square helpers and
+- `scid/core/primitives.h`: scalar aliases and primitive chess encodings
+- `scid/core/board.h`: board constants, piece helpers, square helpers and
   direction helpers
-- `scidup/core/date.h`: compact game-date value type and PGN date helpers
-- `scidup/core/error.h`: shared `errorT` definitions
-- `scidup/core/fullmove.h`: compact move representation with SAN-related
+- `scid/core/date.h`: compact game-date value type and PGN date helpers
+- `scid/core/error.h`: shared `errorT` definitions
+- `scid/core/fullmove.h`: compact move representation with SAN-related
   information
-- `scidup/core/game_result.h`: game result value type, display strings and
+- `scid/core/game_result.h`: game result value type, display strings and
   scoring helpers
-- `scidup/core/hash.h`: Zobrist position hash helpers
-- `scidup/core/movelist.h`: generated move records and fixed-capacity move lists
-- `scidup/core/move_predicates.h`: move validation predicates
-- `scidup/core/position.h`: board state, move generation and FEN/UCI position
+- `scid/core/hash.h`: Zobrist position hash helpers
+- `scid/core/movelist.h`: generated move records and fixed-capacity move lists
+- `scid/core/move_predicates.h`: move validation predicates
+- `scid/core/position.h`: board state, move generation and FEN/UCI position
   support
-- `scidup/core/square_moves.h`: square movement lookup tables and helpers
-- `scidup/core/square_collections.h`: square list and set helpers
-- `scidup/core/attacks.h`: precomputed king and knight attack tables
-- `scidup/core/dstring.h`: deprecated dynamic string helper still used by some
+- `scid/core/square_moves.h`: square movement lookup tables and helpers
+- `scid/core/square_collections.h`: square list and set helpers
+- `scid/core/attacks.h`: precomputed king and knight attack tables
+- `scid/core/dstring.h`: deprecated dynamic string helper still used by some
   board-output paths
 
 These headers are useful when extending the library, but they are not the best

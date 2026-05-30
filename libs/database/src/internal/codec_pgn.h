@@ -27,8 +27,8 @@
 
 #include "codec_proxy.h"
 #include "filebuf.h"
-#include "scidup/core/pgn/decode.h"
-#include "scidup/core/pgn/encode.h"
+#include "scid/core/pgn/decode.h"
+#include "scid/core/pgn/encode.h"
 #include <algorithm>
 #include <cstring>
 #include <vector>

@@ -1,4 +1,4 @@
-#include "scidup/database/game_info.h"
+#include "scid/database/game_info.h"
 
 #include <cctype>
 

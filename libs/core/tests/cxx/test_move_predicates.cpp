@@ -1,4 +1,4 @@
-#include "scidup/core/move_predicates.h"
+#include "scid/core/move_predicates.h"
 
 #include <algorithm>
 #include <gtest/gtest.h>

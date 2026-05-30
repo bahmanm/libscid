@@ -1,4 +1,4 @@
-#include "scidup/core/pgn/traversal.h"
+#include "scid/core/pgn/traversal.h"
 
 #include <cassert>
 

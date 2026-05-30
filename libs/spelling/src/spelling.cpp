@@ -17,9 +17,9 @@
 * along with Scid. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <scidup/spelling/spelling.h>
-#include "scidup/core/date.h"
-#include "scidup/database/misc.h"
+#include <scid/spelling/spelling.h>
+#include "scid/core/date.h"
+#include "scid/database/misc.h"
 
 #include <algorithm>
 #include <cctype>
@@ -122,7 +122,7 @@ Parser::Parser(char* line) {
 } // End of anonymous namespace
 
 
-namespace scidup::spelling {
+namespace scid::spelling {
 
 size_t NameNormalizer::normalize(std::string* name) const
 {
@@ -237,7 +237,7 @@ scid::core::ratingT PlayerElo::getElo(scid::core::dateT date) const
 	return (itBegin + idx)->second;
 }
 
-#ifdef SCIDUP_SPELLING_VALIDATE
+#ifdef SCID_SPELLING_VALIDATE
 std::string PlayerElo::isValid() const
 {
 	for (size_t i=1, n=elo_.size(); i < n; i++) {
@@ -418,7 +418,7 @@ SpellChecker::IdxIt SpellChecker::idxFindPlayerUnambiguous(const char* name) con
 	return it.first;
 }
 
-#ifndef SCIDUP_SPELLING_VALIDATE
+#ifndef SCID_SPELLING_VALIDATE
 class SpellChecker::SpellingValidate {
 public:
 	SpellingValidate(const char*, const SpellChecker&) {}
@@ -590,7 +590,7 @@ private:
  * this function twice, because this is the only non-const member function.
  * If the function fails (result != scid::core::OK) the object state is undefined
  * and the only valid operation is to destroy the object.
- * If SCIDUP_SPELLING_VALIDATE is defined, it also creates a @filename.validate log.
+ * If SCID_SPELLING_VALIDATE is defined, it also creates a @filename.validate log.
  */
 scid::core::errorT SpellChecker::read(const char* filename, const scid::database::Progress& progress)
 {
@@ -838,4 +838,4 @@ PlayerInfo::getDeathdate() const
 //  EOF: spelling.cpp
 //////////////////////////////////////////////////////////////////////
 
-} // namespace scidup::spelling
+} // namespace scid::spelling

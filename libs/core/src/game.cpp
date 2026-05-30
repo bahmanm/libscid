@@ -1,4 +1,4 @@
-#include "scidup/core/game.h"
+#include "scid/core/game.h"
 
 #include <algorithm>
 #include <array>

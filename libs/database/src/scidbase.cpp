@@ -16,7 +16,7 @@
 * along with Scid.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 #include "bytebuf.h"
 #include "codec_memory.h"
 #include "codec_pgn.h"
@@ -27,8 +27,8 @@
 #include "game_storage.h"
 #include "gameview.h"
 #include "searchpos.h"
-#include "scidup/database/common.h"
-#include "scidup/database/game_id.h"
+#include "scid/database/common.h"
+#include "scid/database/game_id.h"
 #include "sortcache.h"
 #include "stored.h"
 #include <algorithm>

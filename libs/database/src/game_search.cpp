@@ -1,5 +1,5 @@
 #include "bytebuf.h"
-#include "scidup/database/common.h"
+#include "scid/database/common.h"
 #include "game_search.h"
 #include "game_storage.h"
 

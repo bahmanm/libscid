@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.23 )
 
 project(
-    libscidup
+    libscid
     LANGUAGES CXX )
 
 if( PROJECT_IS_TOP_LEVEL )

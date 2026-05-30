@@ -1,4 +1,4 @@
-#include "scidup/core/movetext_cursor.h"
+#include "scid/core/movetext_cursor.h"
 
 #include <algorithm>
 #include <utility>

@@ -1,4 +1,4 @@
-#include "scidup/core/attacks.h"
+#include "scid/core/attacks.h"
 
 #include <array>
 #include <gtest/gtest.h>

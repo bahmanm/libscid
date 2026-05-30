@@ -1,4 +1,4 @@
-#include "scidup/core/move.h"
+#include "scid/core/move.h"
 
 namespace scid::core {
 

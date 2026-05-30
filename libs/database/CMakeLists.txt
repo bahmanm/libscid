@@ -1,13 +1,13 @@
 cmake_minimum_required( VERSION 3.23 )
 
 project(
-    libscidup-database
+    libscid-database
     LANGUAGES CXX )
 
 find_package( Threads REQUIRED )
 
 set(
-    SCIDUP_DATABASE_SOURCES
+    SCID_DATABASE_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/codec_scid4.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/eco_code.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/game_info.cpp"
@@ -23,21 +23,21 @@ set(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/stored.cpp" )
 
 set(
-    SCIDUP_DATABASE_PUBLIC_HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/common.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/game_id.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/game_info.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/hfilter.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/index.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/indexentry.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/matsig.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/misc.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/namebase.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/scidbase.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/database/tree.h" )
+    SCID_DATABASE_PUBLIC_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/common.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/game_id.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/game_info.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/hfilter.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/index.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/indexentry.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/matsig.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/misc.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/namebase.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/scidbase.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/tree.h" )
 
 set(
-    SCIDUP_DATABASE_PRIVATE_HEADERS
+    SCID_DATABASE_PRIVATE_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/bytebuf.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/codec.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/codec_memory.h"
@@ -56,30 +56,30 @@ set(
     "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/stored.h" )
 
 add_library(
-    scidup_database
-    ${SCIDUP_DATABASE_SOURCES} )
+    scid_database
+    ${SCID_DATABASE_SOURCES} )
 add_library(
-    ScidUp::Database
-    ALIAS scidup_database )
+    Scid::Database
+    ALIAS scid_database )
 target_sources(
-    scidup_database
+    scid_database
     PUBLIC
         FILE_SET public_headers
         TYPE HEADERS
         BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        FILES ${SCIDUP_DATABASE_PUBLIC_HEADERS}
+        FILES ${SCID_DATABASE_PUBLIC_HEADERS}
     PRIVATE
-        ${SCIDUP_DATABASE_PRIVATE_HEADERS} )
+        ${SCID_DATABASE_PRIVATE_HEADERS} )
 target_compile_features(
-    scidup_database
+    scid_database
     PUBLIC cxx_std_20 )
 target_include_directories(
-    scidup_database
+    scid_database
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
 target_link_libraries(
-    scidup_database
-    PUBLIC ScidUp::Core Threads::Threads )
+    scid_database
+    PUBLIC Scid::Core Threads::Threads )
 
 if( PROJECT_IS_TOP_LEVEL )
     include( CTest )
@@ -101,28 +101,28 @@ if( BUILD_TESTING )
     endif()
 
     file(
-        GLOB SCIDUP_DATABASE_TEST_SOURCES
+        GLOB SCID_DATABASE_TEST_SOURCES
         CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/*.cpp" )
     add_executable(
-        scidup_tests_database_cpp
-        ${SCIDUP_DATABASE_TEST_SOURCES} )
+        scid_tests_database_cpp
+        ${SCID_DATABASE_TEST_SOURCES} )
     target_compile_definitions(
-        scidup_tests_database_cpp
-        PRIVATE SCIDUP_TEST_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/\" )
+        scid_tests_database_cpp
+        PRIVATE SCID_TEST_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/\" )
     target_include_directories(
-        scidup_tests_database_cpp
+        scid_tests_database_cpp
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
     target_link_libraries(
-        scidup_tests_database_cpp
-        PRIVATE ScidUp::Database gtest_main )
+        scid_tests_database_cpp
+        PRIVATE Scid::Database gtest_main )
     add_executable(
-        ScidUp::Tests::Database::Cpp
-        ALIAS scidup_tests_database_cpp )
+        Scid::Tests::Database::Cpp
+        ALIAS scid_tests_database_cpp )
 
     add_test(
         NAME database_cpp_test
-        COMMAND $<TARGET_FILE:ScidUp::Tests::Database::Cpp> )
+        COMMAND $<TARGET_FILE:Scid::Tests::Database::Cpp> )
     set_tests_properties(
         database_cpp_test
         PROPERTIES LABELS "cpp;database" )

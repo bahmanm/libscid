@@ -1,10 +1,10 @@
-#include "scidup/core/position.h"
-#include "scidup/core/attacks.h"
-#include "scidup/core/dstring.h"
-#include "scidup/core/hash.h"
-#include "scidup/core/move_predicates.h"
-#include "scidup/core/square_collections.h"
-#include "scidup/core/square_moves.h"
+#include "scid/core/position.h"
+#include "scid/core/attacks.h"
+#include "scid/core/dstring.h"
+#include "scid/core/hash.h"
+#include "scid/core/move_predicates.h"
+#include "scid/core/square_collections.h"
+#include "scid/core/square_moves.h"
 
 #include <algorithm>
 #include <array>

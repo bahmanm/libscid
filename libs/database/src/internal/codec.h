@@ -26,9 +26,9 @@
 #define CODEC_H
 
 #include "bytebuf.h"
-#include "scidup/database/common.h"
-#include "scidup/database/game_id.h"
-#include "scidup/database/namebase.h"
+#include "scid/database/common.h"
+#include "scid/database/game_id.h"
+#include "scid/database/namebase.h"
 #include <string>
 #include <vector>
 

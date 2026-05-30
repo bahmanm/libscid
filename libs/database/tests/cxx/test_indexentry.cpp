@@ -15,9 +15,9 @@
  */
 
 #include "codec_scid4.h"
-#include "scidup/core/date.h"
-#include "scidup/database/game_info.h"
-#include "scidup/database/indexentry.h"
+#include "scid/core/date.h"
+#include "scid/database/game_info.h"
+#include "scid/database/indexentry.h"
 #include <algorithm>
 #include <gtest/gtest.h>
 #include <random>

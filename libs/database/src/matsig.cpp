@@ -18,7 +18,7 @@
 // that a game with an unusual number of promotions might break.
 // The maximum count for a non-pawn piece is three.
 
-#include "scidup/database/matsig.h"
+#include "scid/database/matsig.h"
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -14,7 +14,7 @@
 * along with Scid. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "scidup/database/scidbase.h"
+#include "scid/database/scidbase.h"
 
 #include <algorithm>
 #include <gtest/gtest.h>

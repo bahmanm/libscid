@@ -1,4 +1,4 @@
-#include "scidup/core/square_moves.h"
+#include "scid/core/square_moves.h"
 
 #include <gtest/gtest.h>
 

@@ -1,6 +1,6 @@
-#include "scidup/eco/book.h"
-#include "scidup/core/move.h"
-#include "scidup/core/position.h"
+#include "scid/eco/book.h"
+#include "scid/core/move.h"
+#include "scid/core/position.h"
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
@@ -51,35 +51,35 @@ C50a "Italian Game" 1.e4 e5 2.Nf3 Nc6 3.Bc4 *
 } // namespace
 
 TEST_F(EcoBookTest, MissingFileReturnsOpenError) {
-	auto [err, book] = scidup::eco::Book::load(path_);
+	auto [err, book] = scid::eco::Book::load(path_);
 
-	EXPECT_EQ(scidup::eco::ERROR_FileOpen, err);
+	EXPECT_EQ(scid::eco::ERROR_FileOpen, err);
 	EXPECT_EQ(0u, book.size());
 }
 
 TEST_F(EcoBookTest, LoadIndexesPositionsAndClassifiesKnownLines) {
 	writeFile(path_, kEcoFile);
 
-	auto [err, book] = scidup::eco::Book::load(path_);
-	ASSERT_EQ(scidup::eco::OK, err);
+	auto [err, book] = scid::eco::Book::load(path_);
+	ASSERT_EQ(scid::eco::OK, err);
 	EXPECT_EQ(3u, book.size());
 
 	scid::core::Position position;
 	position.StdStart();
 	EXPECT_EQ("A00a [Start position]", book.findEcoString(position));
-	EXPECT_EQ(scidup::eco::fromString("A00a"), book.findEco(position));
+	EXPECT_EQ(scid::eco::fromString("A00a"), book.findEco(position));
 
 	play(position, "e4");
 	play(position, "c5");
 	EXPECT_EQ("B20 [Sicilian Defence]", book.findEcoString(position));
-	EXPECT_EQ(scidup::eco::fromString("B20"), book.findEco(position));
+	EXPECT_EQ(scid::eco::fromString("B20"), book.findEco(position));
 }
 
 TEST_F(EcoBookTest, LinesWithPrefixReturnsStructuredRows) {
 	writeFile(path_, kEcoFile);
 
-	auto [err, book] = scidup::eco::Book::load(path_);
-	ASSERT_EQ(scidup::eco::OK, err);
+	auto [err, book] = scid::eco::Book::load(path_);
+	ASSERT_EQ(scid::eco::OK, err);
 
 	auto lines = book.linesWithPrefix("C50");
 	ASSERT_EQ(1u, lines.size());
@@ -91,8 +91,8 @@ TEST_F(EcoBookTest, LinesWithPrefixReturnsStructuredRows) {
 TEST_F(EcoBookTest, CorruptFileReturnsCorruptError) {
 	writeFile(path_, "A00 \"Broken\" 1.NotAMove *\n");
 
-	auto [err, book] = scidup::eco::Book::load(path_);
+	auto [err, book] = scid::eco::Book::load(path_);
 
-	EXPECT_EQ(scidup::eco::ERROR_Corrupt, err);
+	EXPECT_EQ(scid::eco::ERROR_Corrupt, err);
 	EXPECT_EQ(0u, book.size());
 }

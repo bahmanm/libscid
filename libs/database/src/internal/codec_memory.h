@@ -26,9 +26,9 @@
 
 #include "codec.h"
 #include "containers.h"
-#include "scidup/database/game_id.h"
-#include "scidup/database/index.h"
-#include "scidup/database/namebase.h"
+#include "scid/database/game_id.h"
+#include "scid/database/index.h"
+#include "scid/database/namebase.h"
 
 /**
  * Manages memory databases that do not have associated files.

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "bytebuf.h"
-#include "scidup/core/position.h"
-#include "scidup/database/common.h"
-#include "scidup/database/indexentry.h"
-#include "scidup/database/namebase.h"
+#include "scid/core/position.h"
+#include "scid/database/common.h"
+#include "scid/database/indexentry.h"
+#include "scid/database/namebase.h"
 
 #include <cstddef>
 #include <utility>

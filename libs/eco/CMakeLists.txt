@@ -1,41 +1,41 @@
 cmake_minimum_required( VERSION 3.23 )
 
 project(
-    libscidup-eco
+    libscid-eco
     LANGUAGES CXX )
 
 set(
-    SCIDUP_ECO_SOURCES
+    SCID_ECO_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/src/code.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/book.cpp" )
 
 set(
-    SCIDUP_ECO_PUBLIC_HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/eco/code.h"
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scidup/eco/book.h" )
+    SCID_ECO_PUBLIC_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/eco/code.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/eco/book.h" )
 
 add_library(
-    scidup_eco
-    ${SCIDUP_ECO_SOURCES} )
+    scid_eco
+    ${SCID_ECO_SOURCES} )
 add_library(
-    ScidUp::Eco
-    ALIAS scidup_eco )
+    Scid::Eco
+    ALIAS scid_eco )
 target_sources(
-    scidup_eco
+    scid_eco
     PUBLIC
         FILE_SET public_headers
         TYPE HEADERS
         BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
-        FILES ${SCIDUP_ECO_PUBLIC_HEADERS} )
+        FILES ${SCID_ECO_PUBLIC_HEADERS} )
 target_compile_features(
-    scidup_eco
+    scid_eco
     PUBLIC cxx_std_20 )
 target_include_directories(
-    scidup_eco
+    scid_eco
     PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 target_link_libraries(
-    scidup_eco
-    PUBLIC ScidUp::Core )
+    scid_eco
+    PUBLIC Scid::Core )
 
 if( PROJECT_IS_TOP_LEVEL )
     include( CTest )
@@ -57,22 +57,22 @@ if( BUILD_TESTING )
     endif()
 
     file(
-        GLOB SCIDUP_ECO_TEST_SOURCES
+        GLOB SCID_ECO_TEST_SOURCES
         CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/*.cpp" )
     add_executable(
-        scidup_tests_eco_cpp
-        ${SCIDUP_ECO_TEST_SOURCES} )
+        scid_tests_eco_cpp
+        ${SCID_ECO_TEST_SOURCES} )
     target_link_libraries(
-        scidup_tests_eco_cpp
-        PRIVATE ScidUp::Eco gtest_main )
+        scid_tests_eco_cpp
+        PRIVATE Scid::Eco gtest_main )
     add_executable(
-        ScidUp::Tests::Eco::Cpp
-        ALIAS scidup_tests_eco_cpp )
+        Scid::Tests::Eco::Cpp
+        ALIAS scid_tests_eco_cpp )
 
     add_test(
         NAME eco_cpp_test
-        COMMAND $<TARGET_FILE:ScidUp::Tests::Eco::Cpp> )
+        COMMAND $<TARGET_FILE:Scid::Tests::Eco::Cpp> )
     set_tests_properties(
         eco_cpp_test
         PROPERTIES LABELS "cpp;eco" )

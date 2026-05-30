@@ -12,8 +12,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "scidup/database/common.h"
-#include "scidup/database/misc.h"
+#include "scid/database/common.h"
+#include "scid/database/misc.h"
 #include <stdio.h>
 #include <ctype.h>     // For isspace() function.
 

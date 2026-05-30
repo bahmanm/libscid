@@ -14,16 +14,16 @@
  * along with Scid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scidup/core/game.h"
-#include "scidup/core/game_cursor.h"
-#include "scidup/core/movetext_cursor.h"
-#include "scidup/core/nags.h"
-#include "scidup/core/notation.h"
-#include "scidup/core/pgn/encode.h"
-#include "scidup/core/pgn/traversal.h"
-#include "scidup/database/scidbase.h"
+#include "scid/core/game.h"
+#include "scid/core/game_cursor.h"
+#include "scid/core/movetext_cursor.h"
+#include "scid/core/nags.h"
+#include "scid/core/notation.h"
+#include "scid/core/pgn/encode.h"
+#include "scid/core/pgn/traversal.h"
+#include "scid/database/scidbase.h"
 #include "game_storage.h"
-#include "scidup/core/pgn/decode.h"
+#include "scid/core/pgn/decode.h"
 #include <algorithm>
 #include <array>
 #include "bytebuf.h"
@@ -39,9 +39,9 @@
 
 namespace {
 
-const char* gameUTF8 = SCIDUP_TEST_RESOURCES_DIR "res_gameUTF8.pgn";
-const char* gameLatin1 = SCIDUP_TEST_RESOURCES_DIR "res_gameLatin1.pgn";
-const char* gameLatin1Conv = SCIDUP_TEST_RESOURCES_DIR "res_gameLatin1expected.pgn";
+const char* gameUTF8 = SCID_TEST_RESOURCES_DIR "res_gameUTF8.pgn";
+const char* gameLatin1 = SCID_TEST_RESOURCES_DIR "res_gameLatin1.pgn";
+const char* gameLatin1Conv = SCID_TEST_RESOURCES_DIR "res_gameLatin1expected.pgn";
 
 void expectMoveAction(const scid::core::Move* move,
                       scid::core::squareT from,

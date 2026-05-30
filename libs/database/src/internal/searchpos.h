@@ -23,12 +23,12 @@
 #ifndef SEARCHPOS_H
 #define SEARCHPOS_H
 
-#include "scidup/core/fullmove.h"
-#include "scidup/database/common.h"
-#include "scidup/database/game_id.h"
-#include "scidup/database/matsig.h"
-#include "scidup/core/position.h"
-#include "scidup/database/scidbase.h"
+#include "scid/core/fullmove.h"
+#include "scid/database/common.h"
+#include "scid/database/game_id.h"
+#include "scid/database/matsig.h"
+#include "scid/core/position.h"
+#include "scid/database/scidbase.h"
 #include <algorithm>
 #include <memory>
 

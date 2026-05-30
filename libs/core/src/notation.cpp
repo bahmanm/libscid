@@ -1,9 +1,9 @@
-#include "scidup/core/notation.h"
+#include "scid/core/notation.h"
 
-#include "scidup/core/game.h"
-#include "scidup/core/game_cursor.h"
-#include "scidup/core/movetext_location.h"
-#include "scidup/core/position.h"
+#include "scid/core/game.h"
+#include "scid/core/game_cursor.h"
+#include "scid/core/movetext_location.h"
+#include "scid/core/position.h"
 
 #include <cassert>
 #include <optional>

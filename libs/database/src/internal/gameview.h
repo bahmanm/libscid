@@ -19,10 +19,10 @@
 #pragma once
 
 #include "bytebuf.h"
-#include "scidup/core/fullmove.h"
-#include "scidup/core/move_predicates.h"
-#include "scidup/database/common.h"
-#include "scidup/core/position.h"
+#include "scid/core/fullmove.h"
+#include "scid/core/move_predicates.h"
+#include "scid/database/common.h"
+#include "scid/core/position.h"
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>

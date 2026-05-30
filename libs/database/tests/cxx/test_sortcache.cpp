@@ -14,8 +14,8 @@
  * along with Scid. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "scidup/database/game_id.h"
-#include "scidup/database/scidbase.h"
+#include "scid/database/game_id.h"
+#include "scid/database/scidbase.h"
 #include "sortcache.h"
 #include <array>
 #include <gtest/gtest.h>
@@ -28,7 +28,7 @@ class Test_SortCache : public ::testing::Test {};
 TEST_F(Test_SortCache, select_sortedPosition) {
 	// Open the test database
 	scid::database::scidBaseT dbase;
-	static const char* database = SCIDUP_TEST_RESOURCES_DIR "res_database";
+	static const char* database = SCID_TEST_RESOURCES_DIR "res_database";
 	ASSERT_EQ(scid::core::OK, dbase.open("SCID4", scid::database::FMODE_ReadOnly, database));
 	ASSERT_NE(0U, dbase.numGames());
 	const scid::database::NameBase* nb = dbase.getNameBase();

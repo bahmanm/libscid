@@ -18,9 +18,9 @@
  *
  */
 
-#include "scidup/eco/book.h"
-#include "scidup/core/move.h"
-#include "scidup/core/position.h"
+#include "scid/eco/book.h"
+#include "scid/core/move.h"
+#include "scid/core/position.h"
 #include <algorithm>
 #include <cctype>
 #include <cstring>
@@ -65,13 +65,13 @@ char* duplicate_cstring(std::string_view str) {
 //      Parse a sequence of moves separated by whitespace and
 //      move numbers, e.g. "1.e4 e5 2.Nf3" or "e4 e5 Nf3".
 //
-scidup::eco::Error ReadLine(scidup::eco::Position& pos, const char* s) {
+scid::eco::Error ReadLine(scid::eco::Position& pos, const char* s) {
 	while (true) {
 		while (!std::isalpha(static_cast<unsigned char>(*s)) && *s != 0) {
 			s++;
 		}
 		if (*s == '\0')
-			return scidup::eco::OK;
+			return scid::eco::OK;
 
 		const char* begin = s;
 		while (!std::isspace(static_cast<unsigned char>(*s)) && *s != '\0') {
@@ -79,9 +79,9 @@ scidup::eco::Error ReadLine(scidup::eco::Position& pos, const char* s) {
 		}
 
 		scid::core::MoveSpec spec;
-		scidup::eco::Error err =
+		scid::eco::Error err =
 		    pos.parseMoveSpec(spec, {begin, static_cast<std::size_t>(s - begin)});
-		if (err != scidup::eco::OK)
+		if (err != scid::eco::OK)
 			return err;
 
 		if (auto applyErr = pos.applyMove(spec))
@@ -93,7 +93,7 @@ scidup::eco::Error ReadLine(scidup::eco::Position& pos, const char* s) {
 
 } // namespace
 
-namespace scidup::eco {
+namespace scid::eco {
 
 std::string_view Book::findEcoString(const Position& position) const {
 	auto [it, end] = pos_.equal_range(position.HashValue());
@@ -258,7 +258,7 @@ corrupt:
     return std::make_pair(ERROR_Corrupt, Book{});
 }
 
-} // namespace scidup::eco
+} // namespace scid::eco
 
 //////////////////////////////////////////////////////////////////////
 //  EOF: book.cpp
