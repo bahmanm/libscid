@@ -46,7 +46,8 @@ Shane Hudson
 sgh@users.sourceforge.net
 January 2003
 
-Scid is a fork of Scid. Unless stated otherwise, modifications and additions
+libscid is an offsprint of Scidup which is a fork of Scid. 
+Unless stated otherwise, modifications and additions
 in this fork are copyright (C) their respective contributors (see Git history)
 and are distributed under the terms of the GNU General Public License, version 2.
 
