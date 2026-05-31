@@ -26,18 +26,47 @@
 
 namespace scid::database {
 
+/**
+ * Aggregate statistics for one candidate move in a database tree view.
+ *
+ * Tree nodes are produced by @c scidBaseT::getTreeStat() from a filter whose
+ * values encode the ply reached in each game.  Each included game contributes
+ * the move played at that ply, and games with the same move are folded into
+ * one node.  The node therefore represents "from this filtered position, this
+ * move was played N times", plus result, rating, and year summaries for those
+ * games.
+ */
 struct TreeNode {
+	/** Sum of White ratings for games where both players have ratings. */
 	unsigned long long eloWhiteSum = 0;   // Sum of white Elos.
+	/** Sum of Black ratings for games where both players have ratings. */
 	unsigned long long eloBlackSum = 0;   // Sum of bLack Elos.
+	/** Sum of non-zero game years. */
 	unsigned long long yearSum = 0;       // Sum of years.
+	/**
+	 * Result frequencies.
+	 *
+	 * Entry 0 stores the total number of games for this move.  Entries for
+	 * decisive/drawn results use the ordinary Scid result codes.
+	 */
 	gamenumT freq[scid::core::NUM_RESULT_TYPES] = {}; // freq[0] is the total count.
+	/** Number of games that contributed to @c eloWhiteSum and @c eloBlackSum. */
 	gamenumT eloCount = 0;                // Count of games with an Elo.
+	/** Number of games that contributed to @c yearSum. */
 	gamenumT yearCount = 0;               // Count of games with year != 0.
+	/** Move represented by this tree node. */
 	scid::core::FullMove move;
 
 public:
+	/** Creates an empty aggregate for @p m. */
 	explicit TreeNode(scid::core::FullMove m) : move(m) {}
 
+	/**
+	 * Adds one game's outcome metadata to this move aggregate.
+	 *
+	 * Rating sums are updated only when both players have positive ratings.
+	 * Year sums are updated only for non-zero years.
+	 */
 	void add(scid::core::resultT result, int eloW, int eloB, unsigned year) {
 		static_assert(scid::core::RESULT_None == 0);
 		freq[0]++; // total count of games
@@ -55,14 +84,26 @@ public:
 		}
 	}
 
-	/// @return a value in the range [0, 1000] representing the score percentage
-	/// from the white prospective (999 = white won 99.9% of the games).
+	/**
+	 * Returns White's score for this move as tenths of a percent.
+	 *
+	 * The range is 0..1000, where 500 means 50.0%.  Games with no result are
+	 * excluded from the score denominator.  When no decisive/drawn results are
+	 * present, the neutral value 500 is returned.
+	 */
 	int score() const {
 		auto n = freq[scid::core::RESULT_White] + freq[scid::core::RESULT_Draw] + freq[scid::core::RESULT_Black];
 		auto res = 1000ull * freq[scid::core::RESULT_White] + 500ull * freq[scid::core::RESULT_Draw];
 		return n ? static_cast<int>(res / n) : 500;
 	}
 
+	/**
+	 * Returns the move's rating performance from the mover's perspective.
+	 *
+	 * The calculation uses the FIDE fractional-score conversion table and the
+	 * average rating of the opposing side.  It returns zero when no game has
+	 * ratings for both players.
+	 */
 	double eloPerformance() const {
 		if (eloCount == 0)
 			return 0;
@@ -76,6 +117,9 @@ public:
 		return 1.0 * eloOpp / eloCount + FIDE_ratingTable[score];
 	}
 
+	/**
+	 * Returns the average rating of the side that played @c move.
+	 */
 	double avgElo() const {
 		if (eloCount == 0)
 			return 0;
@@ -84,12 +128,15 @@ public:
 		return 1.0 * elo / eloCount;
 	}
 
+	/** Returns the average non-zero game year, or zero when none are known. */
 	double avgYear() const { return yearCount ? 1.0 * yearSum / yearCount : 0; }
 
+	/** Returns the draw percentage among all games represented by this node. */
 	double percDraws() const {
 		return freq[0] ? 100.0 * freq[scid::core::RESULT_Draw] / freq[0] : 0;
 	}
 
+	/** Returns a comparator that orders more frequent moves first. */
 	static auto cmp_ngames_desc() {
 		return
 		    [](auto const& a, auto const& b) { return a.freq[0] > b.freq[0]; };

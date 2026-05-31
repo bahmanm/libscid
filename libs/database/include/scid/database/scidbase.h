@@ -49,50 +49,97 @@ class GameView;
 class Progress;
 class SortCache;
 
-// Pattern filter for material searches.
-// It can specify, for example, a white pawn on the f-file, or a black bishop
-// on f2 and white king on e1.
+/**
+ * Piece-placement predicate used by material searches.
+ *
+ * A pattern can describe a piece constrained by rank, file, or exact square,
+ * depending on how the search parser fills the fields.  A zero @c flag means
+ * the pattern is negative: the described piece placement must not occur.
+ */
 struct patternT {
+	/** Piece that must match, including colour. */
 	scid::core::pieceT pieceMatch;
+	/** Required rank, or the parser's wildcard value. */
 	scid::core::rankT rankMatch;
+	/** Required file, or the parser's wildcard value. */
 	scid::core::fyleT fyleMatch;
+	/** Match polarity and parser flags; zero means the pattern must not occur. */
 	scid::core::byte flag; // 0 means this pattern must not occur.
 };
 
+/**
+ * Strictness level for board-position matching.
+ */
 enum gameExactMatchT : int {
+	/** Match the exact board. */
 	GAME_EXACT_MATCH_Exact = 0,
+	/** Match pawn structure. */
 	GAME_EXACT_MATCH_Pawns,
+	/** Match piece files. */
 	GAME_EXACT_MATCH_Fyles,
+	/** Match material only. */
 	GAME_EXACT_MATCH_Material
 };
 
 struct scidBaseT {
+	/** Summary of a player-rating update operation. */
 	struct RatingUpdateStats {
+		/** Number of individual rating fields changed. */
 		scid::core::uint changedRatings = 0;
+		/** Number of games that had at least one rating changed. */
 		scid::core::uint changedGames = 0;
 	};
 
+	/**
+	 * Whole-database statistics derived from the index.
+	 *
+	 * These values are not filter-scoped.  They are built lazily by
+	 * @ref getStats() and cached until the database cache-invalidation token is
+	 * advanced by a modifying operation.
+	 */
 	struct Stats {
-		scid::core::uint flagCount[IndexEntry::IDX_NUM_FLAGS]; // Num of games with each
-		                                           // flag set.
+		/** Number of games with each index flag set. */
+		scid::core::uint flagCount[IndexEntry::IDX_NUM_FLAGS];
+		/** Earliest known game date, or zero when the database is empty. */
 		scid::core::dateT minDate;
+		/** Latest known game date, or zero when the database is empty. */
 		scid::core::dateT maxDate;
+		/** Number of games with a non-zero year. */
 		uint64_t nYears;
+		/** Sum of non-zero game years, for average-year calculations. */
 		uint64_t sumYears;
+		/** Number of games by result code. */
 		scid::core::uint nResults[scid::core::NUM_RESULT_TYPES];
+		/** Number of non-zero individual player ratings. */
 		scid::core::uint nRatings;
+		/** Sum of non-zero individual player ratings. */
 		uint64_t sumRatings;
+		/** Lowest non-zero player rating, or zero when none are known. */
 		scid::core::uint minRating;
+		/** Highest non-zero player rating, or zero when none are known. */
 		scid::core::uint maxRating;
 
+		/** Builds statistics by scanning the database index. */
 		Stats(const scidBaseT* dbase);
 
+		/** ECO frequency and result summary. */
 		struct Eco {
+			/** Number of games in this ECO bucket. */
 			scid::core::uint count;
+			/** Number of games in this ECO bucket by result code. */
 			scid::core::uint results[scid::core::NUM_RESULT_TYPES];
 
+			/** Creates an empty ECO summary. */
 			Eco();
 		};
+		/**
+		 * Returns statistics for an ECO prefix.
+		 *
+		 * An empty string returns all games with a valid ECO code.  One-, two-,
+		 * and three-character strings return progressively narrower ECO
+		 * groups; four- and five-character strings return the exact reduced
+		 * ECO bucket.  Unknown or invalid ECO strings return null.
+		 */
 		const Eco* getEcoStats(const char* ecoStr) const;
 
 	private:
@@ -348,7 +395,19 @@ struct scidBaseT {
 	std::pair<std::string, std::string>
 	getFilterComponents(std::string_view filterId) const;
 
+	/**
+	 * Returns cached whole-database statistics.
+	 *
+	 * The result is built from index metadata and is not affected by filters.
+	 */
 	const Stats& getStats() const;
+	/**
+	 * Returns move-tree statistics for the games visible in @p filter.
+	 *
+	 * For each included game, the filter value is interpreted as @c ply + 1.
+	 * The move played at that ply is grouped into a @ref TreeNode, and the
+	 * returned nodes are sorted by descending game count.
+	 */
 	std::vector<TreeNode> getTreeStat(const HFilter& filter) const;
 	scid::core::uint getNameFreq(nameT nt, idNumberT id) {
 		if (nameFreq_[nt].size() == 0)
