@@ -18,10 +18,15 @@ inline constexpr std::uint32_t GAME_FLAG_MASK_ALL = 0xffffffff;
 /**
  * Flag positions used by database metadata.
  *
- * These flags are stored compactly in @ref IndexEntry and exposed as a raw
- * mask in @ref GameInfo.  Some flags are maintained by the storage layer
- * (for example start position and promotions), while the opening, theme, and
- * custom flags are user-visible classification marks.
+ * This enum is the public description of the Scid flag vocabulary.  The same
+ * positions are stored compactly in @ref IndexEntry and exposed as a raw mask
+ * in @ref GameInfo.  Some flags are maintained by the storage layer, such as
+ * start-position and promotion flags.  The opening, theme, and custom flags
+ * are user-visible classification marks that callers may set directly.
+ *
+ * Use @c gameFlagMaskFromChar() when crossing the traditional Scid flag
+ * string boundary; use the enum values when the code already works in typed
+ * flag positions.
  */
 enum gameFlagT : std::uint32_t {
 	/** Game has a non-standard start position. */

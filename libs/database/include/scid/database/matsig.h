@@ -24,6 +24,18 @@
 #include <string>
 #include <utility>
 
+/**
+ * @file
+ * Material and home-pawn signatures used by database search prefilters.
+ *
+ * These signatures are deliberately lossy.  They let the database reject
+ * impossible candidate games before decoding movetext, but they do not prove
+ * that a game contains a searched position.  Material signatures answer
+ * "could these piece counts still be present?", while home-pawn signatures
+ * answer "could these original pawns have moved?".  The exact board search
+ * still has to decode candidate games that pass these cheap tests.
+ */
+
 namespace scid::database {
 
 /**
@@ -32,7 +44,8 @@ namespace scid::database {
  * A material signature stores only piece counts, not squares.  It uses the
  * lower 24 bits of a 32-bit integer: pawns receive four bits per side, while
  * each non-pawn piece type receives two bits per side and is therefore capped
- * at three.  Kings are not represented.
+ * at three.  Kings are not represented, and promoted pieces beyond the cap are
+ * intentionally collapsed into the same signature.
  */
 typedef std::uint32_t matSigT;
 
@@ -290,6 +303,10 @@ inline matSigT matsig_Make(const scid::core::byte* materialCounts) {
 
 /**
  * Home-pawn signature with no pawns still on their original home squares.
+ *
+ * This is the final state of a game in which every original pawn has left its
+ * home square.  It says nothing about where those pawns are now, or whether
+ * they were captured after moving.
  */
 const scid::core::uint
 HPSIG_Empty = 0x0;
@@ -309,7 +326,8 @@ HPSIG_StdStart = 0xFFFF;
  * @p changeList is the packed home-pawn data stored in @c IndexEntry; byte
  * zero is the number of half-byte entries, and subsequent half-bytes identify
  * pawns that left their home squares.  The function is used as a cheap exact
- * position-search prefilter.
+ * position-search prefilter.  A true result means "worth decoding", not
+ * "definitely matches".
  */
 bool
 hpSig_PossibleMatch (scid::core::uint hpSig, const scid::core::byte * changeList);
@@ -368,7 +386,13 @@ hpSig_ClearPawn (scid::core::uint hpSig, scid::core::colorT color, scid::core::f
 /**
  * Creates a 16-bit bitmap of the pawns missing from their home ranks.
  *
- * Used to speed up the searches of positions with the same pawn structure.
+ * Each set bit means the original pawn for that colour/file is no longer on
+ * its starting square in @p board.  The returned count is the number of set
+ * bits and is used together with the bitmap by @c hpSig_match().
+ *
+ * This is an origin-pawn signature, not a general pawn-structure signature:
+ * doubled pawns, captures, and promotion squares are all outside its model.
+ *
  * @returns a std::pair containing the bitmap and the number of moved pawns.
  */
 inline std::pair<std::uint16_t, std::uint16_t> hpSig_make(const scid::core::pieceT* board) {
@@ -401,6 +425,10 @@ inline std::pair<std::uint16_t, std::uint16_t> hpSig_make(const scid::core::piec
 /**
  * Returns true when @p changeList can explain the requested missing-pawn
  * bitmap and moved-pawn count.
+ *
+ * The change list is the compact form stored in @c IndexEntry.  As with the
+ * other home-pawn helpers, success only means the game remains a possible
+ * candidate for a more expensive position search.
  */
 inline bool hpSig_match(int hpSig, int nMoved, const scid::core::byte* changeList) {
 	// The first scid::core::byte of a changeList is the length (in halfbytes) of the

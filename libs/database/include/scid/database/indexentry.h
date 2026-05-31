@@ -386,7 +386,14 @@ public:
         return memcmp(this, &ie, sizeof(IndexEntry)) == 0;
     }
 
-    /** Flag positions in the packed index-entry flag mask. */
+    /**
+     * Flag positions in the packed index-entry flag mask.
+     *
+     * These values intentionally mirror @c gameFlagT.  They remain here for
+     * legacy code that works directly with @ref IndexEntry's packed storage;
+     * new public-facing code should prefer the flag vocabulary and tolerant
+     * parsing helpers such as @c gameFlagMaskFromChar().
+     */
     enum {
         /** Game has a non-standard start position. */
         IDX_FLAG_START      =  0,

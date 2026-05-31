@@ -69,6 +69,12 @@ struct patternT {
 
 /**
  * Strictness level for board-position matching.
+ *
+ * Exact searches compare complete board occupancy.  The looser modes are used
+ * by database search features that intentionally collapse positions into
+ * broader families: pawn structure, piece files, or material balance.  Use
+ * the narrowest mode that matches the user's question; looser modes can
+ * produce many games that are strategically related but not the same position.
  */
 enum gameExactMatchT : int {
 	/** Match the exact board. */
@@ -81,6 +87,31 @@ enum gameExactMatchT : int {
 	GAME_EXACT_MATCH_Material
 };
 
+/**
+ * Open database session and primary entry point for database operations.
+ *
+ * A @ref scidBaseT object binds together the storage codec, in-memory
+ * @ref Index, @ref NameBase, working filters, sort caches, and derived
+ * statistics for one opened database.  The index is the cheap metadata layer:
+ * it answers list, sort, filter, tree, and many search-prefilter questions
+ * without decoding movetext.  The codec owns the persistent representation and
+ * is used when a caller needs a full @ref scid::core::Game or when a change
+ * must be written back.
+ *
+ * Game numbers are zero-based indexes into the current database index.  They
+ * are convenient handles for the current open session, not durable external
+ * identifiers; callers should refresh them after compaction or after reopening
+ * a database that may have been modified.  Name fields are likewise stored as
+ * @c idNumberT handles into the current database's @ref NameBase; resolve
+ * them with @ref tagRoster() or @ref getNameBase() before presenting them
+ * outside the database layer.
+ *
+ * Modifying operations update the codec, index, filters, caches, and the
+ * cache-invalidation token as needed.  They are not a general transactional
+ * abstraction: when a codec or filesystem failure happens after partial work,
+ * the documented operation-specific error semantics describe what remains
+ * changed.
+ */
 struct scidBaseT {
 	/** Summary of a player-rating update operation. */
 	struct RatingUpdateStats {
@@ -279,7 +310,15 @@ struct scidBaseT {
 	 */
 	const NameBase* getNameBase() const { return nb_; }
 
-	/// Return the highest elo of the player (in the database's games)
+	/**
+	 * Returns the highest known rating for a player in this database.
+	 *
+	 * @p playerID is a player-name identifier from this database's
+	 * @ref NameBase.  The first call scans both White and Black fields across
+	 * the current index and caches the maximum rating for every player ID.
+	 * Unknown ratings contribute zero, and a player with no rated games returns
+	 * zero.
+	 */
 	scid::core::ratingT peakElo(idNumberT playerID) const {
 		if (peakEloCache_.empty()) {
 			for (gamenumT gnum = 0, n = numGames(); gnum < n; gnum++) {
@@ -896,12 +935,34 @@ struct scidBaseT {
 	stripGames(HFilter hfilter, const Progress& progress,
 	           std::vector<std::string_view> const& removeTags);
 
+	/**
+	 * Transfers duplicate-game state out of the database object.
+	 *
+	 * Duplicate data is an optional side table indexed by game number.  Each
+	 * entry stores the duplicate game number plus one, or zero when the game
+	 * has no known duplicate.  Extracting the table clears the database's
+	 * ownership; callers become responsible for keeping it aligned with the
+	 * index they computed it from.
+	 */
 	std::unique_ptr<gamenumT[]> extractDuplicates() {
 		return std::move(duplicates_);
 	}
+	/**
+	 * Installs duplicate-game state owned by the database object.
+	 *
+	 * The array, when non-null, must contain one entry for each current game in
+	 * the index and use the @c duplicate + 1 encoding described by
+	 * @ref extractDuplicates().
+	 */
 	void setDuplicates(std::unique_ptr<gamenumT[]> duplicates) {
 		duplicates_ = std::move(duplicates);
 	}
+	/**
+	 * Returns the raw duplicate marker for @p gNum.
+	 *
+	 * A zero return value means no duplicate is recorded.  Non-zero values are
+	 * one greater than the duplicate game number.
+	 */
 	gamenumT getDuplicates(gamenumT gNum) const {
 		return duplicates_ ? duplicates_[gNum] : 0;
 	}
@@ -937,16 +998,26 @@ private:
 
 	void clear();
 
-	/// This function must be called before modifying the games of the database.
-	/// Currently this function do not guarantees that the database is not
-	/// altered in case of errors.
+	/**
+	 * Starts the storage update protocol used by modifying operations.
+	 *
+	 * This prepares the active codec for changes and rejects writes when the
+	 * database is read-only or was opened with a warning that prevents safe
+	 * modification.  It is an internal guard, not a rollback guarantee; callers
+	 * still rely on each public operation's documented failure behaviour.
+	 */
 	scid::core::errorT beginTransaction();
 
-	/// Update caches and flush the database's files.
-	/// This function must be called after changing one or more games.
-	/// @param gameId: id of the modified game
-	///                INVALID_GAMEID to update all games.
-	/// @returns scid::core::OK if successful or an error code.
+	/**
+	 * Finishes a storage update and refreshes derived database state.
+	 *
+	 * The function flushes the active codec, advances cache invalidation,
+	 * updates filters and sort caches, and clears derived statistics affected
+	 * by the change.  Pass @c INVALID_GAMEID when more than one game may have
+	 * changed or when the affected game is not known precisely.
+	 *
+	 * @returns @ref scid::core::OK, or the first codec/cache update error.
+	 */
 	scid::core::errorT endTransaction(gamenumT gameId = INVALID_GAMEID);
 
 		scid::core::errorT importGameHelper(const scidBaseT* sourceBase, scid::core::uint gNum);
@@ -970,14 +1041,16 @@ private:
 	}
 
 	/**
-	 * Apply a transform operator to games' IndexEntry included in @e hfilter.
-	 * The @p entry_op should accept a IndexEntry& parameter and return true when
-	 * the IndexEntry was modified.
-	 * @param hfilter:  HFilter containing the games to be transformed.
-	 * @param progress: a Progress object used for GUI communications.
-	 * @param entry_op: operator that will be applied to games' IndexEntry.
-	 * @returns a std::pair containing scid::core::OK (or an error code) and the number of
-	 * games modified.
+	 * Applies an index-entry transform to every game included in @p hfilter.
+	 *
+	 * @p entry_op receives a mutable copy of each @ref IndexEntry and returns
+	 * true when that copy should be persisted.  The helper reports progress
+	 * while scanning and stops cooperatively when @p progress requests
+	 * cancellation.  It does not call @c beginTransaction() or
+	 * @c endTransaction(); callers choose whether the scan is a dry run or a
+	 * modifying operation.
+	 *
+	 * @returns an error code plus the number of entries rewritten.
 	 */
 	template <typename TOper>
 	std::pair<scid::core::errorT, size_t>

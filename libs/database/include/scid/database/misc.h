@@ -157,6 +157,17 @@ inline filterOpT strGetFilterOp (const char * str)
 }
 
 /**
+ * Legacy string and parser helpers used by database import, search, and
+ * namebase compatibility code.
+ *
+ * These functions intentionally preserve Scid's older command and namebase
+ * semantics.  Some helpers are permissive parsers for user-entered search
+ * arguments; others implement byte-exact or legacy-compatible comparisons
+ * that should not be replaced with locale-aware string APIs unless the call
+ * site explicitly wants different behaviour.
+ */
+
+/**
  * Returns a case-insensitive hash of the first four characters of @p str.
  *
  * Shorter strings are padded by their terminating NUL byte.  The hash is used
