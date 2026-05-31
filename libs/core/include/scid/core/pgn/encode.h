@@ -23,9 +23,11 @@
 /** @file
  * PGN encoder entry points and formatting helpers.
  *
- * The encoder writes core Game objects as PGN.  Low-level helpers first use
- * NUL bytes as token separators, then break_lines() converts those separators
- * into spaces or newlines for final text output.
+ * The normal entry point is encode(): pass a Game, an appendable destination,
+ * and optional EncodeOptions to receive final PGN text.  The lower-level
+ * helpers are exposed because older callers build tags, movetext, or line
+ * wrapping separately; they use NUL bytes as temporary token separators until
+ * break_lines() turns those separators into spaces or newlines.
  */
 
 #pragma once
@@ -43,7 +45,12 @@
 
 namespace scid::core::pgn {
 
-/** Options controlling which PGN content is emitted. */
+/** Options controlling which PGN content is emitted.
+ *
+ * The defaults produce a complete PGN game with the seven tag roster,
+ * supplemental tags, comments, NAGs, and variations.  Disable individual flags
+ * when exporting a reduced form, such as a mainline-only game list.
+ */
 struct EncodeOptions {
 	/** Emit symbolic NAGs such as @c ! when available instead of numeric @c $1. */
 	bool symbolicNags = false;
@@ -65,6 +72,8 @@ struct EncodeOptions {
  * Existing newlines are preserved, so comments and tag values are not split
  * unless @p hard_len requests a secondary pass that may break on spaces.
  *
+ * Most callers should use encode(), which performs this step automatically.
+ *
  * @returns an iterator to the first character of the final line.
  */
 template <int desired_len = 80, char breakpoint_char = '\0', int hard_len = 0,
@@ -79,8 +88,8 @@ Iter break_lines(Iter begin, Iter end) {
 		});
 
 		// Change the last breakpoint to newline char if the line would exceed
-		// the desired length and there weren't newline chars (for example in
-		// comments) beetween this and the last breakpoint.
+		// the desired length and there were no newline chars (for example in
+		// comments) between this and the last breakpoint.
 		if (std::distance(line_first_char, it) > desired_len &&
 		    last_breakpoint > line_first_char) {
 			*last_breakpoint = '\n';
@@ -88,7 +97,7 @@ Iter break_lines(Iter begin, Iter end) {
 		}
 
 		// If a secondary line length was requested, try to convert spaces to
-		// newline chars (this is not desiderable, but old software may use
+		// newline chars (this is not desirable, but old software may use
 		// limited fixed size buffer when reading PGNs).
 		if (hard_len != 0 && std::distance(line_first_char, it) > hard_len) {
 			line_first_char = break_lines<hard_len, ' '>(line_first_char, it);
@@ -247,6 +256,13 @@ static void encode_comment(std::string_view comment, TCont& dest) {
 	dest.push_back('\0');
 }
 
+/** @namespace scid::core::pgn::detail
+ * @internal
+ * Implementation details used by encode_core_line().
+ *
+ * These names are documented only so generated API reference pages remain
+ * complete.  They are not the recommended extension point for PGN export.
+ */
 namespace detail {
 
 /** Internal entry kinds used while linearising movetext. */
@@ -333,7 +349,13 @@ void encode_movetext_entry(MovetextEntry const& entry,
 
 } // namespace detail
 
-/** Encodes one move sequence and its child variations. */
+/** Encodes one move sequence and its child variations.
+ *
+ * This is a low-level building block for custom exporters.  It expects callers
+ * to provide the current position and ply stack that correspond to @p line.
+ * Use encode_movetext() or encode() unless those details are already part of
+ * your export pipeline.
+ */
 template <int hard_len = 0, typename TCont>
 void encode_core_line(MoveSequence const& line,
                       scid::core::Position position,
@@ -378,7 +400,8 @@ void encode_core_line(MoveSequence const& line,
 /** Encodes only a game's movetext section.
  *
  * The destination receives a leading blank line before movetext, matching the
- * separation between PGN tag pairs and movetext in a complete game.
+ * separation between PGN tag pairs and movetext in a complete game.  Token
+ * separators remain as NUL bytes until break_lines() or encode() is called.
  */
 template <int hard_len = 0, typename TCont>
 void encode_movetext(Game const& game, TCont& dest,
@@ -405,7 +428,11 @@ void encode_movetext(Game const& game, TCont& dest,
 		dest.back() = '\n';
 }
 
-/** Encodes the seven tag roster plus selected supplemental tags. */
+/** Encodes the seven tag roster plus selected supplemental tags.
+ *
+ * This writes tag-pair lines only.  Use encode_game() when the movetext and
+ * result marker should be emitted as well.
+ */
 template <typename TCont>
 void encode_core_tag_pairs(Game const& game, TCont& dest,
                            EncodeOptions options = {}) {
@@ -445,7 +472,8 @@ void encode_core_tag_pairs(Game const& game, TCont& dest,
 
 /** Encodes a complete game without final line wrapping.
  *
- * Token separators remain as NUL bytes.  Use encode() for normal PGN text.
+ * Token separators remain as NUL bytes.  This is useful for callers that want
+ * to choose their own wrapping policy; use encode() for normal PGN text.
  */
 template <int hard_len = 0, typename TCont>
 void encode_game(Game const& game, TCont& dest, EncodeOptions options = {}) {
@@ -461,6 +489,11 @@ void encode_game(Game const& game, TCont& dest, EncodeOptions options = {}) {
  *
  * The generated game is appended to @p dest.  Internal NUL token separators are
  * converted to spaces or line breaks before the function returns.
+ *
+ * @code
+ * std::string pgn;
+ * scid::core::pgn::encode(game, pgn);
+ * @endcode
  */
 template <int desired_len = 80, typename TGame, typename TCont>
 void encode(TGame const& game, TCont& dest, EncodeOptions options = {}) {

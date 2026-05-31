@@ -57,50 +57,45 @@ public:
 	/** Append a null-terminated string. */
 	void Append(const char* str) { s_.append(str); }
 
-	// To allow convenient appending of multiple strings without resorting
-	// to messy variable-length argument lists, we define DString::Append()
-	// for up to five string arguments, and for up to four arguments where
-	// one is an unsigned integer and the rest are strings.
-	/** Append two null-terminated strings. */
+	/** @name Convenience append overloads
+	 *
+	 * These overloads preserve the older Scid calling style where small text
+	 * fragments and unsigned integers are appended in one call.  Each overload
+	 * appends its arguments from left to right.
+	 * @{
+	 */
 	void Append(const char* s1, const char* s2) {
 		Append(s1);
 		Append(s2);
 	}
-	/** Append a string followed by an unsigned integer. */
 	void Append(const char* s1, uint i2) {
 		Append(s1);
 		Append(i2);
 	}
-	/** Append an unsigned integer followed by a string. */
 	void Append(uint i1, const char* s2) {
 		Append(i1);
 		Append(s2);
 	}
-	/** Append three fragments. */
 	void Append(const char* s1, const char* s2, const char* s3) {
 		Append(s1);
 		Append(s2);
 		Append(s3);
 	}
-	/** Append three fragments, with the final fragment formatted as an unsigned integer. */
 	void Append(const char* s1, const char* s2, uint i3) {
 		Append(s1);
 		Append(s2);
 		Append(i3);
 	}
-	/** Append three fragments, with the middle fragment formatted as an unsigned integer. */
 	void Append(const char* s1, uint i2, const char* s3) {
 		Append(s1);
 		Append(i2);
 		Append(s3);
 	}
-	/** Append three fragments, with the first fragment formatted as an unsigned integer. */
 	void Append(uint i1, const char* s2, const char* s3) {
 		Append(i1);
 		Append(s2);
 		Append(s3);
 	}
-	/** Append four null-terminated strings. */
 	void Append(const char* s1, const char* s2, const char* s3,
 	            const char* s4) {
 		Append(s1);
@@ -108,35 +103,30 @@ public:
 		Append(s3);
 		Append(s4);
 	}
-	/** Append four fragments, with the final fragment formatted as an unsigned integer. */
 	void Append(const char* s1, const char* s2, const char* s3, uint i4) {
 		Append(s1);
 		Append(s2);
 		Append(s3);
 		Append(i4);
 	}
-	/** Append four fragments, with the third fragment formatted as an unsigned integer. */
 	void Append(const char* s1, const char* s2, uint i3, const char* s4) {
 		Append(s1);
 		Append(s2);
 		Append(i3);
 		Append(s4);
 	}
-	/** Append four fragments, with the second fragment formatted as an unsigned integer. */
 	void Append(const char* s1, uint i2, const char* s3, const char* s4) {
 		Append(s1);
 		Append(i2);
 		Append(s3);
 		Append(s4);
 	}
-	/** Append four fragments, with the first fragment formatted as an unsigned integer. */
 	void Append(uint i1, const char* s2, const char* s3, const char* s4) {
 		Append(i1);
 		Append(s2);
 		Append(s3);
 		Append(s4);
 	}
-	/** Append five null-terminated strings. */
 	void Append(const char* s1, const char* s2, const char* s3, const char* s4,
 	            const char* s5) {
 		Append(s1);
@@ -145,6 +135,7 @@ public:
 		Append(s4);
 		Append(s5);
 	}
+	/** @} */
 };
 
 

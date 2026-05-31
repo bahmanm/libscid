@@ -57,6 +57,10 @@ const genMovesT GEN_ALL_MOVES = (GEN_CAPTURES | GEN_NON_CAPS);
  * The default constructor prepares internal sentinels but does not set a legal
  * chess position.  Call StdStart(), Clear(), ReadFromFEN(), or AddPiece() setup
  * routines before using move generation or legality checks.
+ *
+ * Parsing and bulk-application methods mutate this object as they work.  When
+ * callers need all-or-nothing replacement semantics, parse into a temporary
+ * Position first and assign it only after the operation returns OK.
  */
 class Position
 {
@@ -278,6 +282,10 @@ public:
 
     /** Generates legal moves for the current side.
      *
+     * The destination list is cleared first.  Generated moves are fully
+     * position-resolved MoveAction records, so callers can pass them directly to
+     * apply(), writeSan(), or ordering code.
+     *
      * @param mlist destination list, cleared before moves are appended.
      * @param mask piece type to generate, or EMPTY for every piece type.
      * @param genType capture/non-capture filter.
@@ -285,11 +293,11 @@ public:
      * side to move is not in check.
      */
     void  GenerateMoves (MoveList* mlist, pieceT mask, genMovesT genType, bool maybeInCheck);
-    /** Generates every legal move for the current side. */
+    /** Generates every legal move for the current side, replacing @p mlist contents. */
     void  GenerateMoves (MoveList * mlist) { GenerateMoves (mlist, EMPTY, GEN_ALL_MOVES, true); }
-    /** Generates legal moves matching @p genType for the current side. */
+    /** Generates legal moves matching @p genType for the current side, replacing @p mlist contents. */
     void  GenerateMoves (MoveList * mlist, genMovesT genType) { GenerateMoves (mlist, EMPTY, genType, true); }
-    /** Generates legal captures for the current side. */
+    /** Generates legal captures for the current side, replacing @p mlist contents. */
     void  GenerateCaptures (MoveList * mlist) { GenerateMoves (mlist, EMPTY, GEN_CAPTURES, true); }
     /** Tests a move in the current position.
      *
@@ -337,9 +345,16 @@ public:
     /** Returns true when the two squares could form a promotion move in either order. */
     bool        IsPromoMove (squareT from, squareT to);
 
-    /** Parses SAN-like or coordinate notation into a MoveSpec for this position. */
+    /** Parses SAN-like or coordinate notation into a MoveSpec for this position.
+     *
+     * The notation is resolved against the current board state.  On failure,
+     * @p spec is left unchanged.
+     */
     errorT      parseMoveSpec(MoveSpec& spec, std::string_view notation);
     /** Parses coordinate notation into a MoveSpec.
+     *
+     * This accepts UCI-style coordinate moves such as @c e2e4 and @c e7e8q.
+     * On failure, @p spec is left unchanged.
      *
      * @param spec destination for the parsed move request.
      * @param notation coordinate notation such as @c e2e4 or @c e7e8q.
@@ -349,41 +364,88 @@ public:
     errorT      readCoordinateMoveSpec(MoveSpec& spec,
                                          std::string_view notation,
                                          bool reverse);
-    /** Formats @p spec as SAN in this position, or returns an empty string if invalid. */
+    /** Formats @p spec as SAN in this position.
+     *
+     * The position is not changed.  Stored legality and ambiguity are derived
+     * from the current board state, and an invalid spec returns an empty string.
+     */
     std::string makeSan(MoveSpec const& spec, sanFlagT flag);
-    /** Resolves and applies @p spec to this position. */
+    /** Resolves and applies @p spec to this position.
+     *
+     * The position is changed only when the move resolves successfully.
+     */
     errorT      applyMove(MoveSpec const& spec);
 
-    /** Resolves a portable MoveSpec into a reversible MoveAction. */
+    /** Resolves a portable MoveSpec into a reversible MoveAction.
+     *
+     * Normal moves are checked for legality.  Null moves and castling specs are
+     * trusted as explicit requests; use parseMoveSpec() or
+     * readCoordinateMoveSpec() when input must first be validated from text.
+     */
     errorT      resolveMove(MoveSpec const& spec, MoveAction& action) const;
     /** Applies a previously resolved action. */
     void        apply(MoveAction const& action);
     /** Undoes a previously applied action. */
     void        undo(MoveAction const& action);
 
-    /** Writes SAN for a resolved action into @p s. */
+    /** Writes SAN for a resolved action into @p s.
+     *
+     * The destination must have room for at least SAN_STRING_SIZE bytes.  The
+     * position is temporarily advanced and then restored before the function
+     * returns.
+     */
     void        writeSan(MoveAction const& action, char* s, sanFlagT flag);
 
     /** Applies a whitespace-separated sequence of coordinate moves.
      *
      * When @p toSAN is provided, SAN for each applied move is appended with move
-     * numbers suitable for UI display.
+     * numbers suitable for UI display.  Moves are applied incrementally; if one
+     * move is invalid, earlier moves remain applied and @p toSAN may already
+     * contain their SAN text.
      */
     errorT      applyCoordinateMoves(const char* moves, size_t movesLen,
                                      std::string* toSAN = nullptr);
 
     // Board I/O
-    /** Writes the legacy 66-character board string representation. */
+    /** Writes the legacy long board string representation.
+     *
+     * The destination must have room for 67 bytes: 64 board characters, a
+     * space, side-to-move marker, and terminator.
+     */
     void        MakeLongStr (char* str) const;
-    /** Reads the legacy long board string representation. */
+    /** Reads the legacy long board string representation.
+     *
+     * The position is cleared before parsing.  On failure, this object may
+     * contain a partially read board.
+     */
     errorT      ReadFromLongStr (const char * str);
-    /** Reads FEN or EPD first-four-fields position text. */
+    /** Reads FEN or EPD first-four-fields position text.
+     *
+     * The parser accepts ordinary FEN, Chess960 castling-file letters, and EPD
+     * text that supplies only the first four FEN fields.  The position is
+     * cleared before parsing; on failure, this object may contain a partially
+     * read position.
+     */
     errorT      ReadFromFEN (const char * s);
-    /** Reads @c startpos or a FEN/UCI-position style string. */
+    /** Reads @c startpos or a FEN/UCI-position style string.
+     *
+     * Accepted forms include @c "position startpos",
+     * @c "position startpos moves e2e4", a raw FEN, a raw FEN followed by
+     * @c "moves ...", and @c "position fen ... moves ...".  Move suffixes are
+     * applied incrementally, so earlier moves remain applied if a later move is
+     * invalid.
+     */
     errorT      ReadFromFENorUCI (std::string_view str);
-    /** Writes the compact 35-byte board representation used by UI caches. */
+    /** Writes the compact board representation used by UI caches.
+     *
+     * The destination must have room for 36 bytes including the terminator.
+     */
     void        PrintCompactStr (char * cboard) const;
-    /** Writes a FEN string into @p str, bounded by @p len. */
+    /** Writes a FEN string into @p str, bounded by @p len.
+     *
+     * Output is always null-terminated when @p len is non-zero.  If the buffer
+     * is too small, the FEN is truncated.
+     */
     void        PrintFEN(char* str, size_t len) const;
     /** Appends a LaTeX board diagram. */
     void        DumpLatexBoard (DString * dstr, bool flip);

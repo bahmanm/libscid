@@ -38,7 +38,7 @@ using TagPair = std::pair<std::string, std::string>;
 struct Rating {
 	/** The numeric rating value. */
 	scid::core::ratingT value = 0;
-	/** The rating system used to interpret @ref value. */
+	/** The rating system used to interpret @c value. */
 	scid::core::ratingTypeT type = scid::core::RATING_Elo;
 };
 
@@ -56,7 +56,7 @@ struct Player {
  * Event-level metadata for a game.
  *
  * The game date and event date are separate because tournaments commonly span
- * multiple days: @ref date is the date of this game, while @ref eventDate is
+ * multiple days: @c date is the date of this game, while @c eventDate is
  * the start date or identifying date of the event.
  */
 struct EventInfo {
@@ -76,7 +76,7 @@ struct EventInfo {
  * The structured header of a chess game.
  *
  * Standard game attributes are stored as typed fields. Supplemental PGN tags
- * that do not have a typed representation are kept in @ref tags.
+ * that do not have a typed representation are kept in @c tags.
  */
 struct GameHeader {
 	/** Event, site, round, and date metadata. */
@@ -108,7 +108,7 @@ struct Variation;
 /**
  * A played move in a mainline or variation.
  *
- * The move stores the portable move intent in @ref spec. @ref san may cache
+ * The move stores the portable move intent in @c spec. @c san may cache
  * the SAN text from imported PGN; when it is empty, notation can be generated
  * from the move and the preceding position.
  */

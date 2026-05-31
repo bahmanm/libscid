@@ -56,7 +56,7 @@ public:
 	 * so that Chess960 castling can be undone without losing the rook identity.
 	 */
 	FullMove(colorT c, squareT kingSq, squareT rookSq)
-	    // Castle: encoding as king to rook allows the undoing of chess360 moves
+	    // Castle: encoding as king to rook allows the undoing of Chess960 moves
 	    : FullMove(c, kingSq, rookSq, KING) {
 		m_ |= (3 << 14);
 	}

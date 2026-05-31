@@ -21,6 +21,10 @@ namespace scid::core::gamepos {
  * interleaved with recursive annotation variations (RAVs), and the pair
  * @c RAVdepth / @c RAVnum identifies when the stream enters, leaves, or
  * switches between sibling variations.
+ *
+ * The field names mirror the legacy ScidUp representation.  Treat them as a
+ * transport shape: the FEN and SAN fields describe the board reached at this
+ * point, while the RAV fields describe where that point sits in the game tree.
  */
 struct GamePos {
   /** Variation nesting depth of this position.
@@ -38,16 +42,16 @@ struct GamePos {
   uint32_t RAVnum;
 
   /** Forsyth-Edwards Notation for the position after @c lastMoveSAN. */
-  std::string FEN;       // "Forsyth-Edwards Notation" describing the position.
+  std::string FEN;
 
   /** Numeric Annotation Glyph codes attached to the move that reached this position. */
-  std::vector<int> NAGs; // "Numeric Annotation Glyph"
+  std::vector<int> NAGs;
 
   /** Text annotation attached to this position or to the surrounding variation. */
-  std::string comment;   // text annotation of the position.
+  std::string comment;
 
   /** SAN of the move that reached this position, or empty for the game start. */
-  std::string lastMoveSAN; // move that was played to reach the position.
+  std::string lastMoveSAN;
 };
 
 /** Append all position snapshots of a game to a caller-supplied container.
@@ -62,6 +66,15 @@ struct GamePos {
  * snapshots have a greater @c GamePos::RAVdepth. The variation ends at the
  * first snapshot with a lower depth, an equal depth with a different
  * @c GamePos::RAVnum, or the end of @p dest.
+ *
+ * @code
+ * auto positions = scid::core::gamepos::collectPositions(game);
+ * for (const auto& pos : positions) {
+ *     if (pos.RAVdepth == 0) {
+ *         showMainlinePosition(pos.FEN, pos.lastMoveSAN);
+ *     }
+ * }
+ * @endcode
  *
  * @tparam TCont Container type supporting @c emplace_back() and @c back().
  * @param game Game whose main line and variations are traversed.
