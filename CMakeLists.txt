@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.23 )
 
-set( LIBSCID_VERSION "0.0.0" CACHE STRING "libscid package version." )
+set( LIBSCID_VERSION "0.1.0" CACHE STRING "libscid package version." )
 
 project(
     libscid
@@ -10,6 +10,7 @@ project(
 include( GNUInstallDirs )
 
 option( LIBSCID_INSTALL "Install libscid targets and CMake package files." "${PROJECT_IS_TOP_LEVEL}" )
+option( LIBSCID_BUILD_DOCS "Build libscid API documentation." OFF )
 
 if( PROJECT_IS_TOP_LEVEL )
     if( NOT DEFINED BUILD_TESTING )
@@ -26,4 +27,8 @@ add_subdirectory( libs/spelling )
 if( LIBSCID_INSTALL )
     include( cmake/install/main.cmake )
     include( cmake/packaging.cmake )
+endif()
+
+if( LIBSCID_BUILD_DOCS )
+    include( cmake/docs.cmake )
 endif()

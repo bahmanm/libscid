@@ -1,0 +1,330 @@
+/*
+ * libscid API reference customisations.
+ *
+ * Doxygen copies this file into the generated HTML output and loads it after
+ * its built-in stylesheets. Keep generated files out of version control; edit
+ * this source stylesheet instead.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Cantarell:wght@400;700&family=Exo+2:wght@700&family=Source+Code+Pro:wght@400;600&display=swap");
+
+:root {
+    --primary-color: #745fb5;
+    --primary-dark-color: #54408d;
+    --primary-light-color: #f9f7fe;
+    --page-background-color: #fff;
+    --page-foreground-color: #25222d;
+    --separator-color: #e4deef;
+    --fragment-background: #fffaf0;
+    --fragment-foreground: #25222d;
+    --code-background: #f9f7fe;
+    --side-nav-background: #ffffff;
+    --side-nav-foreground: #3d374d;
+    --content-max-width: 1180px;
+    --font-family-normal: "Cantarell", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-family-title: "Exo 2", "Cantarell", sans-serif;
+    --font-family-nav: "Cantarell", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-family-monospace: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+body {
+    background: var(--page-background-color);
+    color: var(--page-foreground-color);
+}
+
+a,
+a.el,
+a.elRef,
+.contents a:visited {
+    color: var(--primary-dark-color);
+}
+
+a:hover,
+a.el:hover,
+a.elRef:hover {
+    color: var(--primary-color);
+    text-decoration-color: var(--primary-color);
+}
+
+#titlearea {
+    background: #ffffff;
+    border-bottom: 1px solid var(--separator-color);
+}
+
+#projectalign {
+    padding: 1rem 1.4rem;
+}
+
+#projectname {
+    color: var(--primary-color);
+    font-family: var(--font-family-title);
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+#projectnumber {
+    color: #7a7288;
+    font-family: var(--font-family-normal);
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+#projectbrief {
+    color: #625b70;
+    font-family: var(--font-family-normal);
+    font-size: 0.95rem;
+    margin-top: 0.25rem;
+}
+
+#main-nav,
+#main-nav-mobile {
+    background: #ffffff;
+    border-bottom: 1px solid var(--separator-color);
+}
+
+.sm-dox,
+.sm-dox ul {
+    background-image: none;
+    background-color: #ffffff;
+}
+
+.sm-dox a,
+.sm-dox a:focus,
+.sm-dox a:hover,
+.sm-dox a:active {
+    color: #3d374d;
+    font-family: var(--font-family-normal);
+    text-shadow: none;
+}
+
+.sm-dox a:hover,
+.sm-dox a.highlighted {
+    background-image: none;
+    background-color: var(--primary-light-color);
+    color: var(--primary-dark-color);
+}
+
+#MSearchBox {
+    border-color: var(--separator-color);
+    border-radius: 5px;
+    box-shadow: none;
+}
+
+#MSearchField {
+    font-family: var(--font-family-normal);
+}
+
+#side-nav,
+#nav-tree {
+    background: var(--side-nav-background);
+}
+
+#nav-tree {
+    border-right: 1px solid var(--separator-color);
+}
+
+#nav-tree .item,
+#nav-tree a {
+    color: var(--side-nav-foreground);
+    font-family: var(--font-family-normal);
+}
+
+#nav-tree .selected {
+    background-image: none;
+    background-color: var(--primary-light-color);
+    color: var(--primary-dark-color);
+    text-shadow: none;
+}
+
+#nav-tree .selected a {
+    color: var(--primary-dark-color);
+}
+
+#doc-content {
+    background: var(--page-background-color);
+}
+
+.contents,
+.header {
+    max-width: var(--content-max-width);
+}
+
+.contents {
+    padding: 1.25rem 2rem 2.75rem;
+}
+
+.header {
+    padding: 1.4rem 2rem 0;
+}
+
+div.header {
+    background-image: none;
+    background-color: transparent;
+    border-bottom: 0;
+}
+
+.headertitle .title {
+    color: var(--primary-color);
+    font-family: var(--font-family-title);
+    font-size: 2.05rem;
+    line-height: 1.2;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+h1.doxsection,
+h2.groupheader,
+.groupheader {
+    color: var(--primary-color);
+    font-family: var(--font-family-title);
+    letter-spacing: 0;
+}
+
+h1.doxsection {
+    font-size: 2rem;
+    margin-top: 2.25rem;
+}
+
+h2.groupheader {
+    border-bottom: 1px solid var(--separator-color);
+    font-size: 1.35rem;
+    margin-top: 1.8rem;
+    padding-bottom: 0.35rem;
+}
+
+.textblock p,
+.textblock li,
+.contents p,
+.contents li,
+.contents td {
+    line-height: 1.6;
+}
+
+code,
+pre,
+.fragment,
+.line,
+span.tt,
+a.el,
+dl.el,
+.classindex,
+.classindex a,
+.classindex span,
+.directory td.entry,
+.directory td.entry a,
+.memname,
+.memItemLeft,
+.memItemRight {
+    font-family: var(--font-family-monospace);
+}
+
+span.tt,
+code {
+    background: var(--code-background);
+    border-radius: 3px;
+    color: #322a40;
+    padding: 0.15em 0.35em;
+}
+
+pre.fragment,
+div.fragment {
+    background: var(--fragment-background);
+    border: 1px solid var(--separator-color);
+    border-radius: 5px;
+    color: var(--fragment-foreground);
+    line-height: 1.45;
+    padding: 1rem;
+}
+
+table.memberdecls {
+    background: #ffffff;
+    border: 1px solid var(--separator-color);
+    border-collapse: separate;
+    border-radius: 5px;
+    border-spacing: 0;
+    overflow: hidden;
+}
+
+.memItemLeft,
+.memItemRight,
+.memTemplItemLeft,
+.memTemplItemRight,
+.memTemplParams {
+    background-color: #ffffff;
+    border-color: #eee9f5;
+}
+
+.memItemLeft,
+.memTemplItemLeft {
+    color: #5b5368;
+}
+
+.memItemRight,
+.memTemplItemRight {
+    color: #25222d;
+}
+
+.memdoc,
+.memproto {
+    background-image: none;
+    border-color: var(--separator-color);
+    box-shadow: none;
+}
+
+.memproto {
+    background-color: var(--primary-light-color);
+}
+
+.memdoc {
+    background-color: #ffffff;
+}
+
+.directory,
+.directory .levels,
+.directory tr.even,
+.directory tr.odd {
+    background-color: #ffffff;
+}
+
+.navpath ul {
+    background-image: none;
+    background-color: #ffffff;
+    border-top: 1px solid var(--separator-color);
+}
+
+.navpath li {
+    background-image: none;
+    color: #6d647a;
+    text-shadow: none;
+}
+
+.footer {
+    color: #7a7288;
+}
+
+blockquote {
+    border-left: 6px solid var(--separator-color);
+    color: #4d455c;
+    padding-left: 1rem;
+}
+
+@media (max-width: 760px) {
+    #projectname {
+        font-size: 1.55rem;
+    }
+
+    .contents,
+    .header {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .headertitle .title {
+        font-size: 1.6rem;
+    }
+}
