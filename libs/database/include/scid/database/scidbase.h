@@ -154,45 +154,129 @@ struct scidBaseT {
 	scidBaseT();
 	~scidBaseT();
 
-		scid::core::errorT open(std::string_view dbType, fileModeT fMode, const char* filename,
-		            const Progress& progress = {});
+	/**
+	 * Opens a database using the requested codec and file mode.
+	 *
+	 * @p dbType is one of @c "MEMORY", @c "PGN", @c "SCID4", or @c "SCID5".
+	 * On success, the index, namebase, default filter, and codec are ready for
+	 * use.  A return value of @ref scid::core::ERROR_NameDataLoss is a warning:
+	 * the database is open, but some corrupted names were repaired or lost.
+	 * Other errors leave the object closed.
+	 *
+	 * @param dbType codec name.
+	 * @param fMode requested file access mode.
+	 * @param filename database filename or basename understood by the codec.
+	 * @param progress optional progress/cancellation callback.
+	 */
+	scid::core::errorT open(std::string_view dbType, fileModeT fMode,
+	                        const char* filename,
+	                        const Progress& progress = {});
 
+	/**
+	 * Closes the current database and releases codec, index, namebase, filter,
+	 * statistics, and sort-cache state.
+	 */
 	void Close();
 
+	/**
+	 * Returns a display filename for the opened database.
+	 *
+	 * Closed databases return @c "<empty>".  In-memory databases with no
+	 * backing files return @c "<clipbase>".  File-backed codecs return the
+	 * first filename reported by the codec.
+	 */
 	std::string getFileName() const;
+	/** Returns true when a database is currently open. */
 	bool isOpen() const { return inUse; }
+	/** Returns true when the opened database was opened read-only. */
 	bool isReadOnly() const { return fileMode_ == FMODE_ReadOnly; }
+	/** Returns the number of games in the current index. */
 	gamenumT numGames() const { return idx->GetNumGames(); }
 
-	/// Returns a vector of tag pairs containing extra information about the
-	/// database (type, description, autoload, etc..)
-		std::vector<std::pair<const char*, std::string>> getExtraInfo() const;
+	/**
+	 * Returns codec-specific database metadata.
+	 *
+	 * Typical keys include @c "type", @c "description", @c "autoload", and
+	 * custom flag names.  The supported keys and persistence semantics depend
+	 * on the active codec.
+	 */
+	std::vector<std::pair<const char*, std::string>> getExtraInfo() const;
 
-	/// Store an extra information about the database (type, description, etc..)
-		scid::core::errorT setExtraInfo(const char* tagname, const char* new_value);
+	/**
+	 * Stores codec-specific database metadata and flushes it to storage.
+	 *
+	 * Read-only databases return @ref scid::core::ERROR_FileReadOnly.
+	 * Unsupported keys return the codec's error code.
+	 */
+	scid::core::errorT setExtraInfo(const char* tagname,
+	                                const char* new_value);
 
+	/**
+	 * Returns the index entry for game @p g.
+	 *
+	 * @p g must be less than @ref numGames().  The returned pointer is owned by
+	 * the database and remains valid until the index entry is replaced or the
+	 * database is closed.
+	 */
 	const IndexEntry* getIndexEntry(gamenumT g) const {
 		assert(g < numGames());
 		return idx->GetEntry(g);
 	}
+	/**
+	 * Returns the index entry for @p g, or null when @p g is out of range.
+	 */
 	const IndexEntry* getIndexEntry_bounds(gamenumT g) const {
 		static_assert(std::is_unsigned_v<gamenumT>);
 		return g < numGames() ? getIndexEntry(g) : nullptr;
 	}
+	/**
+	 * Returns a value snapshot of one game's index metadata.
+	 *
+	 * @p g must be less than @ref numGames().
+	 */
 	GameInfo gameInfo(gamenumT g) const;
+	/**
+	 * Returns @ref gameInfo() for @p g, or @c std::nullopt when out of range.
+	 */
 	std::optional<GameInfo> gameInfoBounds(gamenumT g) const {
 		static_assert(std::is_unsigned_v<gamenumT>);
 		return g < numGames() ? std::optional<GameInfo>{gameInfo(g)}
 		                      : std::nullopt;
 	}
+	/**
+	 * Applies a partial metadata update to one game.
+	 *
+	 * Only engaged fields in @p update are changed.  The implementation
+	 * rewrites the game so index metadata and encoded standard tags stay in
+	 * sync.
+	 *
+	 * @returns @ref scid::core::OK, @ref scid::core::ERROR_BadArg for an
+	 *          invalid game number, or a storage/codec error.
+	 */
 	scid::core::errorT updateGameInfo(gamenumT g, const GameInfoUpdate& update);
+	/**
+	 * Resolves the Seven Tag Roster name fields for game @p gnum.
+	 *
+	 * The returned string pointers are owned by the database namebase.
+	 */
 	TagRoster tagRoster(gamenumT gnum) const {
 		return tagRoster(*getIndexEntry(gnum));
 	}
+	/**
+	 * Resolves the Seven Tag Roster name fields for @p ie.
+	 *
+	 * The index entry must belong to this database's namebase.
+	 */
 	TagRoster tagRoster(IndexEntry const& ie) const {
 		return TagRoster::make(ie, *nb_);
 	}
 
+	/**
+	 * Returns the database name table.
+	 *
+	 * The returned object is owned by the database and remains valid until the
+	 * database is destroyed.
+	 */
 	const NameBase* getNameBase() const { return nb_; }
 
 	/// Return the highest elo of the player (in the database's games)
@@ -211,29 +295,81 @@ struct scidBaseT {
 		return peakEloCache_[playerID];
 	}
 
+	/**
+	 * Decodes a complete game into @p dest.
+	 *
+	 * This loads standard tags, extra tags, start position, movetext,
+	 * comments, NAGs, and variations.  When @p scidFlags is non-null and
+	 * @p scidFlagsLen is non-zero, it receives a NUL-terminated string of the
+	 * user-visible Scid flags for the game.
+	 */
 	scid::core::errorT loadGame(const IndexEntry& ie, scid::core::Game& dest,
-	                char* scidFlags, std::size_t scidFlagsLen) const;
+	                            char* scidFlags,
+	                            std::size_t scidFlagsLen) const;
+	/**
+	 * Bounds-checked overload of @ref loadGame() by game number.
+	 */
 	scid::core::errorT loadGame(gamenumT gNum, scid::core::Game& dest,
-	               char* scidFlags, std::size_t scidFlagsLen) const;
+	                            char* scidFlags,
+	                            std::size_t scidFlagsLen) const;
+	/**
+	 * Loads only the start position and movetext into @p dest.
+	 *
+	 * Standard tags, extra tags, comments, and NAGs are skipped.  This is the
+	 * cheaper path for callers that need playable moves but not full PGN
+	 * metadata.
+	 */
 	scid::core::errorT loadGameMovesOnly(gamenumT gNum,
 	                                     scid::core::Game& dest) const;
+	/**
+	 * Loads only the start position and movetext for @p ie.
+	 */
 	scid::core::errorT loadGameMovesOnly(const IndexEntry& ie,
 	                                     scid::core::Game& dest) const;
+	/**
+	 * Decodes only the non-standard stored tag pairs for game @p gNum.
+	 *
+	 * The standard PGN tags represented by the index/namebase are not included.
+	 * Tags are appended to @p dest.
+	 */
 	scid::core::errorT gameTags(
 	    gamenumT gNum,
 	    std::vector<std::pair<std::string, std::string>>& dest) const;
+	/**
+	 * Loads standard tags and Scid flag text without decoding movetext.
+	 */
 	scid::core::errorT loadStandardTags(gamenumT gNum,
 	                                    scid::core::Game& dest,
 	                                    char* scidFlags,
 	                                    std::size_t scidFlagsLen) const;
+	/**
+	 * Decodes only the non-standard stored tag pairs for @p ie.
+	 */
 	scid::core::errorT gameTags(
 	    const IndexEntry& ie,
 	    std::vector<std::pair<std::string, std::string>>& dest) const;
+	/**
+	 * Returns up to @p maxPly mainline moves for game @p gNum.
+	 *
+	 * Out-of-range game numbers return an empty vector.
+	 */
 	std::vector<scid::core::FullMove> mainlineMoves(
 	    gamenumT gNum, std::size_t maxPly) const;
+	/**
+	 * Returns up to @p maxPly mainline moves for @p ie.
+	 */
 	std::vector<scid::core::FullMove> mainlineMoves(
 	    const IndexEntry* ie, std::size_t maxPly) const;
+	/**
+	 * Returns SAN for @p count moves after skipping @p plyToSkip half-moves.
+	 *
+	 * Out-of-range game numbers return an empty string.
+	 */
 	std::string moveSAN(gamenumT gNum, int plyToSkip, int count) const;
+	/**
+	 * Returns SAN for @p count moves from @p ie after skipping @p plyToSkip
+	 * half-moves.
+	 */
 	std::string moveSAN(const IndexEntry* ie, int plyToSkip, int count) const;
 	std::pair<scid::core::errorT, size_t>
 	replaceGameDates(HFilter filter, const Progress& progress,
