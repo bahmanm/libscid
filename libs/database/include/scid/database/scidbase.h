@@ -386,6 +386,30 @@ struct scidBaseT {
 	std::pair<scid::core::errorT, RatingUpdateStats> updatePlayerRatings(
 	    HFilter filter, const Progress& progress, bool overwrite,
 	    bool saveRatings, TRatingResolver ratingFor);
+	/**
+	 * Tests one game against a board-position search.
+	 *
+	 * This is the low-level matcher behind the full board-search workflow.
+	 * Callers are expected to have already applied cheap index prefilters and
+	 * pass those conclusions in @p possibleMatch and
+	 * @p possibleFlippedMatch.  When either flag is false, the corresponding
+	 * position pointer is ignored; when it is true, @p pos or @p posFlip must
+	 * point at the normal or colour-flipped search position to test.
+	 *
+	 * Without @p useVariations the function decodes only the main line from
+	 * storage and leaves @p game as scratch state supplied by the caller.  With
+	 * @p useVariations it decodes the movetext into @p game so variations can
+	 * be walked recursively.  The search type controls whether the comparison
+	 * requires the exact board, only pawns, pawn files, or material.
+	 *
+	 * @p ply is set to zero when the game does not match, and to one when it
+	 * does.  It is a filter inclusion value, not the precise ply at which the
+	 * match was found.
+	 *
+	 * @returns @ref scid::core::OK when the game record was readable,
+	 *          @ref scid::core::ERROR_FileRead when stored game data could not
+	 *          be loaded.
+	 */
 	scid::core::errorT searchBoard(const IndexEntry& ie,
 	                               scid::core::Game& game,
 	                               scid::core::Position* pos,
@@ -395,6 +419,12 @@ struct scidBaseT {
 	                               bool possibleFlippedMatch,
 	                               gameExactMatchT searchType,
 	                               scid::core::uint& ply) const;
+	/**
+	 * Bounds-checked overload of @ref searchBoard() by game number.
+	 *
+	 * @returns @ref scid::core::ERROR_BadArg when @p gNum is outside the
+	 *          database, otherwise the result of the index-entry overload.
+	 */
 	scid::core::errorT searchBoard(gamenumT gNum,
 	                               scid::core::Game& game,
 	                               scid::core::Position* pos,
@@ -404,6 +434,32 @@ struct scidBaseT {
 	                               bool possibleFlippedMatch,
 	                               gameExactMatchT searchType,
 	                               scid::core::uint& ply) const;
+	/**
+	 * Tests one game against material and piece-placement constraints.
+	 *
+	 * This function is the game-decoding part of a material search.  The
+	 * caller supplies piece-count ranges in @p min and @p max, indexed by
+	 * piece constants such as @ref scid::core::WQ and aggregate minor-piece
+	 * entries such as @ref scid::core::WM.  Optional @p patterns add
+	 * rank/file/square predicates on top of the material counts.
+	 *
+	 * @p minPly and @p maxPly are half-move bounds in the decoded main line.
+	 * @p matchLength requires that many consecutive matching positions before
+	 * the game is accepted.  @p oppBishops and @p sameBishops restrict
+	 * single-bishop endgames by bishop-square colour.  @p minDiff and
+	 * @p maxDiff bound White's material value minus Black's.
+	 *
+	 * As with @ref searchBoard(), @p possibleMatch and
+	 * @p possibleFlippedMatch are index-prefilter results supplied by the
+	 * caller.  The flipped arrays and patterns are used only when the flipped
+	 * flag is true.  The function searches only the main line and reports a
+	 * boolean match; it does not update any filter value or expose the matching
+	 * ply.
+	 *
+	 * @returns true when either the normal or flipped material search matches;
+	 *          false when it does not match, @p gNum is invalid in the overload
+	 *          below, or the stored game data cannot be read.
+	 */
 	bool materialSearchMatch(const IndexEntry& ie, bool possibleMatch,
 	                         bool possibleFlippedMatch,
 	                         scid::core::byte* min, scid::core::byte* max,
@@ -415,6 +471,9 @@ struct scidBaseT {
 	                         int maxPly, int matchLength, bool oppBishops,
 	                         bool sameBishops, int minDiff,
 	                         int maxDiff) const;
+	/**
+	 * Bounds-checked overload of @ref materialSearchMatch() by game number.
+	 */
 	bool materialSearchMatch(gamenumT gNum, bool possibleMatch,
 	                         bool possibleFlippedMatch,
 	                         scid::core::byte* min, scid::core::byte* max,
@@ -427,12 +486,20 @@ struct scidBaseT {
 	                         bool sameBishops, int minDiff,
 	                         int maxDiff) const;
 	/**
-	 * Replaces @p filter with the games whose main line reaches @p pos.
+	 * Replaces @p filter with games whose main line reaches @p pos.
 	 *
-	 * Matching values store the ply hint used by tree and game-list views:
-	 * value 1 means the starting position, value 2 means after the first
-	 * half-move, and so on.  The search first uses index-level prefilters
-	 * where possible, then decodes candidate games as needed.
+	 * This is the high-level exact-position search used by tree and novelty
+	 * workflows.  It does not search variations and it does not try a
+	 * colour-flipped position.  Matching filter values store the ply hint used
+	 * by tree and game-list views: value 1 means the starting position, value
+	 * 2 means after the first half-move, and so on, with large plies clamped to
+	 * 255.  Non-matching games receive value zero.
+	 *
+	 * The implementation uses stored-line, home-pawn, and material signatures
+	 * from the index before decoding candidate games.  A standard starting
+	 * position is handled as a special case: ordinary standard-start games are
+	 * included directly, while games with explicit start positions are decoded
+	 * and tested.
 	 *
 	 * @returns false when @p progress requests cancellation.
 	 */
