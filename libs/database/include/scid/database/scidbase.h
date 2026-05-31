@@ -686,10 +686,48 @@ struct scidBaseT {
 		return nameFreq_[nt][id];
 	}
 
+	/**
+	 * Computes the work that database compaction would be able to do.
+	 *
+	 * The four output counters are independent signals for a maintenance UI:
+	 * @p n_deleted is the number of games carrying the delete flag,
+	 * @p n_unused is the number of names that are no longer referenced by any
+	 * non-deleted game, @p n_sparse counts live games whose stored offsets are
+	 * out of physical order, and @p n_badNameId is the number of index entries
+	 * that refer to invalid name IDs.
+	 *
+	 * This function only scans the index and namebase.  It does not rewrite
+	 * files and it is safe to call before deciding whether a compaction is
+	 * worth offering to the user.
+	 */
 	scid::core::errorT getCompactStat(unsigned long long* n_deleted,
 	                      unsigned long long* n_unused,
 	                      unsigned long long* n_sparse,
 	                      unsigned long long* n_badNameId);
+	/**
+	 * Rewrites the database into a compact physical representation.
+	 *
+	 * Compaction copies every non-deleted game into a temporary database,
+	 * carries across codec metadata, remaps the autoload game when present,
+	 * drops unused names as a consequence of the rewrite, and replaces bad name
+	 * references through the normal namebase repair path.  Deleted games are
+	 * permanently removed.  Large non-PGN databases may also be reordered by
+	 * stored-line, home-pawn, and material signatures so position searches have
+	 * better locality; callers must not assume game numbers remain stable.
+	 *
+	 * On success the current database is closed, its files are replaced by the
+	 * compacted files, and the database is reopened read/write.  Named filter
+	 * handles and sort-cache registrations are recreated, but callers should
+	 * treat filter contents and any cached game numbers as stale.  In-memory
+	 * databases and codecs without filenames return
+	 * @ref scid::core::ERROR_CodecUnsupFeat.
+	 *
+	 * If an error or cancellation happens while building the temporary
+	 * database, the temporary files are removed and the original database is
+	 * left in place.  Failures after file replacement can leave the database
+	 * closed or partially replaced according to the filesystem operation that
+	 * failed.
+	 */
 	scid::core::errorT compact(const Progress& progress);
 
 	/**
@@ -760,12 +798,19 @@ struct scidBaseT {
 	               TMapFunc getID);
 
 	/**
-	 * Strip the games included in @e hfilter.
-	 * @param hfilter: HFilter containing the games to be transformed.
-	 * @param progress: a Progress object used for GUI communications.
-	 * @param removeTags: extra PGN tags to remove from each matching game.
-	 * @returns a std::pair containing scid::core::OK (or an error code) and the number of
-	 * games modified.
+	 * Removes stored extra PGN tags from games included in @p hfilter.
+	 *
+	 * Only tags whose names appear in @p removeTags are removed.  Standard
+	 * tags represented by the index and namebase are not stripped through this
+	 * API; the function rewrites the encoded tag section of each changed game
+	 * and leaves movetext bytes unchanged.
+	 *
+	 * The operation runs inside a database transaction and reports progress as
+	 * it scans the filter.  Games already rewritten before a later codec error
+	 * or user cancellation remain changed.
+	 *
+	 * @returns a pair of error code and number of games whose stored tag block
+	 *          was rewritten.
 	 */
 	std::pair<scid::core::errorT, size_t>
 	stripGames(HFilter hfilter, const Progress& progress,
