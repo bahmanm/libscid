@@ -731,36 +731,49 @@ struct scidBaseT {
 	scid::core::errorT compact(const Progress& progress);
 
 	/**
-	 * Increment the reference count of a SortCache object matching @e criteria.
-	 * @param criteria: the list of fields by which games will be ordered.
-	 *                  Each field should be followed by '+' to indicate an
-	 *                  ascending order or by '-' for a descending order.
-	 * @returns true on success
+	 * Retains a cached sort order for repeated filtered game-list queries.
+	 *
+	 * A sort criterion is a compact string of field/direction pairs.  Each
+	 * field character is followed by @c + for ascending order or @c - for
+	 * descending order; later pairs break ties from earlier pairs.  Supported
+	 * fields include game number (@c N), date/year (@c d, @c y), event/site
+	 * and country (@c e, @c s, @c c), round (@c n), players and ratings
+	 * (@c w, @c b, @c W, @c B, @c R), result (@c r, @c 1, @c 5, @c 0),
+	 * move count (@c m), ECO (@c o), annotation counts (@c C, @c V, @c A),
+	 * deleted state (@c D), event date (@c E), and annotation rating (@c i).
+	 *
+	 * Retaining a cache is useful for views that repeatedly call
+	 * @ref listGames() or @ref sortedPosition() with the same criteria.  The
+	 * cache is reference-counted; each successful call must eventually be
+	 * balanced by @ref releaseSortCache().
+	 *
+	 * @returns true when @p criteria is valid and the cache was retained.
 	 */
 	bool createSortCache(const char* criteria);
 
 	/**
-	 * Decrement the reference count of the SortCache object matching @e
-	 * criteria. Cached objects with refCount <= 0 are destroyed independently
-	 * from the value of @e criteria.
-	 * @param criteria: the list of fields by which games will be ordered.
-	 *                  Each field should be followed by '+' to indicate an
-	 *                  ascending order or by '-' for a descending order.
+	 * Releases a retained sort cache.
+	 *
+	 * The cache matching @p criteria has its reference count decremented.
+	 * During the same sweep, any cached sort whose reference count has reached
+	 * zero is destroyed.  Releasing an unknown criterion is therefore harmless
+	 * and still performs cache cleanup.
 	 */
 	void releaseSortCache(const char* criteria);
 
 	/**
 	 * Writes a page of filtered game numbers sorted by @p criteria.
 	 *
-	 * This function is faster when a matching sort cache has already been
-	 * created with @ref createSortCache().
+	 * @p start and @p count describe a page in the sorted, filtered result
+	 * set.  Only games included in @p filter are considered, and the zero-based
+	 * game numbers written to @p destCont are suitable for @ref gameInfo(),
+	 * @ref tagRoster(), and @ref loadGame().  The destination array must have
+	 * room for at least @p count entries.
 	 *
-	 * @param criteria sort fields; each field is followed by @c + for
-	 *                 ascending order or @c - for descending order.
-	 * @param start zero-based row offset.
-	 * @param count maximum number of rows to write.
-	 * @param filter filter defining the visible game set.
-	 * @param[out] destCont array receiving up to @p count game numbers.
+	 * A matching retained cache makes repeated calls cheap, but the function
+	 * will also create an unretained cache on demand for one-off queries.
+	 * Invalid criteria return zero rows.
+	 *
 	 * @returns the number of game numbers written.
 	 */
 	size_t listGames(const char* criteria, size_t start, size_t count,
@@ -769,8 +782,11 @@ struct scidBaseT {
 	/**
 	 * Returns the sorted row of @p gameId within @p filter.
 	 *
-	 * Games outside the filter, unknown game IDs, and missing sort caches
-	 * return @c INVALID_GAMEID.
+	 * The returned value is a zero-based row in the same ordering used by
+	 * @ref listGames().  Games outside @p filter, unknown game IDs, and
+	 * invalid criteria return @c INVALID_GAMEID.  As with @ref listGames(),
+	 * this function can use a retained cache or create an unretained cache on
+	 * demand.
 	 */
 	size_t sortedPosition(const char* criteria, const HFilter& filter,
 	                      gamenumT gameId);
