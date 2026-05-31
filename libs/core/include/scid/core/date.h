@@ -1,3 +1,11 @@
+/** @file
+ * Packed PGN/database date representation.
+ *
+ * Dates are stored in a 32-bit value as year, month, and day fields.  Unknown
+ * fields are zero, so partial dates such as an unknown month or day can be
+ * represented while preserving chronological ordering for known fields.
+ */
+
 //////////////////////////////////////////////////////////////////////
 //
 //  FILE:       date.h
@@ -36,56 +44,61 @@
 
 namespace scid::core {
 
+/** Packed date value used by games, indexes, and statistics. */
 typedef uint32_t    dateT;
 
+/** Unknown date. */
 const dateT ZERO_DATE = 0;
 
+/** Bit shift of the year field. */
 const uint32_t  YEAR_SHIFT  = 9;
+/** Bit shift of the month field. */
 const uint32_t  MONTH_SHIFT = 5;
+/** Bit shift of the day field. */
 const uint32_t  DAY_SHIFT   = 0;
 
 // DAY (31 days) 5 bits (32) , MONTH (12 months) 4 bits (16)
 
+/** Maximum representable year. */
 const uint32_t YEAR_MAX = 2047;  // 2^11 - 1
 
+/** Builds a packed date from numeric year, month, and day fields. */
 #define DATE_MAKE(y,m,d) (((y) << scid::core::YEAR_SHIFT) | ((m) << scid::core::MONTH_SHIFT) | (d))
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// date_GetYear():
-//      Get the year from a date.
+/** Returns the year field, or 0 when unknown. */
 inline uint32_t
 date_GetYear (dateT date)
 {
     return (uint32_t) (date >> YEAR_SHIFT);
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// date_GetMonth():
-//      Get the month from a date.
+/** Returns the month field, or 0 when unknown. */
 inline uint32_t
 date_GetMonth (dateT date)
 {
     return (uint32_t) ((date >> MONTH_SHIFT) & 15);
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//### date_GetDay():
-//      Get the day of the month from a date.
+/** Returns the day field, or 0 when unknown. */
 inline uint32_t
 date_GetDay (dateT date)
 {
     return (uint32_t) (date & 31);
 }
 
-// Return true if the date does not include the year, the month or the day.
+/** Returns true when the year, month, or day field is unknown. */
 inline bool date_isPartial(dateT date) {
 	return date_GetYear(date) == 0 || date_GetMonth(date) == 0 ||
 	       date_GetDay(date) == 0;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// date_DecodeToString(): convert date to PGN tag string.
+/** Writes a PGN date tag value into @p str.
+ *
+ * Unknown fields are written as question marks, for example
+ * @c ????.??.?? or @c 2024.??.??.  The destination must have room for at
+ * least eleven bytes including the terminator.
+ */
 inline void
 date_DecodeToString (dateT date, char * str)
 {
@@ -123,9 +136,12 @@ date_DecodeToString (dateT date, char * str)
     *str = 0;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// date_EncodeFromString(): convert PGN tag string to date.
-//      The date string format is: "yyyy.mm.dd".
+/** Parses a dotted date string into dateT.
+ *
+ * This legacy parser accepts numeric fields in @c yyyy.mm.dd order.  Out of
+ * range fields stop further precision from being added: an invalid month keeps
+ * the parsed year, and an invalid day keeps the parsed year and month.
+ */
 inline dateT
 date_EncodeFromString (const char * str)
 {
@@ -157,14 +173,15 @@ date_EncodeFromString (const char * str)
     return date;
 }
 
-/**
- * Creates a dateT object from a PGN tag value string.
- * "The Date tag value field always uses a standard ten character format:
- * "YYYY.MM.DD". If the any of the digit fields are not known, then question
- * marks are used in place of the digits."
- * @param str: pointer to the memory containing the tag value.
- * @param len: length of the tag value.
- * @returns the dateT object corresponding to @e str.
+/** Parses a PGN Date tag value.
+ *
+ * Full @c YYYY.MM.DD values are accepted, as are partial values with unknown
+ * month/day fields.  The parser also accepts compact month/day forms such as
+ * @c YYYY.M.D.  Invalid or out-of-range fields are treated as unknown.
+ *
+ * @param str memory containing the tag value.
+ * @param len number of bytes in @p str.
+ * @returns the parsed date, or ZERO_DATE when the year is missing or invalid.
  */
 inline dateT date_parsePGNTag(const char* str, size_t len) {
 	auto is_digit = [](auto v) { return v >= 0 && v <= 9; };
@@ -204,6 +221,7 @@ inline dateT date_parsePGNTag(const char* str, size_t len) {
 	return (year << YEAR_SHIFT) | (month << MONTH_SHIFT) | (day << DAY_SHIFT);
 }
 
+/** Parses a PGN Date tag value described by a pointer pair. */
 inline dateT date_parsePGNTag(std::pair<const char*, const char*> str) {
 	return date_parsePGNTag(str.first, std::distance(str.first, str.second));
 }
