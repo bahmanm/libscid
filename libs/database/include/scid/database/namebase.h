@@ -33,19 +33,40 @@
 
 namespace scid::database {
 
+/**
+ * Name category stored in a database namebase.
+ *
+ * Identifiers are only meaningful together with their category.  For example,
+ * player id 7 and event id 7 are handles into different name buckets.
+ */
 using nameT = unsigned;
 enum {
+	/** Player names, shared by White and Black fields. */
 	NAME_PLAYER,
+	/** Event names. */
 	NAME_EVENT,
+	/** Site or venue names. */
 	NAME_SITE,
+	/** Round labels. */
 	NAME_ROUND,
+	/** Number of persisted name categories. */
 	NUM_NAME_TYPES,
+	/** Sentinel returned when text cannot be resolved to a name type. */
 	NAME_INVALID = 99
 };
 
 /**
- * This class stores the database's names (players, events, sites and rounds).
- * Assigns a idNumberT (which will be used as reference) to each name.
+ * String table for the database's player, event, site, and round names.
+ *
+ * A database stores names once and refers to them from @ref IndexEntry by
+ * @c idNumberT.  @ref NameBase owns those strings and maintains a
+ * compatibility-sorted lookup index for each @c nameT bucket.  Returned
+ * @c const @c char* values point into the namebase and remain valid until the
+ * namebase is cleared or destroyed.
+ *
+ * IDs are assigned densely within each bucket.  They are stable for the
+ * lifetime of the namebase, but a numeric ID has no meaning without its
+ * corresponding @c nameT.
  */
 class NameBase {
 	std::vector<std::unique_ptr<const char[]>> names_[NUM_NAME_TYPES];
@@ -71,10 +92,19 @@ class NameBase {
 	std::map<const char*, idNumberT, idxCmp> idx_[NUM_NAME_TYPES];
 
 public:
-	// Add a name (string) to the NameBase.
-	// @param nt:      @e nameT type of the name to add.
-	// @param name:    the name to add.
-	// @return the ID assigned to @e name.
+	/**
+	 * Adds @p name to one name bucket and returns its new identifier.
+	 *
+	 * This function does not check for an existing equal name.  Call
+	 * @ref namebase_find_or_add() when importing ordinary game metadata and
+	 * uniqueness is required.
+	 *
+	 * @param nt name bucket receiving the new string.
+	 * @param name string to copy into the namebase.
+	 * @param hint optional insertion hint for callers already positioned in
+	 *             the sorted lookup map.
+	 * @returns the identifier assigned to @p name within @p nt.
+	 */
 	idNumberT namebase_add(
 	    nameT nt, std::string_view name,
 	    std::map<const char*, idNumberT, idxCmp>::iterator* hint = nullptr) {
@@ -94,9 +124,12 @@ public:
 		return newID;
 	}
 
-	// Return the ID corresponding to @e name.
-	// Add the name to the NameBase if it doesn't exists.
-	// @param nt:      @e nameT type of the name.
+	/**
+	 * Returns the identifier for @p name, adding it when needed.
+	 *
+	 * The lookup is exact under the namebase's legacy-compatible ordering.
+	 * The returned ID is valid only for the bucket @p nt.
+	 */
 	idNumberT namebase_find_or_add(nameT nt, const char* name) {
 		ASSERT(IsValidNameType(nt));
 
@@ -108,20 +141,26 @@ public:
 		return namebase_add(nt, name, &it);
 	}
 
-	// Return the number of names stored in the NameBase.
-	// @param nt: a valid @e nameT type.
+	/**
+	 * Returns the number of names stored in @p nt.
+	 */
 	size_t namebase_size(nameT nt) const {
 		ASSERT(IsValidNameType(nt));
 
 		return names_[nt].size();
 	}
 
-	/// DEPRECATED
-	/// Add a name (string) and its associated id to the NameBase.
-	/// Return false if the name or the id already exists: the NameBase object
-	/// is then no longer valid and should be destroyed.
-	/// The caller should also ensure that before invoking any other object's
-	/// function none of names_[nt] == nullptr.
+	/**
+	 * Inserts a name with a caller-specified identifier.
+	 *
+	 * This legacy loader path exists for older namebase files that already
+	 * contain explicit IDs.  Prefer @ref namebase_add() or
+	 * @ref namebase_find_or_add() for new code.
+	 *
+	 * If the name or ID already exists, the function returns false and the
+	 * object should be discarded; sparse intermediate slots may also have been
+	 * created while attempting the insert.
+	 */
 	bool insert(const char* name, size_t nameLen, nameT nt, idNumberT id) {
 		if (id >= names_[nt].size())
 			names_[nt].resize(id + size_t{1});
@@ -138,16 +177,15 @@ public:
 	}
 
 	/**
-	 * Frees memory, leaving the object empty.
+	 * Clears all strings and lookup indexes.
 	 */
 	void Clear() { *this = NameBase(); }
 
 	/**
-	 * Get the first few matches of a name prefix.
-	 * @param nt:         @e nameT type of the name to be searched.
-	 * @param str:        name prefix be searched.
-	 * @param maxMatches: the max number of ID to return
-	 * @returns a vector containing the ID of the matching names.
+	 * Returns the first identifiers whose names start with @p str.
+	 *
+	 * Matching follows the namebase sort order and is case-sensitive.  Results
+	 * are returned in lookup order and stop once @p maxMatches have been found.
 	 */
 	std::vector<idNumberT> getFirstMatches(nameT nt, const char* str,
 	                                       size_t maxMatches) const {
@@ -166,10 +204,10 @@ public:
 	}
 
 	/**
-	 * Retrieve a name.
-	 * @param nt: the valid @e nameT type of the name to retrieve.
-	 * @param id: the valid ID of the name to retrieve.
-	 * @returns the name corresponding to @e id.
+	 * Returns the stored string for @p id in bucket @p nt.
+	 *
+	 * The returned pointer is owned by this namebase and remains valid until
+	 * the namebase is cleared or destroyed.
 	 */
 	const char* GetName(nameT nt, idNumberT id) const {
 		ASSERT(IsValidNameType(nt) && id < GetNumNames(nt));
@@ -177,15 +215,19 @@ public:
 	}
 
 	/**
-	 * @returns a reference to a container with all the names and IDs (given as
-	 * std::pair<const char*, idNumberT>).
+	 * Returns the sorted lookup maps for every name bucket.
+	 *
+	 * Each map entry contains a borrowed string pointer and its identifier.
+	 * The maps expose the legacy-compatible ordering used when serialising
+	 * Scid 4 namebase files.
 	 */
 	const decltype(idx_)& getNames() const { return idx_; }
 
 	/**
-	 * @param nt: a valid @e nameT type.
-	 * @returns the first invalid idNumberT (which is equal to the number of
-	 * names stored).
+	 * Returns the first invalid identifier for @p nt.
+	 *
+	 * Because identifiers are dense, this is also the number of names in the
+	 * bucket.
 	 */
 	idNumberT GetNumNames(nameT nt) const {
 		ASSERT(IsValidNameType(nt));
@@ -193,11 +235,13 @@ public:
 	}
 
 	/**
-	 * Finds an exact full, case-sensitive name.
-	 * @param nt:         @e nameT type of the name to be searched.
-	 * @param str:        name to be be searched.
-	 * @param[out] idPtr: pointer which will receive the ID of the name.
-	 * @returns scid::core::OK or scid::core::ERROR_NameNotFound if the name does not exists.
+	 * Finds an exact case-sensitive name.
+	 *
+	 * @param nt bucket to search.
+	 * @param str full name text to find.
+	 * @param[out] idPtr receives the identifier when the name exists.
+	 * @returns @ref scid::core::OK, or
+	 *          @ref scid::core::ERROR_NameNotFound when no exact match exists.
 	 */
 	scid::core::errorT FindExactName(nameT nt, const char* str, idNumberT* idPtr) const {
 		ASSERT(IsValidNameType(nt) && str != NULL && idPtr != NULL);
@@ -211,9 +255,10 @@ public:
 	}
 
 	/**
-	 * For every name generates a 32bit hash with the first 4 chars.
-	 * @param nt: @e nameT type of the names.
-	 * @returns a vector containing the hashes.
+	 * Generates a four-character start hash for every name in @p nt.
+	 *
+	 * The resulting vector is indexed by @c idNumberT and is used by sort
+	 * and lookup code that needs a compact, case-insensitive prefix key.
 	 */
 	std::vector<uint32_t> generateHashMap(nameT nt) const {
 		std::vector<uint32_t> res(names_[nt].size());
@@ -224,8 +269,10 @@ public:
 	}
 
 	/**
-	 * Counts how many times each name is used.
-	 * @returns an array of std::vectors containing the count of each name.
+	 * Counts how often each stored name is referenced by @p idx.
+	 *
+	 * The returned array is indexed first by @c nameT, then by
+	 * @c idNumberT.  Player references count both White and Black fields.
 	 */
 	std::array<std::vector<int>, NUM_NAME_TYPES>
 	calcNameFreq(Index const& idx) const {
@@ -245,8 +292,10 @@ public:
 	}
 
 	/**
-	 * Counts how many invalid IDs (references to names that do not exist in
-	 * this NameBase) are present in @e idx.
+	 * Counts index references that do not resolve in this namebase.
+	 *
+	 * This is a consistency check for databases whose index and namebase files
+	 * may have drifted apart or been repaired during load.
 	 */
 	size_t count_invalid_ids(Index const& idx) const {
 		size_t n_invalid = 0;
@@ -266,18 +315,18 @@ public:
 	}
 
 	/**
-	 * Validate a @e nameT type.
-	 * @param nt: @e nameT type to be validated.
-	 * @returns true if @e nt is valid.
+	 * Returns true when @p nt is one of the persisted name buckets.
 	 */
 	static bool IsValidNameType(nameT nt) { return (nt < NUM_NAME_TYPES); }
 
 	/**
-	 * Match a string to a nameT.
-	 * To match, the string should be a prefix of "player", "event", "site" or
-	 * "round", or be a superstring of it, e.g. "player ...."
-	 * @param str: the string to be matched.
-	 * @returns a valid nameT, or NAME_INVALID.
+	 * Resolves a textual name-type selector.
+	 *
+	 * The match is case-insensitive and ignores spaces.  Both abbreviations
+	 * such as @c "pla" and longer command strings such as @c "player name" are
+	 * accepted.
+	 *
+	 * @returns a valid @c nameT, or @c NAME_INVALID.
 	 */
 	static nameT NameTypeFromString(const char* str) {
 		if (*str == '\0')
@@ -302,16 +351,31 @@ public:
 	}
 };
 
-/// The Seven Tag Roster defined in the PGN standard is stored in the
-/// IndexEntry, but 5 are indexes that refer to a NameBase object.
-/// This helper struct stores the referred values.
+/**
+ * Borrowed string view of the PGN Seven Tag Roster names.
+ *
+ * @ref IndexEntry stores five of the seven standard PGN tags as identifiers
+ * into @ref NameBase; event, site, round, white, and black.  @ref TagRoster
+ * resolves those handles to string pointers when loading or exporting game
+ * metadata, and maps strings back to identifiers when saving.
+ */
 struct TagRoster {
+	/** PGN Event tag value. */
 	const char* event;
+	/** PGN Site tag value. */
 	const char* site;
+	/** PGN Round tag value. */
 	const char* round;
+	/** PGN White tag value. */
 	const char* white;
+	/** PGN Black tag value. */
 	const char* black;
 
+	/**
+	 * Resolves an index entry's name identifiers through @p nb.
+	 *
+	 * The returned string pointers are owned by @p nb.
+	 */
 	template <typename TEntry>
 	static TagRoster make(TEntry const& ie, NameBase const& nb) {
 		TagRoster res;
@@ -323,6 +387,13 @@ struct TagRoster {
 		return res;
 	}
 
+	/**
+	 * Writes this roster's strings into @p dest as name identifiers.
+	 *
+	 * @p getID is called as @c getID(nameT, const char*) and must return an
+	 * @c {error, id} pair.  It may find existing names or add new ones,
+	 * depending on the storage backend.  Mapping stops at the first error.
+	 */
 	template <typename TEntry, typename Fn>
 	auto map(TEntry& dest, Fn getID) const {
 		{

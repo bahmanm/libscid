@@ -106,8 +106,7 @@ std::uint32_t gameFlagMaskFromString(const char* flags);
  * @ref GameInfo is produced from an @ref IndexEntry by @ref scidBaseT.  It is
  * deliberately a value type: callers can copy it freely without holding a
  * pointer into the database index.  Name fields such as @c white and @c event
- * are @ref idNumberT handles into the database @ref NameBase, not string
- * values.
+ * are @c idNumberT handles into the database @ref NameBase, not string values.
  */
 struct GameInfo {
 	/** Offset of the encoded game record in the game data file. */
@@ -150,9 +149,9 @@ struct GameInfo {
 	matSigT finalMaterial = 0;
 	/** Stored-line classification code used by opening/tree features. */
 	scid::core::byte storedLineCode = 0;
-	/** Packed ECO classification, or @ref ECO_CODE_NONE. */
+	/** Packed ECO classification, or @c ECO_CODE_NONE. */
 	EcoCode ecoCode = ECO_CODE_NONE;
-	/** Raw bit mask of @ref gameFlagT values. */
+	/** Raw bit mask of @c gameFlagT values. */
 	std::uint32_t flags = 0;
 	/** Home-pawn signature data; byte zero stores the number of valid entries. */
 	std::array<scid::core::byte, 9> homePawnData = {};

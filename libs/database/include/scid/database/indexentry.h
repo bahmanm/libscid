@@ -56,7 +56,7 @@ const scid::core::byte CUSTOM_FLAG_MASK[] = { 1, 1 << 1, 1 << 2, 1 << 3, 1 << 4,
  * require decoding movetext: name identifiers, dates, result, ratings, ECO,
  * material signatures, flags, and approximate annotation counts.
  *
- * Name fields are @ref idNumberT handles into @ref NameBase; they are not
+ * Name fields are @c idNumberT handles into @ref NameBase; they are not
  * owned strings.  Count fields are stored in four-bit buckets, so values above
  * ten are approximate.  The setters assert when a value cannot be represented
  * by the packed field.  Prefer value-initialising new records as
@@ -141,7 +141,7 @@ public:
     matSigT   GetFinalMatSig() const { return finalMatSig_; }
     /** Returns the stored-line classification code used by tree/opening features. */
     scid::core::byte      GetStoredLineCode() const { return storedLineCode_; }
-    /** Returns the packed ECO classification, or @ref ECO_CODE_NONE. */
+    /** Returns the packed ECO classification, or @c ECO_CODE_NONE. */
     EcoCode GetEcoCode() const { return ECOcode_; }
     /** Returns true when every bit in @p mask is set. */
     bool      GetFlag(uint32_t mask) const { return (flags_ & mask) == mask; }
@@ -345,7 +345,7 @@ public:
      * @ref SetFlag().
      *
      * This legacy helper asserts on unsupported characters.  Use
-     * @ref gameFlagMaskFromChar() when parsing untrusted input.
+     * @c gameFlagMaskFromChar() when parsing untrusted input.
      */
     static uint32_t CharToFlagMask (char flag);
     /**

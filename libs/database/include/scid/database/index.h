@@ -69,7 +69,7 @@ public:
     /**
      * Returns the number of invalid name handles found while opening the index.
      *
-     * To save space, an @ref IndexEntry stores @ref idNumberT handles to names
+     * To save space, an @ref IndexEntry stores @c idNumberT handles to names
      * kept in @ref NameBase.  If the index and namebase files are out of sync
      * or corrupted, some handles may not resolve to strings.  The codec counts
      * those repairs or invalid references here so callers can report database
