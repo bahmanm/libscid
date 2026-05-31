@@ -1,5 +1,5 @@
 /** @file
- * Move validation predicates.
+ * Low-level move geometry and occupancy predicates.
  */
 
 #pragma once
@@ -9,22 +9,21 @@
 #include <cassert>
 #include <utility>
 
-// These functions use the following move classification:
-// - a VALID move is a move that respects the basic rules for moving the pieces,
-//   for example a bishop should move diagonally. Validating this type of moves
-//   do not require any info about the current position.
-// - an ATTACK move is a valid move that can capture an enemy piece at the
-//   destination square. It takes into account the special rule for pawns that
-//   can capture only diagonally and the board position for obstacles, for
-//   example a valid diagonal bishop move is an attack move only if the
-//   in-between squares are empty. To validate this type of moves it is
-//   necessary to know the location of empty squares in the current position.
-// - a PSEUDO-LEGAL move is an attack move, or a non-capture pawn move, or a
-//   castle move.
-// - a LEGAL move is a pseudo-legal move where the destination square is not
-//   occupied by a friendly piece and that do not leave the king in check.
-//   To validate this type of moves it is necessary to know the type and
-//   position of every piece.
+/** @namespace scid::core::move_predicates
+ * Stateless helpers used by Position move validation.
+ *
+ * These helpers separate chess movement into four levels:
+ *
+ * - A valid move follows piece geometry alone, such as a bishop moving
+ *   diagonally.  Validity does not require a position.
+ * - An attack move is valid capture geometry plus blocker checks for sliders
+ *   and pawn capture direction.  It needs only an occupancy predicate.
+ * - A pseudo-legal move is an attack move, a non-capture pawn advance, or a
+ *   castle candidate.
+ * - A legal move is pseudo-legal, does not land on a friendly piece, and does
+ *   not leave the mover's king in check.  Legal move validation belongs to
+ *   Position because it needs full board state.
+ */
 
 namespace scid::core {
 
@@ -34,12 +33,14 @@ constexpr int NSQUARES = 8;
 constexpr int kWPHomeRank = 1;
 constexpr int kBPHomeRank = NSQUARES - 2;
 
+/** Returns true when the two squares are a king move apart. */
 inline bool valid_king(squareT sqFrom, squareT sqTo) {
 	unsigned distRank = 1 + (sqTo / NSQUARES) - (sqFrom / NSQUARES);
 	unsigned distFyle = 1 + (sqTo % NSQUARES) - (sqFrom % NSQUARES);
 	return distRank <= 2 && distFyle <= 2;
 }
 
+/** Returns true when the two squares form a knight move. */
 inline bool valid_knight(squareT sqFrom, squareT sqTo) {
 	int distRank = (sqTo / NSQUARES) - (sqFrom / NSQUARES);
 	int distFyle = (sqTo % NSQUARES) - (sqFrom % NSQUARES);
@@ -47,6 +48,11 @@ inline bool valid_knight(squareT sqFrom, squareT sqTo) {
 	return (distProduct == 2 || distProduct == -2);
 }
 
+/** Returns the slider step from @p sqFrom to @p sqTo.
+ *
+ * @returns the signed-independent board step for a queen, rook, or bishop ray,
+ * or 0 when @p pieceType cannot move along that ray.
+ */
 inline int valid_slider(squareT sqFrom, squareT sqTo, pieceT pieceType) {
 	assert(pieceType == QUEEN || pieceType == ROOK || pieceType == BISHOP);
 
@@ -77,6 +83,7 @@ inline int valid_slider(squareT sqFrom, squareT sqTo, pieceT pieceType) {
 	return sqStep;
 }
 
+/** Returns true when a pawn of @p pieceCol attacks @p sqTo from @p sqFrom. */
 inline bool attack_pawn(squareT sqFrom, squareT sqTo, colorT pieceCol) {
 	int distRank = (sqTo / NSQUARES) - (sqFrom / NSQUARES);
 	int distFyle = (sqTo % NSQUARES) - (sqFrom % NSQUARES);
@@ -88,6 +95,11 @@ inline bool attack_pawn(squareT sqFrom, squareT sqTo, colorT pieceCol) {
 	return (distFyle == 1 || distFyle == -1);
 }
 
+/** Returns true when a slider attacks along an unobstructed ray.
+ *
+ * @p isOccupied is called only for squares strictly between @p sqFrom and
+ * @p sqTo.
+ */
 template <typename TFunc>
 bool attack_slider(squareT sqFrom, squareT sqTo, pieceT pieceType,
                    TFunc isOccupied) {
@@ -107,18 +119,16 @@ bool attack_slider(squareT sqFrom, squareT sqTo, pieceT pieceType,
 	return true;
 }
 
-/**
- * Validate an ATTACK move, that is if a piece placed at @e sqFrom can capture
- * an enemy piece at @e sqTo.
- * @param sqFrom:       square of the piece.
- * @param sqTo:         square of the piece to be captured.
- * @param pieceCol:     color of the moving piece.
- * @param pieceType:    type of the moving piece.
- * @param isOccupied:   callable object which should returns true if a square is
- *                      occupied by a piece. Since it is not invoked with @e
- *                      sqFrom or @e sqTo, it's is irrelevant if the position is
- *                      the one before or after the move was made.
- * @returns true if the move is a valid ATTACK move.
+/** Validates an attack move.
+ *
+ * @param sqFrom square of the attacking piece.
+ * @param sqTo square being attacked.
+ * @param pieceCol colour of the attacking piece.
+ * @param pieceType type of the attacking piece.
+ * @param isOccupied callable returning true when an intermediate square is
+ * occupied.  It is not called for @p sqFrom or @p sqTo, so it can describe
+ * either the pre-move or post-move occupancy of those endpoint squares.
+ * @returns true when the piece attacks @p sqTo from @p sqFrom.
  */
 template <typename TFunc>
 bool attack(squareT sqFrom, squareT sqTo, pieceT pieceCol, pieceT pieceType,
@@ -136,6 +146,11 @@ bool attack(squareT sqFrom, squareT sqTo, pieceT pieceCol, pieceT pieceType,
 	return attack_slider(sqFrom, sqTo, pieceType, isOccupied);
 }
 
+/** Validates a non-capturing pawn advance.
+ *
+ * Single and home-rank double advances are accepted when every traversed square
+ * is empty according to @p isOccupied.
+ */
 template <typename TFunc>
 inline bool pseudo_advance_pawn(squareT sqFrom, squareT sqTo, colorT pieceCol,
                                 TFunc isOccupied) {
@@ -153,6 +168,12 @@ inline bool pseudo_advance_pawn(squareT sqFrom, squareT sqTo, colorT pieceCol,
 	                          !isOccupied(sqFrom - NSQUARES));
 }
 
+/** Validates pseudo-legal movement using piece geometry and occupancy.
+ *
+ * This covers attacks and non-capturing pawn advances.  Castling is handled by
+ * Position because castling rights, rook identity, and attacked transit squares
+ * require full position state.
+ */
 template <typename TFunc>
 bool pseudo(squareT sqFrom, squareT sqTo, colorT pieceCol, pieceT pieceType,
             TFunc isOccupied) {
@@ -164,20 +185,19 @@ bool pseudo(squareT sqFrom, squareT sqTo, colorT pieceCol, pieceT pieceType,
 	return attack(sqFrom, sqTo, pieceCol, pieceType, isOccupied);
 }
 
-/**
- * Given a pseudo-legal move, this functions return the type and the location of
- * the piece that can possibly pin the moving piece, making the move not legal.
- * @param sqFrom:       start square of the pseudo-legal move.
- * @param sqTo:         destination square of the pseudo-legal move.
- * @param sqRay:        the projected ray starts from @e sqRay and goes through
- *                      @e sqFrom; it is usually the square where the king is.
- * @param isOccupied:   callable object which should returns true if a square is
- *                      occupied by a piece.
- * @returns a std::pair with the type (INVALID_PIECE, BISHOP, ROOK) and the
- * square of the candidate pinning piece. If the type is INVALID_PIECE there is
- * no pin and the move is legal, otherwise it's necessary to test the board
- * position and if the returned square is occupied by an enemy QUEEN, or an
- * enemy piece matching the returned type, the move is not legal.
+/** Finds a possible discovered pin caused by moving from a ray.
+ *
+ * Given a pseudo-legal move, this returns the kind and square of the first piece
+ * that may pin the mover to @p sqRay, usually the mover's king square.
+ *
+ * @param sqFrom origin square of the pseudo-legal move.
+ * @param sqTo destination square of the pseudo-legal move.
+ * @param sqRay square through which the projected ray passes.
+ * @param isOccupied callable returning true when a square is occupied.
+ * @returns a pair of candidate attacker type and square.  INVALID_PIECE means
+ * no ray was opened.  Otherwise, the caller must inspect the returned square:
+ * an enemy queen or an enemy piece matching the returned type makes the move
+ * illegal.
  */
 template <typename TFunc>
 inline std::pair<pieceT, squareT> opens_ray(squareT sqFrom, squareT sqTo,
@@ -239,12 +259,11 @@ inline std::pair<pieceT, squareT> opens_ray(squareT sqFrom, squareT sqTo,
 	return {INVALID_PIECE, 0};
 }
 
-/// Checks if there is a valid ray from @e sqFrom to @e sqTo and if a piece on
-/// @e sqBlock would block that ray.
-/// @param sqFrom:       start square of the ray.
-/// @param sqTo:         end square of the ray.
-/// @param sqBlock:      the square that may block the ray.
-/// @returns true if a piece on @e sqBlock would block the ray.
+/** Tests whether @p sqBlock lies between two ray-aligned squares.
+ *
+ * @returns true when a piece on @p sqBlock would block a queen ray from
+ * @p sqFrom to @p sqTo.
+ */
 inline bool blocks_ray(squareT sqFrom, squareT sqTo, squareT sqBlock) {
 	return !move_predicates::attack_slider(sqFrom, sqTo, QUEEN,
 	                               [&](auto sq) { return sq == sqBlock; });
