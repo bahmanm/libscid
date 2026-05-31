@@ -371,17 +371,67 @@ struct scidBaseT {
 	 * half-moves.
 	 */
 	std::string moveSAN(const IndexEntry* ie, int plyToSkip, int count) const;
+	/**
+	 * Replaces game dates in a filtered set of games.
+	 *
+	 * Only games included in @p filter whose index date equals @p oldDate are
+	 * changed.  The update rewrites the affected @ref IndexEntry records; it
+	 * does not decode or re-encode full game movetext.  Progress is reported
+	 * while scanning the filter, and cancellation stops before the next batch
+	 * of index entries is processed.
+	 *
+	 * @returns a pair of error code and number of games whose date changed.
+	 */
 	std::pair<scid::core::errorT, size_t>
 	replaceGameDates(HFilter filter, const Progress& progress,
 	                 scid::core::dateT oldDate, scid::core::dateT newDate);
+	/**
+	 * Replaces event dates in a filtered set of games.
+	 *
+	 * This is the event-date counterpart of @ref replaceGameDates(): it scans
+	 * @p filter, changes only entries whose event date equals @p oldDate, and
+	 * persists the modified index entries.
+	 *
+	 * @returns a pair of error code and number of games whose event date
+	 *          changed.
+	 */
 	std::pair<scid::core::errorT, size_t>
 	replaceGameEventDates(HFilter filter, const Progress& progress,
 	                      scid::core::dateT oldDate,
 	                      scid::core::dateT newDate);
+	/**
+	 * Sets one player's rating in every filtered game where they appear.
+	 *
+	 * @p player is a player-name ID from this database's @ref NameBase.  For
+	 * each included game, the White and Black fields are checked independently;
+	 * either or both sides may be updated.  Updated ratings are marked with
+	 * @p ratingType.  The operation is an index-only rewrite.
+	 *
+	 * @returns a pair of error code and number of games where at least one
+	 *          side's rating field changed.
+	 */
 	std::pair<scid::core::errorT, size_t>
 	setPlayerRatings(HFilter filter, const Progress& progress, idNumberT player,
 	                 scid::core::ratingT rating,
 	                 scid::core::ratingTypeT ratingType);
+	/**
+	 * Updates player ratings in a filtered set using a caller-provided source.
+	 *
+	 * @p ratingFor is called as @c ratingFor(playerId, gameDate) for each side
+	 * whose rating may be updated.  It should return a non-zero Elo value when
+	 * a rating is available, or zero to leave that side unchanged.  If
+	 * @p overwrite is false, existing non-zero ratings are not queried or
+	 * changed.  Ratings written by this function use
+	 * @ref scid::core::RATING_Elo.
+	 *
+	 * When @p saveRatings is false, the function performs the same filtered
+	 * scan and returns counts, but does not write index entries or require a
+	 * modifying transaction.  When it is true, matching entries are rewritten
+	 * through the normal index-transform path.
+	 *
+	 * @returns an error code plus counts of changed rating fields and games
+	 *          with at least one available rating.
+	 */
 	template <typename TRatingResolver>
 	std::pair<scid::core::errorT, RatingUpdateStats> updatePlayerRatings(
 	    HFilter filter, const Progress& progress, bool overwrite,
@@ -680,6 +730,14 @@ struct scidBaseT {
 	 * returned nodes are sorted by descending game count.
 	 */
 	std::vector<TreeNode> getTreeStat(const HFilter& filter) const;
+	/**
+	 * Returns how many index fields reference one stored name.
+	 *
+	 * Frequencies are computed lazily from the current index and cached until
+	 * the database cache is invalidated by a modifying operation.  Player
+	 * frequencies count both White and Black references; event, site, and
+	 * round frequencies count their single corresponding field.
+	 */
 	scid::core::uint getNameFreq(nameT nt, idNumberT id) {
 		if (nameFreq_[nt].size() == 0)
 			nameFreq_ = getNameBase()->calcNameFreq(*idx);
@@ -792,20 +850,26 @@ struct scidBaseT {
 	                      gamenumT gameId);
 
 	/**
-	 * Transform the names of the games included in @e hfilter.
-	 * The function @e getID maps all the old idNumberT to the new idNumberT.
-	 * It's invoked for each game and must accept as parameters a idNumberT and
-	 * a const GameInfo&; must return the (eventually different) idNumberT.
-	 * @param nt:       type of the names to be modified.
-	 * @param hfilter:  HFilter containing the games to be transformed.
-	 * @param progress: a Progress object used for GUI communications.
-	 * @param newNames: optional vector of names to be added to the database.
-	 * @param fnInit:   function that is invoked before beginning the
-	 *                  transformation; must accept a vector that contains the
-	 *                  idNumberTs of the names in @e newNames.
-	 * @param getID:    function that maps the old idNumberTs to the new ones.
-	 * @returns a std::pair containing scid::core::OK (or an error code) and the number of
-	 * games modified.
+	 * Remaps name IDs in filtered index entries.
+	 *
+	 * This is the shared machinery behind bulk player, event, site, and round
+	 * edits.  Every string in @p newNames is first added to the active
+	 * namebase; the resulting IDs are then passed to @p fnInit so the caller
+	 * can build whatever lookup table @p getID needs.  The filter is scanned
+	 * after that setup phase.
+	 *
+	 * @p getID is called as @c getID(oldId, gameInfo) and must return the ID
+	 * that should be stored for that name occurrence.  For @c NAME_PLAYER it
+	 * is called separately for the Black and White fields of each game; for
+	 * the other name types it is called once for the corresponding field.
+	 * Returning the original ID leaves that occurrence unchanged.
+	 *
+	 * The operation rewrites only @ref IndexEntry records.  Newly added names
+	 * remain in the namebase even if no filtered game ultimately uses them, or
+	 * if a later error or cancellation stops the scan.
+	 *
+	 * @returns a pair of error code and number of games whose index entry was
+	 *          rewritten.
 	 */
 	template <typename TInitFunc, typename TMapFunc>
 	std::pair<scid::core::errorT, size_t>
