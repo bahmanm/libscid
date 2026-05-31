@@ -243,10 +243,23 @@ struct scidBaseT {
 	                         int maxPly, int matchLength, bool oppBishops,
 	                         bool sameBishops, int minDiff,
 	                         int maxDiff) const;
+	/**
+	 * Replaces @p filter with the games whose main line reaches @p pos.
+	 *
+	 * Matching values store the ply hint used by tree and game-list views:
+	 * value 1 means the starting position, value 2 means after the first
+	 * half-move, and so on.  The search first uses index-level prefilters
+	 * where possible, then decodes candidate games as needed.
+	 *
+	 * @returns false when @p progress requests cancellation.
+	 */
 	bool setPositionSearchFilter(const scid::core::Position& pos,
 	                             HFilter& filter,
 	                             const Progress& progress) const;
 
+	/**
+	 * Imports all games included in @p filter from @p srcBase.
+	 */
 	scid::core::errorT importGames(const scidBaseT* srcBase, const HFilter& filter,
 	                   const Progress& progress);
 		scid::core::errorT importGames(std::string_view dbType, const char* filename,
@@ -275,33 +288,63 @@ struct scidBaseT {
 	scid::core::errorT invertFlags(scid::core::uint flag, const HFilter& filter);
 
 	/**
-	 * A Filter is a selection of games, usually obtained searching the
-	 * database. A new Filter is created calling the function newFilter()
-	 * and must be released calling the function deleteFilter().
+	 * Creates a named filter covering the current database.
+	 *
+	 * New filters start with every game included at value 1.  The returned ID
+	 * is later passed to @ref getFilter(), @ref composeFilter(), or
+	 * @ref deleteFilter().
 	 */
 	std::string newFilter();
+	/**
+	 * Deletes a filter created with @ref newFilter().
+	 *
+	 * The default filter and composed filter IDs are not owned by this function.
+	 */
 	void deleteFilter(const char* filterId);
+	/**
+	 * Resolves @p filterId to a filter handle.
+	 *
+	 * Recognised IDs include @c "dbfilter", @c "all", IDs returned by
+	 * @ref newFilter(), and composed IDs in the form @c "+main+mask".  The
+	 * returned handle compares equal to null when the ID cannot be resolved.
+	 */
 	HFilter getFilter(std::string_view filterId) const;
+	/** Returns the database's default working filter. */
 	HFilter defaultFilter() const { return HFilter(dbFilter); }
+	/** Returns the number of games included in the default filter. */
 	gamenumT defaultFilterCount() const { return dbFilter->Count(); }
+	/** Returns the raw default-filter value for @p g. */
 	scid::core::byte defaultFilterGet(gamenumT g) const { return dbFilter->Get(g); }
+	/** Sets the raw default-filter value for @p g. */
 	void defaultFilterSet(gamenumT g, scid::core::byte value) { dbFilter->Set(g, value); }
+	/** Sets every default-filter entry to @p value. */
 	void defaultFilterFill(scid::core::byte value) { dbFilter->Fill(value); }
+	/** Returns a token that changes when cached database views should refresh. */
 	uint64_t cacheInvalidationToken() const { return cacheInvalidationToken_; }
 
-	/// A composed filter is a special construct created combining two filters
-	/// and includes only the games contained in both filters. It should NOT be
-	/// deleted and became invalid if any of its components is deleted.
-	/// @mainFilter: valid identifier of the main filter (the filter which is
-	///              modified by non-const operations).
-	/// @maskFilter: valid identifier of the mask filter (const).
-	/// @return the id of the composed filter.
+	/**
+	 * Returns an ID for the intersection of two filters.
+	 *
+	 * A composed filter includes only games present in both components.  The
+	 * main filter is the component mutated by non-const operations; the mask
+	 * filter is read-only.  Composed IDs are lightweight strings, should not be
+	 * deleted, and become invalid when either component is deleted.
+	 *
+	 * @param mainFilter valid identifier of the mutable main filter.
+	 * @param maskFilter valid identifier of the read-only mask filter.
+	 * @returns a composed filter ID, or an empty string when either component
+	 *          cannot be resolved.
+	 */
 	std::string composeFilter(std::string_view mainFilter,
 	                          std::string_view maskFilter) const;
 
-	/// Get the components of a composed filter.
-	/// @filterId: valid identifier of a filter.
-	/// @return the components (second is empty if its not a a composed filter).
+	/**
+	 * Splits @p filterId into its main and mask components.
+	 *
+	 * For a normal filter ID, the second component is empty.  For a composed
+	 * filter, the first component is the main filter and the second is the
+	 * mask.
+	 */
 	std::pair<std::string, std::string>
 	getFilterComponents(std::string_view filterId) const;
 
@@ -339,36 +382,27 @@ struct scidBaseT {
 	void releaseSortCache(const char* criteria);
 
 	/**
-	 * Retrieve a list of ordered game indexes sorted by @e criteria.
-	 * This function will be much faster if a SortCache object matching @e
-	 * criteria already exists (previously created with @e createSortCache).
-	 * @param criteria: the list of fields by which games will be ordered.
-	 *                  Each field should be followed by '+' to indicate an
-	 *                  ascending order or by '-' for a descending order.
-	 * @param start:    the offset of the first row to return.
-	 *                  The offset of the initial row is 0.
-	 * @param count:    maximum number of rows to return.
-	 * @param filter:   a reference to a valid (!= NULL) HFilter object.
-	 *                  Games not included into the filter will be ignored.
-	 * @param[out] destCont: valid pointer to an array where the sorted list of
-	 *                       games will be stored (should be able to contain at
-	 *                       least @e count elements).
-	 * @returns the number of games' ids stored into @e destCont.
+	 * Writes a page of filtered game numbers sorted by @p criteria.
+	 *
+	 * This function is faster when a matching sort cache has already been
+	 * created with @ref createSortCache().
+	 *
+	 * @param criteria sort fields; each field is followed by @c + for
+	 *                 ascending order or @c - for descending order.
+	 * @param start zero-based row offset.
+	 * @param count maximum number of rows to write.
+	 * @param filter filter defining the visible game set.
+	 * @param[out] destCont array receiving up to @p count game numbers.
+	 * @returns the number of game numbers written.
 	 */
 	size_t listGames(const char* criteria, size_t start, size_t count,
 	                 const HFilter& filter, gamenumT* destCont);
 
 	/**
-	 * Get the sorted position of a game.
-	 * This function will be much faster if a SortCache object matching @e
-	 * criteria already exists (previously created with @e createSortCache).
-	 * @param criteria: the list of fields by which games will be ordered.
-	 *                  Each field should be followed by '+' to indicate an
-	 *                  ascending order or by '-' for a descending order.
-	 * @param filter:   a reference to a valid (!= NULL) HFilter object.
-	 *                  Games not included into the filter will be ignored.
-	 * @param gameId:   the id of the game.
-	 * @returns the sorted position of @e gameId.
+	 * Returns the sorted row of @p gameId within @p filter.
+	 *
+	 * Games outside the filter, unknown game IDs, and missing sort caches
+	 * return @c INVALID_GAMEID.
 	 */
 	size_t sortedPosition(const char* criteria, const HFilter& filter,
 	                      gamenumT gameId);
@@ -397,9 +431,9 @@ struct scidBaseT {
 
 	/**
 	 * Strip the games included in @e hfilter.
-	 * @param hfilter:  HFilter containing the games to be transformed.
+	 * @param hfilter: HFilter containing the games to be transformed.
 	 * @param progress: a Progress object used for GUI communications.
-	 * @param entry_op: operator that will be applied to games.
+	 * @param removeTags: extra PGN tags to remove from each matching game.
 	 * @returns a std::pair containing scid::core::OK (or an error code) and the number of
 	 * games modified.
 	 */
@@ -482,7 +516,7 @@ private:
 
 	/**
 	 * Apply a transform operator to games' IndexEntry included in @e hfilter.
-	 * The @entry_op should accept a IndexEntry& parameter and return true when
+	 * The @p entry_op should accept a IndexEntry& parameter and return true when
 	 * the IndexEntry was modified.
 	 * @param hfilter:  HFilter containing the games to be transformed.
 	 * @param progress: a Progress object used for GUI communications.
