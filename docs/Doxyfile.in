@@ -1,0 +1,65 @@
+PROJECT_NAME           = "libscid"
+PROJECT_BRIEF          = "Chess applications made easy."
+PROJECT_NUMBER         = "@PROJECT_VERSION@"
+
+OUTPUT_DIRECTORY       = "@LIBSCID_DOXYGEN_OUTPUT_DIR@"
+CREATE_SUBDIRS         = NO
+
+FULL_PATH_NAMES        = YES
+STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@"
+CASE_SENSE_NAMES       = YES
+
+INPUT                  = "@PROJECT_SOURCE_DIR@/docs" \
+                         "@PROJECT_SOURCE_DIR@/libs/core/include/scid/core" \
+                         "@PROJECT_SOURCE_DIR@/libs/database/include/scid/database" \
+                         "@PROJECT_SOURCE_DIR@/libs/database/docs" \
+                         "@PROJECT_SOURCE_DIR@/libs/eco/include/scid/eco" \
+                         "@PROJECT_SOURCE_DIR@/libs/spelling/include/scid/spelling"
+FILE_PATTERNS          = *.h \
+                         *.md
+RECURSIVE              = YES
+EXCLUDE                =
+
+MARKDOWN_SUPPORT       = YES
+USE_MDFILE_AS_MAINPAGE = "@PROJECT_SOURCE_DIR@/docs/index.md"
+
+EXTRACT_ALL            = NO
+EXTRACT_PRIVATE        = NO
+EXTRACT_PRIV_VIRTUAL   = NO
+EXTRACT_PACKAGE        = NO
+EXTRACT_STATIC         = NO
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_EXTRA_STYLESHEET  = "@PROJECT_SOURCE_DIR@/docs/doxygen/libscid.css"
+HTML_DYNAMIC_SECTIONS  = YES
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+SEARCHENGINE           = YES
+
+GENERATE_XML           = YES
+XML_OUTPUT             = xml
+
+GENERATE_LATEX         = NO
+GENERATE_MAN           = NO
+GENERATE_RTF           = NO
+
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
+WARN_AS_ERROR          = NO
+
+QUIET                  = NO
+
+JAVADOC_AUTOBRIEF      = YES
+QT_AUTOBRIEF           = NO
+MULTILINE_CPP_IS_BRIEF = NO
+
+HAVE_DOT               = YES
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = NO

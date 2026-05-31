@@ -27,6 +27,19 @@
         "BUILD_TESTING": "OFF",
         "LIBSCID_INSTALL": "ON"
       }
+    },
+    {
+      "name": "docs",
+      "displayName": "Documentation",
+      "description": "Build generated API documentation.",
+      "binaryDir": "${sourceDir}/_build/docs",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_TESTING": "OFF",
+        "LIBSCID_BUILD_DOCS": "ON",
+        "LIBSCID_INSTALL": "OFF",
+        "LIBSCID_VERSION": "0.1.0"
+      }
     }
   ],
   "buildPresets": [
@@ -37,6 +50,13 @@
     {
       "name": "package",
       "configurePreset": "package"
+    },
+    {
+      "name": "docs",
+      "configurePreset": "docs",
+      "targets": [
+        "api-docs"
+      ]
     }
   ],
   "packagePresets": [
