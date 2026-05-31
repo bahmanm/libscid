@@ -34,8 +34,11 @@ namespace scid::database {
  * Inclusive numeric range parsed from one or two whitespace-separated values.
  *
  * A single value means an exact range.  Two values define the minimum and
- * maximum; reversed bounds are normalised.  Search helpers derive from this
- * type to parse command-line/database filter ranges.
+ * maximum; reversed bounds are normalised.  The parser intentionally follows
+ * @c strtol rules, so malformed text yields the numeric prefix that could be
+ * parsed, or zero when no prefix exists.  Search helpers derive from this type
+ * when they need the same permissive range syntax accepted by ScidUp command
+ * arguments.
  */
 class StrRange {
 protected:
@@ -50,8 +53,8 @@ public:
 	/**
 	 * Parses @p range as either @c "min" or @c "min max".
 	 *
-	 * Non-numeric text follows @c strtol semantics and therefore parses as
-	 * zero.
+	 * Extra words after the second value are ignored.  Missing second values
+	 * become an exact range.
 	 */
 	explicit StrRange(const char* range) {
 		char* next;
@@ -77,6 +80,11 @@ public:
  * periodically with work completed, total work, and sometimes a status
  * message.  Returning false requests cooperative cancellation.  A default
  * constructed @ref Progress object always returns true.
+ *
+ * @ref Progress owns its implementation pointer and is non-copyable.  Pass it
+ * by reference when wiring UI progress into database operations.  Callers
+ * should treat cancellation as cooperative: an operation may finish the current
+ * batch before observing the next false result.
  */
 class Progress {
 public:
@@ -85,6 +93,10 @@ public:
 		virtual ~Impl() {}
 		/**
 		 * Reports progress and returns whether work should continue.
+		 *
+		 * @p done and @p total are operation-defined counters, not necessarily
+		 * byte counts or game counts.  @p msg may be null when the operation has
+		 * no status text to display.
 		 */
 		virtual bool report(size_t done, size_t total, const char* msg) = 0;
 	};
@@ -112,8 +124,17 @@ private:
 };
 
 
-/** Operation used when combining a new search result with an existing filter. */
-enum filterOpT { FILTEROP_AND, FILTEROP_OR, FILTEROP_RESET };
+/**
+ * Operation used when combining a new search result with an existing filter.
+ */
+enum filterOpT {
+	/** Search only games currently included, removing non-matches. */
+	FILTEROP_AND,
+	/** Search games currently excluded, adding matches. */
+	FILTEROP_OR,
+	/** Start from all games, then keep only matches. */
+	FILTEROP_RESET
+};
 
 /**
  * Parses a filter-combination operation.
@@ -211,7 +232,14 @@ bool   strIsUnknownName (const char * str);
 /** Returns true when @p name looks like a single surname token. */
 bool   strIsSurnameOnly (const char * name);
 
-/** Parses a permissive true/false value from @p str. */
+/**
+ * Parses a permissive true/false value from @p str.
+ *
+ * Values are matched case-insensitively against @c true, @c yes, @c on,
+ * @c 1, @c ja, @c si, @c oui, and their false counterparts @c false, @c no,
+ * @c off, and @c 0.  Prefixes are accepted in either direction, but ambiguous
+ * or unknown text returns false.
+ */
 bool   strGetBoolean (const char * str);
 
 /**
@@ -293,7 +321,13 @@ const flagT FLAG_BOTH = 3;
 inline bool flag_Yes (flagT t) { return (t & FLAG_YES); }
 /** Returns true when @p t includes @c FLAG_NO. */
 inline bool flag_No (flagT t) { return (t & FLAG_NO); }
-/** Parses @c FLAG_YES, @c FLAG_NO, @c FLAG_BOTH, or @c FLAG_EMPTY. */
+/**
+ * Parses a legacy yes/no flag from the first character of @p str.
+ *
+ * True-like values return @c FLAG_YES, false-like values return @c FLAG_NO,
+ * @c B/@c b/@c 2 return @c FLAG_BOTH, and unknown values return
+ * @c FLAG_EMPTY.
+ */
 flagT  strGetFlag (const char * str);
 
 /** Parses a coordinate square such as @c "a2", or returns @c NULL_SQUARE. */
@@ -416,7 +450,7 @@ strIsCasePrefix (const char * prefix, const char * longStr)
 
 /**
  * Returns true when @p prefix matches the start of @p longStr, ignoring case
- * and spaces.
+ * and ASCII space characters.
  *
  * For example, @c strIsAlphaPrefix("smith,j", "Smith, John") is true.
  */
@@ -447,7 +481,8 @@ strContains (const char * longStr, const char * keyStr)
 }
 
 /**
- * Returns true when @p longStr contains @p keyStr, ignoring case and spaces.
+ * Returns true when @p longStr contains @p keyStr, ignoring case and ASCII
+ * space characters.
  *
  * For example, @c strAlphaContains("Smith, John", "th,j") is true.
  */
