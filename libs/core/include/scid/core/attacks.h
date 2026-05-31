@@ -1,3 +1,12 @@
+/** @file
+ * Precomputed king and knight attack tables.
+ *
+ * Each attack list has room for eight legal targets plus a NULL_SQUARE
+ * terminator.  The COLOR_SQUARE and NULL_SQUARE sentinel rows contain only
+ * NULL_SQUARE values, so callers can iterate without first testing whether the
+ * source square is a normal board square.
+ */
+
 //////////////////////////////////////////////////////////////////////
 //
 //  FILE:       attacks.h
@@ -39,7 +48,8 @@
 
 namespace scid::core {
 
-  const squareT
+/** Knight attack targets for each square, terminated by NULL_SQUARE. */
+const squareT
 knightAttacks[66][9] = {
     { /* A1 */  C2, B3, NS, NS, NS, NS, NS, NS, NS },
     { /* B1 */  D2, A3, C3, NS, NS, NS, NS, NS, NS },
@@ -117,7 +127,8 @@ knightAttacks[66][9] = {
 //    always be a NULL_SQUARE terminating the list of moves for each
 //    square.  Castling moves are not included here.
 
-  const squareT
+/** King attack targets for each square, excluding castling, terminated by NULL_SQUARE. */
+const squareT
 kingAttacks[66][9] = {
     { /* A1 */  B1, A2, B2, NS, NS, NS, NS, NS, NS },
     { /* B1 */  A1, C1, A2, B2, C2, NS, NS, NS, NS },

@@ -1,5 +1,5 @@
 /** @file
- * Square movement lookup tables.
+ * Precomputed one-step and ray-end square movement tables.
  */
 
 #pragma once
@@ -8,10 +8,10 @@
 
 namespace scid::core {
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// sqMove
-//   Array indexed by square value and direction, giving the square
-//   obtained by moving from the square in that direction.
+/** One-step movement lookup indexed by square and direction.
+ *
+ * Off-board moves, COLOR_SQUARE, and NULL_SQUARE map to NS.
+ */
 inline constexpr squareT
 precomputed_sqMove[66][11] = {
                 /* UP DOWN    LEFT UL  DL    RIGHT UR  DR */
@@ -83,12 +83,13 @@ precomputed_sqMove[66][11] = {
    { /* NS */  NS, NS, NS, NS, NS, NS, NS, NS, NS, NS, NS   }
  };
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// sqLast
-//   Array indexed by square value and direction, giving the last
-//   square reached by moving from the square in that direction.
-//   The last square is the same as the original square if moving
-//   in the specified direction would move off the board.
+/** Ray-end lookup indexed by square and direction.
+ *
+ * For on-board squares and valid directions, the result is the last on-board
+ * square reachable by continuing in that direction.  If movement in that
+ * direction is immediately off-board, the original square is returned.
+ * Sentinel squares map to NS.
+ */
 inline constexpr squareT
 precomputed_sqLast[66][11] = {
                 /* UP DOWN    LEFT UL  DL    RIGHT UR  DR */
@@ -160,21 +161,18 @@ precomputed_sqLast[66][11] = {
    { /* NS */  NS, NS, NS, NS, NS, NS, NS, NS, NS, NS, NS   }
 };
 
-// square_Move(): Return the new square resulting from moving in
-//      direction d from x.
+/** Returns the one-step destination from @p sq in @p dir, or NS off-board. */
 constexpr squareT
 square_Move(squareT sq, directionT dir)
 {
     return precomputed_sqMove[sq][dir];
 }
 
-// square_Last():
-//   Return the last square reached by moving as far as possible in
-//   the direction d from the square sq. If sq is a valid on-board
-//   square and d is a valid direction, the result will always be
-//   a valid on-board square; the result will be the same as the
-//   input square if moving in the specified direction would end
-//   up off the board.
+/** Returns the last on-board square on the ray from @p sq in @p dir.
+ *
+ * For on-board squares and valid directions the result is always on-board.
+ * When the ray immediately leaves the board, @p sq is returned.
+ */
 constexpr squareT
 square_Last (squareT sq, directionT dir)
 {
