@@ -508,33 +508,101 @@ struct scidBaseT {
 	                             const Progress& progress) const;
 
 	/**
-	 * Imports all games included in @p filter from @p srcBase.
+	 * Copies the games included in @p filter from another open database.
+	 *
+	 * Games are imported in filter iteration order.  The encoded game data,
+	 * index entry, and Seven Tag Roster names are copied through the active
+	 * codecs without first materialising a @ref scid::core::Game.  The source
+	 * and destination databases must be different objects.
+	 *
+	 * The destination is modified inside a database transaction.  Read-only
+	 * databases, databases opened with a recoverable open warning, codec
+	 * failures, and attempts to import from @p srcBase itself return an error.
+	 * If @p progress requests cancellation, the import stops after the current
+	 * game and already-copied games remain in the destination.
 	 */
 	scid::core::errorT importGames(const scidBaseT* srcBase, const HFilter& filter,
 	                   const Progress& progress);
-		scid::core::errorT importGames(std::string_view dbType, const char* filename,
-		                   const Progress& progress, std::string& errorMsg);
+	/**
+	 * Imports games from an external file.
+	 *
+	 * At present @p dbType must name the PGN codec.  Parsed games are encoded
+	 * into the destination database one at a time, using @p progress for
+	 * cancellation.  Parser diagnostics and non-fatal import notes are appended
+	 * to @p errorMsg; Chess960 games that cannot be represented by the current
+	 * codec are skipped and reported there.
+	 *
+	 * As with the database-to-database overload, successful games imported
+	 * before an error or cancellation remain in the destination.
+	 */
+	scid::core::errorT importGames(std::string_view dbType, const char* filename,
+	                               const Progress& progress,
+	                               std::string& errorMsg);
 
 	/**
-	 * Add or replace a game into the database.
-	 * @param game: core game data to store.
-	 * @param scidFlags: database/application Scid flags for the game.
-	 * @param replacedGameId: id of the game to replace.
-	 *                        If >= numGames(), a new game will be added.
-	 * @returns scid::core::OK if successful or an error code.
+	 * Adds or replaces a stored game.
+	 *
+	 * @p game is encoded into the active database format together with
+	 * @p scidFlags, the application-visible Scid flag string.  When
+	 * @p replacedGameId names an existing game, that record is replaced.  Any
+	 * value outside the current game range appends a new game instead; the
+	 * default @c INVALID_GAMEID therefore means "append".
+	 *
+	 * The function updates the codec, index, namebase, filters, sort caches,
+	 * and database cache-invalidation token as needed.  It does not offer
+	 * rollback semantics: if a codec reports an error after writing part of the
+	 * change, callers should treat the database state as codec-defined.
+	 *
+	 * @returns @ref scid::core::OK, @ref scid::core::ERROR_FileReadOnly,
+	 *          an open-warning error that prevents modification, or a codec
+	 *          error.
 	 */
 	scid::core::errorT saveGame(scid::core::Game const& game, const char* scidFlags,
 	                gamenumT replacedGameId = INVALID_GAMEID);
+	/**
+	 * Appends @p game to the database.
+	 *
+	 * Convenience wrapper for @ref saveGame() with @c INVALID_GAMEID.
+	 */
 	scid::core::errorT addGame(scid::core::Game const& game, const char* scidFlags) {
 		return saveGame(game, scidFlags, INVALID_GAMEID);
 	}
 
+	/**
+	 * Returns one raw index flag for game @p gNum.
+	 *
+	 * @p flag is a bit mask such as one returned by @c gameFlagMaskFromChar().
+	 * @p gNum must be a valid zero-based game number.
+	 */
 	bool getFlag(scid::core::uint flag, scid::core::uint gNum) const {
 		return idx->GetEntry(gNum)->GetFlag(flag);
 	}
+	/**
+	 * Sets or clears one raw index flag for one game.
+	 *
+	 * This rewrites only the game's @ref IndexEntry; it does not re-encode the
+	 * movetext or stored tag data.  Duplicate-detection state is preserved.
+	 * @p gNum must be a valid zero-based game number.
+	 */
 	scid::core::errorT setFlag(bool value, scid::core::uint flag, scid::core::uint gNum);
+	/**
+	 * Sets or clears one raw index flag for every game included in @p filter.
+	 *
+	 * This is an index-only bulk update.  Progress is not exposed by this
+	 * public wrapper, so callers that need cancellation should batch their own
+	 * work at a higher level.
+	 */
 	scid::core::errorT setFlags(bool value, scid::core::uint flag, const HFilter& filter);
+	/**
+	 * Toggles one raw index flag for one game.
+	 *
+	 * Equivalent to reading @ref getFlag() and writing the opposite value with
+	 * @ref setFlag().
+	 */
 	scid::core::errorT invertFlag(scid::core::uint flag, scid::core::uint gNum);
+	/**
+	 * Toggles one raw index flag for every game included in @p filter.
+	 */
 	scid::core::errorT invertFlags(scid::core::uint flag, const HFilter& filter);
 
 	/**
