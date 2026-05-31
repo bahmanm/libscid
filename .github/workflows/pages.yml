@@ -29,7 +29,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes default-jre doxygen graphviz plantuml
-          dpkg -L plantuml | grep '/plantuml\\.jar$' | head -n 1 | sed 's#^#LIBSCID_PLANTUML_JAR_PATH=#' >> "$GITHUB_ENV"
+          plantuml_jar="$(dpkg -L plantuml | awk '/\/plantuml\.jar$/ { print; exit }')"
+          if [[ -z "$plantuml_jar" ]]; then
+            echo "Could not find plantuml.jar in the plantuml package." >&2
+            dpkg -L plantuml >&2
+            exit 1
+          fi
+          echo "LIBSCID_PLANTUML_JAR_PATH=$plantuml_jar" >> "$GITHUB_ENV"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
