@@ -1,3 +1,10 @@
+libscid is an offspring of ScidUp which is a fork of Scid.
+Unless stated otherwise, modifications and additions
+in this fork are copyright (C) their respective contributors (see Git history)
+and are distributed under the terms of the GNU General Public License, version 2.
+
+---------------------------------------------------------------------------
+
 Files that are copyrighted by respective authors :
 Book files (performance.bin and varied.bin): Marc Lacrosse
 Book files (Elo2400.bin and gm2600.bin): Pascal Georges
@@ -45,11 +52,6 @@ with absolutely no warranty of any kind.
 Shane Hudson
 sgh@users.sourceforge.net
 January 2003
-
-libscid is an offsprint of Scidup which is a fork of Scid. 
-Unless stated otherwise, modifications and additions
-in this fork are copyright (C) their respective contributors (see Git history)
-and are distributed under the terms of the GNU General Public License, version 2.
 
 ---------------------------------------------------------------------------
 

@@ -21,7 +21,13 @@
  */
 
 /** @file
- * Encode a game according to the PGN standard.
+ * PGN encoder entry points and formatting helpers.
+ *
+ * The normal entry point is encode(): pass a Game, an appendable destination,
+ * and optional EncodeOptions to receive final PGN text.  The lower-level
+ * helpers are exposed because older callers build tags, movetext, or line
+ * wrapping separately; they use NUL bytes as temporary token separators until
+ * break_lines() turns those separators into spaces or newlines.
  */
 
 #pragma once
@@ -39,20 +45,37 @@
 
 namespace scid::core::pgn {
 
+/** Options controlling which PGN content is emitted.
+ *
+ * The defaults produce a complete PGN game with the seven tag roster,
+ * supplemental tags, comments, NAGs, and variations.  Disable individual flags
+ * when exporting a reduced form, such as a mainline-only game list.
+ */
 struct EncodeOptions {
+	/** Emit symbolic NAGs such as @c ! when available instead of numeric @c $1. */
 	bool symbolicNags = false;
+	/** Emit non-seven-tag supplemental tags such as ratings, ECO, EventDate, and extras. */
 	bool includeSupplementalTags = true;
+	/** Emit initial, move, and variation comments, plus NAGs. */
 	bool includeComments = true;
+	/** Emit child variations recursively. */
 	bool includeVariations = true;
+	/** Runtime movetext line width.  When empty, the template width is used. */
 	std::optional<unsigned> lineWidth = std::nullopt;
 };
 
-// We want to split the PGN text in lines to make it more readable, but we do
-// not want to insert extra newline chars inside comments or tag values.
-// This implies that even very long comment would stay on a single line if the
-// user didn't insert newline chars himself.
-// However it is possible to set @e hard_len (i.e to 1024) to allow converting
-// spaces to newline chars in lines longer than @e hard_len.
+/** Replaces internal token separators with spaces or newlines.
+ *
+ * The encoder uses NUL bytes as soft token breakpoints while constructing PGN.
+ * This helper turns those breakpoints into spaces, promoting the most recent
+ * breakpoint to a newline when the current line would exceed @p desired_len.
+ * Existing newlines are preserved, so comments and tag values are not split
+ * unless @p hard_len requests a secondary pass that may break on spaces.
+ *
+ * Most callers should use encode(), which performs this step automatically.
+ *
+ * @returns an iterator to the first character of the final line.
+ */
 template <int desired_len = 80, char breakpoint_char = '\0', int hard_len = 0,
           typename Iter>
 Iter break_lines(Iter begin, Iter end) {
@@ -65,8 +88,8 @@ Iter break_lines(Iter begin, Iter end) {
 		});
 
 		// Change the last breakpoint to newline char if the line would exceed
-		// the desired length and there weren't newline chars (for example in
-		// comments) beetween this and the last breakpoint.
+		// the desired length and there were no newline chars (for example in
+		// comments) between this and the last breakpoint.
 		if (std::distance(line_first_char, it) > desired_len &&
 		    last_breakpoint > line_first_char) {
 			*last_breakpoint = '\n';
@@ -74,7 +97,7 @@ Iter break_lines(Iter begin, Iter end) {
 		}
 
 		// If a secondary line length was requested, try to convert spaces to
-		// newline chars (this is not desiderable, but old software may use
+		// newline chars (this is not desirable, but old software may use
 		// limited fixed size buffer when reading PGNs).
 		if (hard_len != 0 && std::distance(line_first_char, it) > hard_len) {
 			line_first_char = break_lines<hard_len, ' '>(line_first_char, it);
@@ -93,6 +116,7 @@ Iter break_lines(Iter begin, Iter end) {
 	return line_first_char;
 }
 
+/** Runtime-width overload of break_lines(). */
 template <typename Iter>
 Iter break_lines(Iter begin, Iter end, unsigned desired_len) {
 	auto line_first_char = begin;
@@ -123,12 +147,11 @@ Iter break_lines(Iter begin, Iter end, unsigned desired_len) {
 	return line_first_char;
 }
 
-// Escape quote and backslash chars according to the PGN standard:
-// "A quote inside a string is represented by the backslash immediately followed
-// by a quote. A backslash inside a string is represented by two adjacent
-// backslashes."
-// @param str: the string containing the chars to be escaped.
-// @param pos: start of the substring of @e str to be processed.
+/** Escapes quotes and backslashes in a PGN string token.
+ *
+ * Only the substring beginning at @p pos is processed, which lets callers append
+ * a tag value and then escape just the newly appended content.
+ */
 template <typename TCont>
 void escape_string(TCont& str, typename TCont::size_type pos) {
 	auto it = str.begin() + pos;
@@ -142,16 +165,15 @@ void escape_string(TCont& str, typename TCont::size_type pos) {
 	}
 }
 
-// Encode a tag pair according to the PGN standard.
-// "A tag pair is composed of four consecutive tokens: a left bracket token, a
-// symbol token, a string token, and a right bracket token. The symbol token is
-// the tag name and the string token is the tag value associated with the tag
-// name. There are no white space characters between the left bracket and the
-// tag name, there are no white space characters between the tag value and the
-// right bracket, and there is a single space character between the tag name and
-// the tag value."
-// @param unknown_to_question_mark: if true, and a Seven Tag Roster is unknown,
-// its tag value is changed to a single question mark.
+/** Appends one PGN tag pair to @p dest.
+ *
+ * The tag/value separator is written as NUL so that break_lines() can later
+ * convert it to a space.  Tag values are escaped according to PGN string-token
+ * rules.
+ *
+ * @tparam unknown_to_question_mark when true, empty Event, Site, Round, White,
+ * and Black values are written as @c ?.
+ */
 template <bool unknown_to_question_mark = false, typename TCont>
 void encode_tag_pair(std::string_view tag, std::string_view value,
                      TCont& dest) {
@@ -176,10 +198,14 @@ void encode_tag_pair(std::string_view tag, std::string_view value,
 	dest.push_back('\n');
 }
 
-// Encode a comment as "rest of the line": this comment type starts with a
-// semicolon character and continues to the end of the line.
-// If @e comment include any newline or line break char the comment cannot be
-// encoded in this way: it return false and does not modify @e dest.
+/** Attempts to encode @p comment as a PGN semicolon comment.
+ *
+ * Semicolon comments run to the end of the line.  Comments containing line
+ * breaks, NUL separators, or exceeding @p hard_len are rejected without
+ * modifying @p dest.
+ *
+ * @returns true when @p comment was appended.
+ */
 template <int hard_len = 0, typename TCont>
 [[nodiscard]] bool encode_comment_rest_of_line(std::string_view comment,
                                                TCont& dest) {
@@ -197,12 +223,12 @@ template <int hard_len = 0, typename TCont>
 	return true;
 }
 
-// Encode a comment in one of the two kinds specified by PGN standard.
-// The kind that "starts with a left brace character and continues to the next
-// right brace character" is preferred and used if the comment do not contains
-// curly braces itself. If the comments contains both curly braces and newline
-// or line break chars the curly braces inside the comment are replaced with
-// UTF-8 fullwidth curly braces.
+/** Appends @p comment using a legal PGN comment form.
+ *
+ * Brace comments are preferred.  If the comment contains braces, the helper
+ * first tries semicolon-comment form; when that is not possible, braces inside
+ * the comment are replaced with UTF-8 fullwidth brace characters.
+ */
 template <int hard_len = 0, typename TCont>
 static void encode_comment(std::string_view comment, TCont& dest) {
 	auto is_curly = [](char ch) { return ch == '{' || ch == '}'; };
@@ -230,8 +256,16 @@ static void encode_comment(std::string_view comment, TCont& dest) {
 	dest.push_back('\0');
 }
 
+/** @namespace scid::core::pgn::detail
+ * @internal
+ * Implementation details used by encode_core_line().
+ *
+ * These names are documented only so generated API reference pages remain
+ * complete.  They are not the recommended extension point for PGN export.
+ */
 namespace detail {
 
+/** Internal entry kinds used while linearising movetext. */
 enum class MovetextEntryKind {
 	InitialComment,
 	VariationStart,
@@ -239,6 +273,7 @@ enum class MovetextEntryKind {
 	Move
 };
 
+/** Internal flattened movetext entry passed to encode_movetext_entry(). */
 struct MovetextEntry {
 	MovetextEntryKind kind;
 	std::string_view san;
@@ -246,6 +281,7 @@ struct MovetextEntry {
 	std::span<const Nag> nags;
 };
 
+/** Returns a move's stored SAN or computes SAN from @p position. */
 inline std::string san_for_move(scid::core::Position& position,
                                 const Move& move,
                                 scid::core::sanFlagT flag) {
@@ -255,6 +291,7 @@ inline std::string san_for_move(scid::core::Position& position,
 	return position.makeSan(move.spec, flag);
 }
 
+/** Appends a flattened movetext entry to @p dest. */
 template <int hard_len = 0, typename TCont>
 void encode_movetext_entry(MovetextEntry const& entry,
                            std::vector<long long>& ply,
@@ -312,6 +349,13 @@ void encode_movetext_entry(MovetextEntry const& entry,
 
 } // namespace detail
 
+/** Encodes one move sequence and its child variations.
+ *
+ * This is a low-level building block for custom exporters.  It expects callers
+ * to provide the current position and ply stack that correspond to @p line.
+ * Use encode_movetext() or encode() unless those details are already part of
+ * your export pipeline.
+ */
 template <int hard_len = 0, typename TCont>
 void encode_core_line(MoveSequence const& line,
                       scid::core::Position position,
@@ -353,6 +397,12 @@ void encode_core_line(MoveSequence const& line,
 	}
 }
 
+/** Encodes only a game's movetext section.
+ *
+ * The destination receives a leading blank line before movetext, matching the
+ * separation between PGN tag pairs and movetext in a complete game.  Token
+ * separators remain as NUL bytes until break_lines() or encode() is called.
+ */
 template <int hard_len = 0, typename TCont>
 void encode_movetext(Game const& game, TCont& dest,
                      EncodeOptions options = {}) {
@@ -378,6 +428,11 @@ void encode_movetext(Game const& game, TCont& dest,
 		dest.back() = '\n';
 }
 
+/** Encodes the seven tag roster plus selected supplemental tags.
+ *
+ * This writes tag-pair lines only.  Use encode_game() when the movetext and
+ * result marker should be emitted as well.
+ */
 template <typename TCont>
 void encode_core_tag_pairs(Game const& game, TCont& dest,
                            EncodeOptions options = {}) {
@@ -415,6 +470,11 @@ void encode_core_tag_pairs(Game const& game, TCont& dest,
 		encode_tag_pair("FEN", str_buf, dest);
 }
 
+/** Encodes a complete game without final line wrapping.
+ *
+ * Token separators remain as NUL bytes.  This is useful for callers that want
+ * to choose their own wrapping policy; use encode() for normal PGN text.
+ */
 template <int hard_len = 0, typename TCont>
 void encode_game(Game const& game, TCont& dest, EncodeOptions options = {}) {
 	encode_core_tag_pairs(game, dest, options);
@@ -425,10 +485,16 @@ void encode_game(Game const& game, TCont& dest, EncodeOptions options = {}) {
 	dest.push_back('\n');
 }
 
-// Encode a game according to the PGN standard, adding newline chars to make it
-// more readable.
-// @param game: the game to be encoded.
-// @param dest: the container where the PGN Game will be appended.
+/** Encodes a complete game as final PGN text.
+ *
+ * The generated game is appended to @p dest.  Internal NUL token separators are
+ * converted to spaces or line breaks before the function returns.
+ *
+ * @code
+ * std::string pgn;
+ * scid::core::pgn::encode(game, pgn);
+ * @endcode
+ */
 template <int desired_len = 80, typename TGame, typename TCont>
 void encode(TGame const& game, TCont& dest, EncodeOptions options = {}) {
 	auto begin = dest.size();

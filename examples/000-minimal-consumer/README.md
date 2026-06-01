@@ -1,4 +1,4 @@
-# 00 Minimal Consumer
+# 000 Minimal Consumer
 
 This is the 'hello, world' of libscid.
 
@@ -25,7 +25,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/00-minimal-consumer -B _build/examples/00-minimal-consumer -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/00-minimal-consumer
-ctest --test-dir _build/examples/00-minimal-consumer --output-on-failure
+cmake -S examples/000-minimal-consumer -B _build/examples/000-minimal-consumer -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/000-minimal-consumer
+ctest --test-dir _build/examples/000-minimal-consumer --output-on-failure
 ```

@@ -36,7 +36,10 @@ class Position;
 
 namespace scid::eco {
 
+/** Error code type used by the ECO loader. */
 using Error = scid::core::errorT;
+
+/** Position type classified by an ECO book. */
 using Position = scid::core::Position;
 
 inline constexpr Error OK = scid::core::OK;
@@ -44,14 +47,26 @@ inline constexpr Error ERROR_FileOpen = scid::core::ERROR_FileOpen;
 inline constexpr Error ERROR_Corrupt = scid::core::ERROR_Corrupt;
 
 /**
- * A Book is a collection of chess positions, each with the corresponding ECO
- * code, a mnemonic name, and the list of moves to reach the position.
+ * Exact-position ECO classifier loaded from a Scid ECO file.
+ *
+ * A book stores the final position of each ECO line together with its ECO code,
+ * mnemonic name, and move text.  Lookup is exact: a position must match a
+ * stored compact board, not merely share a prefix of the opening line.  The
+ * implementation first indexes by position hash and then verifies the compact
+ * board, so hash collisions do not change the result.
+ *
+ * Strings returned by lookup methods are views into memory owned by the book.
+ * They remain valid until the book is destroyed or moved from.
  */
 class Book {
 public:
+	/** One ECO-file line split into display-friendly fields. */
 	struct Line {
+		/** ECO code text, including any Scid subcode extension. */
 		std::string_view code;
+		/** Mnemonic opening name without the surrounding brackets. */
 		std::string_view name;
+		/** Move text that reaches the classified position. */
 		std::string_view moves;
 	};
 
@@ -72,34 +87,65 @@ private:
 
 public:
 	/**
-	 * Read a file with a list of ECO codes and creates a Book object.
-	 * The file is composed of lines like this:
-	 * C50a "Italian Game"  1.e4 e5 2.Nf3 Nc6 3.Bc4 *
-	 * @param path: the path of the file to be read.
-	 * @returns
-	 * - on success, a @e std::pair containing scid::eco::OK and the newly created object.
-	 * - on failure, a @e std::pair containing an error code and an empty object.
+	 * Loads a Scid ECO file.
+	 *
+	 * The file is a text list of lines in the form:
+	 *
+	 * @code
+	 * C50a "Italian Game" 1.e4 e5 2.Nf3 Nc6 3.Bc4 *
+	 * @endcode
+	 *
+	 * Blank text and comment lines beginning with @c # are skipped while
+	 * looking for the next ECO code.  Each move sequence is parsed from the
+	 * standard chess starting position.  If the file cannot be opened,
+	 * @c ERROR_FileOpen is returned.  If a line is malformed or contains an
+	 * illegal move, @c ERROR_Corrupt is returned and the returned book is
+	 * empty.
+	 *
+	 * @returns an error code plus the loaded book.
 	 */
 	static std::pair<Error, Book> load(const std::filesystem::path& path);
 
 	/**
-	 * Retrieve an ECO string containing the ECO code and the mnemonic name.
-	 * @param position: the position to search for.
-	 * @returns an empty string_view if the position is not found
+	 * Returns the ECO code and mnemonic name for @p position.
+	 *
+	 * The returned view has the form @c "C50a [Italian Game]".  It is empty
+	 * when the exact position is not present in the book.
 	 */
 	std::string_view findEcoString(const Position& position) const;
 
 	/**
-	 * Retrieve the ECO code of a position.
-	 * @param position: the position to search for.
-	 * @returns the corresponding ECO code or scid::eco::ECO_None if not found.
+	 * Returns the compact ECO code for @p position.
+	 *
+	 * @returns the corresponding ECO code, or @c ECO_None when the exact
+	 *          position is not present in the book.
 	 */
 	Code findEco(const Position& position) const;
 
+	/**
+	 * Returns loaded ECO lines whose code starts with @p ecoPrefix.
+	 *
+	 * Matching is byte-exact and case-sensitive.  An empty prefix returns every
+	 * loaded line.  The returned views are owned by the book and are reported
+	 * in file order.
+	 */
 	std::vector<Line> linesWithPrefix(std::string_view ecoPrefix) const;
 
+	/**
+	 * Returns the loader's source-line counter.
+	 *
+	 * The value is useful for diagnostics, but it follows the loader's scanning
+	 * rules rather than promising an editor-style physical line count.
+	 */
 	unsigned lineCount() const { return lineCount_; }
+	/**
+	 * Returns the fewest pieces on the board among indexed ECO positions.
+	 *
+	 * Empty books report 32, the maximum material count used as the initial
+	 * value.
+	 */
 	unsigned fewestPieces() const { return leastMaterial_; }
+	/** Returns the number of indexed ECO positions. */
 	size_t size() const { return pos_.size(); }
 };
 

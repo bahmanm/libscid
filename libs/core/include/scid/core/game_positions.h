@@ -1,3 +1,7 @@
+/** @file
+ * Position snapshots extracted from a game tree.
+ */
+
 #pragma once
 
 #include "scid/core/game_cursor.h"
@@ -11,32 +15,71 @@
 
 namespace scid::core::gamepos {
 
+/** A serialisable snapshot of one reachable position in a game.
+ *
+ * Game positions are produced in PGN traversal order: the main line is
+ * interleaved with recursive annotation variations (RAVs), and the pair
+ * @c RAVdepth / @c RAVnum identifies when the stream enters, leaves, or
+ * switches between sibling variations.
+ *
+ * The field names mirror the legacy ScidUp representation.  Treat them as a
+ * transport shape: the FEN and SAN fields describe the board reached at this
+ * point, while the RAV fields describe where that point sits in the game tree.
+ */
 struct GamePos {
+  /** Variation nesting depth of this position.
+   *
+   * The main line has depth 0. A direct variation has depth 1, and nested
+   * variations increase the depth further.
+   */
   uint32_t RAVdepth;
+
+  /** Sibling variation identifier at @c RAVdepth.
+   *
+   * Consumers can compare this with the previous position to decide whether a
+   * variation continues or a new sibling variation has begun.
+   */
   uint32_t RAVnum;
-  std::string FEN;       // "Forsyth-Edwards Notation" describing the position.
-  std::vector<int> NAGs; // "Numeric Annotation Glyph"
-  std::string comment;   // text annotation of the position.
-  std::string lastMoveSAN; // move that was played to reach the position.
+
+  /** Forsyth-Edwards Notation for the position after @c lastMoveSAN. */
+  std::string FEN;
+
+  /** Numeric Annotation Glyph codes attached to the move that reached this position. */
+  std::vector<int> NAGs;
+
+  /** Text annotation attached to this position or to the surrounding variation. */
+  std::string comment;
+
+  /** SAN of the move that reached this position, or empty for the game start. */
+  std::string lastMoveSAN;
 };
 
-/**
- * Iterate all the positions of a game and store the corresponding GamePos
- * objects into a container.
+/** Append all position snapshots of a game to a caller-supplied container.
  *
- * The order of positions of Recursive Annotation Variations (RAV) follows the
- * PGN standard: "The alternate move sequence given by an RAV is one that may
- * be legally played by first unplaying the move that appears immediately prior
- * to the RAV. Because the RAV is a recursive construct, it may be nested"
- * Each position has a RAVdepth and a RAVnum that allows following a variation
- * from any given position:
- * - skip all the next positions with a bigger RAVdepth
- * - the variation ends with:
- *   - a lower RAVdepth or
- *   - an equal RAVdepth but different RAVnum or
- *   - the end of @e dest
- * @param game: reference to the Game object where the positions are read.
- * @param dest: the container where the GamePos objects are appended.
+ * The traversal follows PGN RAV semantics: a variation starts from the position
+ * before the move immediately preceding the RAV, and nested RAVs are emitted
+ * recursively. The resulting stream is intended for clients that need a flat
+ * representation of a game tree while still being able to reconstruct
+ * variation boundaries.
+ *
+ * To follow one variation from a given snapshot, keep reading while the next
+ * snapshots have a greater @c GamePos::RAVdepth. The variation ends at the
+ * first snapshot with a lower depth, an equal depth with a different
+ * @c GamePos::RAVnum, or the end of @p dest.
+ *
+ * @code
+ * auto positions = scid::core::gamepos::collectPositions(game);
+ * for (const auto& pos : positions) {
+ *     if (pos.RAVdepth == 0) {
+ *         showMainlinePosition(pos.FEN, pos.lastMoveSAN);
+ *     }
+ * }
+ * @endcode
+ *
+ * @tparam TCont Container type supporting @c emplace_back() and @c back().
+ * @param game Game whose main line and variations are traversed.
+ * @param dest Container to which snapshots are appended. Existing contents are
+ *             preserved.
  */
 template <typename TCont>
 inline void collectPositions(const scid::core::Game &game, TCont &dest) {
@@ -69,11 +112,11 @@ inline void collectPositions(const scid::core::Game &game, TCont &dest) {
   } while (scid::core::pgn::nextLocation(cursor));
 }
 
-/**
- * Returns all the positions of a game
- * @param game: reference to the Game object where the positions are read.
- * @returns a std::vector containing the GamePos objects corresponding to all
- * the positions of @e game.
+/** Return all position snapshots of a game.
+ *
+ * @param game Game whose main line and variations are traversed.
+ * @returns A vector containing the same snapshots that the templated overload
+ *          would append to an empty container.
  */
 inline std::vector<GamePos> collectPositions(const scid::core::Game &game) {
   std::vector<GamePos> res;

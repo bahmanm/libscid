@@ -24,11 +24,11 @@ add_subdirectory( libs/eco )
 add_subdirectory( libs/database )
 add_subdirectory( libs/spelling )
 
+if( LIBSCID_BUILD_DOCS )
+    include( cmake/docs.cmake )
+endif()
+
 if( LIBSCID_INSTALL )
     include( cmake/install/main.cmake )
     include( cmake/packaging.cmake )
-endif()
-
-if( LIBSCID_BUILD_DOCS )
-    include( cmake/docs.cmake )
 endif()

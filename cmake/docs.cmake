@@ -18,6 +18,7 @@ configure_file(
 
 add_custom_target(
     api-docs
+    ALL
     COMMAND "${DOXYGEN_EXECUTABLE}" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
     BYPRODUCTS "${LIBSCID_DOXYGEN_OUTPUT_DIR}/html/index.html"
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"

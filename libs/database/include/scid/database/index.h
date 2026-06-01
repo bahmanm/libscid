@@ -32,6 +32,14 @@
 
 namespace scid::database {
 
+/**
+ * In-memory table of database index entries.
+ *
+ * A Scid database keeps its index resident in memory so list views, searches,
+ * and random game access do not need to scan the encoded game data file.  The
+ * entries are stored in chunked storage by the implementation, so pointers
+ * returned by @ref GetEntry() remain stable while more entries are appended.
+ */
 class Index
 {
 private:
@@ -39,35 +47,50 @@ private:
     std::unique_ptr<Impl> impl_;
 
 public:
+    /** Creates an empty index. */
     Index();
+    /** Releases all index storage. */
     ~Index();
     Index(const Index&) = delete;
     Index& operator=(const Index&) = delete;
 
+    /** Clears every entry and resets validation counters. */
     void Close();
 
+    /**
+     * Returns the index entry for game number @p g.
+     *
+     * @p g must be less than @ref GetNumGames().  The returned pointer remains
+     * valid until the entry is replaced, the index is closed, or the index is
+     * destroyed.
+     */
     const IndexEntry* GetEntry (gamenumT g) const;
 
     /**
-     * GetBadNameIdCount() - return the number of invalid name handles.
+     * Returns the number of invalid name handles found while opening the index.
      *
-     * To save space, avoiding duplicates, the index keep handles
-     * to strings stored in the namebase file.
-     * If one of the two files is corrupted, the index may have
-     * handles to strings that do not exists.
-     * This functions returns the number of invalid name handles.
+     * To save space, an @ref IndexEntry stores @c idNumberT handles to names
+     * kept in @ref NameBase.  If the index and namebase files are out of sync
+     * or corrupted, some handles may not resolve to strings.  The codec counts
+     * those repairs or invalid references here so callers can report database
+     * health without walking the index again.
      */
     int GetBadNameIdCount() const;
 
+    /** Replaces the number of invalid name handles reported for this index. */
     void setBadNameIdCount(int count);
 
-    /**
-     * Header getter functions
-     */
+    /** Returns the number of games represented by this index. */
     gamenumT GetNumGames() const;
 
+    /** Appends @p ie as the next game's index entry. */
     void addEntry(const IndexEntry& ie);
 
+    /**
+     * Replaces the entry for game number @p replaced.
+     *
+     * @p replaced must already exist in the index.
+     */
     void replaceEntry(const IndexEntry& ie, gamenumT replaced);
 
 private:

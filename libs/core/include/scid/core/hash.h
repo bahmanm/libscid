@@ -8,9 +8,16 @@
 
 namespace scid::core {
 
+/** Zobrist hash table for piece/square occupancy.
+ *
+ * The table contains one deterministic 32-bit value for each concrete chess
+ * piece on each board square. Hashing and unhashing are the same operation:
+ * XOR the value for the occupied piece and square into the accumulator.
+ */
 class HashVal {
     unsigned hashVal_[16][64] = {};
 public:
+    /** Build the deterministic Zobrist table at compile time. */
     constexpr HashVal() {
 // goodHashValues
 //   This is a table of 12 (pieces) * 64 (squares) = 768 pre-generated
@@ -170,13 +177,28 @@ goodHashValues [12 * 64] = {
 
     }
 
+    /** Toggle one piece/square contribution in a hash accumulator.
+     *
+     * @param hash Accumulator to update in place.
+     * @param p Piece code, such as @c WK or @c BP.
+     * @param sq Board square, from @c A1 through @c H8.
+     */
     constexpr void operator()(unsigned& hash, unsigned char p, unsigned char sq) const {
         hash ^= hashVal_[p][sq];
     };
 };
+
+/** Shared Zobrist helper used to add piece/square contributions. */
 constexpr inline auto HASH = HashVal();
+
+/** Alias for @c HASH used when removing piece/square contributions.
+ *
+ * Zobrist removal is also an XOR operation, so hashing and unhashing share the
+ * same implementation.
+ */
 inline auto const& UNHASH = HASH;
 
+/** Pawn hash of the standard chess starting position. */
 constexpr inline unsigned stdStartPawnHash = [] {
     unsigned h = 0;
     HASH (h,WP,A2);  HASH (h,WP,B2);  HASH (h,WP,C2);  HASH (h,WP,D2);
@@ -186,6 +208,7 @@ constexpr inline unsigned stdStartPawnHash = [] {
     return h;
 }();
 
+/** Full-piece hash of the standard chess starting position. */
 constexpr inline unsigned stdStartHash = [] {
     auto h = stdStartPawnHash;
     HASH (h,WR,A1);  HASH (h,WN,B1);  HASH (h,WB,C1);  HASH (h,WQ,D1);

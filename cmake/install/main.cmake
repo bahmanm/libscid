@@ -46,3 +46,13 @@ install(
         "${PROJECT_SOURCE_DIR}/COPYING"
         "${PROJECT_SOURCE_DIR}/README.md"
     DESTINATION "${CMAKE_INSTALL_DOCDIR}" )
+
+install(
+    DIRECTORY "${PROJECT_SOURCE_DIR}/examples/"
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}/examples" )
+
+if( LIBSCID_BUILD_DOCS )
+    install(
+        DIRECTORY "${LIBSCID_DOXYGEN_OUTPUT_DIR}/html/"
+        DESTINATION "${CMAKE_INSTALL_DOCDIR}/html" )
+endif()

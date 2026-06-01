@@ -1,3 +1,7 @@
+/** @file
+ * Numeric annotation glyphs and PGN annotation conversion helpers.
+ */
+
 #pragma once
 
 #include <cstdint>
@@ -6,6 +10,12 @@
 
 namespace scid::core {
 
+/** Numeric annotation glyph values used in PGN movetext.
+ *
+ * The enum names cover the annotation values recognised by libscid.  Values map
+ * directly to PGN @c $n NAG codes and may also have a symbolic representation
+ * such as @c !, @c ??, or @c D.
+ */
 enum class Nag : std::uint8_t {
 	None = 0,
 	GoodMove = 1,
@@ -73,18 +83,31 @@ enum class Nag : std::uint8_t {
 	Without = 215
 };
 
+/** Returns the PGN numeric code for @p nag. */
 constexpr std::uint8_t nagCode(Nag nag) {
 	return static_cast<std::uint8_t>(nag);
 }
 
+/** Builds a Nag value from a numeric PGN code. */
 constexpr Nag nagFromCode(std::uint8_t value) {
 	return static_cast<Nag>(value);
 }
 
+/** Largest named Nag code currently recognised by libscid. */
 inline constexpr std::uint8_t maxNagCode = nagCode(Nag::Without);
 
+/** Formats @p nag as a symbolic annotation when possible, or @c $n.
+ *
+ * Nag::None formats as an empty string.  When @p asSymbol is true but no symbol
+ * is known for the code, numeric @c $n form is used.
+ */
 std::string nagToString(Nag nag, bool asSymbol);
+/** Returns the symbolic form for @p nag, or an empty view if none is known. */
 std::string_view nagToSymbol(Nag nag);
+/** Parses symbolic, bare numeric, or @c $n NAG text.
+ *
+ * Unknown, malformed, or out-of-range text returns Nag::None.
+ */
 Nag nagFromString(std::string_view text);
 
 } // namespace scid::core

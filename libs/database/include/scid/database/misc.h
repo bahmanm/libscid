@@ -28,14 +28,18 @@
 #include <cstdlib>
 #include <vector>
 
-/**
- * class StrRange - parse a string interpreting its content as 1 or 2 integers
- *                  separated by whitespace.
- * The integers represent the min and max value of a range.
- * If only one integer is provided it will represent both the min and max value.
- */
 namespace scid::database {
 
+/**
+ * Inclusive numeric range parsed from one or two whitespace-separated values.
+ *
+ * A single value means an exact range.  Two values define the minimum and
+ * maximum; reversed bounds are normalised.  The parser intentionally follows
+ * @c strtol rules, so malformed text yields the numeric prefix that could be
+ * parsed, or zero when no prefix exists.  Search helpers derive from this type
+ * when they need the same permissive range syntax accepted by ScidUp command
+ * arguments.
+ */
 class StrRange {
 protected:
 	long min_;
@@ -46,6 +50,12 @@ protected:
 	: min_(0), max_(0) {}
 
 public:
+	/**
+	 * Parses @p range as either @c "min" or @c "min max".
+	 *
+	 * Extra words after the second value are ignored.  Missing second values
+	 * become an exact range.
+	 */
 	explicit StrRange(const char* range) {
 		char* next;
 		min_ = std::strtol(range, &next, 10);
@@ -55,7 +65,7 @@ public:
 		if (min_ > max_) std::swap(min_, max_);
 	}
 
-	/// @returns true if @e val is >= min_ and <= max_
+	/** Returns true when @p val is inside the inclusive range. */
 	bool inRange(long val) const {
 		if (val < min_ || val > max_) return false;
 		return true;
@@ -63,20 +73,47 @@ public:
 };
 
 
+/**
+ * Optional progress and cancellation callback.
+ *
+ * Long-running database operations receive a @ref Progress object and call it
+ * periodically with work completed, total work, and sometimes a status
+ * message.  Returning false requests cooperative cancellation.  A default
+ * constructed @ref Progress object always returns true.
+ *
+ * @ref Progress owns its implementation pointer and is non-copyable.  Pass it
+ * by reference when wiring UI progress into database operations.  Callers
+ * should treat cancellation as cooperative: an operation may finish the current
+ * batch before observing the next false result.
+ */
 class Progress {
 public:
+	/** Callback implementation owned by @ref Progress. */
 	struct Impl {
 		virtual ~Impl() {}
+		/**
+		 * Reports progress and returns whether work should continue.
+		 *
+		 * @p done and @p total are operation-defined counters, not necessarily
+		 * byte counts or game counts.  @p msg may be null when the operation has
+		 * no status text to display.
+		 */
 		virtual bool report(size_t done, size_t total, const char* msg) = 0;
 	};
 
+	/**
+	 * Takes ownership of @p f.
+	 */
 	Progress(Impl* f = NULL) : f_(f) {}
 	Progress(const Progress&) = delete;
+	/** Deletes the owned callback implementation. */
 	~Progress() { delete f_; }
 
+	/** Reports progress without a message. */
 	bool report(size_t done, size_t total) const {
 		return operator()(done, total);
 	}
+	/** Reports progress and returns whether the caller should continue. */
 	bool operator()(size_t done, size_t total, const char* msg = NULL) const {
 		if (f_) return f_->report(done, total, msg);
 		return true;
@@ -87,11 +124,24 @@ private:
 };
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strGetFilterOp:
-//    Converts a string value to a filter operation value.
-enum filterOpT { FILTEROP_AND, FILTEROP_OR, FILTEROP_RESET };
+/**
+ * Operation used when combining a new search result with an existing filter.
+ */
+enum filterOpT {
+	/** Search only games currently included, removing non-matches. */
+	FILTEROP_AND,
+	/** Search games currently excluded, adding matches. */
+	FILTEROP_OR,
+	/** Start from all games, then keep only matches. */
+	FILTEROP_RESET
+};
 
+/**
+ * Parses a filter-combination operation.
+ *
+ * @c "A", @c "a", and @c "0" mean AND; @c "O", @c "o", and @c "1" mean OR;
+ * @c "R", @c "r", and @c "2" mean reset.  Unknown values default to reset.
+ */
 inline filterOpT strGetFilterOp (const char * str)
 {
     switch (*str) {
@@ -103,15 +153,26 @@ inline filterOpT strGetFilterOp (const char * str)
         case 'R': case 'r': case '2': return FILTEROP_RESET;
     }
     // Default is RESET.
-    return FILTEROP_RESET;
+	return FILTEROP_RESET;
 }
 
-// String routines. Some are identical to ANSI standard functions, but
-//      I have included them:
-//      (a) to keep nice consistent naming conventions, e.g. strCopy.
-//      (b) so stats can easily be kept by modifying the functions.
-//      (c) so some can be made inline for speed if necessary.
+/**
+ * Legacy string and parser helpers used by database import, search, and
+ * namebase compatibility code.
+ *
+ * These functions intentionally preserve Scid's older command and namebase
+ * semantics.  Some helpers are permissive parsers for user-entered search
+ * arguments; others implement byte-exact or legacy-compatible comparisons
+ * that should not be replaced with locale-aware string APIs unless the call
+ * site explicitly wants different behaviour.
+ */
 
+/**
+ * Returns a case-insensitive hash of the first four characters of @p str.
+ *
+ * Shorter strings are padded by their terminating NUL byte.  The hash is used
+ * as a compact sortable prefix key for names.
+ */
 inline uint32_t strStartHash(const char* str) {
 	ASSERT(str != 0);
 	const unsigned char* s = reinterpret_cast<const unsigned char*>(str);
@@ -129,60 +190,91 @@ inline uint32_t strStartHash(const char* str) {
 	return result;
 }
 
+/** Allocates and returns a copy of @p str using @c new[]. */
 char * strDuplicate (const char * str);
 
+/** Appends @p extra to @p target and returns the new end pointer. */
 char * strAppend (char * target, const char * extra);
+/**
+ * Copies @p orig into @p target using exactly @p length bytes when
+ * @p length is non-negative, padding with @p pad as needed.
+ */
 scid::core::uint   strPad (char * target, const char * orig, int length, char pad);
+/** Returns the first occurrence of @p matchChar in @p target, or null. */
 const char * strFirstChar (const char * target, char matchChar);
+/** Returns the last occurrence of @p matchChar in @p target, or null. */
 const char * strLastChar (const char * target, char matchChar);
+/** Removes every occurrence of @p ch from @p str in place. */
 void   strStrip (char * str, char ch);
 
+/** Returns the first character in @p target that is not in @p trimChars. */
 const char * strTrimLeft (const char * target, const char * trimChars);
+/** Returns @p target after skipping leading ASCII whitespace. */
 inline const char * strTrimLeft (const char * target) {
     return strTrimLeft (target, " \t\r\n");
 }
+/**
+ * Truncates @p target at the last @p suffixChar.
+ *
+ * @returns the number of characters removed, or zero when the suffix
+ *          character is not present.
+ */
 scid::core::uint   strTrimSuffix (char * target, char suffixChar);
+/** Removes unknown month/day suffixes from a @c yyyy.mm.dd date string. */
 void   strTrimDate (char * str);
+/** Removes Scid board-mark and arrow codes from a comment string. */
 void   strTrimMarkCodes (char * str);
+/** Removes simple HTML-like tags from @p str in place. */
 void   strTrimMarkup (char * str);
+/** Returns the first non-whitespace character in @p str. */
 const char * strFirstWord (const char * str);
+/** Returns the start of the word after the current word in @p str. */
 const char * strNextWord (const char * str);
 
-// strPlural:
-//    Returns the empty string if its parameter is 1, or "s" otherwise.
+/** Returns an empty string for one item, otherwise @c "s". */
 inline const char *
 strPlural (scid::core::uint x) {
     return (x == 1 ? "" : "s");
 }
 
+/** Returns true when @p str is empty, @c "?", or @c "-". */
 bool   strIsUnknownName (const char * str);
 
-// strIsSurnameOnly: returns true if a string appears to only
-//    contain a surname.
+/** Returns true when @p name looks like a single surname token. */
 bool   strIsSurnameOnly (const char * name);
 
+/**
+ * Parses a permissive true/false value from @p str.
+ *
+ * Values are matched case-insensitively against @c true, @c yes, @c on,
+ * @c 1, @c ja, @c si, @c oui, and their false counterparts @c false, @c no,
+ * @c off, and @c 0.  Prefixes are accepted in either direction, but ambiguous
+ * or unknown text returns false.
+ */
 bool   strGetBoolean (const char * str);
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strGetInteger():
-//    Extracts a signed base-10 value from a string.
-//    Defaults to zero (as strtol does) for non-numeric strings.
+/**
+ * Extracts a signed base-10 integer from @p str.
+ *
+ * Non-numeric strings return zero, following @c strtol behaviour.
+ */
 inline int
 strGetInteger(const char * str)
 {
 	return std::strtol(str, NULL, 10);
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strGetUnsigned():
-//    Extracts an unsigned base-10 value from a string.
-//    Defaults to zero (as strtoul does) for non-numeric strings.
-//
+/**
+ * Extracts an unsigned base-10 integer from @p str.
+ *
+ * Non-numeric strings return zero, following @c strtoul behaviour.
+ */
 inline uint32_t strGetUnsigned(const char* str) {
 	ASSERT(str != NULL);
 	return static_cast<uint32_t>(std::strtoul(str, NULL, 10));
 }
 
+/** Case-insensitive string comparison using unsigned-character input. */
 inline int strCaseCompare(const char* str1, const char* str2) {
 	ASSERT(str1 != NULL && str2 != NULL);
 	const unsigned char* s1 = reinterpret_cast<const unsigned char*>(str1);
@@ -198,6 +290,12 @@ inline int strCaseCompare(const char* str1, const char* str2) {
 	return c1 - c2;
 }
 
+/**
+ * Compares round strings by leading unsigned number, then by text.
+ *
+ * This keeps round labels such as @c "2" before @c "10" while preserving a
+ * deterministic order for suffixes like @c "2.1".
+ */
 inline int strCompareRound(const char* str1, const char* str2) {
 	ASSERT(str1 != NULL && str2 != NULL);
 	uint32_t a = strGetUnsigned(str1);
@@ -207,44 +305,73 @@ inline int strCompareRound(const char* str1, const char* str2) {
 	return (a < b) ? -1 : 1;
 }
 
+/** Returns true when two NUL-terminated strings are byte-equal. */
 inline bool strEqual(const char* str1, const char* str2) {
 	ASSERT(str1 != NULL && str2 != NULL);
 	return (std::strcmp(str1, str2) == 0);
 }
 
+/** Parses @p nResults signed integers from @p str into @p results. */
 void   strGetIntegers (const char * str, int * results, scid::core::uint nResults);
+/** Parses @p nResults unsigned integers from @p str into @p results. */
 void   strGetUnsigneds (const char * str, scid::core::uint * results, scid::core::uint nResults);
+/** Parses a PGN-style game result from @p str. */
 scid::core::resultT strGetResult (const char * str);
 
+/** Three-state yes/no flag used by legacy search parsers. */
 typedef scid::core::uint flagT;
+/** No yes/no flag was specified. */
 const flagT FLAG_EMPTY = 0;
+/** Positive yes/no flag. */
 const flagT FLAG_YES = 1;
+/** Negative yes/no flag. */
 const flagT FLAG_NO = 2;
+/** Both yes and no are accepted. */
 const flagT FLAG_BOTH = 3;
+/** Returns true when @p t includes @c FLAG_YES. */
 inline bool flag_Yes (flagT t) { return (t & FLAG_YES); }
+/** Returns true when @p t includes @c FLAG_NO. */
 inline bool flag_No (flagT t) { return (t & FLAG_NO); }
+/**
+ * Parses a legacy yes/no flag from the first character of @p str.
+ *
+ * True-like values return @c FLAG_YES, false-like values return @c FLAG_NO,
+ * @c B/@c b/@c 2 return @c FLAG_BOTH, and unknown values return
+ * @c FLAG_EMPTY.
+ */
 flagT  strGetFlag (const char * str);
 
+/** Parses a coordinate square such as @c "a2", or returns @c NULL_SQUARE. */
 scid::core::squareT strGetSquare (const char * str);
 
+/** Trims @p target at the last dot, returning the number of removed chars. */
 inline scid::core::uint
 strTrimFileSuffix (char * target) { return strTrimSuffix (target, '.'); }
 
+/** Returns the last dot in @p target, or null when there is no suffix. */
 inline const char *
 strFileSuffix (const char * target) { return strLastChar (target, '.'); }
 
 
-
+/**
+ * Finds a unique match in a null-terminated string table.
+ *
+ * Exact matches always win.  When @p exact is false, a unique abbreviation is
+ * also accepted; ambiguous or missing matches return -1.
+ */
 int strUniqueExactMatch (const char * keyStr, const char ** strTable,
                          bool exact);
 
+/** Finds a unique exact or abbreviated match in @p strTable. */
 inline int strUniqueMatch (const char * keyStr, const char ** strTable) {
     return strUniqueExactMatch (keyStr, strTable, false);
 }
+/** Finds only a complete match in @p strTable. */
 inline int strExactMatch (const char * keyStr, const char ** strTable) {
     return strUniqueExactMatch (keyStr, strTable, true);
 }
 
+/** Returns true when @p str contains @p ch. */
 inline bool
 strContainsChar (const char * str, char ch)
 {
@@ -255,14 +382,14 @@ strContainsChar (const char * str, char ch)
     return false;
 }
 
-// WARNING: Avoid this function!
-// Considering that the sign of a char is implementation-defined [3.9.1], the
-// int conversion ("[4.7.3] If the destination type is signed, the value is
-// unchanged if it can be represented in the destination type") can yield
-// different results on different architectures or compilers.
-// A better alternative is the standard function strcmp() that returns the
-// difference between the values of the first pair of characters (both
-// interpreted as unsigned char) that differ in the strings being compared.
+/**
+ * Legacy byte comparison used for Scid namebase compatibility.
+ *
+ * Avoid this for new ordering code.  It intentionally depends on signed
+ * @c char conversion behaviour to match historical Scid name sorting.  Use
+ * @c strcmp or @c strCaseCompare() when compatibility with old namebase
+ * ordering is not required.
+ */
 inline int strCompare(const char* s1, const char* s2)
 {
     ASSERT (s1 != NULL  &&  s2 != NULL);
@@ -277,9 +404,7 @@ inline int strCompare(const char* s1, const char* s2)
     return 0;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strCopy(): same as strcpy().
-//
+/** Copies @p original into @p target, including the trailing NUL byte. */
 inline void
 strCopy (char * target, const char * original)
 {
@@ -292,10 +417,7 @@ strCopy (char * target, const char * original)
     *target = 0;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strPrefix():
-//       Returns the length of the common prefix of two strings.
-//
+/** Returns the length of the byte-exact common prefix of @p s1 and @p s2. */
 inline scid::core::uint
 strPrefix (const char * s1, const char * s2)
 {
@@ -310,9 +432,7 @@ strPrefix (const char * s1, const char * s2)
     return count;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strIsPrefix():
-//      Returns true if the prefix string is a prefix of longStr.
+/** Returns true when @p prefix is a byte-exact prefix of @p longStr. */
 inline bool
 strIsPrefix (const char * prefix, const char * longStr)
 {
@@ -325,10 +445,7 @@ strIsPrefix (const char * prefix, const char * longStr)
     return true;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strIsCasePrefix():
-//      Returns true if the prefix string is a case-insensitive
-//      prefix of longStr.
+/** Returns true when @p prefix is a case-insensitive prefix of @p longStr. */
 inline bool
 strIsCasePrefix (const char * prefix, const char * longStr)
 {
@@ -342,12 +459,12 @@ strIsCasePrefix (const char * prefix, const char * longStr)
     return true;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strIsAlphaPrefix():
-//      Returns true if the prefix string is a prefix of longStr.
-//      Unlike strIsPrexix(), this version is case-insensitive and
-//      spaces are ignored.
-//      Example: strIsAlphaPrefix ("smith,j", "Smith, John") == true.
+/**
+ * Returns true when @p prefix matches the start of @p longStr, ignoring case
+ * and ASCII space characters.
+ *
+ * For example, @c strIsAlphaPrefix("smith,j", "Smith, John") is true.
+ */
 inline bool
 strIsAlphaPrefix (const char * prefix, const char * longStr)
 {
@@ -363,10 +480,7 @@ strIsAlphaPrefix (const char * prefix, const char * longStr)
     return true;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strContains():
-//      Returns true if longStr contains an occurrence of keyStr,
-//      case-sensitive and NOT ignoring any characters such as spaces.
+/** Returns true when @p longStr contains the byte-exact substring @p keyStr. */
 inline bool
 strContains (const char * longStr, const char * keyStr)
 {
@@ -377,12 +491,12 @@ strContains (const char * longStr, const char * keyStr)
     return false;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strAlphaContains():
-//      Returns true if longStr contains an occurrence of keyStr,
-//      case-insensitive and ignoring spaces.
-//      Example: strAlphaContains ("Smith, John", "th,j") == true.
-//
+/**
+ * Returns true when @p longStr contains @p keyStr, ignoring case and ASCII
+ * space characters.
+ *
+ * For example, @c strAlphaContains("Smith, John", "th,j") is true.
+ */
 inline bool
 strAlphaContains (const char * longStr, const char * keyStr)
 {
@@ -393,6 +507,7 @@ strAlphaContains (const char * longStr, const char * keyStr)
     return false;
 }
 
+/** Returns the length of @p str, excluding the trailing NUL byte. */
 inline scid::core::uint
 strLength (const char * str)
 {
@@ -403,13 +518,12 @@ strLength (const char * str)
 }
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// strTrimRight():
-//      Trims the provided string in-place, removing the
-//      end characters that match the trimChars.
-//      Returns the number of characters trimmed.
-//      E.g., strTrimRight("abcyzyz", "yz") would leave the string
-//      as "abc".
+/**
+ * Removes trailing characters from @p target while they occur in @p trimChars.
+ *
+ * @p nTrimCh is the number of characters in @p trimChars.  For example,
+ * trimming @c "abcyzyz" with @c "yz" leaves @c "abc".
+ */
 inline void strTrimRight(char* target, const char* trimChars, size_t nTrimCh) {
 	const char* endTrim = trimChars + nTrimCh;
 	size_t iCh = strlen(target);
@@ -419,6 +533,7 @@ inline void strTrimRight(char* target, const char* trimChars, size_t nTrimCh) {
 	}
 	target[iCh] = '\0';
 }
+/** Removes trailing ASCII whitespace from @p target. */
 inline void strTrimRight(char* target) {
 	return strTrimRight(target, " \t\r\n", 4);
 }
