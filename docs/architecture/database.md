@@ -81,6 +81,16 @@ namebase alone.  Loading or saving a complete game crosses into Core: the codec
 decodes stored bytes into @ref scid::core::Game "scid::core::Game", or encodes
 a @ref scid::core::Game "Game" back into the active database format.
 
+\htmlonly
+<div style="display: none">
+\endhtmlonly
+
+- @subpage architecture_database_metadata_catalog "Metadata Catalog"
+
+\htmlonly
+</div>
+\endhtmlonly
+
 ## Domain Model
 
 This diagram expands the session view into the public types programmers meet
