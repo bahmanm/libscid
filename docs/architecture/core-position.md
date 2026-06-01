@@ -19,7 +19,7 @@ material and hashes.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName "Atkinson Hyperlegible Next"
+skinparam defaultFontName Cantarel
 skinparam defaultFontSize 10
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
@@ -28,17 +28,17 @@ skinparam RectangleBackgroundColor #F9FAFB
 
 left to right direction
 
-rectangle "Text boundaries\n\n- <font:Atkinson Hyperlegible Mono>FEN / EPD</font>\n- <font:Atkinson Hyperlegible Mono>UCI position</font>\n- <font:Atkinson Hyperlegible Mono>SAN / coordinate moves</font>\n- <font:Atkinson Hyperlegible Mono>legacy board strings</font>" as TextBoundaries #EEF2FF
+rectangle "Text boundaries\n\n- <font:Source Code Pro>FEN / EPD</font>\n- <font:Source Code Pro>UCI position</font>\n- <font:Source Code Pro>SAN / coordinate moves</font>\n- <font:Source Code Pro>legacy board strings</font>" as TextBoundaries #EEF2FF
 
-rectangle "Move requests and actions\n\n- <font:Atkinson Hyperlegible Mono>MoveSpec</font>\n- <font:Atkinson Hyperlegible Mono>MoveAction</font>\n- <font:Atkinson Hyperlegible Mono>MoveList</font>" as MoveBoundary #EEF2FF
+rectangle "Move requests and actions\n\n- <font:Source Code Pro>MoveSpec</font>\n- <font:Source Code Pro>MoveAction</font>\n- <font:Source Code Pro>MoveList</font>" as MoveBoundary #EEF2FF
 
-rectangle "Aggregate root\n\n- <font:Atkinson Hyperlegible Mono>Position</font>" as Position #ECFDF5
+rectangle "Aggregate root\n\n- <font:Source Code Pro>Position</font>" as Position #ECFDF5
 
-rectangle "Board state\n\n- <font:Atkinson Hyperlegible Mono>Board</font>\n- <font:Atkinson Hyperlegible Mono>List</font>\n- <font:Atkinson Hyperlegible Mono>Material</font>\n- <font:Atkinson Hyperlegible Mono>Pinned</font>" as BoardState #FFF7ED
+rectangle "Board state\n\n- <font:Source Code Pro>Board</font>\n- <font:Source Code Pro>List</font>\n- <font:Source Code Pro>Material</font>\n- <font:Source Code Pro>Pinned</font>" as BoardState #FFF7ED
 
-rectangle "Rule state\n\n- <font:Atkinson Hyperlegible Mono>ToMove</font>\n- <font:Atkinson Hyperlegible Mono>Castling</font>\n- <font:Atkinson Hyperlegible Mono>EPTarget</font>\n- <font:Atkinson Hyperlegible Mono>HalfMoveClock</font>\n- <font:Atkinson Hyperlegible Mono>PlyCounter</font>" as RuleState #FFF7ED
+rectangle "Rule state\n\n- <font:Source Code Pro>ToMove</font>\n- <font:Source Code Pro>Castling</font>\n- <font:Source Code Pro>EPTarget</font>\n- <font:Source Code Pro>HalfMoveClock</font>\n- <font:Source Code Pro>PlyCounter</font>" as RuleState #FFF7ED
 
-rectangle "Derived indexes\n\n- <font:Atkinson Hyperlegible Mono>Hash</font>\n- <font:Atkinson Hyperlegible Mono>PawnHash</font>\n- <font:Atkinson Hyperlegible Mono>rank/file/diagonal counts</font>\n- <font:Atkinson Hyperlegible Mono>SquareList</font>\n- <font:Atkinson Hyperlegible Mono>SquareSet</font>" as DerivedState #FFF7ED
+rectangle "Derived indexes\n\n- <font:Source Code Pro>Hash</font>\n- <font:Source Code Pro>PawnHash</font>\n- <font:Source Code Pro>rank/file/diagonal counts</font>\n- <font:Source Code Pro>SquareList</font>\n- <font:Source Code Pro>SquareSet</font>" as DerivedState #FFF7ED
 
 TextBoundaries ----> Position : parse / format
 MoveBoundary ----> Position : resolve / apply / undo
@@ -71,10 +71,10 @@ generating moves.  Primitive scalar aliases such as `pieceT`, `colorT` and
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName "Atkinson Hyperlegible Next"
+skinparam defaultFontName Cantarel
 skinparam defaultFontSize 10
-skinparam classFontName "Atkinson Hyperlegible Mono"
-skinparam classAttributeFontName "Atkinson Hyperlegible Mono"
+skinparam classFontName "Source Code Pro"
+skinparam classAttributeFontName "Source Code Pro"
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam ClassBorderColor #6B7280

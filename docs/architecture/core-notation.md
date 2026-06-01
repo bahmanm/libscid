@@ -25,7 +25,7 @@ coordinate move lists, and printing FEN.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName "Atkinson Hyperlegible Next"
+skinparam defaultFontName Cantarel
 skinparam defaultFontSize 10
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
@@ -34,13 +34,13 @@ skinparam RectangleBackgroundColor #F9FAFB
 
 left to right direction
 
-rectangle "Text forms\n\n- <font:Atkinson Hyperlegible Mono>SAN</font>\n- <font:Atkinson Hyperlegible Mono>UCI moves</font>\n- <font:Atkinson Hyperlegible Mono>UCI position</font>\n- <font:Atkinson Hyperlegible Mono>FEN</font>\n- <font:Atkinson Hyperlegible Mono>coordinate moves</font>" as TextForms #EEF2FF
+rectangle "Text forms\n\n- <font:Source Code Pro>SAN</font>\n- <font:Source Code Pro>UCI moves</font>\n- <font:Source Code Pro>UCI position</font>\n- <font:Source Code Pro>FEN</font>\n- <font:Source Code Pro>coordinate moves</font>" as TextForms #EEF2FF
 
-rectangle "Location notation\n\n- <font:Atkinson Hyperlegible Mono>currentPositionUci</font>\n- <font:Atkinson Hyperlegible Mono>previousMoveUci</font>\n- <font:Atkinson Hyperlegible Mono>nextMoveUci</font>\n- <font:Atkinson Hyperlegible Mono>previousSan</font>\n- <font:Atkinson Hyperlegible Mono>nextSan</font>\n- <font:Atkinson Hyperlegible Mono>partialMoveList</font>" as LocationNotation #EEF2FF
+rectangle "Location notation\n\n- <font:Source Code Pro>currentPositionUci</font>\n- <font:Source Code Pro>previousMoveUci</font>\n- <font:Source Code Pro>nextMoveUci</font>\n- <font:Source Code Pro>previousSan</font>\n- <font:Source Code Pro>nextSan</font>\n- <font:Source Code Pro>partialMoveList</font>" as LocationNotation #EEF2FF
 
-rectangle "Game location\n\n- <font:Atkinson Hyperlegible Mono>Game</font>\n- <font:Atkinson Hyperlegible Mono>MovetextLocation</font>\n- <font:Atkinson Hyperlegible Mono>GameCursor</font>\n- <font:Atkinson Hyperlegible Mono>MoveSpec</font>" as GameLocation #ECFDF5
+rectangle "Game location\n\n- <font:Source Code Pro>Game</font>\n- <font:Source Code Pro>MovetextLocation</font>\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>MoveSpec</font>" as GameLocation #ECFDF5
 
-rectangle "Position resolver\n\n- <font:Atkinson Hyperlegible Mono>Position</font>\n- <font:Atkinson Hyperlegible Mono>parseMoveSpec</font>\n- <font:Atkinson Hyperlegible Mono>makeSan</font>\n- <font:Atkinson Hyperlegible Mono>ReadFromFENorUCI</font>\n- <font:Atkinson Hyperlegible Mono>PrintFEN</font>" as PositionResolver #FFF7ED
+rectangle "Position resolver\n\n- <font:Source Code Pro>Position</font>\n- <font:Source Code Pro>parseMoveSpec</font>\n- <font:Source Code Pro>makeSan</font>\n- <font:Source Code Pro>ReadFromFENorUCI</font>\n- <font:Source Code Pro>PrintFEN</font>" as PositionResolver #FFF7ED
 
 TextForms ----> PositionResolver : parse
 PositionResolver ----> TextForms : format
@@ -75,10 +75,10 @@ skinparam shadowing false
 skinparam linetype ortho
 skinparam nodesep 75
 skinparam ranksep 90
-skinparam defaultFontName "Atkinson Hyperlegible Next"
+skinparam defaultFontName Cantarel
 skinparam defaultFontSize 10
-skinparam classFontName "Atkinson Hyperlegible Mono"
-skinparam classAttributeFontName "Atkinson Hyperlegible Mono"
+skinparam classFontName "Source Code Pro"
+skinparam classAttributeFontName "Source Code Pro"
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam ClassBorderColor #6B7280
