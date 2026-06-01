@@ -1,8 +1,8 @@
-# 80 Search Position
+# 090 Opening Tree
 
 This example finds the Dr Lasker-Capablanca game in the Dr Lasker SCID5
-database, takes a position from its main line, and searches the database for
-games that reached that position.
+database, searches for a position from that game, and builds opening-tree
+statistics for the matching games.
 
 It reuses the SCID5 database from `examples/fixtures/dr-lasker/dr-lasker`.
 
@@ -25,7 +25,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/80-search-position -B _build/examples/80-search-position -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/80-search-position
-ctest --test-dir _build/examples/80-search-position --output-on-failure
+cmake -S examples/090-opening-tree -B _build/examples/090-opening-tree -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/090-opening-tree
+ctest --test-dir _build/examples/090-opening-tree --output-on-failure
 ```

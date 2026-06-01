@@ -1,7 +1,6 @@
-# 60 Spelling
+# 030 Build Game
 
-This example loads a small spelling file, corrects a player-name alias, and
-reads player metadata from the spelling database.
+This example builds a `scid::core::Game` programmatically and encodes it as PGN.
 
 The only prerequisite is to have a libscid release already installed. For instance:
 
@@ -22,7 +21,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/60-spelling -B _build/examples/60-spelling -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/60-spelling
-ctest --test-dir _build/examples/60-spelling --output-on-failure
+cmake -S examples/030-build-game -B _build/examples/030-build-game -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/030-build-game
+ctest --test-dir _build/examples/030-build-game --output-on-failure
 ```

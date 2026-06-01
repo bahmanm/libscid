@@ -1,8 +1,7 @@
-# 90 Opening Tree
+# 070 List Database
 
-This example finds the Dr Lasker-Capablanca game in the Dr Lasker SCID5
-database, searches for a position from that game, and builds opening-tree
-statistics for the matching games.
+This example opens the Dr Lasker SCID5 database, creates a sort cache, and lists
+the first few games in date order.
 
 It reuses the SCID5 database from `examples/fixtures/dr-lasker/dr-lasker`.
 
@@ -25,7 +24,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/90-opening-tree -B _build/examples/90-opening-tree -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/90-opening-tree
-ctest --test-dir _build/examples/90-opening-tree --output-on-failure
+cmake -S examples/070-list-database -B _build/examples/070-list-database -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/070-list-database
+ctest --test-dir _build/examples/070-list-database --output-on-failure
 ```

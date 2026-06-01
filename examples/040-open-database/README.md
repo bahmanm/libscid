@@ -1,4 +1,4 @@
-# 40 Open Database
+# 040 Open Database
 
 This example opens a SCID5 database in read-only mode and prints a small summary
 of its first game.
@@ -25,7 +25,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/40-open-database -B _build/examples/40-open-database -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/40-open-database
-ctest --test-dir _build/examples/40-open-database --output-on-failure
+cmake -S examples/040-open-database -B _build/examples/040-open-database -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/040-open-database
+ctest --test-dir _build/examples/040-open-database --output-on-failure
 ```

@@ -1,6 +1,7 @@
-# 30 Build Game
+# 020 Position and Moves
 
-This example builds a `scid::core::Game` programmatically and encodes it as PGN.
+This example starts from the standard chess position, applies coordinate moves,
+prints the resulting FEN, and generates legal replies from that position.
 
 The only prerequisite is to have a libscid release already installed. For instance:
 
@@ -21,7 +22,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/30-build-game -B _build/examples/30-build-game -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/30-build-game
-ctest --test-dir _build/examples/30-build-game --output-on-failure
+cmake -S examples/020-position-and-moves -B _build/examples/020-position-and-moves -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/020-position-and-moves
+ctest --test-dir _build/examples/020-position-and-moves --output-on-failure
 ```

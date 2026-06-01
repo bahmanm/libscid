@@ -1,7 +1,7 @@
-# 20 Position and Moves
+# 010 PGN Roundtrip
 
-This example starts from the standard chess position, applies coordinate moves,
-prints the resulting FEN, and generates legal replies from that position.
+This example parses the famous Lasker-Capablanca, St Petersburg 1914 game into
+a `scid::core::Game`, reads a few fields, and encodes it back to PGN.
 
 The only prerequisite is to have a libscid release already installed. For instance:
 
@@ -22,7 +22,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/20-position-and-moves -B _build/examples/20-position-and-moves -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/20-position-and-moves
-ctest --test-dir _build/examples/20-position-and-moves --output-on-failure
+cmake -S examples/010-pgn-roundtrip -B _build/examples/010-pgn-roundtrip -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/010-pgn-roundtrip
+ctest --test-dir _build/examples/010-pgn-roundtrip --output-on-failure
 ```

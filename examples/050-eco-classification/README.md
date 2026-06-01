@@ -1,9 +1,7 @@
-# 70 List Database
+# 050 ECO Classification
 
-This example opens the Dr Lasker SCID5 database, creates a sort cache, and lists
-the first few games in date order.
-
-It reuses the SCID5 database from `examples/fixtures/dr-lasker/dr-lasker`.
+This example loads a small ECO book, plays a few moves on a
+`scid::core::Position`, and classifies the resulting opening position.
 
 The only prerequisite is to have a libscid release already installed. For instance:
 
@@ -24,7 +22,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/70-list-database -B _build/examples/70-list-database -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/70-list-database
-ctest --test-dir _build/examples/70-list-database --output-on-failure
+cmake -S examples/050-eco-classification -B _build/examples/050-eco-classification -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/050-eco-classification
+ctest --test-dir _build/examples/050-eco-classification --output-on-failure
 ```

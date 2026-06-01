@@ -1,7 +1,7 @@
-# 10 PGN Roundtrip
+# 060 Spelling
 
-This example parses the famous Lasker-Capablanca, St Petersburg 1914 game into
-a `scid::core::Game`, reads a few fields, and encodes it back to PGN.
+This example loads a small spelling file, corrects a player-name alias, and
+reads player metadata from the spelling database.
 
 The only prerequisite is to have a libscid release already installed. For instance:
 
@@ -22,7 +22,7 @@ tar -xzf \
 ```
 
 ```sh
-cmake -S examples/10-pgn-roundtrip -B _build/examples/10-pgn-roundtrip -DCMAKE_PREFIX_PATH=install/libscid
-cmake --build _build/examples/10-pgn-roundtrip
-ctest --test-dir _build/examples/10-pgn-roundtrip --output-on-failure
+cmake -S examples/060-spelling -B _build/examples/060-spelling -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/060-spelling
+ctest --test-dir _build/examples/060-spelling --output-on-failure
 ```

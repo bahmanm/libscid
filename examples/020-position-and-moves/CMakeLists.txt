@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.23 )
 
 project(
-    libscid-example-00-minimal-consumer
+    libscid-example-020-position-and-moves
     LANGUAGES CXX )
 
 include( CTest )
@@ -9,25 +9,25 @@ include( CTest )
 find_package( LibScid CONFIG REQUIRED )
 
 add_executable(
-    libscid-example-00-minimal-consumer
+    libscid-example-020-position-and-moves
     main.cpp )
 
 target_compile_features(
-    libscid-example-00-minimal-consumer
+    libscid-example-020-position-and-moves
     PRIVATE cxx_std_20 )
 
 set_target_properties(
-    libscid-example-00-minimal-consumer
+    libscid-example-020-position-and-moves
     PROPERTIES
         CXX_EXTENSIONS OFF )
 
 target_link_libraries(
-    libscid-example-00-minimal-consumer
+    libscid-example-020-position-and-moves
     PRIVATE
         LibScid::Core )
 
 if( BUILD_TESTING )
     add_test(
-        NAME libscid-example-00-minimal-consumer
-        COMMAND libscid-example-00-minimal-consumer )
+        NAME libscid-example-020-position-and-moves
+        COMMAND libscid-example-020-position-and-moves )
 endif()
