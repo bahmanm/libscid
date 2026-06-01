@@ -27,3 +27,8 @@ desktop application.
 
 The generated API reference documents installed public headers only. Internal
 codec, storage and test-only headers are intentionally excluded from this site.
+
+## Architecture and Diagrams
+
+- @ref architecture "Architecture and Diagrams" collects domain-centred views of
+  the public model, including the editable game aggregate and its PGN boundaries.
