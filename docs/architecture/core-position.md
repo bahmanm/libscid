@@ -6,9 +6,7 @@ target, move counters, and hash values.  Move generation, legality checks, move
 application, undo, FEN/UCI parsing, and SAN formatting all resolve through that
 state.
 
-## Aggregate Root: `Position`
-
-The aggregate view is the compact map of the position boundary.  Text formats
+The aggregate view is the compact map of the position-facing API.  Text formats
 such as FEN, UCI position strings, coordinate moves, SAN, and legacy board
 strings sit outside the aggregate.  `Position` turns portable move requests into
 position-resolved actions, updates its internal indexes when moves are applied
@@ -28,9 +26,9 @@ skinparam RectangleBackgroundColor #F9FAFB
 
 left to right direction
 
-rectangle "Text boundaries\n\n- <font:Source Code Pro>FEN / EPD</font>\n- <font:Source Code Pro>UCI position</font>\n- <font:Source Code Pro>SAN / coordinate moves</font>\n- <font:Source Code Pro>legacy board strings</font>" as TextBoundaries #EEF2FF
+rectangle "Text format mappings\n\n- <font:Source Code Pro>FEN / EPD</font>\n- <font:Source Code Pro>UCI position</font>\n- <font:Source Code Pro>SAN / coordinate moves</font>\n- <font:Source Code Pro>legacy board strings</font>" as TextMappings #EEF2FF
 
-rectangle "Move requests and actions\n\n- <font:Source Code Pro>MoveSpec</font>\n- <font:Source Code Pro>MoveAction</font>\n- <font:Source Code Pro>MoveList</font>" as MoveBoundary #EEF2FF
+rectangle "Move requests and actions\n\n- <font:Source Code Pro>MoveSpec</font>\n- <font:Source Code Pro>MoveAction</font>\n- <font:Source Code Pro>MoveList</font>" as MoveRequests #EEF2FF
 
 rectangle "Aggregate root\n\n- <font:Source Code Pro>Position</font>" as Position #ECFDF5
 
@@ -40,8 +38,8 @@ rectangle "Rule state\n\n- <font:Source Code Pro>ToMove</font>\n- <font:Source C
 
 rectangle "Derived indexes\n\n- <font:Source Code Pro>Hash</font>\n- <font:Source Code Pro>PawnHash</font>\n- <font:Source Code Pro>rank/file/diagonal counts</font>\n- <font:Source Code Pro>SquareList</font>\n- <font:Source Code Pro>SquareSet</font>" as DerivedState #FFF7ED
 
-TextBoundaries ----> Position : parse / format
-MoveBoundary ----> Position : resolve / apply / undo
+TextMappings ----> Position : parse / format
+MoveRequests ----> Position : resolve / apply / undo
 
 Position ----> BoardState : owns
 Position ----> RuleState : owns
@@ -143,7 +141,7 @@ package "Square helpers" #FFF7ED {
   }
 }
 
-package "Text boundaries" #EEF2FF {
+package "Text format mappings" #EEF2FF {
   class "Position text API" as DetailTextApi <<methods>> {
     ReadFromFEN
     ReadFromFENorUCI

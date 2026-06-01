@@ -6,13 +6,11 @@ it moves between moves, enters and exits variations, captures restorable
 locations, and can replay the path to produce a `Position`.  `MovetextCursor`
 uses the same location model, but it edits the tree owned by `Game`.
 
-## Traversal Model
-
-The traversal model is built around a boundary between moves.  The cursor's
-`previousMove()` is immediately before that boundary, and `nextMove()` is
+The traversal model is built around a cursor position between moves.  The cursor's
+`previousMove()` is immediately before that position, and `nextMove()` is
 immediately after it.  Entering a variation records a parent-frame and moves the
 cursor to the start of the child line; exiting restores the parent line and the
-same boundary that opened the branch.
+same between-moves position that opened the branch.
 
 `MovetextLocation` is the portable bookmark.  It stores a path of variation
 steps from the mainline plus the `nextIndex` in the active line.  Restoring a
@@ -34,7 +32,7 @@ left to right direction
 
 rectangle "Game state\n\n- <font:Source Code Pro>Game</font>\n- <font:Source Code Pro>Movetext</font>\n- <font:Source Code Pro>Position</font>" as GameState #ECFDF5
 
-rectangle "Cursor boundary\n\n- <font:Source Code Pro>currentLine</font>\n- <font:Source Code Pro>nextIndex</font>\n- <font:Source Code Pro>parent frames</font>" as CursorBoundary #FFF7ED
+rectangle "Cursor position\n\n- <font:Source Code Pro>currentLine</font>\n- <font:Source Code Pro>nextIndex</font>\n- <font:Source Code Pro>parent frames</font>" as CursorPosition #FFF7ED
 
 rectangle "Read-only traversal\n\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>previousMove</font>\n- <font:Source Code Pro>nextMove</font>\n- <font:Source Code Pro>currentPosition</font>" as ReadOnly #EEF2FF
 
@@ -45,10 +43,10 @@ rectangle "Stable bookmark\n\n- <font:Source Code Pro>MovetextLocation</font>\n-
 ReadOnly ----> GameState : reads
 Mutable ----> GameState : edits
 
-ReadOnly ----> CursorBoundary : maintains
-Mutable ----> CursorBoundary : maintains
+ReadOnly ----> CursorPosition : maintains
+Mutable ----> CursorPosition : maintains
 
-CursorBoundary ----> Location : capture / restore
+CursorPosition ----> Location : capture / restore
 Location ----> GameState : validates against tree
 
 ReadOnly ----> GameState : replay to position
@@ -60,7 +58,7 @@ This diagram expands traversal into the public cursor and location types, plus
 the tree state they point into.  It is intentionally loose: it shows the shared
 between-moves model and the important operations programmers use, while omitting
 the many convenience predicates that report whether a cursor is at a line,
-variation, or game boundary.
+variation, or game edge.
 
 `GameCursor` and `MovetextCursor` both hold a current line, a `nextIndex`, and a
 stack of parent frames.  The parent stack is an implementation detail, but it is

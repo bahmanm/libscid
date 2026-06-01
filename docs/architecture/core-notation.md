@@ -1,12 +1,10 @@
 # Notation {#architecture_core_notation}
 
-Notation is the location-level text boundary around `scid::core::Game` and
+Notation is the location-level text import/export mapping around `scid::core::Game` and
 `scid::core::Position`.  PGN handles whole-game import and export; notation
 answers narrower questions at a `MovetextLocation`: what is the current UCI
 position command, what is the previous or next move in UCI notation, and what
 SAN should be displayed for the move beside the cursor?
-
-## Text Boundary: Notation
 
 The notation helpers start with a `Game` and a `MovetextLocation`.  They restore
 a `GameCursor`, replay the moves needed to reach that location, and use
@@ -54,7 +52,7 @@ LocationNotation ----> TextForms : output
 
 This diagram expands notation into the public helpers and the domain objects
 they depend on.  It is intentionally loose: notation has no aggregate of its
-own.  It is a boundary layer that restores a cursor location, derives a
+own.  It is a mapping layer that restores a cursor location, derives a
 position, and formats text from the move or board state at that point.
 
 `currentPositionUci()`, `previousMoveUci()` and `nextMoveUci()` are coordinate
@@ -63,7 +61,7 @@ commands, replay from the effective start position.  `previousSan()` and
 `nextSan()` are board-sensitive: they must know the position before the move,
 and they return an empty string when the move cannot be replayed legally.
 
-The `Position` text API is the lower-level half of the same boundary.
+The `Position` text API is the lower-level half of the same mapping.
 `ReadFromFEN()` and `ReadFromFENorUCI()` build board state from text;
 `parseMoveSpec()` and `readCoordinateMoveSpec()` turn input notation into a
 portable move request; `makeSan()` and `PrintFEN()` turn position state back

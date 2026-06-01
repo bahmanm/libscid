@@ -6,8 +6,6 @@ en-passant target, piece lists, pin directions, and attack indexes needed to
 decide which moves are legal.  The public result is a `MoveList` of resolved
 `MoveAction` values that can be applied, undone, scored, ordered, or formatted.
 
-## Generation Pipeline
-
 The move-generation pipeline starts from the current side to move.  `Position`
 first recomputes pins and, unless the caller has already ruled check out, counts
 attacks on the side-to-move king.  A checked king takes the evasion path:
@@ -60,7 +58,7 @@ important helper families behind them.  It is intentionally loose: generation
 is an algorithm over `Position` state, so the private helper functions are shown
 as named method groups rather than as independent classes.
 
-`MoveSpec` and `MoveAction` sit on opposite sides of the position boundary.
+`MoveSpec` and `MoveAction` sit on opposite sides of the position resolution step.
 `MoveSpec` is the portable request stored in games and accepted by notation
 parsers.  `MoveAction` is the reversible, position-resolved form produced by
 generation and `Position::resolveMove()`.  It records captured pieces, captured

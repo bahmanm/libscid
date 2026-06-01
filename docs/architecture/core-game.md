@@ -6,9 +6,7 @@ movetext tree.  Read-only traversal, mutable editing, PGN import/export, and
 position replay all work through that aggregate rather than owning separate game
 state.
 
-## Aggregate Root: `Game`
-
-The aggregate view is the compact map of the game boundary.  Text formats such
+The aggregate view is the compact map of the game-facing API.  Text formats such
 as PGN and notation sit outside the aggregate; cursors provide traversal and
 editing; the `Game` root owns header data, movetext, and any non-standard start
 position needed to replay the game.
@@ -26,7 +24,7 @@ skinparam RectangleBackgroundColor #F9FAFB
 
 left to right direction
 
-rectangle "Text boundaries\n\n- <font:Source Code Pro>pgn::decode</font>\n- <font:Source Code Pro>pgn::encode</font>\n- <font:Source Code Pro>notation</font>" as TextBoundaries #EEF2FF
+rectangle "Text format mappings\n\n- <font:Source Code Pro>pgn::decode</font>\n- <font:Source Code Pro>pgn::encode</font>\n- <font:Source Code Pro>notation</font>" as TextMappings #EEF2FF
 
 rectangle "Traversal and editing\n\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>MovetextCursor</font>\n- <font:Source Code Pro>MovetextLocation</font>" as Traversal #EEF2FF
 
@@ -38,7 +36,7 @@ rectangle "Movetext tree\n\n- <font:Source Code Pro>Movetext</font>\n- <font:Sou
 
 rectangle "Position context\n\n- <font:Source Code Pro>Position</font>" as PositionContext #FFF7ED
 
-TextBoundaries ----> Game : parse / format
+TextMappings ----> Game : parse / format
 Traversal ----> Game : navigate / edit
 
 Game ----> Header : owns
@@ -50,16 +48,16 @@ Game ----> PositionContext : owns when needed
 
 This diagram expands the aggregate map into the main public types that make up
 the game model.  It is intentionally loose: it shows ownership, recursion and
-API boundaries, while omitting most operations and low-level chess primitives.
+API edges, while omitting most operations and low-level chess primitives.
 Header data is structured first, with supplemental PGN tags kept beside the
 typed fields rather than replacing them.
 
 `Movetext` is recursive: the mainline is a `MoveSequence`, each `Move` can own
 child `Variation` objects, and each variation owns another `MoveSequence`.
 `GameCursor` and `MovetextCursor` are bound to a `Game`; they do not own an
-independent copy of the movetext.  PGN and notation remain boundaries around the
-aggregate: they parse into, encode from, or interpret the game state instead of
-being part of the aggregate.
+independent copy of the movetext.  PGN and notation remain text mappings around
+the aggregate: they parse into, encode from, or interpret the game state instead
+of being part of the aggregate.
 
 @startuml core-game-domain-model
 skinparam backgroundColor #FFFFFF
@@ -163,7 +161,7 @@ package "Position and navigation" #EEF2FF {
   class "MovetextLocation" as DetailLocation <<bookmark>>
 }
 
-package "Text boundaries" #EEF2FF {
+package "Text format mappings" #EEF2FF {
   class "pgn::parseGame" as DetailPgnDecode <<function>>
   class "pgn::encode" as DetailPgnEncode <<function>>
   class "notation::*" as DetailNotation <<functions>>

@@ -1,13 +1,11 @@
 # PGN {#architecture_core_pgn}
 
-PGN is the text boundary around `scid::core::Game`.  Decoding reads tags,
+PGN is the text import/export mapping around `scid::core::Game`.  Decoding reads tags,
 comments, NAGs, SAN moves and Recursive Annotation Variations into the editable
 game model.  Encoding walks the same model in the opposite direction, emitting
 tag pairs, movetext, comments, annotations, variations and the final result.
 
-## Text Boundary: PGN
-
-The PGN boundary has two public directions.  `pgn::parseGame()` consumes input
+The PGN import/export mapping has two public directions.  `pgn::parseGame()` consumes input
 text and mutates a `Game`; callers may parse into a fresh game or append
 movetext at a `MovetextLocation`.  `pgn::encode()` serialises a `Game` into an
 appendable destination and then applies line wrapping.
@@ -34,13 +32,13 @@ left to right direction
 
 rectangle "PGN text\n\n- <font:Source Code Pro>tag pairs</font>\n- <font:Source Code Pro>movetext</font>\n- <font:Source Code Pro>comments</font>\n- <font:Source Code Pro>NAGs</font>\n- <font:Source Code Pro>RAVs</font>" as PgnText #EEF2FF
 
-rectangle "Decode boundary\n\n- <font:Source Code Pro>parseGame</font>\n- <font:Source Code Pro>ParseLog</font>\n- <font:Source Code Pro>MovetextLocation</font>" as Decode #EEF2FF
+rectangle "Decode mapping\n\n- <font:Source Code Pro>parseGame</font>\n- <font:Source Code Pro>ParseLog</font>\n- <font:Source Code Pro>MovetextLocation</font>" as Decode #EEF2FF
 
 rectangle "Game model\n\n- <font:Source Code Pro>Game</font>\n- <font:Source Code Pro>GameHeader</font>\n- <font:Source Code Pro>Movetext</font>\n- <font:Source Code Pro>Position</font>" as GameModel #ECFDF5
 
 rectangle "Traversal and editing\n\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>MovetextCursor</font>\n- <font:Source Code Pro>pgn::nextLocation</font>" as Traversal #FFF7ED
 
-rectangle "Encode boundary\n\n- <font:Source Code Pro>encode</font>\n- <font:Source Code Pro>EncodeOptions</font>\n- <font:Source Code Pro>break_lines</font>" as Encode #EEF2FF
+rectangle "Encode mapping\n\n- <font:Source Code Pro>encode</font>\n- <font:Source Code Pro>EncodeOptions</font>\n- <font:Source Code Pro>break_lines</font>" as Encode #EEF2FF
 
 PgnText ----> Decode : input
 Decode ----> GameModel : fills / appends
@@ -53,7 +51,7 @@ Encode ----> PgnText : output
 
 ## Domain Model
 
-This diagram expands the PGN boundary into the public API types and the domain
+This diagram expands the PGN import/export mapping into the public API types and the domain
 objects they read or write.  It is intentionally loose: the lexer and visitor
 are implementation details, while `parseGame()`, `ParseLog`, `encode()`,
 `EncodeOptions`, and the PGN traversal helpers are the programmer-facing

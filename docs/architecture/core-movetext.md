@@ -5,10 +5,8 @@ comment before the first mainline move and the mainline itself.  From there, the
 model is recursive: a `MoveSequence` owns ordered `Move` values, each `Move` can
 own child `Variation` values, and each `Variation` owns another `MoveSequence`.
 
-## Aggregate Root: `Movetext`
-
 The aggregate view is the compact map of the movetext tree.  PGN, SAN and NAG
-text sit outside the tree as notation boundaries; cursors use the tree without
+text sit outside the tree as notation mappings; cursors use the tree without
 owning it; `Movetext` owns the mainline; moves own both their payload and the
 variation branches that depart from them.
 
@@ -25,7 +23,7 @@ skinparam RectangleBackgroundColor #F9FAFB
 
 left to right direction
 
-rectangle "Text boundaries\n\n- <font:Source Code Pro>PGN movetext</font>\n- <font:Source Code Pro>SAN</font>\n- <font:Source Code Pro>NAG</font>\n- <font:Source Code Pro>comments</font>" as TextBoundaries #EEF2FF
+rectangle "Text format mappings\n\n- <font:Source Code Pro>PGN movetext</font>\n- <font:Source Code Pro>SAN</font>\n- <font:Source Code Pro>NAG</font>\n- <font:Source Code Pro>comments</font>" as TextMappings #EEF2FF
 
 rectangle "Traversal and editing\n\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>MovetextCursor</font>\n- <font:Source Code Pro>MovetextLocation</font>" as Traversal #EEF2FF
 
@@ -37,7 +35,7 @@ rectangle "Move payload\n\n- <font:Source Code Pro>Move</font>\n- <font:Source C
 
 rectangle "Recursive branch\n\n- <font:Source Code Pro>Variation</font>\n- <font:Source Code Pro>MoveSequence</font>" as Branch #FFF7ED
 
-TextBoundaries ----> MovetextRoot : parse / format
+TextMappings ----> MovetextRoot : parse / format
 Traversal ----> MovetextRoot : navigate / edit
 
 MovetextRoot ----> Line : owns mainline
@@ -50,8 +48,8 @@ Branch ----> Line : owns recursive line
 
 This diagram expands the movetext tree into the public types that carry moves,
 comments, annotations and variation branches.  It is intentionally loose: it
-shows recursive ownership and the boundary between stored move intent and
-display metadata, while leaving detailed cursor mechanics to the traversal
+shows recursive ownership and the split between stored move intent and display
+metadata, while leaving detailed cursor mechanics to the traversal
 model.
 
 `MoveSpec` is the durable move intent stored in the tree.  It is not enough to
