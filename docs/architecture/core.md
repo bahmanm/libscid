@@ -6,3 +6,5 @@ PGN and notation.
 - @subpage architecture_core_game "Game"
 - @subpage architecture_core_position "Position"
 - @subpage architecture_core_movetext "Movetext"
+- @subpage architecture_core_traversal "Traversal"
+- @subpage architecture_core_pgn "PGN"
