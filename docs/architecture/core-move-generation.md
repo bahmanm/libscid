@@ -1,14 +1,18 @@
 # Move Generation {#architecture_core_move_generation}
 
-Move generation is a behaviour of `scid::core::Position`, not a separate
-aggregate.  `Position` owns the board, side to move, castling rights,
-en-passant target, piece lists, pin directions, and attack indexes needed to
-decide which moves are legal.  The public result is a `MoveList` of resolved
-`MoveAction` values that can be applied, undone, scored, ordered, or formatted.
+Move generation is a behaviour of @ref scid::core::Position
+"scid::core::Position", not a separate aggregate.
+@ref scid::core::Position "Position" owns the board, side to move, castling
+rights, en-passant target, piece lists, pin directions, and attack indexes
+needed to decide which moves are legal.  The public result is a
+@ref scid::core::MoveList "MoveList" of resolved
+@ref scid::core::MoveAction "MoveAction" values that can be applied, undone,
+scored, ordered, or formatted.
 
-The move-generation pipeline starts from the current side to move.  `Position`
-first recomputes pins and, unless the caller has already ruled check out, counts
-attacks on the side-to-move king.  A checked king takes the evasion path:
+The move-generation pipeline starts from the current side to move.
+@ref scid::core::Position "Position" first recomputes pins and, unless the
+caller has already ruled check out, counts attacks on the side-to-move king.  A
+checked king takes the evasion path:
 double check permits only king moves, while single check also allows captures
 of the checking piece and blocks on the checking ray.
 
@@ -29,19 +33,19 @@ skinparam defaultFontSize 10
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam RectangleBorderColor #6B7280
-skinparam RectangleBackgroundColor #F9FAFB
+skinparam RectangleBackgroundColor #EEF2FF
 
 left to right direction
 
 rectangle "Move request\n\n- <font:Source Code Pro>GEN_CAPTURES</font>\n- <font:Source Code Pro>GEN_NON_CAPS</font>\n- <font:Source Code Pro>piece mask</font>\n- <font:Source Code Pro>maybeInCheck</font>" as Request #EEF2FF
 
-rectangle "Position state\n\n- <font:Source Code Pro>Board</font>\n- <font:Source Code Pro>List</font>\n- <font:Source Code Pro>ToMove</font>\n- <font:Source Code Pro>Castling</font>\n- <font:Source Code Pro>EPTarget</font>" as PositionState #ECFDF5
+rectangle "Position state\n\n- <font:Source Code Pro>Board</font>\n- <font:Source Code Pro>List</font>\n- <font:Source Code Pro>ToMove</font>\n- <font:Source Code Pro>Castling</font>\n- <font:Source Code Pro>EPTarget</font>" as PositionState #FFF7ED
 
-rectangle "Legality context\n\n- <font:Source Code Pro>CalcPins</font>\n- <font:Source Code Pro>CalcNumChecks</font>\n- <font:Source Code Pro>SquareList</font>\n- <font:Source Code Pro>SquareSet</font>" as Legality #FFF7ED
+rectangle "Legality context\n\n- <font:Source Code Pro>CalcPins</font>\n- <font:Source Code Pro>CalcNumChecks</font>\n- <font:Source Code Pro>SquareList</font>\n- <font:Source Code Pro>SquareSet</font>" as Legality #EEF2FF
 
 rectangle "Piece generators\n\n- <font:Source Code Pro>GenPawnMoves</font>\n- <font:Source Code Pro>GenPieceMoves</font>\n- <font:Source Code Pro>GenKingMoves</font>\n- <font:Source Code Pro>GenCastling</font>\n- <font:Source Code Pro>GenCheckEvasions</font>" as Generators #EEF2FF
 
-rectangle "Resolved moves\n\n- <font:Source Code Pro>MoveAction</font>\n- <font:Source Code Pro>ScoredMove</font>\n- <font:Source Code Pro>MoveList</font>" as Results #ECFDF5
+rectangle "Resolved moves\n\n- <font:Source Code Pro>MoveAction</font>\n- <font:Source Code Pro>ScoredMove</font>\n- <font:Source Code Pro>MoveList</font>" as Results #EEF2FF
 
 Request ----> PositionState : asks current side
 PositionState ----> Legality : pins / checks
@@ -55,23 +59,27 @@ Results ----> PositionState : apply / undo elsewhere
 
 This diagram expands the generation pipeline into the public types and the
 important helper families behind them.  It is intentionally loose: generation
-is an algorithm over `Position` state, so the private helper functions are shown
-as named method groups rather than as independent classes.
+is an algorithm over @ref scid::core::Position "Position" state, so the private
+helper functions are shown as named method groups rather than as independent
+classes.
 
-`MoveSpec` and `MoveAction` sit on opposite sides of the position resolution step.
-`MoveSpec` is the portable request stored in games and accepted by notation
-parsers.  `MoveAction` is the reversible, position-resolved form produced by
-generation and `Position::resolveMove()`.  It records captured pieces, captured
-squares, old castling rights, old en-passant target, old halfmove clock, and
-piece-list indexes so `Position::apply()` and `Position::undo()` can restore
-state exactly.
+@ref scid::core::MoveSpec "MoveSpec" and @ref scid::core::MoveAction
+"MoveAction" sit on opposite sides of the position resolution step.
+@ref scid::core::MoveSpec "MoveSpec" is the portable request stored in games and
+accepted by notation parsers.  @ref scid::core::MoveAction "MoveAction" is the
+reversible, position-resolved form produced by generation and
+@ref scid::core::Position::resolveMove "Position::resolveMove()".  It records
+captured pieces, captured squares, old castling rights, old en-passant target,
+old halfmove clock, and piece-list indexes so @ref scid::core::Position::apply
+"Position::apply()" and @ref scid::core::Position::undo "Position::undo()" can
+restore state exactly.
 
 The low-level geometry is deliberately split by dependency.  `knightAttacks`
 and `kingAttacks` are table lookups for one-piece attacks.  `square_Move()` and
 `square_Last()` describe one-step movement and slider ray ends.  The
 `move_predicates` helpers validate piece geometry against an occupancy
 predicate, which lets legality code reason about hypothetical board states
-without first mutating every `Position` index.
+without first mutating every @ref scid::core::Position "Position" index.
 
 @startuml core-move-generation-domain-model
 skinparam backgroundColor #FFFFFF
@@ -86,7 +94,7 @@ skinparam classAttributeFontName "Source Code Pro"
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam ClassBorderColor #6B7280
-skinparam ClassBackgroundColor #F9FAFB
+skinparam ClassBackgroundColor #EEF2FF
 skinparam classAttributeIconSize 0
 
 hide circle
@@ -94,8 +102,8 @@ hide empty methods
 
 left to right direction
 
-package "Position state" #ECFDF5 {
-  class "Position" as DetailPosition <<aggregate root>> {
+package "Position state" {
+  class "Position" as DetailPosition <<aggregate root>> #FFF7ED {
     GenerateMoves()
     GenerateCaptures()
     GenPieceMoves()
@@ -106,7 +114,7 @@ package "Position state" #ECFDF5 {
   }
 }
 
-package "Move values" #FFF7ED {
+package "Move values" {
   class "MoveSpec" as DetailMoveSpec <<portable request>> {
     from : squareT
     to : squareT
@@ -135,7 +143,7 @@ package "Move values" #FFF7ED {
   }
 }
 
-package "Generation context" #EEF2FF {
+package "Generation context" {
   class "Move generation" as DetailGeneration <<methods>> {
     GenerateMoves()
     GenerateCaptures()
@@ -152,7 +160,7 @@ package "Generation context" #EEF2FF {
   class "SquareSet" as DetailSquareSet <<target filter>>
 }
 
-package "Geometry helpers" #FFF7ED {
+package "Geometry helpers" {
   class "Attack tables" as DetailAttackTables <<constants>> {
     knightAttacks
     kingAttacks

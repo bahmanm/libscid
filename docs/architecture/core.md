@@ -16,7 +16,7 @@ skinparam Nodesep 48
 skinparam Ranksep 42
 skinparam ArrowColor #4B5563
 skinparam RectangleBorderColor #6B7280
-skinparam RectangleBackgroundColor #F9FAFB
+skinparam RectangleBackgroundColor #EEF2FF
 
 <style>
 rectangle {
@@ -28,13 +28,13 @@ left to right direction
 
 rectangle "Text format mappings" as TextMappings #EEF2FF
 
-rectangle "Game aggregate" as GameAggregate #ECFDF5
+rectangle "Game aggregate" as GameAggregate #FFF7ED
 
-rectangle "Movetext tree" as MovetextTree #FFF7ED
+rectangle "Movetext tree" as MovetextTree #EEF2FF
 
 rectangle "Traversal" as Traversal #EEF2FF
 
-rectangle "Position aggregate" as PositionAggregate #ECFDF5
+rectangle "Position aggregate" as PositionAggregate #FFF7ED
 
 TextMappings ----> GameAggregate : maps
 GameAggregate ----> MovetextTree : owns
@@ -72,14 +72,14 @@ Most higher-level work in Core is either about changing one of those aggregates,
 @ref architecture_core_movetext "Movetext" is the durable move tree inside a game.  It stores move intent,
 comments, NAGs and variation structure, but it does not by itself prove legality
 or reconstruct board state.  @ref architecture_core_move_generation "Move generation"
-belongs to `Position`, where stored move intent can be resolved against a real
-board state.
+belongs to @ref scid::core::Position "Position", where stored move intent can be
+resolved against a real board state.
 
 ---
 
 @ref architecture_core_traversal "Traversal" supplies the cursor model for walking and
 editing that tree.  When a caller needs a board, the cursor replays the stored
-move intent through `Position`.
+move intent through @ref scid::core::Position "Position".
 
 ---
 
@@ -87,5 +87,5 @@ Text formats sit around the model as mappings, not as owning state.  @ref archit
 maps a complete game to and from text.  @ref architecture_core_notation "Notation"
 maps position-resolved moves to and from strings such as SAN or coordinate
 notation.  @ref architecture_core_game_metadata "Header metadata" is structured
-inside `GameHeader`, with supplemental PGN tags preserved beside the typed
-fields.
+inside @ref scid::core::GameHeader "GameHeader", with supplemental PGN tags
+preserved beside the typed fields.

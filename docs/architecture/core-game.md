@@ -1,15 +1,15 @@
 # Game {#architecture_core_game}
 
-`scid::core::Game` is the editable aggregate for one chess game.  It owns the
-structured header, the optional non-standard start position, and the recursive
-movetext tree.  Read-only traversal, mutable editing, PGN import/export, and
-position replay all work through that aggregate rather than owning separate game
-state.
+@ref scid::core::Game "scid::core::Game" is the editable aggregate for one chess
+game.  It owns the structured header, the optional non-standard start position,
+and the recursive movetext tree.  Read-only traversal, mutable editing, PGN
+import/export, and position replay all work through that aggregate rather than
+owning separate game state.
 
 The aggregate view is the compact map of the game-facing API.  Text formats such
 as PGN and notation sit outside the aggregate; cursors provide traversal and
-editing; the `Game` root owns header data, movetext, and any non-standard start
-position needed to replay the game.
+editing; the @ref scid::core::Game "Game" root owns header data, movetext, and
+any non-standard start position needed to replay the game.
 
 @startuml core-game
 skinparam backgroundColor #FFFFFF
@@ -20,7 +20,7 @@ skinparam defaultFontSize 10
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam RectangleBorderColor #6B7280
-skinparam RectangleBackgroundColor #F9FAFB
+skinparam RectangleBackgroundColor #EEF2FF
 
 left to right direction
 
@@ -28,13 +28,13 @@ rectangle "Text format mappings\n\n- <font:Source Code Pro>pgn::decode</font>\n-
 
 rectangle "Traversal and editing\n\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>MovetextCursor</font>\n- <font:Source Code Pro>MovetextLocation</font>" as Traversal #EEF2FF
 
-rectangle "Aggregate root\n\n- <font:Source Code Pro>Game</font>" as Game #ECFDF5
+rectangle "Aggregate root\n\n- <font:Source Code Pro>Game</font>" as Game #FFF7ED
 
-rectangle "Game header\n\n- <font:Source Code Pro>GameHeader</font>\n- <font:Source Code Pro>EventInfo</font>\n- <font:Source Code Pro>Player</font>\n- <font:Source Code Pro>Rating</font>\n- <font:Source Code Pro>TagPair</font>" as Header #FFF7ED
+rectangle "Game header\n\n- <font:Source Code Pro>GameHeader</font>\n- <font:Source Code Pro>EventInfo</font>\n- <font:Source Code Pro>Player</font>\n- <font:Source Code Pro>Rating</font>\n- <font:Source Code Pro>TagPair</font>" as Header #EEF2FF
 
-rectangle "Movetext tree\n\n- <font:Source Code Pro>Movetext</font>\n- <font:Source Code Pro>MoveSequence</font>\n- <font:Source Code Pro>Move</font>\n- <font:Source Code Pro>Variation</font>" as MovetextTree #FFF7ED
+rectangle "Movetext tree\n\n- <font:Source Code Pro>Movetext</font>\n- <font:Source Code Pro>MoveSequence</font>\n- <font:Source Code Pro>Move</font>\n- <font:Source Code Pro>Variation</font>" as MovetextTree #EEF2FF
 
-rectangle "Position context\n\n- <font:Source Code Pro>Position</font>" as PositionContext #FFF7ED
+rectangle "Position context\n\n- <font:Source Code Pro>Position</font>" as PositionContext #EEF2FF
 
 TextMappings ----> Game : parse / format
 Traversal ----> Game : navigate / edit
@@ -52,12 +52,16 @@ API edges, while omitting most operations and low-level chess primitives.
 Header data is structured first, with supplemental PGN tags kept beside the
 typed fields rather than replacing them.
 
-`Movetext` is recursive: the mainline is a `MoveSequence`, each `Move` can own
-child `Variation` objects, and each variation owns another `MoveSequence`.
-`GameCursor` and `MovetextCursor` are bound to a `Game`; they do not own an
-independent copy of the movetext.  PGN and notation remain text mappings around
-the aggregate: they parse into, encode from, or interpret the game state instead
-of being part of the aggregate.
+@ref scid::core::Movetext "Movetext" is recursive: the mainline is a
+@ref scid::core::MoveSequence "MoveSequence", each @ref scid::core::Move "Move"
+can own child @ref scid::core::Variation "Variation" objects, and each variation
+owns another @ref scid::core::MoveSequence "MoveSequence".
+@ref scid::core::GameCursor "GameCursor" and
+@ref scid::core::MovetextCursor "MovetextCursor" are bound to a
+@ref scid::core::Game "Game"; they do not own an independent copy of the
+movetext.  PGN and notation remain text mappings around the aggregate: they
+parse into, encode from, or interpret the game state instead of being part of
+the aggregate.
 
 @startuml core-game-domain-model
 skinparam backgroundColor #FFFFFF
@@ -70,7 +74,7 @@ skinparam classAttributeFontName "Source Code Pro"
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam ClassBorderColor #6B7280
-skinparam ClassBackgroundColor #F9FAFB
+skinparam ClassBackgroundColor #EEF2FF
 skinparam classAttributeIconSize 0
 
 hide circle
@@ -78,15 +82,15 @@ hide empty methods
 
 left to right direction
 
-package "Aggregate root" #ECFDF5 {
-  class "Game" as DetailGame <<aggregate root>> {
+package "Aggregate root" {
+  class "Game" as DetailGame <<aggregate root>> #FFF7ED {
     - header_ : GameHeader
     - movetext_ : Movetext
     - startPosition_ : optional<Position>
   }
 }
 
-package "Game Header" #FFF7ED {
+package "Game Header" {
   class "GameHeader" as DetailGameHeader {
     event : EventInfo
     white : Player
@@ -117,7 +121,7 @@ package "Game Header" #FFF7ED {
   class "TagPair" as DetailTagPair <<PGN tag>>
 }
 
-package "Movetext tree" #FFF7ED {
+package "Movetext tree" {
   class "Movetext" as DetailMovetext {
     initialComment : string
     mainline : MoveSequence
@@ -154,18 +158,29 @@ package "Movetext tree" #FFF7ED {
   class "Nag" as DetailNag
 }
 
-package "Position and navigation" #EEF2FF {
+package "Position and navigation" {
   class "Position" as DetailPosition <<board state>>
   class "GameCursor" as DetailGameCursor <<read-only>>
   class "MovetextCursor" as DetailMovetextCursor <<mutable>>
   class "MovetextLocation" as DetailLocation <<bookmark>>
 }
 
-package "Text format mappings" #EEF2FF {
+package "Text format mappings" {
   class "pgn::parseGame" as DetailPgnDecode <<function>>
   class "pgn::encode" as DetailPgnEncode <<function>>
   class "notation::*" as DetailNotation <<functions>>
 }
+
+note right of DetailNotation
+  Text helpers parse, format,
+  and name positions or moves.
+end note
+
+note right of DetailGameCursor
+  Cursors traverse or edit a Game
+  and expose board positions or
+  stable movetext bookmarks.
+end note
 
 DetailGame *---> DetailGameHeader
 DetailGame *---> DetailMovetext
@@ -184,15 +199,5 @@ DetailMoveMetadata *---> "0..*" DetailNag
 DetailMove *---> "0..*" DetailVariation
 DetailVariation *---> DetailMoveSequence : recursive line
 
-DetailGameCursor ---> DetailGame
-DetailMovetextCursor ---> DetailGame
-DetailGameCursor ...> DetailLocation
-DetailMovetextCursor ...> DetailLocation
-DetailGameCursor ...> DetailPosition
-
-DetailPgnDecode ---> DetailGame
-DetailPgnEncode ...> DetailGame
-DetailNotation ...> DetailGame
-DetailNotation ...> DetailLocation
-DetailNotation ...> DetailPosition
+DetailPgnDecode ---> DetailGame : parse / format
 @enduml

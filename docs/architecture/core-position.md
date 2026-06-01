@@ -1,17 +1,17 @@
 # Position {#architecture_core_position}
 
-`scid::core::Position` is the mutable board-state aggregate.  It owns the board
-array, piece and material indexes, side to move, castling rights, en-passant
-target, move counters, and hash values.  Move generation, legality checks, move
-application, undo, FEN/UCI parsing, and SAN formatting all resolve through that
-state.
+@ref scid::core::Position "scid::core::Position" is the mutable board-state
+aggregate.  It owns the board array, piece and material indexes, side to move,
+castling rights, en-passant target, move counters, and hash values.  Move
+generation, legality checks, move application, undo, FEN/UCI parsing, and SAN
+formatting all resolve through that state.
 
 The aggregate view is the compact map of the position-facing API.  Text formats
 such as FEN, UCI position strings, coordinate moves, SAN, and legacy board
-strings sit outside the aggregate.  `Position` turns portable move requests into
-position-resolved actions, updates its internal indexes when moves are applied
-or undone, and exposes derived facts such as legal replies, check, mate,
-material and hashes.
+strings sit outside the aggregate.  @ref scid::core::Position "Position" turns
+portable move requests into position-resolved actions, updates its internal
+indexes when moves are applied or undone, and exposes derived facts such as
+legal replies, check, mate, material and hashes.
 
 @startuml core-position
 skinparam backgroundColor #FFFFFF
@@ -22,7 +22,7 @@ skinparam defaultFontSize 10
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam RectangleBorderColor #6B7280
-skinparam RectangleBackgroundColor #F9FAFB
+skinparam RectangleBackgroundColor #EEF2FF
 
 left to right direction
 
@@ -30,13 +30,13 @@ rectangle "Text format mappings\n\n- <font:Source Code Pro>FEN / EPD</font>\n- <
 
 rectangle "Move requests and actions\n\n- <font:Source Code Pro>MoveSpec</font>\n- <font:Source Code Pro>MoveAction</font>\n- <font:Source Code Pro>MoveList</font>" as MoveRequests #EEF2FF
 
-rectangle "Aggregate root\n\n- <font:Source Code Pro>Position</font>" as Position #ECFDF5
+rectangle "Aggregate root\n\n- <font:Source Code Pro>Position</font>" as Position #FFF7ED
 
-rectangle "Board state\n\n- <font:Source Code Pro>Board</font>\n- <font:Source Code Pro>List</font>\n- <font:Source Code Pro>Material</font>\n- <font:Source Code Pro>Pinned</font>" as BoardState #FFF7ED
+rectangle "Board state\n\n- <font:Source Code Pro>Board</font>\n- <font:Source Code Pro>List</font>\n- <font:Source Code Pro>Material</font>\n- <font:Source Code Pro>Pinned</font>" as BoardState #EEF2FF
 
-rectangle "Rule state\n\n- <font:Source Code Pro>ToMove</font>\n- <font:Source Code Pro>Castling</font>\n- <font:Source Code Pro>EPTarget</font>\n- <font:Source Code Pro>HalfMoveClock</font>\n- <font:Source Code Pro>PlyCounter</font>" as RuleState #FFF7ED
+rectangle "Rule state\n\n- <font:Source Code Pro>ToMove</font>\n- <font:Source Code Pro>Castling</font>\n- <font:Source Code Pro>EPTarget</font>\n- <font:Source Code Pro>HalfMoveClock</font>\n- <font:Source Code Pro>PlyCounter</font>" as RuleState #EEF2FF
 
-rectangle "Derived indexes\n\n- <font:Source Code Pro>Hash</font>\n- <font:Source Code Pro>PawnHash</font>\n- <font:Source Code Pro>rank/file/diagonal counts</font>\n- <font:Source Code Pro>SquareList</font>\n- <font:Source Code Pro>SquareSet</font>" as DerivedState #FFF7ED
+rectangle "Derived indexes\n\n- <font:Source Code Pro>Hash</font>\n- <font:Source Code Pro>PawnHash</font>\n- <font:Source Code Pro>rank/file/diagonal counts</font>\n- <font:Source Code Pro>SquareList</font>\n- <font:Source Code Pro>SquareSet</font>" as DerivedState #EEF2FF
 
 TextMappings ----> Position : parse / format
 MoveRequests ----> Position : resolve / apply / undo
@@ -50,20 +50,25 @@ Position ----> DerivedState : owns and maintains
 
 This diagram expands the position map into the main public types that sit around
 board state and legal move handling.  It is intentionally loose: it shows the
-types programmers meet when using `Position`, while omitting private helper
-functions, attack tables and most low-level board geometry constants.
+types programmers meet when using @ref scid::core::Position "Position", while
+omitting private helper functions, attack tables and most low-level board
+geometry constants.
 
-`MoveSpec` is a portable request: it names origin, destination, promotion, and
-castling intent, but it cannot undo a move.  `Position` resolves that request
-against the current board into a `MoveAction`, which carries captured pieces,
-castling rights, en-passant state and halfmove data needed for exact undo.
-`MoveList` is the fixed-capacity container filled by move generation.
+@ref scid::core::MoveSpec "MoveSpec" is a portable request: it names origin,
+destination, promotion, and castling intent, but it cannot undo a move.
+@ref scid::core::Position "Position" resolves that request against the current
+board into a @ref scid::core::MoveAction "MoveAction", which carries captured
+pieces, castling rights, en-passant state and halfmove data needed for exact
+undo.  @ref scid::core::MoveList "MoveList" is the fixed-capacity container
+filled by move generation.
 
 Square collections are supporting structures rather than independent
-aggregates.  `SquareList` is useful when callers need the actual attacking or
-checking squares; `SquareSet` is a compact membership filter used while
-generating moves.  Primitive scalar aliases such as `pieceT`, `colorT` and
-`squareT` appear as field types rather than separate model nodes.
+aggregates.  @ref scid::core::SquareList "SquareList" is useful when callers
+need the actual attacking or checking squares; @ref scid::core::SquareSet
+"SquareSet" is a compact membership filter used while generating moves.
+Primitive scalar aliases such as @ref scid::core::pieceT "pieceT",
+@ref scid::core::colorT "colorT" and @ref scid::core::squareT "squareT" appear
+as field types rather than separate model nodes.
 
 @startuml core-position-domain-model
 skinparam backgroundColor #FFFFFF
@@ -76,7 +81,7 @@ skinparam classAttributeFontName "Source Code Pro"
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam ClassBorderColor #6B7280
-skinparam ClassBackgroundColor #F9FAFB
+skinparam ClassBackgroundColor #EEF2FF
 skinparam classAttributeIconSize 0
 
 hide circle
@@ -84,8 +89,8 @@ hide empty methods
 
 left to right direction
 
-package "Aggregate root" #ECFDF5 {
-  class "Position" as DetailPosition <<aggregate root>> {
+package "Aggregate root" {
+  class "Position" as DetailPosition <<aggregate root>> #FFF7ED {
     - Board : pieceT[66]
     - List : squareT[2][16]
     - Material : byte[16]
@@ -100,7 +105,7 @@ package "Aggregate root" #ECFDF5 {
   }
 }
 
-package "Move values" #FFF7ED {
+package "Move values" {
   class "MoveSpec" as DetailMoveSpec <<portable request>> {
     from : squareT
     to : squareT
@@ -130,7 +135,7 @@ package "Move values" #FFF7ED {
   }
 }
 
-package "Square helpers" #FFF7ED {
+package "Square helpers" {
   class "SquareList" as DetailSquareList {
     ListSize : uint
     Squares : squareT[MAX_SQUARELIST]
@@ -141,7 +146,7 @@ package "Square helpers" #FFF7ED {
   }
 }
 
-package "Text format mappings" #EEF2FF {
+package "Text format mappings" {
   class "Position text API" as DetailTextApi <<methods>> {
     ReadFromFEN
     ReadFromFENorUCI

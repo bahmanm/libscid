@@ -6,3 +6,4 @@ conversion points and the shape of the public model before drilling into
 individual classes and functions.
 
 - @subpage architecture_core "Core"
+- @subpage architecture_database "Database"
