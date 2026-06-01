@@ -8,3 +8,4 @@ PGN and notation.
 - @subpage architecture_core_movetext "Movetext"
 - @subpage architecture_core_traversal "Traversal"
 - @subpage architecture_core_pgn "PGN"
+- @subpage architecture_core_notation "Notation"

@@ -16,7 +16,7 @@ variation branches that depart from them.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName Cantarel
+skinparam defaultFontName "Atkinson Hyperlegible Next"
 skinparam defaultFontSize 10
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
@@ -25,17 +25,17 @@ skinparam RectangleBackgroundColor #F9FAFB
 
 left to right direction
 
-rectangle "Text boundaries\n\n- <font:Source Code Pro>PGN movetext</font>\n- <font:Source Code Pro>SAN</font>\n- <font:Source Code Pro>NAG</font>\n- <font:Source Code Pro>comments</font>" as TextBoundaries #EEF2FF
+rectangle "Text boundaries\n\n- <font:Atkinson Hyperlegible Mono>PGN movetext</font>\n- <font:Atkinson Hyperlegible Mono>SAN</font>\n- <font:Atkinson Hyperlegible Mono>NAG</font>\n- <font:Atkinson Hyperlegible Mono>comments</font>" as TextBoundaries #EEF2FF
 
-rectangle "Traversal and editing\n\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>MovetextCursor</font>\n- <font:Source Code Pro>MovetextLocation</font>" as Traversal #EEF2FF
+rectangle "Traversal and editing\n\n- <font:Atkinson Hyperlegible Mono>GameCursor</font>\n- <font:Atkinson Hyperlegible Mono>MovetextCursor</font>\n- <font:Atkinson Hyperlegible Mono>MovetextLocation</font>" as Traversal #EEF2FF
 
-rectangle "Tree root\n\n- <font:Source Code Pro>Movetext</font>" as MovetextRoot #ECFDF5
+rectangle "Tree root\n\n- <font:Atkinson Hyperlegible Mono>Movetext</font>" as MovetextRoot #ECFDF5
 
-rectangle "Line\n\n- <font:Source Code Pro>MoveSequence</font>" as Line #FFF7ED
+rectangle "Line\n\n- <font:Atkinson Hyperlegible Mono>MoveSequence</font>" as Line #FFF7ED
 
-rectangle "Move payload\n\n- <font:Source Code Pro>Move</font>\n- <font:Source Code Pro>MoveSpec</font>\n- <font:Source Code Pro>MoveMetadata</font>\n- <font:Source Code Pro>Nag</font>" as MovePayload #FFF7ED
+rectangle "Move payload\n\n- <font:Atkinson Hyperlegible Mono>Move</font>\n- <font:Atkinson Hyperlegible Mono>MoveSpec</font>\n- <font:Atkinson Hyperlegible Mono>MoveMetadata</font>\n- <font:Atkinson Hyperlegible Mono>Nag</font>" as MovePayload #FFF7ED
 
-rectangle "Recursive branch\n\n- <font:Source Code Pro>Variation</font>\n- <font:Source Code Pro>MoveSequence</font>" as Branch #FFF7ED
+rectangle "Recursive branch\n\n- <font:Atkinson Hyperlegible Mono>Variation</font>\n- <font:Atkinson Hyperlegible Mono>MoveSequence</font>" as Branch #FFF7ED
 
 TextBoundaries ----> MovetextRoot : parse / format
 Traversal ----> MovetextRoot : navigate / edit
@@ -66,10 +66,10 @@ matter only as users of the tree.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName Cantarel
+skinparam defaultFontName "Atkinson Hyperlegible Next"
 skinparam defaultFontSize 10
-skinparam classFontName "Source Code Pro"
-skinparam classAttributeFontName "Source Code Pro"
+skinparam classFontName "Atkinson Hyperlegible Mono"
+skinparam classAttributeFontName "Atkinson Hyperlegible Mono"
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam ClassBorderColor #6B7280
@@ -122,7 +122,7 @@ package "Move payload" #FFF7ED {
   class "Nag" as DetailNag <<annotation>>
 }
 
-DetailMovetext *---> DetailMoveSequence : <font:Source Code Pro>mainline</font>
+DetailMovetext *---> DetailMoveSequence : <font:Atkinson Hyperlegible Mono>mainline</font>
 DetailMoveSequence *---> "0..*" DetailMove
 DetailMove *---> DetailMoveSpec
 DetailMove *---> DetailMoveMetadata

@@ -17,7 +17,7 @@ position needed to replay the game.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName Cantarel
+skinparam defaultFontName "Atkinson Hyperlegible Next"
 skinparam defaultFontSize 10
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
@@ -26,17 +26,17 @@ skinparam RectangleBackgroundColor #F9FAFB
 
 left to right direction
 
-rectangle "Text boundaries\n\n- <font:Source Code Pro>pgn::decode</font>\n- <font:Source Code Pro>pgn::encode</font>\n- <font:Source Code Pro>notation</font>" as TextBoundaries #EEF2FF
+rectangle "Text boundaries\n\n- <font:Atkinson Hyperlegible Mono>pgn::decode</font>\n- <font:Atkinson Hyperlegible Mono>pgn::encode</font>\n- <font:Atkinson Hyperlegible Mono>notation</font>" as TextBoundaries #EEF2FF
 
-rectangle "Traversal and editing\n\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>MovetextCursor</font>\n- <font:Source Code Pro>MovetextLocation</font>" as Traversal #EEF2FF
+rectangle "Traversal and editing\n\n- <font:Atkinson Hyperlegible Mono>GameCursor</font>\n- <font:Atkinson Hyperlegible Mono>MovetextCursor</font>\n- <font:Atkinson Hyperlegible Mono>MovetextLocation</font>" as Traversal #EEF2FF
 
-rectangle "Aggregate root\n\n- <font:Source Code Pro>Game</font>" as Game #ECFDF5
+rectangle "Aggregate root\n\n- <font:Atkinson Hyperlegible Mono>Game</font>" as Game #ECFDF5
 
-rectangle "Game header\n\n- <font:Source Code Pro>GameHeader</font>\n- <font:Source Code Pro>EventInfo</font>\n- <font:Source Code Pro>Player</font>\n- <font:Source Code Pro>Rating</font>\n- <font:Source Code Pro>TagPair</font>" as Header #FFF7ED
+rectangle "Game header\n\n- <font:Atkinson Hyperlegible Mono>GameHeader</font>\n- <font:Atkinson Hyperlegible Mono>EventInfo</font>\n- <font:Atkinson Hyperlegible Mono>Player</font>\n- <font:Atkinson Hyperlegible Mono>Rating</font>\n- <font:Atkinson Hyperlegible Mono>TagPair</font>" as Header #FFF7ED
 
-rectangle "Movetext tree\n\n- <font:Source Code Pro>Movetext</font>\n- <font:Source Code Pro>MoveSequence</font>\n- <font:Source Code Pro>Move</font>\n- <font:Source Code Pro>Variation</font>" as MovetextTree #FFF7ED
+rectangle "Movetext tree\n\n- <font:Atkinson Hyperlegible Mono>Movetext</font>\n- <font:Atkinson Hyperlegible Mono>MoveSequence</font>\n- <font:Atkinson Hyperlegible Mono>Move</font>\n- <font:Atkinson Hyperlegible Mono>Variation</font>" as MovetextTree #FFF7ED
 
-rectangle "Position context\n\n- <font:Source Code Pro>Position</font>" as PositionContext #FFF7ED
+rectangle "Position context\n\n- <font:Atkinson Hyperlegible Mono>Position</font>" as PositionContext #FFF7ED
 
 TextBoundaries ----> Game : parse / format
 Traversal ----> Game : navigate / edit
@@ -65,10 +65,10 @@ being part of the aggregate.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName Cantarel
+skinparam defaultFontName "Atkinson Hyperlegible Next"
 skinparam defaultFontSize 10
-skinparam classFontName "Source Code Pro"
-skinparam classAttributeFontName "Source Code Pro"
+skinparam classFontName "Atkinson Hyperlegible Mono"
+skinparam classAttributeFontName "Atkinson Hyperlegible Mono"
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam ClassBorderColor #6B7280
@@ -171,14 +171,14 @@ package "Text boundaries" #EEF2FF {
 
 DetailGame *---> DetailGameHeader
 DetailGame *---> DetailMovetext
-DetailGame o---> DetailPosition : <font:Source Code Pro>start</font>
+DetailGame o---> DetailPosition : <font:Atkinson Hyperlegible Mono>start</font>
 
 DetailGameHeader *---> DetailEventInfo
-DetailGameHeader *---> "2" DetailPlayer : <font:Source Code Pro>white / black</font>
+DetailGameHeader *---> "2" DetailPlayer : <font:Atkinson Hyperlegible Mono>white / black</font>
 DetailPlayer *---> DetailRating
 DetailGameHeader *---> "0..*" DetailTagPair
 
-DetailMovetext *---> DetailMoveSequence : <font:Source Code Pro>mainline</font>
+DetailMovetext *---> DetailMoveSequence : <font:Atkinson Hyperlegible Mono>mainline</font>
 DetailMoveSequence *---> "0..*" DetailMove
 DetailMove *---> DetailMoveSpec
 DetailMove *---> DetailMoveMetadata

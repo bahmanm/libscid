@@ -23,7 +23,7 @@ replays from the current `Position` and generates SAN before writing the move.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName Cantarel
+skinparam defaultFontName "Atkinson Hyperlegible Next"
 skinparam defaultFontSize 10
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
@@ -32,15 +32,15 @@ skinparam RectangleBackgroundColor #F9FAFB
 
 left to right direction
 
-rectangle "PGN text\n\n- <font:Source Code Pro>tag pairs</font>\n- <font:Source Code Pro>movetext</font>\n- <font:Source Code Pro>comments</font>\n- <font:Source Code Pro>NAGs</font>\n- <font:Source Code Pro>RAVs</font>" as PgnText #EEF2FF
+rectangle "PGN text\n\n- <font:Atkinson Hyperlegible Mono>tag pairs</font>\n- <font:Atkinson Hyperlegible Mono>movetext</font>\n- <font:Atkinson Hyperlegible Mono>comments</font>\n- <font:Atkinson Hyperlegible Mono>NAGs</font>\n- <font:Atkinson Hyperlegible Mono>RAVs</font>" as PgnText #EEF2FF
 
-rectangle "Decode boundary\n\n- <font:Source Code Pro>parseGame</font>\n- <font:Source Code Pro>ParseLog</font>\n- <font:Source Code Pro>MovetextLocation</font>" as Decode #EEF2FF
+rectangle "Decode boundary\n\n- <font:Atkinson Hyperlegible Mono>parseGame</font>\n- <font:Atkinson Hyperlegible Mono>ParseLog</font>\n- <font:Atkinson Hyperlegible Mono>MovetextLocation</font>" as Decode #EEF2FF
 
-rectangle "Game model\n\n- <font:Source Code Pro>Game</font>\n- <font:Source Code Pro>GameHeader</font>\n- <font:Source Code Pro>Movetext</font>\n- <font:Source Code Pro>Position</font>" as GameModel #ECFDF5
+rectangle "Game model\n\n- <font:Atkinson Hyperlegible Mono>Game</font>\n- <font:Atkinson Hyperlegible Mono>GameHeader</font>\n- <font:Atkinson Hyperlegible Mono>Movetext</font>\n- <font:Atkinson Hyperlegible Mono>Position</font>" as GameModel #ECFDF5
 
-rectangle "Traversal and editing\n\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>MovetextCursor</font>\n- <font:Source Code Pro>pgn::nextLocation</font>" as Traversal #FFF7ED
+rectangle "Traversal and editing\n\n- <font:Atkinson Hyperlegible Mono>GameCursor</font>\n- <font:Atkinson Hyperlegible Mono>MovetextCursor</font>\n- <font:Atkinson Hyperlegible Mono>pgn::nextLocation</font>" as Traversal #FFF7ED
 
-rectangle "Encode boundary\n\n- <font:Source Code Pro>encode</font>\n- <font:Source Code Pro>EncodeOptions</font>\n- <font:Source Code Pro>break_lines</font>" as Encode #EEF2FF
+rectangle "Encode boundary\n\n- <font:Atkinson Hyperlegible Mono>encode</font>\n- <font:Atkinson Hyperlegible Mono>EncodeOptions</font>\n- <font:Atkinson Hyperlegible Mono>break_lines</font>" as Encode #EEF2FF
 
 PgnText ----> Decode : input
 Decode ----> GameModel : fills / appends
@@ -75,10 +75,10 @@ into final PGN whitespace.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName Cantarel
+skinparam defaultFontName "Atkinson Hyperlegible Next"
 skinparam defaultFontSize 10
-skinparam classFontName "Source Code Pro"
-skinparam classAttributeFontName "Source Code Pro"
+skinparam classFontName "Atkinson Hyperlegible Mono"
+skinparam classAttributeFontName "Atkinson Hyperlegible Mono"
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam ClassBorderColor #6B7280
@@ -162,7 +162,7 @@ DetailEncode ...> DetailBreakLines : final whitespace
 
 DetailGame *---> DetailGameHeader
 DetailGame *---> DetailMovetext
-DetailGame o---> DetailPosition : <font:Source Code Pro>start</font>
+DetailGame o---> DetailPosition : <font:Atkinson Hyperlegible Mono>start</font>
 
 DetailMovetext *---> "0..*" DetailMove
 DetailMove *---> DetailMoveSpec

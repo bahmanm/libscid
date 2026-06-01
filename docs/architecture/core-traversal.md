@@ -23,7 +23,7 @@ cursor state is changed.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName Cantarel
+skinparam defaultFontName "Atkinson Hyperlegible Next"
 skinparam defaultFontSize 10
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
@@ -32,15 +32,15 @@ skinparam RectangleBackgroundColor #F9FAFB
 
 left to right direction
 
-rectangle "Game state\n\n- <font:Source Code Pro>Game</font>\n- <font:Source Code Pro>Movetext</font>\n- <font:Source Code Pro>Position</font>" as GameState #ECFDF5
+rectangle "Game state\n\n- <font:Atkinson Hyperlegible Mono>Game</font>\n- <font:Atkinson Hyperlegible Mono>Movetext</font>\n- <font:Atkinson Hyperlegible Mono>Position</font>" as GameState #ECFDF5
 
-rectangle "Cursor boundary\n\n- <font:Source Code Pro>currentLine</font>\n- <font:Source Code Pro>nextIndex</font>\n- <font:Source Code Pro>parent frames</font>" as CursorBoundary #FFF7ED
+rectangle "Cursor boundary\n\n- <font:Atkinson Hyperlegible Mono>currentLine</font>\n- <font:Atkinson Hyperlegible Mono>nextIndex</font>\n- <font:Atkinson Hyperlegible Mono>parent frames</font>" as CursorBoundary #FFF7ED
 
-rectangle "Read-only traversal\n\n- <font:Source Code Pro>GameCursor</font>\n- <font:Source Code Pro>previousMove</font>\n- <font:Source Code Pro>nextMove</font>\n- <font:Source Code Pro>currentPosition</font>" as ReadOnly #EEF2FF
+rectangle "Read-only traversal\n\n- <font:Atkinson Hyperlegible Mono>GameCursor</font>\n- <font:Atkinson Hyperlegible Mono>previousMove</font>\n- <font:Atkinson Hyperlegible Mono>nextMove</font>\n- <font:Atkinson Hyperlegible Mono>currentPosition</font>" as ReadOnly #EEF2FF
 
-rectangle "Mutable editing\n\n- <font:Source Code Pro>MovetextCursor</font>\n- <font:Source Code Pro>addMove</font>\n- <font:Source Code Pro>addVariation</font>\n- <font:Source Code Pro>promote / delete / truncate</font>" as Mutable #EEF2FF
+rectangle "Mutable editing\n\n- <font:Atkinson Hyperlegible Mono>MovetextCursor</font>\n- <font:Atkinson Hyperlegible Mono>addMove</font>\n- <font:Atkinson Hyperlegible Mono>addVariation</font>\n- <font:Atkinson Hyperlegible Mono>promote / delete / truncate</font>" as Mutable #EEF2FF
 
-rectangle "Stable bookmark\n\n- <font:Source Code Pro>MovetextLocation</font>\n- <font:Source Code Pro>Step</font>\n- <font:Source Code Pro>path</font>\n- <font:Source Code Pro>nextIndex</font>" as Location #FFF7ED
+rectangle "Stable bookmark\n\n- <font:Atkinson Hyperlegible Mono>MovetextLocation</font>\n- <font:Atkinson Hyperlegible Mono>Step</font>\n- <font:Atkinson Hyperlegible Mono>path</font>\n- <font:Atkinson Hyperlegible Mono>nextIndex</font>" as Location #FFF7ED
 
 ReadOnly ----> GameState : reads
 Mutable ----> GameState : edits
@@ -79,10 +79,10 @@ NAGs, promoting variations, and truncating lines.
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
-skinparam defaultFontName Cantarel
+skinparam defaultFontName "Atkinson Hyperlegible Next"
 skinparam defaultFontSize 10
-skinparam classFontName "Source Code Pro"
-skinparam classAttributeFontName "Source Code Pro"
+skinparam classFontName "Atkinson Hyperlegible Mono"
+skinparam classAttributeFontName "Atkinson Hyperlegible Mono"
 skinparam roundcorner 8
 skinparam ArrowColor #4B5563
 skinparam ClassBorderColor #6B7280
@@ -164,9 +164,9 @@ package "Traversal API" #EEF2FF {
 }
 
 DetailGame *---> DetailMovetext
-DetailGame o---> DetailPosition : <font:Source Code Pro>start</font>
+DetailGame o---> DetailPosition : <font:Atkinson Hyperlegible Mono>start</font>
 
-DetailMovetext *---> DetailMoveSequence : <font:Source Code Pro>mainline</font>
+DetailMovetext *---> DetailMoveSequence : <font:Atkinson Hyperlegible Mono>mainline</font>
 DetailMoveSequence *---> "0..*" DetailMove
 DetailMove *---> "0..*" DetailVariation
 DetailVariation *---> DetailMoveSequence : recursive line
