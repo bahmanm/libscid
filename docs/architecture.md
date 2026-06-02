@@ -8,3 +8,4 @@ individual classes and functions.
 - @subpage architecture_core "Core"
 - @subpage architecture_database "Database"
 - @subpage architecture_eco "ECO"
+- @subpage architecture_spelling "Spelling"
