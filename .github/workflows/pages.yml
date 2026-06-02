@@ -57,7 +57,7 @@ jobs:
         run: test -f _build/docs/doxygen/html/index.html
 
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _build/docs/doxygen/html
 
