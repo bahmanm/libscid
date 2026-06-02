@@ -173,6 +173,24 @@ def _patch_menudata(html_dir: Path) -> None:
     menu_path.write_text(text)
 
 
+def _patch_header_badges(html_dir: Path) -> None:
+    badges = '''<span class="libscid-header-badges">
+     <a href="https://github.com/bahmanm/libscid">
+      <img src="https://img.shields.io/badge/source_code-blue?style=flat&amp;logo=github&amp;labelColor=gray" alt="Source on GitHub"/>
+     </a>
+     <img src="https://img.shields.io/badge/GPLv2-blue?style=flat&amp;logo=gnu&amp;labelColor=gray" alt="License GPL v2"/>
+    </span>'''
+    needle = '<div id="projectbrief">Chess applications made easy.</div>'
+    replacement = f"{needle}\n    {badges}"
+    for path in sorted(html_dir.glob("*.html")):
+        text = path.read_text()
+        if "libscid-header-badges" in text:
+            continue
+        if needle not in text:
+            continue
+        path.write_text(text.replace(needle, replacement, 1))
+
+
 def main() -> int:
     if len(sys.argv) != 2:
         print("usage: patch_navigation.py <doxygen-html-dir>", file=sys.stderr)
@@ -183,6 +201,7 @@ def main() -> int:
     _patch_navtree(html_dir)
     _patch_navtree_indexes(html_dir, old_paths)
     _patch_menudata(html_dir)
+    _patch_header_badges(html_dir)
     return 0
 
 

@@ -1,8 +1,15 @@
-# libscid {#mainpage}
+\htmlonly
+<span class="libscid-landing-logo">
+  <img src="libscid-16x10.png" alt="libscid logo" />
+</span>
+\endhtmlonly
 
 libscid is a C++20 library extracted from Scid/ScidUp for applications that need
 chess game, PGN, database, ECO and spelling functionality without depending on a
 desktop application.
+
+*The generated API reference documents installed public headers only. Internal
+codec, storage and test-only headers are intentionally excluded from this site.*
 
 ## Public Libraries
 
@@ -13,20 +20,6 @@ desktop application.
 - `LibScid::Eco` provides ECO code parsing and opening-book lookup.
 - `LibScid::Spelling` provides name normalisation and spelling-file support for
   database-oriented workflows.
-
-## Starting Points
-
-- Use `scid::core::Game` for an editable chess game model.
-- Use `scid::core::Position` for board state, legal move handling and FEN/UCI
-  position support.
-- Use `scid::database::scidBaseT` for database sessions.
-- Use `scid::eco::Book` for ECO opening lookup.
-- Use `scid::spelling::NameNormalizer` for spelling-file-backed name handling.
-
-## Boundaries
-
-The generated API reference documents installed public headers only. Internal
-codec, storage and test-only headers are intentionally excluded from this site.
 
 \htmlonly
 <div style="display: none">
@@ -44,3 +37,12 @@ codec, storage and test-only headers are intentionally excluded from this site.
 
 @ref architecture "Architecture and Diagrams" collects domain-centred views of
 the public model, including the editable game aggregate and its PGN boundaries.
+
+## Where To Start
+
+- Use `scid::core::Game` for an editable chess game model.
+- Use `scid::core::Position` for board state, legal move handling and FEN/UCI
+  position support.
+- Use `scid::database::scidBaseT` for database sessions.
+- Use `scid::eco::Book` for ECO opening lookup.
+- Use `scid::spelling::NameNormalizer` for spelling-file-backed name handling.
