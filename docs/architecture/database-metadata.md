@@ -1,4 +1,4 @@
-# Metadata Catalog {#architecture_database_metadata_catalog}
+# Database Metadata {#architecture_database_metadata}
 
 The metadata catalog is the resident, cheap-to-query side of an open database.
 It is not a separate public session: @ref scid::database::scidBaseT "scidBaseT"
@@ -13,7 +13,7 @@ copyable public view assembled from an index entry, while
 @ref scid::database::TagRoster "TagRoster" is the borrowed Seven Tag Roster view
 used when metadata crosses the Core or storage boundary.
 
-@startuml database-metadata-catalog
+@startuml database-metadata
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
@@ -89,7 +89,7 @@ is the narrow update shape for metadata-only edits.  @ref scid::database::TagRos
 namebase and the compact IDs stored in an @ref scid::database::IndexEntry
 "IndexEntry".
 
-@startuml database-metadata-catalog-domain-model
+@startuml database-metadata-domain-model
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam linetype ortho
