@@ -1,69 +1,69 @@
 <table>
   <tr>
     <td>
-      <img src="docs/assets/img/libscid-1x1.png" width="256" height="256" alt="libscid Logo - Winged Pawn"/>
+      <img src="docs/assets/img/libscid-1x1.png" width="220" height="220" alt="libscid Logo - Winged Pawn"/>
     </td>
     <td align="center">
-        <h1>libscid</h1>
-        <h3>A comprehensive library for programming chess tools and GUIs</h3>
-        <img src="https://github.com/bahmanm/libscid/actions/workflows/ci.yml/badge.svg" alt="CI"/>
-        <img src="https://github.com/bahmanm/libscid/actions/workflows/dependabot/dependabot-updates/badge.svg" alt="dependabot"/>
-        <a href="https://libscid.bahmanm.com/"><img src="https://img.shields.io/badge/📚 documentation-website-blue" alt="Documentation"/></a>
-        <a href="https://libscid.bahmanm.com/"><img src="https://img.shields.io/badge/💡 examples-collection-green" alt="Examples"/></a>
-    </td>
-  </tr>
-  <tr>
-    <td>😣 <i>Ugh.</i></td>
-    <td>
-      <p>You've got chess'y ideas for tools and GUIs but</p>
-      <p>
-      🔴 There's no comprehensive battle-tested chess library.<br/>
-      🔴 Projects either lack features or haven't been thoroughly tested.<br/>
-      🔴 There are ZERO ways to work with massive databases outside Scid (and commercial GUIs).
-      </p>
-    </td>
-  </tr>
-  <tr>
-    <td>🤔 <i>Oh!?</i></td>
-    <td>
-      <p>What if there was a mature chess library which allowed you to</p>
-      <p>
-      🟢 Write efficient and high-performance code.<br/>
-      🟢 Focus on the problem you want to solve not how to parse PGN or access databases.<br/>
-      🟢 Code with confidence knowing that you're building on battle-tested foundations.
-      </p>
-    </td>
-  </tr>
-  <tr>
-    <td>🚀 <i>Scid!</i></td>
-    <td>
-      <p>libscidup brings you the best bits of Scid:</p>
-      <p>
-      ➕ Extremely efficient database codec; SCID5 and SCID4.<br/>
-      ➕ Excellent PGN encoder and decoder<br/>
-      ➕ Legendary search and filter.<br/>
-      ➕ More than 20 years of testing out in the wild.
-      </p>
-      <p>And all of that as a standalone library.</p>
+      <h1>libscid</h1>
+      <h3>A C++20 library for chess games, PGN, Scid databases, ECO codes and spelling files.</h3>
+      <img src="https://github.com/bahmanm/libscid/actions/workflows/ci.yml/badge.svg" alt="CI"/>
+      <img src="https://github.com/bahmanm/libscid/actions/workflows/dependabot/dependabot-updates/badge.svg" alt="dependabot"/>
+      <a href="https://libscid.bahmanm.com/"><img src="https://img.shields.io/badge/documentation-GitHub%20Pages-blue" alt="Documentation"/></a>
+      <a href="examples/"><img src="https://img.shields.io/badge/examples-recipes-green" alt="Examples"/></a>
     </td>
   </tr>
 </table>
 
-_An offspring of [ScidUp](https://github.com/bahmanm/scidup) which is a fork of the magnificent [Scid](https://sourceforge.net/projects/scid/)._
+libscid is a standalone extraction of the library-grade parts of
+[Scid](https://sourceforge.net/projects/scid/) and
+[ScidUp](https://github.com/bahmanm/scidup). It is intended for chess tools,
+analysis pipelines and GUIs that need mature PGN, game, database, ECO and name
+normalisation functionality without depending on a desktop application.
 
----
+## What It Provides
 
-# Learn More
+- `LibScid::Core`: board state, moves, games, movetext, notation and PGN.
+- `LibScid::Database`: Scid database sessions, indexes, names, filters,
+  searches, opening-tree statistics and game load/save workflows.
+- `LibScid::Eco`: ECO code values and opening-position classification.
+- `LibScid::Spelling`: spelling-file-backed name correction and player metadata.
 
-* [Examples and Recipes](examples/) ready for your copy-paste pleasure.
-* [API Documentation](https://libscidup.bahmanm.com/)
+## Start Here
 
-_TBD_
+- [Quick Start](https://libscid.bahmanm.com/quick_start.html): compile a small
+  consumer with `g++`, Make or CMake.
+- [Installation](https://libscid.bahmanm.com/installation.html): install a
+  release archive or build and install from source.
+- [Examples and Recipes](https://libscid.bahmanm.com/examples_recipes.html):
+  choose an example by task.
+- [Architecture and Diagrams](https://libscid.bahmanm.com/architecture.html):
+  understand the public model before drilling into API details.
+- [API Documentation](https://libscid.bahmanm.com/): browse the generated public
+  header reference.
 
----
+## Minimal CMake Consumer
 
-# License
+```cmake
+cmake_minimum_required( VERSION 3.23 )
 
-libscid is distributed under the GNU GPL v2 (see `COPYING`).
-Unless stated otherwise, modifications and additions in this repository are © 
-their respective contributors (see Git history) and licensed under the same terms.
+project( libscid-consumer LANGUAGES CXX )
+
+find_package( LibScid CONFIG REQUIRED )
+
+add_executable( libscid-consumer main.cpp )
+target_compile_features( libscid-consumer PRIVATE cxx_std_20 )
+target_link_libraries( libscid-consumer PRIVATE LibScid::Core )
+```
+
+Configure it with `CMAKE_PREFIX_PATH` pointing at a libscid installation:
+
+```sh
+cmake -S . -B _build -DCMAKE_PREFIX_PATH=/path/to/libscid
+cmake --build _build
+```
+
+## Licence
+
+libscid is distributed under the GNU GPL v2; see [COPYING](COPYING).
+Unless stated otherwise, modifications and additions in this repository are
+licensed under the same terms.

@@ -77,9 +77,11 @@ def _patch_navtree(html_dir: Path) -> None:
     nav_path = html_dir / "navtreedata.js"
     text = nav_path.read_text()
 
+    quick_start = _extract_node_by_url(text, "quick_start.html")
+    installation = _extract_node_by_url(text, "installation.html")
+    recipes = _extract_node_by_url(text, "examples_recipes.html")
     architecture = _extract_node_by_url(text, "architecture.html")
     api_surface = _extract_node_by_url(text, "api_surface.html")
-    recipes = _extract_node_by_url(text, "examples_recipes.html")
     namespaces = _extract_node_by_url(text, "namespaces.html")
     classes = _extract_node_by_url(text, "annotated.html")
     files = _extract_node_by_url(text, "files.html")
@@ -87,9 +89,11 @@ def _patch_navtree(html_dir: Path) -> None:
     root = f'''var NAVTREE =
 [
   [ "libscid", "index.html", [
+    {quick_start},
+    {installation},
+    {recipes},
     {architecture},
     {api_surface},
-    {recipes},
     [ "API Reference", "namespaces.html", [
       {namespaces},
       {classes},
@@ -107,9 +111,11 @@ def _read_navtree_index_paths(html_dir: Path) -> dict[str, tuple[int, ...]]:
     text = "\n".join(path.read_text() for path in sorted(html_dir.glob("navtreeindex*.js")))
     paths = {}
     for url in (
+        "quick_start.html",
+        "installation.html",
+        "examples_recipes.html",
         "architecture.html",
         "api_surface.html",
-        "examples_recipes.html",
         "namespaces.html",
         "annotated.html",
         "files.html",
@@ -126,12 +132,14 @@ def _patch_navtree_indexes(
     old_paths: dict[str, tuple[int, ...]],
 ) -> None:
     path_map = {
-        old_paths["architecture.html"]: (0,),
-        old_paths["api_surface.html"]: (1,),
+        old_paths["quick_start.html"]: (0,),
+        old_paths["installation.html"]: (1,),
         old_paths["examples_recipes.html"]: (2,),
-        old_paths["namespaces.html"]: (3, 0),
-        old_paths["annotated.html"]: (3, 1),
-        old_paths["files.html"]: (3, 2),
+        old_paths["architecture.html"]: (3,),
+        old_paths["api_surface.html"]: (4,),
+        old_paths["namespaces.html"]: (5, 0),
+        old_paths["annotated.html"]: (5, 1),
+        old_paths["files.html"]: (5, 2),
     }
     ordered = sorted(path_map.items(), key=lambda item: len(item[0]), reverse=True)
 
@@ -160,9 +168,11 @@ def _patch_menudata(html_dir: Path) -> None:
     files = _extract_menu_object(text, "Files")
 
     menu = f'''var menudata={{children:[
+{{text:"Quick Start",url:"quick_start.html"}},
+{{text:"Installation",url:"installation.html"}},
+{{text:"Examples and Recipes",url:"examples_recipes.html"}},
 {{text:"Architecture and Diagrams",url:"architecture.html"}},
 {{text:"API Surface",url:"api_surface.html"}},
-{{text:"Examples and Recipes",url:"examples_recipes.html"}},
 {{text:"API Reference",url:"namespaces.html",children:[
 {namespaces},
 {classes},

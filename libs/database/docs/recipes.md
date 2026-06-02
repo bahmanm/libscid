@@ -1,4 +1,4 @@
-# Examples and Recipes {#examples_recipes}
+# Database Examples and Recipes {#database_examples_recipes}
 
 These examples show common tasks using the public library headers.
 
