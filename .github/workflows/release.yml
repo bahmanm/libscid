@@ -61,7 +61,8 @@ jobs:
             exit 1
           fi
 
-          echo "LIBSCID_RELEASE_VERSION=$version" >> "$GITHUB_ENV"
+          echo "LIBSCID_PROJECT_VERSION=$version" >> "$GITHUB_ENV"
+          echo "LIBSCID_VERSION=$tag" >> "$GITHUB_ENV"
           echo "LIBSCID_PACKAGE_VERSION_LABEL=$tag" >> "$GITHUB_ENV"
 
       - name: Configure
@@ -69,7 +70,8 @@ jobs:
           cmake
           --preset package
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DLIBSCID_VERSION="$LIBSCID_RELEASE_VERSION"
+          -DLIBSCID_PROJECT_VERSION="$LIBSCID_PROJECT_VERSION"
+          -DLIBSCID_VERSION="$LIBSCID_VERSION"
           -DLIBSCID_PACKAGE_VERSION_LABEL="$LIBSCID_PACKAGE_VERSION_LABEL"
           -DLIBSCID_PACKAGE_PLATFORM="${{ matrix.asset_label }}"
           -DLIBSCID_PLANTUML_JAR_PATH="$LIBSCID_PLANTUML_JAR_PATH"
@@ -151,14 +153,16 @@ jobs:
             exit 1
           }
 
-          "LIBSCID_RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_PROJECT_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_VERSION=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "LIBSCID_PACKAGE_VERSION_LABEL=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Configure
         run: >
           cmake
           --preset package
-          "-DLIBSCID_VERSION=$env:LIBSCID_RELEASE_VERSION"
+          "-DLIBSCID_PROJECT_VERSION=$env:LIBSCID_PROJECT_VERSION"
+          "-DLIBSCID_VERSION=$env:LIBSCID_VERSION"
           "-DLIBSCID_PACKAGE_VERSION_LABEL=$env:LIBSCID_PACKAGE_VERSION_LABEL"
           "-DLIBSCID_PACKAGE_PLATFORM=windows"
 

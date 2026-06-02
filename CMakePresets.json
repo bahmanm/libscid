@@ -38,8 +38,7 @@
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "OFF",
         "LIBSCID_BUILD_DOCS": "ON",
-        "LIBSCID_INSTALL": "OFF",
-        "LIBSCID_VERSION": "0.1.0"
+        "LIBSCID_INSTALL": "OFF"
       }
     }
   ],
