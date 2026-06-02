@@ -56,6 +56,7 @@ Codec --> Files : persists
 
 - @subpage architecture_database_scidbase "scidBaseT"
 - @subpage architecture_database_metadata "Database Metadata"
+- @subpage architecture_database_name_registry "Name Registry"
 - @subpage architecture_database_filters_views "Filters and Views"
 - @subpage architecture_database_tree "Tree"
 
@@ -75,6 +76,13 @@ and is the usual public entry point for database work.
 behind browsing, filtering, sorting and metadata-only updates.  It lets callers
 answer many database questions without decoding a complete
 @ref scid::core::Game "Game".
+
+---
+
+@ref architecture_database_name_registry "Name registry" owns the canonical
+player, event, site and round strings.  Metadata stores compact name IDs;
+callers resolve those IDs through the registry when they need display text or
+PGN roster tags.
 
 ---
 
