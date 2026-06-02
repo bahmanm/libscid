@@ -1,4 +1,4 @@
-# SCID5 File Format
+# SCID5 File Format {#architecture_database_scid5_file_format}
 
 This document describes the SCID5 storage model used by
 `libscid-database`.
