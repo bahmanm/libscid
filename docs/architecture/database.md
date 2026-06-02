@@ -56,6 +56,7 @@ Codec --> Files : persists
 
 - @subpage architecture_database_scidbase "scidBaseT"
 - @subpage architecture_database_metadata "Database Metadata"
+- @subpage architecture_database_filters_views "Filters and Views"
 
 \htmlonly
 </div>
@@ -73,6 +74,13 @@ and is the usual public entry point for database work.
 behind browsing, filtering, sorting and metadata-only updates.  It lets callers
 answer many database questions without decoding a complete
 @ref scid::core::Game "Game".
+
+---
+
+@ref architecture_database_filters_views "Filters and views" define which games
+are visible to list, search, tree and bulk-update workflows.  Filters are stored
+as per-game byte values rather than plain booleans, so a visible game can also
+carry a ply hint used by position and tree features.
 
 ---
 
