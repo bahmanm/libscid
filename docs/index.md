@@ -11,6 +11,21 @@ desktop application.
 *The generated API reference documents installed public headers only. Internal
 codec, storage and test-only headers are intentionally excluded from this site.*
 
+## Quick Start
+
+@ref quick_start "Quick Start" shows how to compile a minimal consumer with
+`g++`, Make or CMake.
+
+## Installation
+
+@ref installation "Installation" covers release archives, source installation,
+package contents and local documentation builds.
+
+## Examples and Recipes
+
+@ref examples_recipes "Examples and Recipes" maps common tasks to the standalone
+example projects.
+
 ## Public Libraries
 
 - `LibScid::Core` provides board primitives, positions, moves, games, movetext,
@@ -27,6 +42,8 @@ codec, storage and test-only headers are intentionally excluded from this site.*
 
 - @subpage architecture "Architecture and Diagrams"
 - @subpage api_surface "API Surface"
+- @subpage quick_start "Quick Start"
+- @subpage installation "Installation"
 - @subpage examples_recipes "Examples and Recipes"
 
 \htmlonly
