@@ -22,7 +22,7 @@ Pick the archive for your platform from the GitHub release assets:
 For example:
 
 ```sh
-version=v0.2.0
+version=vX.Y.Z
 platform=linux # linux, macos-arm, or windows
 asset_name="libscid__${version}__${platform}.tar.gz"
 
