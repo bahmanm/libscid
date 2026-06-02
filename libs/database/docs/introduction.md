@@ -1,4 +1,4 @@
-# Introduction
+# Introduction {#architecture_database_introduction}
 
 `libscid-database` is a C++ chess database library. It provides database
 sessions, game storage, metadata indexing, name tables, filters, searches and

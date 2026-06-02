@@ -55,6 +55,17 @@ a.elRef:hover {
     padding: 1rem 1.4rem;
 }
 
+#projectlogo {
+    padding-left: 1.2rem;
+    vertical-align: middle;
+}
+
+#projectlogo img {
+    display: block;
+    height: 34px;
+    width: 34px;
+}
+
 #projectname {
     color: var(--primary-color);
     font-family: var(--font-family-title);
@@ -313,9 +324,45 @@ blockquote {
     padding-left: 1rem;
 }
 
+.libscid-header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.45rem;
+}
+
+.libscid-header-badges a,
+.libscid-header-badges img {
+    display: block;
+}
+
+.libscid-landing-logo {
+    display: block;
+    margin: 0.3rem 0 1.4rem;
+}
+
+body:has(.libscid-landing-logo) #doc-content .header {
+    display: none;
+}
+
+.libscid-landing-logo img {
+    display: block;
+    height: auto;
+    max-width: min(100%, 420px);
+}
+
 @media (max-width: 760px) {
     #projectname {
         font-size: 1.55rem;
+    }
+
+    #projectlogo {
+        padding-left: 0.85rem;
+    }
+
+    #projectlogo img {
+        height: 28px;
+        width: 28px;
     }
 
     .contents,

@@ -1,4 +1,4 @@
-# API Surface
+# API Surface {#api_surface}
 
 This document maps the current public include tree. It is a guide to what each
 header is for, not a generated symbol reference.
