@@ -1,6 +1,6 @@
 PROJECT_NAME           = "libscid"
 PROJECT_BRIEF          = "Chess applications made easy."
-PROJECT_NUMBER         = "@PROJECT_VERSION@"
+PROJECT_NUMBER         = "@LIBSCID_VERSION@"
 PROJECT_LOGO           = "@PROJECT_SOURCE_DIR@/docs/assets/img/libscid-tiny.png"
 
 OUTPUT_DIRECTORY       = "@LIBSCID_DOXYGEN_OUTPUT_DIR@"

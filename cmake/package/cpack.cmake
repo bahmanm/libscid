@@ -1,5 +1,5 @@
 set( LIBSCID_PACKAGE_PLATFORM "" CACHE STRING "Platform label used in libscid package file names." )
-set( LIBSCID_PACKAGE_VERSION_LABEL "${PROJECT_VERSION}" CACHE STRING "Version label used in libscid package file names." )
+set( LIBSCID_PACKAGE_VERSION_LABEL "${LIBSCID_VERSION}" CACHE STRING "Version label used in libscid package file names." )
 
 if( LIBSCID_PACKAGE_PLATFORM STREQUAL "" )
     set( _scid_package_platform "${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}" )

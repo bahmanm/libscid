@@ -1,13 +1,31 @@
 cmake_minimum_required( VERSION 3.23 )
 
-set( LIBSCID_VERSION "0.1.0" CACHE STRING "libscid package version." )
+if( DEFINED LIBSCID_VERSION AND LIBSCID_VERSION MATCHES "^[0-9]+(\\.[0-9]+)?(\\.[0-9]+)?(\\.[0-9]+)?$" )
+    unset( LIBSCID_VERSION CACHE )
+    unset( LIBSCID_VERSION )
+endif()
+set( LIBSCID_PROJECT_VERSION "0.0.0" CACHE STRING "Numeric libscid version used for CMake package compatibility." )
 
 project(
     libscid
-    VERSION "${LIBSCID_VERSION}"
+    VERSION "${LIBSCID_PROJECT_VERSION}"
     LANGUAGES CXX )
 
 include( GNUInstallDirs )
+
+set( _libscid_default_version "snapshot" )
+find_package( Git QUIET )
+if( Git_FOUND )
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" -C "${CMAKE_CURRENT_SOURCE_DIR}" rev-parse --short=12 HEAD
+        OUTPUT_VARIABLE _libscid_git_sha
+        ERROR_QUIET
+        OUTPUT_STRIP_TRAILING_WHITESPACE )
+    if( NOT _libscid_git_sha STREQUAL "" )
+        set( _libscid_default_version "snapshot+${_libscid_git_sha}" )
+    endif()
+endif()
+set( LIBSCID_VERSION "${_libscid_default_version}" CACHE STRING "Human-readable libscid version label." )
 
 option( LIBSCID_INSTALL "Install libscid targets and CMake package files." "${PROJECT_IS_TOP_LEVEL}" )
 option( LIBSCID_BUILD_DOCS "Build libscid API documentation." OFF )
