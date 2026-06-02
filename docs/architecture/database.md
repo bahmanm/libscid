@@ -74,6 +74,8 @@ Codec --> Files : persists
 - @subpage architecture_database_filters_views "Filters and Views"
 - @subpage architecture_database_tree "Tree"
 - @subpage architecture_database_storage_codecs "Storage Codecs"
+- @subpage architecture_database_introduction "Introduction"
+- @subpage architecture_database_scid5_file_format "SCID5 File Format"
 
 \htmlonly
 </div>

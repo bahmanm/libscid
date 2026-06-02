@@ -1,4 +1,4 @@
-# libscid API Reference {#mainpage}
+# libscid {#mainpage}
 
 libscid is a C++20 library extracted from Scid/ScidUp for applications that need
 chess game, PGN, database, ECO and spelling functionality without depending on a
@@ -28,7 +28,19 @@ desktop application.
 The generated API reference documents installed public headers only. Internal
 codec, storage and test-only headers are intentionally excluded from this site.
 
+\htmlonly
+<div style="display: none">
+\endhtmlonly
+
+- @subpage architecture "Architecture and Diagrams"
+- @subpage api_surface "API Surface"
+- @subpage examples_recipes "Examples and Recipes"
+
+\htmlonly
+</div>
+\endhtmlonly
+
 ## Architecture and Diagrams
 
-- @ref architecture "Architecture and Diagrams" collects domain-centred views of
-  the public model, including the editable game aggregate and its PGN boundaries.
+@ref architecture "Architecture and Diagrams" collects domain-centred views of
+the public model, including the editable game aggregate and its PGN boundaries.

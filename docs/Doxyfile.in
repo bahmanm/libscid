@@ -16,7 +16,8 @@ INPUT                  = "@PROJECT_SOURCE_DIR@/docs" \
                          "@PROJECT_SOURCE_DIR@/libs/eco/include/scid/eco" \
                          "@PROJECT_SOURCE_DIR@/libs/spelling/include/scid/spelling"
 FILE_PATTERNS          = *.h \
-                         *.md
+                         *.md \
+                         *.dox
 RECURSIVE              = YES
 EXCLUDE                =
 
