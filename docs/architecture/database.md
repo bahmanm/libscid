@@ -57,6 +57,7 @@ Codec --> Files : persists
 - @subpage architecture_database_scidbase "scidBaseT"
 - @subpage architecture_database_metadata "Database Metadata"
 - @subpage architecture_database_filters_views "Filters and Views"
+- @subpage architecture_database_tree "Tree"
 
 \htmlonly
 </div>
@@ -81,6 +82,12 @@ answer many database questions without decoding a complete
 are visible to list, search, tree and bulk-update workflows.  Filters are stored
 as per-game byte values rather than plain booleans, so a visible game can also
 carry a ply hint used by position and tree features.
+
+---
+
+@ref architecture_database_tree "Tree" turns a position-search filter into
+opening-style move statistics.  It groups the next move played by each visible
+game and reports count, score, rating and year aggregates for each candidate.
 
 ---
 
