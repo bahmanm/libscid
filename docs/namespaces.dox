@@ -1,0 +1,94 @@
+/**
+ * @namespace scid
+ * @brief Public namespace for libscid.
+ *
+ * `scid` is the root namespace for the library.  Its child namespaces group the
+ * public model by responsibility: chess values and PGN in @ref scid::core,
+ * database sessions and metadata in @ref scid::database, opening
+ * classification in @ref scid::eco, and spelling-file lookup in
+ * @ref scid::spelling.
+ */
+
+/**
+ * @namespace scid::core
+ * @brief Chess games, positions, movetext and notation.
+ *
+ * Core is the chess model of libscid.  It owns the in-memory representation of
+ * a game, the board state needed to validate and replay moves, and the value
+ * types that keep chess data portable across storage, PGN, notation and
+ * user-facing tools.
+ *
+ * Most work in this namespace revolves around two aggregates:
+ * @ref scid::core::Game owns complete editable game records, while
+ * @ref scid::core::Position owns a board state at one moment in a game.  The
+ * movetext, cursor, notation and PGN APIs sit around those aggregates as tree,
+ * traversal and text-mapping layers.
+ */
+
+/**
+ * @namespace scid::core::gamepos
+ * @brief Named board positions commonly used as game starting points.
+ *
+ * `gamepos` contains compact predefined position data for normal chess and
+ * Chess960 starts.  Callers use these helpers when they need a known initial
+ * board state without parsing a FEN string.
+ */
+
+/**
+ * @namespace scid::core::pgn
+ * @brief PGN import, export and movetext traversal helpers.
+ *
+ * PGN is the text import/export mapping around @ref scid::core::Game.  Decoding
+ * reads tags, comments, NAGs, SAN moves and Recursive Annotation Variations into
+ * the editable game model.  Encoding walks the same model in the opposite
+ * direction, emitting tag pairs, movetext, comments, annotations, variations
+ * and the final result.
+ *
+ * Parsing is stateful because SAN moves and RAVs are relative to a current
+ * position in the game tree.  Encoding is position-aware for the same reason:
+ * when a move has no cached SAN text, the encoder replays from the current
+ * @ref scid::core::Position and generates SAN before writing the move.
+ */
+
+/**
+ * @namespace scid::database
+ * @brief Database sessions, metadata, names, filters, trees and storage.
+ *
+ * Database is the persistence and query layer above Core.  It stores chess
+ * games in database formats, keeps searchable metadata resident in memory,
+ * resolves stored name identifiers, and materialises editable
+ * @ref scid::core::Game values when callers need full game content.
+ *
+ * The usual entry point is @ref scid::database::scidBaseT.  It owns the open
+ * database state, coordinates codecs, filters, sort caches and metadata, and
+ * delegates full-game loading and saving to the active storage mapping.
+ */
+
+/**
+ * @namespace scid::eco
+ * @brief ECO code values and opening-position classification.
+ *
+ * ECO is the opening-classification layer.  It maps ECO text such as `B20` or
+ * `C50a1` to compact numeric values, loads Scid ECO text files, and classifies
+ * exact @ref scid::core::Position values.
+ *
+ * Database records can carry compact ECO classifications for browsing, sorting,
+ * searching and statistics, while this namespace supplies the public code
+ * vocabulary and the position classifier that can produce those
+ * classifications.
+ */
+
+/**
+ * @namespace scid::spelling
+ * @brief Spelling-file lookup for canonical names and player metadata.
+ *
+ * Spelling is the name-authority layer above Database.  It loads Scid spelling
+ * files, stores canonical names and aliases for each database name category,
+ * and answers correction and metadata queries without mutating the database
+ * itself.
+ *
+ * General name normalisation applies prefix, infix and suffix rewrite rules.
+ * The loaded spell checker then provides canonical-name lookup and the
+ * player-only side channel for titles, countries, dates, peak ratings,
+ * biographies and rating history.
+ */

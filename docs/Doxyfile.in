@@ -1,6 +1,7 @@
 PROJECT_NAME           = "libscid"
 PROJECT_BRIEF          = "Chess applications made easy."
 PROJECT_NUMBER         = "@PROJECT_VERSION@"
+PROJECT_LOGO           = "@PROJECT_SOURCE_DIR@/docs/assets/img/libscid-tiny.png"
 
 OUTPUT_DIRECTORY       = "@LIBSCID_DOXYGEN_OUTPUT_DIR@"
 CREATE_SUBDIRS         = NO
@@ -16,7 +17,8 @@ INPUT                  = "@PROJECT_SOURCE_DIR@/docs" \
                          "@PROJECT_SOURCE_DIR@/libs/eco/include/scid/eco" \
                          "@PROJECT_SOURCE_DIR@/libs/spelling/include/scid/spelling"
 FILE_PATTERNS          = *.h \
-                         *.md
+                         *.md \
+                         *.dox
 RECURSIVE              = YES
 EXCLUDE                =
 
@@ -34,6 +36,8 @@ HIDE_UNDOC_CLASSES     = NO
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_EXTRA_STYLESHEET  = "@PROJECT_SOURCE_DIR@/docs/doxygen/libscid.css"
+HTML_EXTRA_FILES       = "@PROJECT_SOURCE_DIR@/docs/assets/img/libscid-tiny.png" \
+                         "@PROJECT_SOURCE_DIR@/docs/assets/img/libscid-16x10.png"
 HTML_DYNAMIC_SECTIONS  = YES
 GENERATE_TREEVIEW      = YES
 DISABLE_INDEX          = NO
