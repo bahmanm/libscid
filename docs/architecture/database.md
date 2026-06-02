@@ -59,6 +59,7 @@ Codec --> Files : persists
 - @subpage architecture_database_name_registry "Name Registry"
 - @subpage architecture_database_filters_views "Filters and Views"
 - @subpage architecture_database_tree "Tree"
+- @subpage architecture_database_storage_codecs "Storage Codecs"
 
 \htmlonly
 </div>
@@ -99,10 +100,10 @@ game and reports count, score, rating and year aggregates for each candidate.
 
 ---
 
-Storage codecs map the session and metadata catalog to concrete database
-formats.  For SCID5, the native storage unit is the `.si5`, `.sg5`, and `.sn5`
-file triplet: index records, encoded game blobs, and namebase/database
-metadata.
+@ref architecture_database_storage_codecs "Storage codecs" map the resident
+database session to concrete files or in-memory storage.  They persist the
+index entries, name registry and encoded game records while the public session
+API continues to exchange Core game values and metadata snapshots.
 
 ---
 
