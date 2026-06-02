@@ -54,7 +54,7 @@ Catalog -[hidden]down- Views
 CoreGame -[hidden]down- Codec
 
 Session --> Catalog : owns
-Codec --> Catalog : fills / rewrites
+Session --> Codec : loads / saves
 Catalog --> Names : resolves ids
 Catalog --> Views : drives
 Catalog <--> CoreGame : tag metadata

@@ -33,20 +33,34 @@ rectangle "Core game values" as CoreGame #EEF2FF
 
 rectangle "Database session" as Session #FFF7ED
 
-rectangle "Database metadata" as Metadata #FFF7ED
+rectangle "Database metadata" as Metadata #EEF2FF
 
-rectangle "Storage codec" as Codec #EEF2FF
+rectangle "Name registry" as Names #EEF2FF
+
+rectangle "Filters and views" as Filters #EEF2FF
+
+rectangle "Tree statistics" as Tree #EEF2FF
+
+rectangle "Storage codecs" as Codec #EEF2FF
 
 rectangle "Database files" as Files #EEF2FF
 
 CoreGame -[hidden]right- Session
 Session -[hidden]right- Metadata
+Metadata -[hidden]right- Names
+Filters -[hidden]right- Tree
 Codec -[hidden]right- Files
-Session -[hidden]down- Codec
+Session -[hidden]down- Filters
+Metadata -[hidden]down- Tree
+Names -[hidden]down- Files
 
 CoreGame --> Session : exchanges
-Session --> Metadata : indexes
-Metadata --> Codec : locates
+Session --> Metadata : owns
+Session --> Names : resolves
+Session --> Filters : narrows
+Filters --> Tree : ply hints
+Metadata --> Tree : result / rating / year
+Session --> Codec : delegates
 Codec --> Files : persists
 @enduml
 
