@@ -1,0 +1,131 @@
+#include "test_libscid.h"
+
+#include "scid/scid.h"
+
+#include <assert.h>
+#include <stddef.h>
+#include <string.h>
+
+void test_game(void) {
+    const char* pgn =
+        "[Event \"Friendly\"]\n"
+        "[Site \"Toronto\"]\n"
+        "[Date \"2024.05.01\"]\n"
+        "[Round \"1\"]\n"
+        "[White \"Player A\"]\n"
+        "[Black \"Player B\"]\n"
+        "[Result \"*\"]\n"
+        "[Annotator \"Example\"]\n"
+        "\n"
+        "1. e4 e5 *\n";
+    scid_game* game = NULL;
+    scid_position* position = NULL;
+    char text[1024];
+    size_t text_size = 0;
+
+    assert(scid_game_create_empty(&game) == SCID_OK);
+    assert(game != NULL);
+
+    assert(scid_game_tag_set(game, "Event", "Manual") == SCID_OK);
+    assert(scid_game_tag_get(game, "Event", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "Manual") == 0);
+    assert(text_size == strlen("Manual"));
+
+    assert(scid_game_tag_set(game, "Date", "2024.06.07") == SCID_OK);
+    assert(scid_game_tag_get(game, "Date", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "2024.06.07") == 0);
+
+    assert(scid_game_tag_set(game, "Result", "1-0") == SCID_OK);
+    assert(scid_game_tag_get(game, "Result", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "1-0") == 0);
+
+    assert(scid_game_tag_set(game, "Result", "bad-result") == SCID_ERROR_BAD_ARG);
+
+    assert(scid_game_tag_set(game, "Annotator", "Example") == SCID_OK);
+    assert(scid_game_tag_get(game, "Annotator", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "Example") == 0);
+
+    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strstr(text, "[Event \"Manual\"]") != NULL);
+    assert(strstr(text, "[Result \"1-0\"]") != NULL);
+    assert(strstr(text, "[Annotator \"Example\"]") != NULL);
+    scid_game_free(game);
+
+    game = NULL;
+    text_size = 99;
+    assert(scid_game_create_from_pgn(
+               pgn,
+               strlen(pgn),
+               &game,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(game != NULL);
+    assert(text_size == 0);
+
+    assert(scid_game_tag_get(game, "Event", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "Friendly") == 0);
+
+    assert(scid_game_tag_get(game, "White", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "Player A") == 0);
+
+    assert(scid_game_tag_get(game, "Date", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "2024.05.01") == 0);
+
+    assert(scid_game_tag_get(game, "Annotator", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "Example") == 0);
+
+    assert(scid_game_tag_get(game, "Missing", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "") == 0);
+    assert(text_size == 0);
+
+    assert(scid_game_tag_get(game, "Event", NULL, 0, &text_size) ==
+           SCID_ERROR_BUFFER_FULL);
+    assert(text_size == strlen("Friendly"));
+
+    assert(scid_game_to_pgn(game, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
+    assert(text_size > 0);
+
+    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strstr(text, "[Event \"Friendly\"]") != NULL);
+    assert(strstr(text, "1.e4 e5") != NULL);
+
+    assert(scid_position_create_empty(&position) == SCID_OK);
+    assert(scid_game_start_position_get(game, position) == SCID_OK);
+    assert(scid_position_to_fen(position, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") == 0);
+
+    assert(scid_game_final_position_get(game, position) == SCID_OK);
+    assert(scid_position_to_fen(position, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2") == 0);
+    scid_position_free(position);
+    position = NULL;
+
+    scid_game_free(game);
+
+    game = NULL;
+    assert(scid_game_create_from_pgn(NULL, 0, &game, NULL, 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_game_create_from_pgn(pgn, strlen(pgn), NULL, NULL, 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_game_create_empty(NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_to_pgn(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_get(NULL, "Event", text, sizeof(text), &text_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_set(NULL, "Event", "x") == SCID_ERROR_BAD_ARG);
+    assert(scid_game_start_position_get(NULL, position) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_final_position_get(NULL, position) == SCID_ERROR_BAD_ARG);
+
+    assert(scid_game_create_empty(&game) == SCID_OK);
+    assert(scid_game_start_position_get(game, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_final_position_get(game, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_get(game, NULL, text, sizeof(text), &text_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_get(game, "Event", text, sizeof(text), NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_set(game, NULL, "x") == SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_set(game, "Event", NULL) == SCID_ERROR_BAD_ARG);
+    scid_game_free(game);
+
+    scid_game_free(NULL);
+}

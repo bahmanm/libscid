@@ -45,7 +45,27 @@ typedef unsigned scid_square;
 typedef unsigned scid_piece;
 
 enum {
-    SCID_PIECE_NONE = 0
+    SCID_PIECE_NONE = 0,
+    SCID_PIECE_KING = 1,
+    SCID_PIECE_QUEEN = 2,
+    SCID_PIECE_ROOK = 3,
+    SCID_PIECE_BISHOP = 4,
+    SCID_PIECE_KNIGHT = 5,
+    SCID_PIECE_PAWN = 6,
+
+    SCID_PIECE_WHITE_KING = 1,
+    SCID_PIECE_WHITE_QUEEN = 2,
+    SCID_PIECE_WHITE_ROOK = 3,
+    SCID_PIECE_WHITE_BISHOP = 4,
+    SCID_PIECE_WHITE_KNIGHT = 5,
+    SCID_PIECE_WHITE_PAWN = 6,
+
+    SCID_PIECE_BLACK_KING = 9,
+    SCID_PIECE_BLACK_QUEEN = 10,
+    SCID_PIECE_BLACK_ROOK = 11,
+    SCID_PIECE_BLACK_BISHOP = 12,
+    SCID_PIECE_BLACK_KNIGHT = 13,
+    SCID_PIECE_BLACK_PAWN = 14
 };
 
 typedef unsigned char scid_nag;

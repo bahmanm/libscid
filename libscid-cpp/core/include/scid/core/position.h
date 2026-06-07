@@ -193,6 +193,8 @@ public:
     void        SetPlyCounter (ushort x) { PlyCounter = x; }
     /** Returns the halfmove ply counter. */
     ushort      GetPlyCounter () const   { return PlyCounter; }
+    /** Returns the halfmove clock used by the 50-move rule. */
+    ushort      GetHalfMoveClock () const { return HalfMoveClock; }
     /** Returns the one-based full-move number derived from the ply counter. */
     ushort      GetFullMoveCount() const { return PlyCounter / 2 + 1; }
 

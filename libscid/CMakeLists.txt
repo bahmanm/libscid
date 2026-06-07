@@ -37,7 +37,9 @@ target_include_directories(
 
 target_link_libraries(
     scid
-    PRIVATE LibScidCpp::Core )
+    PRIVATE
+        LibScidCpp::Core
+        LibScidCpp::Eco )
 
 if( PROJECT_IS_TOP_LEVEL )
     include( CTest )
@@ -46,7 +48,17 @@ endif()
 if( BUILD_TESTING )
     add_executable(
         scid_tests_c
-        tests/c/scid_nag_test.c )
+        tests/c/test_cursor.c
+        tests/c/test_cursor_mutation.c
+        tests/c/test_eco.c
+        tests/c/test_game.c
+        tests/c/test_libscid.c
+        tests/c/test_movespec.c
+        tests/c/test_nag.c
+        tests/c/test_piece.c
+        tests/c/test_position.c
+        tests/c/test_pgn_contract.c
+        tests/c/test_square.c )
     target_link_libraries(
         scid_tests_c
         PRIVATE LibScid::LibScid )
