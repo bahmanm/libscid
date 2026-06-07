@@ -41,6 +41,7 @@ add_subdirectory( libscid-cpp/core )
 add_subdirectory( libscid-cpp/eco )
 add_subdirectory( libscid-cpp/database )
 add_subdirectory( libscid-cpp/spelling )
+add_subdirectory( libscid )
 
 if( LIBSCID_BUILD_DOCS )
     include( cmake/docs.cmake )
