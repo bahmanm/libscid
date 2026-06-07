@@ -22,11 +22,11 @@ normalisation functionality without depending on a desktop application.
 
 ## What It Provides
 
-- `LibScid::Core`: board state, moves, games, movetext, notation and PGN.
-- `LibScid::Database`: Scid database sessions, indexes, names, filters,
+- `LibScidCpp::Core`: board state, moves, games, movetext, notation and PGN.
+- `LibScidCpp::Database`: Scid database sessions, indexes, names, filters,
   searches, opening-tree statistics and game load/save workflows.
-- `LibScid::Eco`: ECO code values and opening-position classification.
-- `LibScid::Spelling`: spelling-file-backed name correction and player metadata.
+- `LibScidCpp::Eco`: ECO code values and opening-position classification.
+- `LibScidCpp::Spelling`: spelling-file-backed name correction and player metadata.
 
 ## Start Here
 
@@ -48,11 +48,11 @@ cmake_minimum_required( VERSION 3.23 )
 
 project( libscid-consumer LANGUAGES CXX )
 
-find_package( LibScid CONFIG REQUIRED )
+find_package( libscid-cpp CONFIG REQUIRED )
 
 add_executable( libscid-consumer main.cpp )
 target_compile_features( libscid-consumer PRIVATE cxx_std_20 )
-target_link_libraries( libscid-consumer PRIVATE LibScid::Core )
+target_link_libraries( libscid-consumer PRIVATE LibScidCpp::Core )
 ```
 
 Configure it with `CMAKE_PREFIX_PATH` pointing at a libscid installation:

@@ -7,7 +7,7 @@ endif()
 set( LIBSCID_PROJECT_VERSION "0.0.0" CACHE STRING "Numeric libscid version used for CMake package compatibility." )
 
 project(
-    libscid
+    libscid-cpp
     VERSION "${LIBSCID_PROJECT_VERSION}"
     LANGUAGES CXX )
 

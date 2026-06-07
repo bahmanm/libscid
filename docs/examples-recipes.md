@@ -14,12 +14,12 @@ ctest --test-dir _build/examples --output-on-failure
 ```
 
 The same examples are included in release archives under
-`share/doc/libscid/examples`.
+`share/doc/libscid-cpp/examples`.
 
 ## First Consumer
 
 - `examples/000-minimal-consumer`: discover the installed CMake package, link
-  `LibScid::Core`, and run a minimal program.
+  `LibScidCpp::Core`, and run a minimal program.
 
 ## Games, Positions And PGN
 

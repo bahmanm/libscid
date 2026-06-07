@@ -9,7 +9,7 @@
     {
       "name": "release",
       "displayName": "Release",
-      "description": "Release build for libscid.",
+      "description": "Release build for libscid-cpp.",
       "binaryDir": "${sourceDir}/_build/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
@@ -63,7 +63,7 @@
     {
       "name": "portable-tgz",
       "displayName": "Portable TGZ",
-      "description": "Creates a portable libscid .tar.gz archive.",
+      "description": "Creates a portable libscid-cpp .tar.gz archive.",
       "configurePreset": "package",
       "generators": [
         "TGZ"

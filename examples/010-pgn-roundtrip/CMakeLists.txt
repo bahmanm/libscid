@@ -6,7 +6,7 @@ project(
 
 include( CTest )
 
-find_package( LibScid CONFIG REQUIRED )
+find_package( libscid-cpp CONFIG REQUIRED )
 
 add_executable(
     libscid-example-010-pgn-roundtrip
@@ -24,7 +24,7 @@ set_target_properties(
 target_link_libraries(
     libscid-example-010-pgn-roundtrip
     PRIVATE
-        LibScid::Core )
+        LibScidCpp::Core )
 
 if( BUILD_TESTING )
     add_test(

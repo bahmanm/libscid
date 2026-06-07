@@ -18,7 +18,7 @@ add_library(
     scid_spelling
     ${SCID_SPELLING_SOURCES} )
 add_library(
-    LibScid::Spelling
+    LibScidCpp::Spelling
     ALIAS scid_spelling )
 target_sources(
     scid_spelling
@@ -37,7 +37,7 @@ target_include_directories(
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>" )
 target_link_libraries(
     scid_spelling
-    PUBLIC LibScid::Database )
+    PUBLIC LibScidCpp::Database )
 
 option( LIBSCID_SPELLING_VALIDATE "Verify the integrity of spelling files" OFF )
 if( LIBSCID_SPELLING_VALIDATE )
