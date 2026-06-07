@@ -28,12 +28,12 @@ example projects.
 
 ## Public Libraries
 
-- `LibScid::Core` provides board primitives, positions, moves, games, movetext,
+- `LibScidCpp::Core` provides board primitives, positions, moves, games, movetext,
   PGN support, notation and shared chess value types.
-- `LibScid::Database` provides SCID-family database storage, indexes, namebases,
+- `LibScidCpp::Database` provides SCID-family database storage, indexes, namebases,
   filters, searches, opening-tree statistics and game load/save workflows.
-- `LibScid::Eco` provides ECO code parsing and opening-book lookup.
-- `LibScid::Spelling` provides name normalisation and spelling-file support for
+- `LibScidCpp::Eco` provides ECO code parsing and opening-book lookup.
+- `LibScidCpp::Spelling` provides name normalisation and spelling-file support for
   database-oriented workflows.
 
 \htmlonly

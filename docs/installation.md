@@ -15,16 +15,16 @@ prebuilt archive is not available for the target platform.
 
 Pick the archive for your platform from the GitHub release assets:
 
-- `libscid__<version>__linux.tar.gz`
-- `libscid__<version>__macos-arm.tar.gz`
-- `libscid__<version>__windows.tar.gz`
+- `libscid-cpp__<version>__linux.tar.gz`
+- `libscid-cpp__<version>__macos-arm.tar.gz`
+- `libscid-cpp__<version>__windows.tar.gz`
 
 For example:
 
 ```sh
 version=vX.Y.Z
 platform=linux # linux, macos-arm, or windows
-asset_name="libscid__${version}__${platform}.tar.gz"
+asset_name="libscid-cpp__${version}__${platform}.tar.gz"
 
 mkdir -p downloads install/libscid
 curl -L \
@@ -49,18 +49,18 @@ cmake --build _build/your-project
 A release archive contains:
 
 - `include/`: installed public headers.
-- `lib/`: compiled libscid libraries and CMake package files under `lib/cmake/LibScid`.
-- `share/doc/libscid/COPYING`: the GNU GPL v2 licence text.
-- `share/doc/libscid/README.md`: the release README.
-- `share/doc/libscid/examples/`: standalone example projects and fixtures.
-- `share/doc/libscid/html/`: generated API documentation when built into the package archive.
+- `lib/`: compiled libscid libraries and CMake package files under `lib/cmake/libscid-cpp`.
+- `share/doc/libscid-cpp/COPYING`: the GNU GPL v2 licence text.
+- `share/doc/libscid-cpp/README.md`: the release README.
+- `share/doc/libscid-cpp/examples/`: standalone example projects and fixtures.
+- `share/doc/libscid-cpp/html/`: generated API documentation when built into the package archive.
 
 The package exports these CMake targets:
 
-- `LibScid::Core`
-- `LibScid::Database`
-- `LibScid::Eco`
-- `LibScid::Spelling`
+- `LibScidCpp::Core`
+- `LibScidCpp::Database`
+- `LibScidCpp::Eco`
+- `LibScidCpp::Spelling`
 
 ## Build And Install From Source
 

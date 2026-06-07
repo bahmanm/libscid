@@ -28,7 +28,7 @@ int main()
 }
 ```
 
-This program uses only Core, so it links only `LibScid::Core` in CMake or
+This program uses only Core, so it links only `LibScidCpp::Core` in CMake or
 `libscid_core` when compiling directly.
 
 ## With g++
@@ -113,12 +113,12 @@ cmake_minimum_required( VERSION 3.23 )
 
 project( libscid-hello LANGUAGES CXX )
 
-find_package( LibScid CONFIG REQUIRED )
+find_package( libscid-cpp CONFIG REQUIRED )
 
 add_executable( libscid-hello main.cpp )
 target_compile_features( libscid-hello PRIVATE cxx_std_20 )
 set_target_properties( libscid-hello PROPERTIES CXX_EXTENSIONS OFF )
-target_link_libraries( libscid-hello PRIVATE LibScid::Core )
+target_link_libraries( libscid-hello PRIVATE LibScidCpp::Core )
 ```
 
 Configure, build and run:
@@ -132,11 +132,11 @@ cmake --build _build
 Link the target that matches the API surface you use:
 
 ```cmake
-target_link_libraries( app PRIVATE LibScid::Core )
-target_link_libraries( app PRIVATE LibScid::Database )
-target_link_libraries( app PRIVATE LibScid::Eco )
-target_link_libraries( app PRIVATE LibScid::Spelling )
+target_link_libraries( app PRIVATE LibScidCpp::Core )
+target_link_libraries( app PRIVATE LibScidCpp::Database )
+target_link_libraries( app PRIVATE LibScidCpp::Eco )
+target_link_libraries( app PRIVATE LibScidCpp::Spelling )
 ```
 
-`LibScid::Database`, `LibScid::Eco` and `LibScid::Spelling` bring their libscid
+`LibScidCpp::Database`, `LibScidCpp::Eco` and `LibScidCpp::Spelling` bring their libscid
 dependencies transitively.

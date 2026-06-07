@@ -6,7 +6,7 @@ project(
 
 include( CTest )
 
-find_package( LibScid CONFIG REQUIRED )
+find_package( libscid-cpp CONFIG REQUIRED )
 
 add_executable(
     libscid-example-080-search-position
@@ -29,7 +29,7 @@ target_compile_definitions(
 target_link_libraries(
     libscid-example-080-search-position
     PRIVATE
-        LibScid::Database )
+        LibScidCpp::Database )
 
 if( BUILD_TESTING )
     add_test(

@@ -6,7 +6,7 @@ project(
 
 include( CTest )
 
-find_package( LibScid CONFIG REQUIRED )
+find_package( libscid-cpp CONFIG REQUIRED )
 
 add_executable(
     libscid-example-100-import-pgn
@@ -29,7 +29,7 @@ target_compile_definitions(
 target_link_libraries(
     libscid-example-100-import-pgn
     PRIVATE
-        LibScid::Database )
+        LibScidCpp::Database )
 
 if( BUILD_TESTING )
     add_test(
