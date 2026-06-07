@@ -11,11 +11,11 @@ STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@"
 CASE_SENSE_NAMES       = YES
 
 INPUT                  = "@PROJECT_SOURCE_DIR@/docs" \
-                         "@PROJECT_SOURCE_DIR@/libs/core/include/scid/core" \
-                         "@PROJECT_SOURCE_DIR@/libs/database/include/scid/database" \
-                         "@PROJECT_SOURCE_DIR@/libs/database/docs" \
-                         "@PROJECT_SOURCE_DIR@/libs/eco/include/scid/eco" \
-                         "@PROJECT_SOURCE_DIR@/libs/spelling/include/scid/spelling"
+                         "@PROJECT_SOURCE_DIR@/libscid-cpp/core/include/scid/core" \
+                         "@PROJECT_SOURCE_DIR@/libscid-cpp/database/include/scid/database" \
+                         "@PROJECT_SOURCE_DIR@/libscid-cpp/database/docs" \
+                         "@PROJECT_SOURCE_DIR@/libscid-cpp/eco/include/scid/eco" \
+                         "@PROJECT_SOURCE_DIR@/libscid-cpp/spelling/include/scid/spelling"
 FILE_PATTERNS          = *.h \
                          *.md \
                          *.dox
