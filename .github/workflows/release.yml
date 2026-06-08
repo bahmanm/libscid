@@ -123,7 +123,7 @@ jobs:
           path: ${{ env.ASSET_PATH }}
           if-no-files-found: error
 
-  windows-build-and-package:
+  windoze-build-and-package:
     runs-on: windows-2022
 
     defaults:
@@ -218,7 +218,7 @@ jobs:
   publish-github-release:
     needs:
       - unix-build-and-package
-      - windows-build-and-package
+      - windoze-build-and-package
     runs-on: ubuntu-latest
 
     steps:

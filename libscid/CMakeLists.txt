@@ -29,6 +29,13 @@ target_compile_features(
     scid
     PRIVATE cxx_std_20 )
 
+if( BUILD_SHARED_LIBS )
+    target_compile_definitions(
+        scid
+        PRIVATE SCID_BUILDING_LIBRARY
+        PUBLIC SCID_SHARED )
+endif()
+
 target_include_directories(
     scid
     PUBLIC
