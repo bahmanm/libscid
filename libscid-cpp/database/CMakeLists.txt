@@ -80,6 +80,10 @@ if( BUILD_SHARED_LIBS )
     set_target_properties(
         scid_database
         PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON )
+    target_compile_definitions(
+        scid_database
+        PRIVATE SCID_DATABASE_BUILDING_LIBRARY
+        PUBLIC SCID_DATABASE_SHARED )
 endif()
 
 target_include_directories(

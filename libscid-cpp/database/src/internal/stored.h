@@ -21,9 +21,21 @@
 
 #include "scid/core/fullmove.h"
 
+#ifndef SCID_DATABASE_INTERNAL_API
+#if defined(_WIN32) && defined(SCID_DATABASE_SHARED)
+#if defined(SCID_DATABASE_BUILDING_LIBRARY)
+#define SCID_DATABASE_INTERNAL_API __declspec(dllexport)
+#else
+#define SCID_DATABASE_INTERNAL_API __declspec(dllimport)
+#endif
+#else
+#define SCID_DATABASE_INTERNAL_API
+#endif
+#endif
+
 namespace scid::database {
 
-class StoredLine {
+class SCID_DATABASE_INTERNAL_API StoredLine {
 	static constexpr int STORED_LINES = 255;
 	static const scid::core::FullMove* Moves_[STORED_LINES + 1];
 
