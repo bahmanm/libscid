@@ -1,7 +1,12 @@
 # libscid Examples
 
-These are small standalone projects showing how to consume an installed libscid
-package.
+These are small standalone projects showing how to consume the installed libscid
+packages.
+
+The examples are organised by public API surface:
+
+- `libscid/`: examples for the C ABI.
+- `libscid-cpp/`: examples for the native C++ API.
 
 The canonical examples and recipes index lives in the generated documentation:
 

@@ -1,0 +1,43 @@
+cmake_minimum_required( VERSION 3.23 )
+
+project(
+    libscid-example-090-opening-tree
+    LANGUAGES CXX )
+
+include( CTest )
+
+find_package( libscid-cpp CONFIG REQUIRED )
+
+add_executable(
+    libscid-example-090-opening-tree
+    main.cpp )
+
+target_compile_features(
+    libscid-example-090-opening-tree
+    PRIVATE cxx_std_20 )
+
+set_target_properties(
+    libscid-example-090-opening-tree
+    PROPERTIES
+        CXX_EXTENSIONS OFF )
+
+target_compile_definitions(
+    libscid-example-090-opening-tree
+    PRIVATE
+        LIBSCID_EXAMPLE_DATABASE="${CMAKE_CURRENT_SOURCE_DIR}/../../fixtures/dr-lasker/dr-lasker" )
+
+target_link_libraries(
+    libscid-example-090-opening-tree
+    PRIVATE
+        LibScidCpp::Database )
+
+if( BUILD_TESTING )
+    add_test(
+        NAME libscid-example-090-opening-tree
+        COMMAND libscid-example-090-opening-tree )
+
+    set_tests_properties(
+        libscid-example-090-opening-tree
+        PROPERTIES
+            SKIP_RETURN_CODE 77 )
+endif()
