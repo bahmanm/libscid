@@ -2,8 +2,6 @@ name: release
 
 on:
   push:
-    branches:
-      - "40-initial-c-abi"
     tags:
       - "v*"
   workflow_dispatch:
