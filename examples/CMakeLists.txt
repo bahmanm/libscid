@@ -6,4 +6,5 @@ project(
 
 enable_testing()
 
+add_subdirectory( libscid )
 add_subdirectory( libscid-cpp )

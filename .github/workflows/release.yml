@@ -30,6 +30,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
       - name: Install documentation tools
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -114,6 +118,11 @@ jobs:
           rm -rf "$examples_build_dir"
           cmake -S "$PACKAGE_INSTALL_ROOT/share/doc/libscid-cpp/examples" -B "$examples_build_dir" -DCMAKE_PREFIX_PATH="$PACKAGE_INSTALL_ROOT"
           cmake --build "$examples_build_dir" --verbose
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            export DYLD_LIBRARY_PATH="$PACKAGE_INSTALL_ROOT/lib:${DYLD_LIBRARY_PATH:-}"
+          else
+            export LD_LIBRARY_PATH="$PACKAGE_INSTALL_ROOT/lib:${LD_LIBRARY_PATH:-}"
+          fi
           ctest --test-dir "$examples_build_dir" --output-on-failure
 
       - name: Upload archive
@@ -132,6 +141,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -206,6 +219,7 @@ jobs:
           Remove-Item -Recurse -Force -ErrorAction Ignore $examplesBuildDir
           cmake -S $examplesSourceDir -B $examplesBuildDir "-DCMAKE_PREFIX_PATH=$env:PACKAGE_INSTALL_ROOT"
           cmake --build $examplesBuildDir --config Release --verbose
+          $env:Path = "$env:PACKAGE_INSTALL_ROOT\bin;$env:Path"
           ctest --test-dir $examplesBuildDir -C Release --output-on-failure
 
       - name: Upload archive

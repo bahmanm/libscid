@@ -25,6 +25,7 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "OFF",
+        "BUILD_SHARED_LIBS": "ON",
         "LIBSCID_INSTALL": "ON",
         "LIBSCID_BUILD_DOCS": "ON"
       }

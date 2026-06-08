@@ -109,6 +109,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
       - name: Configure
         run: >
           cmake
@@ -133,6 +137,16 @@ jobs:
           -C Release
           --output-on-failure
 
+      - name: Test Python examples
+        run: |
+          library_name="libscid.so"
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            library_name="libscid.dylib"
+          fi
+
+          python examples/libscid/000-python-bindings/pgn_roundtrip.py \
+            --library "_build-shared/libscid/${library_name}"
+
   windoze-shared-build-and-test:
     name: windoze-shared-build-and-test
     runs-on: windows-2022
@@ -143,6 +157,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
 
       - name: Configure
         run: >
@@ -165,3 +183,9 @@ jobs:
           --test-dir _build-shared
           -C Release
           --output-on-failure
+
+      - name: Test Python examples
+        run: >
+          python
+          examples/libscid/000-python-bindings/pgn_roundtrip.py
+          --library _build-shared/libscid/Release/scid.dll
