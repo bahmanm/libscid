@@ -160,8 +160,9 @@ jobs:
           --verbose
 
       - name: Test
-        run: >
+        run: |
+          $env:Path = "$PWD\_build-shared\libscid\Release;$PWD\_build-shared\libscid-cpp\core\Release;$PWD\_build-shared\libscid-cpp\eco\Release;$PWD\_build-shared\libscid-cpp\database\Release;$PWD\_build-shared\libscid-cpp\spelling\Release;$env:Path"
           ctest
-          --test-dir _build-shared
-          -C Release
-          --output-on-failure
+            --test-dir _build-shared
+            -C Release
+            --output-on-failure

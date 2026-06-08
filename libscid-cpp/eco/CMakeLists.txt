@@ -32,6 +32,13 @@ target_sources(
 target_compile_features(
     scid_eco
     PUBLIC cxx_std_20 )
+
+if( BUILD_SHARED_LIBS )
+    set_target_properties(
+        scid_eco
+        PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON )
+endif()
+
 target_include_directories(
     scid_eco
     PUBLIC
