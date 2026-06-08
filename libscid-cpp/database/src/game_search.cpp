@@ -47,7 +47,7 @@ bool patternsMatch(const scid::core::Position* pos, patternT* patterns, size_t p
                 for (scid::core::uint i=0; i < 8; i++, sq += 8) {
                     if (board[sq] == pattern->pieceMatch) { found = true; break; }
                 }
-                if (found != pattern->flag) { return false; }
+                if (found != (pattern->flag != 0)) { return false; }
             }
 
         } else { // rankMatch is a rank from 1 to 8:
@@ -58,12 +58,12 @@ bool patternsMatch(const scid::core::Position* pos, patternT* patterns, size_t p
                 for (scid::core::uint i=0; i < 8; i++, sq++) {
                     if (board[sq] == pattern->pieceMatch) { found = true; break; }
                 }
-                if (found != pattern->flag) { return false; }
+                if (found != (pattern->flag != 0)) { return false; }
             } else {  // Just test one square:
                 scid::core::squareT sq = scid::core::square_Make(pattern->fyleMatch, pattern->rankMatch);
                 bool found = false;
                 if (board[sq] == pattern->pieceMatch) { found = true; }
-                if (found != pattern->flag) { return false; }
+                if (found != (pattern->flag != 0)) { return false; }
             }
         }
     }

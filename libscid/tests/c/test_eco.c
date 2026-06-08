@@ -5,7 +5,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
 static void write_eco_file(const char* path) {
     FILE* file = fopen(path, "w");
@@ -56,10 +55,11 @@ void test_eco(void) {
                code, SCID_ECO_FORMAT_EXTENDED, text, sizeof(text), NULL) ==
            SCID_ERROR_BAD_ARG);
 
-    snprintf(path, sizeof(path), "/tmp/libscid_eco_%ld.eco", (long)getpid());
+    snprintf(path, sizeof(path), "libscid_test_eco_file.eco");
+    remove(path);
     write_eco_file(path);
 
-    assert(scid_eco_book_load("/tmp/libscid_missing_eco_file.eco", &book) ==
+    assert(scid_eco_book_load("libscid_missing_eco_file.eco", &book) ==
            SCID_ERROR_FILE_OPEN);
     assert(book == NULL);
     assert(scid_eco_book_load(path, &book) == SCID_OK);
@@ -106,5 +106,5 @@ void test_eco(void) {
     scid_position_free(position);
     scid_eco_book_free(book);
     scid_eco_book_free(NULL);
-    unlink(path);
+    remove(path);
 }
