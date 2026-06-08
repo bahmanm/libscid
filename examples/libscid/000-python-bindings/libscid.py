@@ -23,7 +23,9 @@ class LibScidError(RuntimeError):
 
 class LibScid:
     def __init__(self, library_path: str | os.PathLike[str] | None = None):
-        self._library_path = Path(library_path) if library_path else find_library()
+        self._library_path = (
+            Path(library_path).resolve() if library_path else find_library().resolve()
+        )
         _enable_windows_dll_search_dirs(self._library_path)
         self._lib = ctypes.CDLL(str(self._library_path))
         self._bind_functions()
