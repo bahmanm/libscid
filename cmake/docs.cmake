@@ -5,11 +5,11 @@ set( LIBSCID_DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doxygen" )
 set( LIBSCID_PLANTUML_JAR_PATH "" CACHE FILEPATH "Path to plantuml.jar for Doxygen diagram rendering." )
 set( LIBSCID_DOXYGEN_INPUT_DIRS
     "${PROJECT_SOURCE_DIR}/docs"
-    "${PROJECT_SOURCE_DIR}/libs/core/include/scid/core"
-    "${PROJECT_SOURCE_DIR}/libs/database/include/scid/database"
-    "${PROJECT_SOURCE_DIR}/libs/database/docs"
-    "${PROJECT_SOURCE_DIR}/libs/eco/include/scid/eco"
-    "${PROJECT_SOURCE_DIR}/libs/spelling/include/scid/spelling" )
+    "${PROJECT_SOURCE_DIR}/libscid-cpp/core/include/scid/core"
+    "${PROJECT_SOURCE_DIR}/libscid-cpp/database/include/scid/database"
+    "${PROJECT_SOURCE_DIR}/libscid-cpp/database/docs"
+    "${PROJECT_SOURCE_DIR}/libscid-cpp/eco/include/scid/eco"
+    "${PROJECT_SOURCE_DIR}/libscid-cpp/spelling/include/scid/spelling" )
 set( LIBSCID_PLANTUML_DIAGRAM_DIR "${PROJECT_SOURCE_DIR}/docs/diagrams" )
 
 configure_file(

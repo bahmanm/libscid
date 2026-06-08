@@ -55,8 +55,8 @@ jobs:
           -C Release
           --output-on-failure
 
-  windows-build-and-test:
-    name: windows-build-and-test
+  windoze-build-and-test:
+    name: windoze-build-and-test
     runs-on: windows-2022
 
     defaults:
@@ -86,3 +86,106 @@ jobs:
           --test-dir _build
           -C Release
           --output-on-failure
+
+  unix-shared-build-and-test:
+    name: unix-shared-build-and-test (${{ matrix.check_label }})
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            check_label: linux
+            cpp_compiler: g++
+          - os: macos-15
+            check_label: macos
+            cpp_compiler: clang++
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Configure
+        run: >
+          cmake
+          -S .
+          -B _build-shared
+          -DBUILD_SHARED_LIBS=ON
+          -DBUILD_TESTING=ON
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+
+      - name: Build
+        run: >
+          cmake
+          --build _build-shared
+          --config Release
+          --verbose
+
+      - name: Test
+        run: >
+          ctest
+          --test-dir _build-shared
+          -C Release
+          --output-on-failure
+
+      - name: Test Python examples
+        run: |
+          library_name="libscid.so"
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            library_name="libscid.dylib"
+          fi
+
+          python examples/libscid/000-python-bindings/pgn_roundtrip.py \
+            --library "_build-shared/libscid/${library_name}"
+
+  windoze-shared-build-and-test:
+    name: windoze-shared-build-and-test
+    runs-on: windows-2022
+
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Configure
+        run: >
+          cmake
+          -S .
+          -B _build-shared
+          -DBUILD_SHARED_LIBS=ON
+          -DBUILD_TESTING=ON
+
+      - name: Build
+        run: >
+          cmake
+          --build _build-shared
+          --config Release
+          --verbose
+
+      - name: Test
+        run: >
+          ctest
+          --test-dir _build-shared
+          -C Release
+          --output-on-failure
+
+      - name: Test Python examples
+        run: >
+          python
+          examples/libscid/000-python-bindings/pgn_roundtrip.py
+          --library _build-shared/libscid/Release/scid.dll

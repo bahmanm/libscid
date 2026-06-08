@@ -18,38 +18,38 @@ The same examples are included in release archives under
 
 ## First Consumer
 
-- `examples/000-minimal-consumer`: discover the installed CMake package, link
+- `examples/libscid-cpp/000-minimal-consumer`: discover the installed CMake package, link
   `LibScidCpp::Core`, and run a minimal program.
 
 ## Games, Positions And PGN
 
-- `examples/010-pgn-roundtrip`: parse a PGN game into `scid::core::Game`, read
+- `examples/libscid-cpp/010-pgn-roundtrip`: parse a PGN game into `scid::core::Game`, read
   metadata and encode it back to PGN.
-- `examples/020-position-and-moves`: start from the normal chess position,
+- `examples/libscid-cpp/020-position-and-moves`: start from the normal chess position,
   apply coordinate moves, print FEN and generate legal replies.
-- `examples/030-build-game`: build a `scid::core::Game` programmatically and
+- `examples/libscid-cpp/030-build-game`: build a `scid::core::Game` programmatically and
   encode it as PGN.
 
 ## Databases
 
-- `examples/040-open-database`: open a SCID5 database in read-only mode and
+- `examples/libscid-cpp/040-open-database`: open a SCID5 database in read-only mode and
   print a summary of the first game.
-- `examples/070-list-database`: create a sort cache and list games in date
+- `examples/libscid-cpp/070-list-database`: create a sort cache and list games in date
   order.
-- `examples/080-search-position`: load a position from a game and search the
+- `examples/libscid-cpp/080-search-position`: load a position from a game and search the
   database for games that reached that position.
-- `examples/090-opening-tree`: build opening-tree statistics for games matching
+- `examples/libscid-cpp/090-opening-tree`: build opening-tree statistics for games matching
   a searched position.
-- `examples/100-import-pgn`: import PGN into an in-memory database and load an
+- `examples/libscid-cpp/100-import-pgn`: import PGN into an in-memory database and load an
   imported game back through the database API.
-- `examples/110-database-stats`: read aggregate database statistics such as
+- `examples/libscid-cpp/110-database-stats`: read aggregate database statistics such as
   dates, results, ratings and ECO coverage.
 
 ## ECO And Spelling
 
-- `examples/050-eco-classification`: load an ECO book and classify an opening
+- `examples/libscid-cpp/050-eco-classification`: load an ECO book and classify an opening
   position.
-- `examples/060-spelling`: load a spelling file, correct a player-name alias
+- `examples/libscid-cpp/060-spelling`: load a spelling file, correct a player-name alias
   and read player metadata.
 
 ## Fixtures

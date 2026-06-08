@@ -24,6 +24,14 @@ install(
     FILE_SET public_headers DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" )
 
 install(
+    TARGETS
+        scid
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+    FILE_SET public_headers DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}" )
+
+install(
     EXPORT LibScidCppTargets
     NAMESPACE LibScidCpp::
     FILE libscid-cppTargets.cmake

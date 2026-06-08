@@ -1,0 +1,145 @@
+cmake_minimum_required( VERSION 3.23 )
+
+project(
+    libscid-database
+    LANGUAGES CXX )
+
+include( GNUInstallDirs )
+
+find_package( Threads REQUIRED )
+
+set(
+    SCID_DATABASE_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/codec_scid4.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/eco_code.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/game_info.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/game_search.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/game_storage.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/index.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/matsig.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/misc.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/scidbase.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/searchpos.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/searchindex.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sortcache.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/stored.cpp" )
+
+set(
+    SCID_DATABASE_PUBLIC_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/common.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/game_id.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/game_info.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/hfilter.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/index.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/indexentry.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/matsig.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/misc.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/namebase.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/scidbase.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database/tree.h" )
+
+set(
+    SCID_DATABASE_PRIVATE_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/bytebuf.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/codec.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/codec_memory.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/codec_pgn.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/codec_proxy.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/codec_scid4.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/codec_scid5.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/containers.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/eco_code.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/filebuf.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/game_search.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/game_storage.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/gameview.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/searchpos.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/sortcache.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/internal/stored.h" )
+
+add_library(
+    scid_database
+    ${SCID_DATABASE_SOURCES} )
+add_library(
+    LibScidCpp::Database
+    ALIAS scid_database )
+target_sources(
+    scid_database
+    PUBLIC
+        FILE_SET public_headers
+        TYPE HEADERS
+        BASE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        FILES ${SCID_DATABASE_PUBLIC_HEADERS}
+    PRIVATE
+        ${SCID_DATABASE_PRIVATE_HEADERS} )
+target_compile_features(
+    scid_database
+    PUBLIC cxx_std_20 )
+
+if( BUILD_SHARED_LIBS )
+    set_target_properties(
+        scid_database
+        PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON )
+    target_compile_definitions(
+        scid_database
+        PRIVATE SCID_DATABASE_BUILDING_LIBRARY
+        PUBLIC SCID_DATABASE_SHARED )
+endif()
+
+target_include_directories(
+    scid_database
+    PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>"
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
+target_link_libraries(
+    scid_database
+    PUBLIC LibScidCpp::Core Threads::Threads )
+
+if( PROJECT_IS_TOP_LEVEL )
+    include( CTest )
+endif()
+
+if( BUILD_TESTING )
+    if( NOT TARGET gtest_main )
+        include( FetchContent )
+        set( INSTALL_GTEST OFF CACHE BOOL "Disable installation rules for googletest." FORCE )
+        set( BUILD_GMOCK OFF CACHE BOOL "Do not build GoogleMock; database tests use GoogleTest only." FORCE )
+        set( gtest_force_shared_crt ON CACHE BOOL "Always use msvcrt.dll" FORCE )
+
+        fetchcontent_declare(
+            googletest
+            URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz
+            DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+            URL_HASH SHA256=65fab701d9829d38cb77c14acdc431d2108bfdbf8979e40eb8ae567edf10b27c )
+        fetchcontent_makeavailable( googletest )
+    endif()
+
+    file(
+        GLOB SCID_DATABASE_TEST_SOURCES
+        CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/*.cpp" )
+    add_executable(
+        scid_tests_database_cpp
+        ${SCID_DATABASE_TEST_SOURCES} )
+    target_compile_definitions(
+        scid_tests_database_cpp
+        PRIVATE SCID_TEST_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/\" )
+    target_include_directories(
+        scid_tests_database_cpp
+        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
+    target_link_libraries(
+        scid_tests_database_cpp
+        PRIVATE LibScidCpp::Database gtest_main )
+    libscid_enable_test_runtime_dlls( scid_tests_database_cpp )
+    add_executable(
+        LibScidCpp::Tests::Database::Cpp
+        ALIAS scid_tests_database_cpp )
+
+    add_test(
+        NAME database_cpp_test
+        COMMAND $<TARGET_FILE:LibScidCpp::Tests::Database::Cpp> )
+    set_tests_properties(
+        database_cpp_test
+        PROPERTIES LABELS "cpp;database" )
+endif()

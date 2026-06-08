@@ -12,6 +12,7 @@ project(
     LANGUAGES CXX )
 
 include( GNUInstallDirs )
+include( cmake/test/runtime-dlls.cmake )
 
 set( _libscid_default_version "snapshot" )
 find_package( Git QUIET )
@@ -37,10 +38,11 @@ if( PROJECT_IS_TOP_LEVEL )
     include( CTest )
 endif()
 
-add_subdirectory( libs/core )
-add_subdirectory( libs/eco )
-add_subdirectory( libs/database )
-add_subdirectory( libs/spelling )
+add_subdirectory( libscid-cpp/core )
+add_subdirectory( libscid-cpp/eco )
+add_subdirectory( libscid-cpp/database )
+add_subdirectory( libscid-cpp/spelling )
+add_subdirectory( libscid )
 
 if( LIBSCID_BUILD_DOCS )
     include( cmake/docs.cmake )

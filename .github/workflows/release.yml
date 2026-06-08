@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -30,6 +31,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
       - name: Install documentation tools
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -52,13 +57,18 @@ jobs:
 
       - name: Set release identity
         run: |
-          tag="${GITHUB_REF_NAME}"
-          version="${tag#v}"
-          version="${version%%-*}"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            tag="${GITHUB_REF_NAME}"
+            version="${tag#v}"
+            version="${version%%-*}"
 
-          if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
-            echo "Tag '$tag' does not contain a CMake-compatible numeric version." >&2
-            exit 1
+            if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
+              echo "Tag '$tag' does not contain a CMake-compatible numeric version." >&2
+              exit 1
+            fi
+          else
+            tag="snapshot-${GITHUB_SHA::12}"
+            version="0.0.0"
           fi
 
           echo "LIBSCID_PROJECT_VERSION=$version" >> "$GITHUB_ENV"
@@ -114,6 +124,11 @@ jobs:
           rm -rf "$examples_build_dir"
           cmake -S "$PACKAGE_INSTALL_ROOT/share/doc/libscid-cpp/examples" -B "$examples_build_dir" -DCMAKE_PREFIX_PATH="$PACKAGE_INSTALL_ROOT"
           cmake --build "$examples_build_dir" --verbose
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            export DYLD_LIBRARY_PATH="$PACKAGE_INSTALL_ROOT/lib:${DYLD_LIBRARY_PATH:-}"
+          else
+            export LD_LIBRARY_PATH="$PACKAGE_INSTALL_ROOT/lib:${LD_LIBRARY_PATH:-}"
+          fi
           ctest --test-dir "$examples_build_dir" --output-on-failure
 
       - name: Upload archive
@@ -123,7 +138,7 @@ jobs:
           path: ${{ env.ASSET_PATH }}
           if-no-files-found: error
 
-  windows-build-and-package:
+  windoze-build-and-package:
     runs-on: windows-2022
 
     defaults:
@@ -132,6 +147,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -144,13 +163,18 @@ jobs:
 
       - name: Set release identity
         run: |
-          $tag = $env:GITHUB_REF_NAME
-          $version = $tag -replace '^v', ''
-          $version = $version -replace '-.*$', ''
+          if ($env:GITHUB_REF -like 'refs/tags/v*') {
+            $tag = $env:GITHUB_REF_NAME
+            $version = $tag -replace '^v', ''
+            $version = $version -replace '-.*$', ''
 
-          if ($version -notmatch '^[0-9]+(\.[0-9]+){0,3}$') {
-            Write-Error "Tag '$tag' does not contain a CMake-compatible numeric version."
-            exit 1
+            if ($version -notmatch '^[0-9]+(\.[0-9]+){0,3}$') {
+              Write-Error "Tag '$tag' does not contain a CMake-compatible numeric version."
+              exit 1
+            }
+          } else {
+            $tag = "snapshot-$($env:GITHUB_SHA.Substring(0, 12))"
+            $version = "0.0.0"
           }
 
           "LIBSCID_PROJECT_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
@@ -206,6 +230,7 @@ jobs:
           Remove-Item -Recurse -Force -ErrorAction Ignore $examplesBuildDir
           cmake -S $examplesSourceDir -B $examplesBuildDir "-DCMAKE_PREFIX_PATH=$env:PACKAGE_INSTALL_ROOT"
           cmake --build $examplesBuildDir --config Release --verbose
+          $env:Path = "$env:PACKAGE_INSTALL_ROOT\bin;$env:Path"
           ctest --test-dir $examplesBuildDir -C Release --output-on-failure
 
       - name: Upload archive
@@ -216,9 +241,10 @@ jobs:
           if-no-files-found: error
 
   publish-github-release:
+    if: startsWith(github.ref, 'refs/tags/v')
     needs:
       - unix-build-and-package
-      - windows-build-and-package
+      - windoze-build-and-package
     runs-on: ubuntu-latest
 
     steps:
