@@ -12,6 +12,7 @@ project(
     LANGUAGES CXX )
 
 include( GNUInstallDirs )
+include( cmake/test/runtime-dlls.cmake )
 
 set( _libscid_default_version "snapshot" )
 find_package( Git QUIET )

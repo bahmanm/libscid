@@ -72,6 +72,7 @@ if( BUILD_TESTING )
     set_target_properties(
         scid_tests_c
         PROPERTIES LINKER_LANGUAGE CXX )
+    libscid_enable_test_runtime_dlls( scid_tests_c )
 
     add_test(
         NAME libscid_c_test

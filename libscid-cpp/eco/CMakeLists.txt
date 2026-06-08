@@ -77,6 +77,7 @@ if( BUILD_TESTING )
     target_link_libraries(
         scid_tests_eco_cpp
         PRIVATE LibScidCpp::Eco gtest_main )
+    libscid_enable_test_runtime_dlls( scid_tests_eco_cpp )
     add_executable(
         LibScidCpp::Tests::Eco::Cpp
         ALIAS scid_tests_eco_cpp )

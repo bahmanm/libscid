@@ -110,6 +110,7 @@ if( BUILD_TESTING )
     target_link_libraries(
         scid_tests_core_cpp
         PRIVATE LibScidCpp::Core gtest_main )
+    libscid_enable_test_runtime_dlls( scid_tests_core_cpp )
     add_executable(
         LibScidCpp::Tests::Core::Cpp
         ALIAS scid_tests_core_cpp )

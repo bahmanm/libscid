@@ -131,6 +131,7 @@ if( BUILD_TESTING )
     target_link_libraries(
         scid_tests_database_cpp
         PRIVATE LibScidCpp::Database gtest_main )
+    libscid_enable_test_runtime_dlls( scid_tests_database_cpp )
     add_executable(
         LibScidCpp::Tests::Database::Cpp
         ALIAS scid_tests_database_cpp )
