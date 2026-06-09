@@ -20,8 +20,12 @@ void test_game(void) {
         "1. e4 e5 *\n";
     scid_game* game = NULL;
     scid_position* position = NULL;
+    char name[64];
     char text[1024];
+    size_t name_size = 0;
     size_t text_size = 0;
+    size_t tag_count = 0;
+    int removed = 0;
 
     assert(scid_game_create_empty(&game) == SCID_OK);
     assert(game != NULL);
@@ -79,6 +83,67 @@ void test_game(void) {
     assert(strcmp(text, "") == 0);
     assert(text_size == 0);
 
+    assert(scid_game_tag_count_get(game, &tag_count) == SCID_OK);
+    assert(tag_count == 8);
+
+    assert(scid_game_tag_at_get(
+               game,
+               0,
+               name,
+               sizeof(name),
+               &name_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(name, "Event") == 0);
+    assert(name_size == strlen("Event"));
+    assert(strcmp(text, "Friendly") == 0);
+    assert(text_size == strlen("Friendly"));
+
+    assert(scid_game_tag_at_get(
+               game,
+               7,
+               name,
+               sizeof(name),
+               &name_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(name, "Annotator") == 0);
+    assert(strcmp(text, "Example") == 0);
+
+    assert(scid_game_tag_at_get(
+               game,
+               tag_count,
+               name,
+               sizeof(name),
+               &name_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_ERROR_BAD_ARG);
+
+    assert(scid_game_tag_at_get(
+               game,
+               0,
+               NULL,
+               0,
+               &name_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_ERROR_BUFFER_FULL);
+    assert(name_size == strlen("Event"));
+
+    assert(scid_game_tag_remove(game, "Annotator", &removed) == SCID_OK);
+    assert(removed == 1);
+    assert(scid_game_tag_get(game, "Annotator", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "") == 0);
+    assert(scid_game_tag_count_get(game, &tag_count) == SCID_OK);
+    assert(tag_count == 7);
+    assert(scid_game_tag_remove(game, "Annotator", &removed) == SCID_OK);
+    assert(removed == 0);
+    assert(scid_game_tag_remove(game, "Event", &removed) == SCID_OK);
+    assert(removed == 0);
+
     assert(scid_game_tag_get(game, "Event", NULL, 0, &text_size) ==
            SCID_ERROR_BUFFER_FULL);
     assert(text_size == strlen("Friendly"));
@@ -113,6 +178,17 @@ void test_game(void) {
     assert(scid_game_tag_get(NULL, "Event", text, sizeof(text), &text_size) ==
            SCID_ERROR_BAD_ARG);
     assert(scid_game_tag_set(NULL, "Event", "x") == SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_count_get(NULL, &tag_count) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_at_get(
+               NULL,
+               0,
+               name,
+               sizeof(name),
+               &name_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_remove(NULL, "Event", &removed) == SCID_ERROR_BAD_ARG);
     assert(scid_game_start_position_get(NULL, position) == SCID_ERROR_BAD_ARG);
     assert(scid_game_final_position_get(NULL, position) == SCID_ERROR_BAD_ARG);
 
@@ -125,6 +201,9 @@ void test_game(void) {
            SCID_ERROR_BAD_ARG);
     assert(scid_game_tag_set(game, NULL, "x") == SCID_ERROR_BAD_ARG);
     assert(scid_game_tag_set(game, "Event", NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_count_get(game, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_remove(game, NULL, &removed) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_tag_remove(game, "Event", NULL) == SCID_ERROR_BAD_ARG);
     scid_game_free(game);
 
     scid_game_free(NULL);

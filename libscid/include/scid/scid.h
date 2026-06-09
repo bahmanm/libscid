@@ -274,6 +274,28 @@ SCID_API scid_error scid_game_tag_set(
     const char* value
 );
 
+SCID_API scid_error scid_game_tag_count_get(
+    const scid_game* game,
+    size_t* out_count
+);
+
+SCID_API scid_error scid_game_tag_at_get(
+    const scid_game* game,
+    size_t index,
+    char* out_name,
+    size_t out_name_capacity,
+    size_t* out_name_size,
+    char* out_value,
+    size_t out_value_capacity,
+    size_t* out_value_size
+);
+
+SCID_API scid_error scid_game_tag_remove(
+    scid_game* game,
+    const char* name,
+    int* out_removed
+);
+
 SCID_API scid_error scid_game_start_position_get(
     const scid_game* game,
     scid_position* out_position
