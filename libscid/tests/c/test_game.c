@@ -83,8 +83,21 @@ void test_game(void) {
     assert(strcmp(text, "") == 0);
     assert(text_size == 0);
 
+    assert(scid_game_tag_set(game, "ECO", "C20") == SCID_OK);
+    assert(scid_game_tag_get(game, "ECO", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "C20") == 0);
+
+    assert(scid_game_tag_set(game, "EventDate", "2024.04.30") == SCID_OK);
+    assert(scid_game_tag_get(game, "EventDate", text, sizeof(text), &text_size) ==
+           SCID_OK);
+    assert(strcmp(text, "2024.04.30") == 0);
+
+    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strstr(text, "[ECO \"C20\"]") != NULL);
+    assert(strstr(text, "[EventDate \"2024.04.30\"]") != NULL);
+
     assert(scid_game_tag_count_get(game, &tag_count) == SCID_OK);
-    assert(tag_count == 8);
+    assert(tag_count == 10);
 
     assert(scid_game_tag_at_get(
                game,
@@ -103,6 +116,30 @@ void test_game(void) {
     assert(scid_game_tag_at_get(
                game,
                7,
+               name,
+               sizeof(name),
+               &name_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(name, "ECO") == 0);
+    assert(strcmp(text, "C20") == 0);
+
+    assert(scid_game_tag_at_get(
+               game,
+               8,
+               name,
+               sizeof(name),
+               &name_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(name, "EventDate") == 0);
+    assert(strcmp(text, "2024.04.30") == 0);
+
+    assert(scid_game_tag_at_get(
+               game,
+               9,
                name,
                sizeof(name),
                &name_size,
@@ -132,6 +169,25 @@ void test_game(void) {
                sizeof(text),
                &text_size) == SCID_ERROR_BUFFER_FULL);
     assert(name_size == strlen("Event"));
+
+    assert(scid_game_tag_remove(game, "ECO", &removed) == SCID_OK);
+    assert(removed == 1);
+    assert(scid_game_tag_get(game, "ECO", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "") == 0);
+    assert(scid_game_tag_count_get(game, &tag_count) == SCID_OK);
+    assert(tag_count == 9);
+    assert(scid_game_tag_remove(game, "ECO", &removed) == SCID_OK);
+    assert(removed == 0);
+
+    assert(scid_game_tag_remove(game, "EventDate", &removed) == SCID_OK);
+    assert(removed == 1);
+    assert(scid_game_tag_get(game, "EventDate", text, sizeof(text), &text_size) ==
+           SCID_OK);
+    assert(strcmp(text, "") == 0);
+    assert(scid_game_tag_count_get(game, &tag_count) == SCID_OK);
+    assert(tag_count == 8);
+    assert(scid_game_tag_remove(game, "EventDate", &removed) == SCID_OK);
+    assert(removed == 0);
 
     assert(scid_game_tag_remove(game, "Annotator", &removed) == SCID_OK);
     assert(removed == 1);

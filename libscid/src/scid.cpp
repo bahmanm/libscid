@@ -54,6 +54,11 @@ constexpr std::string_view pgn_roster_tags[] = {
 constexpr size_t pgn_roster_tag_count =
     sizeof(pgn_roster_tags) / sizeof(pgn_roster_tags[0]);
 
+constexpr std::string_view pgn_special_tags[] = {
+    "ECO",
+    "EventDate",
+};
+
 bool square_is_valid(scid_square square) {
     return square <= scid::core::H8;
 }
@@ -426,6 +431,9 @@ std::string game_tag_value(
         return game.eco();
     }
     if (name == "EventDate") {
+        if (game.eventDate() == scid::core::ZERO_DATE) {
+            return {};
+        }
         return date_to_string(game.eventDate());
     }
 
@@ -436,10 +444,31 @@ std::string game_tag_value(
     return {};
 }
 
+bool game_has_special_tag(
+    const scid::core::Game& game,
+    std::string_view name
+) {
+    if (name == "ECO") {
+        return !game.eco().empty();
+    }
+    if (name == "EventDate") {
+        return game.eventDate() != scid::core::ZERO_DATE;
+    }
+
+    return false;
+}
+
 size_t game_tag_count(
     const scid::core::Game& game
 ) {
-    return pgn_roster_tag_count + game.extraTags().size();
+    size_t count = pgn_roster_tag_count + game.extraTags().size();
+    for (const auto tag : pgn_special_tags) {
+        if (game_has_special_tag(game, tag)) {
+            ++count;
+        }
+    }
+
+    return count;
 }
 
 bool game_tag_at(
@@ -459,6 +488,21 @@ bool game_tag_at(
     }
 
     index -= pgn_roster_tag_count;
+
+    for (const auto tag : pgn_special_tags) {
+        if (!game_has_special_tag(game, tag)) {
+            continue;
+        }
+
+        if (index == 0) {
+            *out_name = tag;
+            *out_value = game_tag_value(game, tag);
+            return true;
+        }
+
+        --index;
+    }
+
     const auto& extra_tags = game.extraTags();
     if (index >= extra_tags.size()) {
         return false;
@@ -1234,6 +1278,21 @@ scid_error scid_game_tag_remove(
     }
 
     try {
+        const std::string_view tag_name(name);
+        if (tag_name == "ECO") {
+            const bool found = !game->value.eco().empty();
+            game->value.setEco({});
+            *out_removed = found ? 1 : 0;
+            return SCID_OK;
+        }
+
+        if (tag_name == "EventDate") {
+            const bool found = game->value.eventDate() != scid::core::ZERO_DATE;
+            game->value.setEventDate(scid::core::ZERO_DATE);
+            *out_removed = found ? 1 : 0;
+            return SCID_OK;
+        }
+
         const bool found = game->value.findExtraTag(name) != nullptr;
         if (found) {
             game->value.removeExtraTag(name);
