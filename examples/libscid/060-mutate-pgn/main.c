@@ -1,0 +1,103 @@
+#include <scid/scid.h>
+
+#include <stdio.h>
+#include <string.h>
+
+static int check(scid_error error, const char* call) {
+    if (error == SCID_OK) {
+        return 1;
+    }
+
+    fprintf(stderr, "%s failed with scid_error %hu\n", call, error);
+    return 0;
+}
+
+static int contains(const char* text, const char* needle) {
+    return strstr(text, needle) != NULL;
+}
+
+int main(void) {
+    const char* pgn =
+        "[Event \"Mutation\"]\n"
+        "[Result \"*\"]\n"
+        "\n"
+        "1. e4 e5 (1... c5) *\n";
+    scid_game* game = NULL;
+    scid_movetext_cursor* cursor = NULL;
+    scid_position* position = NULL;
+    scid_movespec move;
+    char output[4096];
+    int changed = 0;
+    int moved = 0;
+    size_t output_size = 0;
+    size_t variation_count = 0;
+
+    if (!check(scid_game_create_from_pgn(
+                   pgn,
+                   strlen(pgn),
+                   &game,
+                   NULL,
+                   0,
+                   NULL),
+               "scid_game_create_from_pgn") ||
+        !check(scid_movetext_cursor_create(game, &cursor),
+               "scid_movetext_cursor_create") ||
+        !check(scid_position_create_empty(&position),
+               "scid_position_create_empty")) {
+        scid_position_free(position);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+
+    if (!check(scid_movetext_cursor_next(cursor, &moved),
+               "scid_movetext_cursor_next") ||
+        !moved ||
+        !check(scid_movetext_cursor_comment_set(cursor, "King pawn"),
+               "scid_movetext_cursor_comment_set") ||
+        !check(scid_movetext_cursor_nag_add(cursor, 1, &changed),
+               "scid_movetext_cursor_nag_add") ||
+        !changed ||
+        !check(scid_movetext_cursor_variation_count_get(cursor, &variation_count),
+               "scid_movetext_cursor_variation_count_get") ||
+        variation_count != 1 ||
+        !check(scid_movetext_cursor_variation_add(cursor, "French branch", &changed),
+               "scid_movetext_cursor_variation_add") ||
+        !changed ||
+        !check(scid_movetext_cursor_position_get(cursor, position),
+               "scid_movetext_cursor_position_get") ||
+        !check(scid_movespec_create_from_san(position, "e6", &move),
+               "scid_movespec_create_from_san") ||
+        !check(scid_movetext_cursor_move_add(cursor, move),
+               "scid_movetext_cursor_move_add") ||
+        !check(scid_movetext_cursor_variation_promote_to_first(cursor, &changed),
+               "scid_movetext_cursor_variation_promote_to_first") ||
+        !changed ||
+        !check(scid_movetext_cursor_variation_exit(cursor, &moved),
+               "scid_movetext_cursor_variation_exit") ||
+        !moved ||
+        !check(scid_game_to_pgn(game, output, sizeof(output), &output_size),
+               "scid_game_to_pgn")) {
+        scid_position_free(position);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+
+    printf("%.*s", (int)output_size, output);
+
+    if (!contains(output, "e4 $1 {King pawn}") ||
+        !contains(output, "{French branch}") ||
+        !contains(output, "e6") ||
+        !contains(output, "c5")) {
+        scid_position_free(position);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+
+    scid_position_free(position);
+    scid_movetext_cursor_free(cursor);
+    scid_game_free(game);
+    return 0;
+}

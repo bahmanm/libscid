@@ -1,0 +1,14 @@
+# 030 Nonstandard Start
+
+This example creates a position from FEN, creates a game from that start
+position through the C ABI, inspects the generated `FEN` tag, and exports PGN.
+
+Install libscid first; see the installation guide:
+
+- https://libscid.bahmanm.com/installation.html
+
+```sh
+cmake -S examples/libscid/030-nonstandard-start -B _build/examples/libscid/030-nonstandard-start -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/libscid/030-nonstandard-start
+ctest --test-dir _build/examples/libscid/030-nonstandard-start --output-on-failure
+```
