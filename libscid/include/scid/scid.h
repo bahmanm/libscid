@@ -240,6 +240,11 @@ SCID_API scid_error scid_game_create_empty(
     scid_game** out_game
 );
 
+SCID_API scid_error scid_game_create_from_position(
+    const scid_position* position,
+    scid_game** out_game
+);
+
 SCID_API scid_error scid_game_create_from_pgn(
     const char* pgn,
     size_t pgn_size,

@@ -402,6 +402,14 @@ scid_error result_from_string(
     return SCID_ERROR_BAD_ARG;
 }
 
+std::string position_fen(
+    const scid::core::Position& position
+) {
+    char fen[256];
+    position.PrintFEN(fen, sizeof(fen));
+    return fen;
+}
+
 std::string game_tag_value(
     const scid::core::Game& game,
     std::string_view name
@@ -436,6 +444,12 @@ std::string game_tag_value(
         }
         return date_to_string(game.eventDate());
     }
+    if (name == "FEN") {
+        if (const scid::core::Position* position = game.startPosition()) {
+            return position_fen(*position);
+        }
+        return {};
+    }
 
     if (const std::string* value = game.findExtraTag(name)) {
         return *value;
@@ -454,6 +468,9 @@ bool game_has_special_tag(
     if (name == "EventDate") {
         return game.eventDate() != scid::core::ZERO_DATE;
     }
+    if (name == "FEN") {
+        return game.startPosition() != nullptr;
+    }
 
     return false;
 }
@@ -466,6 +483,9 @@ size_t game_tag_count(
         if (game_has_special_tag(game, tag)) {
             ++count;
         }
+    }
+    if (game_has_special_tag(game, "FEN")) {
+        ++count;
     }
 
     return count;
@@ -504,13 +524,20 @@ bool game_tag_at(
     }
 
     const auto& extra_tags = game.extraTags();
-    if (index >= extra_tags.size()) {
-        return false;
+    if (index < extra_tags.size()) {
+        *out_name = extra_tags[index].first;
+        *out_value = extra_tags[index].second;
+        return true;
     }
 
-    *out_name = extra_tags[index].first;
-    *out_value = extra_tags[index].second;
-    return true;
+    index -= extra_tags.size();
+    if (game_has_special_tag(game, "FEN") && index == 0) {
+        *out_name = "FEN";
+        *out_value = game_tag_value(game, "FEN");
+        return true;
+    }
+
+    return false;
 }
 
 scid_error game_set_tag(
@@ -1108,6 +1135,28 @@ scid_error scid_game_create_empty(
     }
 }
 
+scid_error scid_game_create_from_position(
+    const scid_position* position,
+    scid_game** out_game
+) {
+    if (position == nullptr || out_game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        auto* game = new scid_game;
+        if (!position->value.IsStdStart()) {
+            game->value.setStartPosition(position->value);
+        }
+
+        *out_game = game;
+        return SCID_OK;
+    } catch (...) {
+        *out_game = nullptr;
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_game_create_from_pgn(
     const char* pgn,
     size_t pgn_size,
@@ -1290,6 +1339,11 @@ scid_error scid_game_tag_remove(
             const bool found = game->value.eventDate() != scid::core::ZERO_DATE;
             game->value.setEventDate(scid::core::ZERO_DATE);
             *out_removed = found ? 1 : 0;
+            return SCID_OK;
+        }
+
+        if (tag_name == "FEN") {
+            *out_removed = 0;
             return SCID_OK;
         }
 

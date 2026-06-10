@@ -18,6 +18,9 @@ void test_game(void) {
         "[Annotator \"Example\"]\n"
         "\n"
         "1. e4 e5 *\n";
+    const char* custom_fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
+    const char* start_fen =
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     scid_game* game = NULL;
     scid_position* position = NULL;
     char name[64];
@@ -54,6 +57,53 @@ void test_game(void) {
     assert(strstr(text, "[Result \"1-0\"]") != NULL);
     assert(strstr(text, "[Annotator \"Example\"]") != NULL);
     scid_game_free(game);
+
+    game = NULL;
+    assert(scid_position_create_standard(&position) == SCID_OK);
+    assert(scid_game_create_from_position(position, &game) == SCID_OK);
+    assert(game != NULL);
+    assert(scid_game_tag_get(game, "FEN", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "") == 0);
+    assert(scid_game_tag_count_get(game, &tag_count) == SCID_OK);
+    assert(tag_count == 7);
+    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strstr(text, "[FEN ") == NULL);
+    scid_game_free(game);
+    scid_position_free(position);
+
+    game = NULL;
+    position = NULL;
+    assert(scid_position_create_from_fen(custom_fen, &position) == SCID_OK);
+    assert(scid_game_create_from_position(position, &game) == SCID_OK);
+    assert(game != NULL);
+    assert(scid_game_tag_get(game, "FEN", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, custom_fen) == 0);
+    assert(text_size == strlen(custom_fen));
+    assert(scid_game_tag_count_get(game, &tag_count) == SCID_OK);
+    assert(tag_count == 8);
+    assert(scid_game_tag_at_get(
+               game,
+               7,
+               name,
+               sizeof(name),
+               &name_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(name, "FEN") == 0);
+    assert(strcmp(text, custom_fen) == 0);
+    assert(scid_game_start_position_get(game, position) == SCID_OK);
+    assert(scid_position_to_fen(position, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, custom_fen) == 0);
+    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strstr(text, "[FEN \"8/K7/8/8/7k/8/8/8 w - - 45 25\"]") != NULL);
+    assert(scid_game_tag_remove(game, "FEN", &removed) == SCID_OK);
+    assert(removed == 0);
+    assert(scid_game_tag_get(game, "FEN", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, custom_fen) == 0);
+    scid_game_free(game);
+    scid_position_free(position);
+    position = NULL;
 
     game = NULL;
     text_size = 99;
@@ -214,7 +264,7 @@ void test_game(void) {
     assert(scid_position_create_empty(&position) == SCID_OK);
     assert(scid_game_start_position_get(game, position) == SCID_OK);
     assert(scid_position_to_fen(position, text, sizeof(text), &text_size) == SCID_OK);
-    assert(strcmp(text, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") == 0);
+    assert(strcmp(text, start_fen) == 0);
 
     assert(scid_game_final_position_get(game, position) == SCID_OK);
     assert(scid_position_to_fen(position, text, sizeof(text), &text_size) == SCID_OK);
@@ -230,6 +280,8 @@ void test_game(void) {
     assert(scid_game_create_from_pgn(pgn, strlen(pgn), NULL, NULL, 0, NULL) ==
            SCID_ERROR_BAD_ARG);
     assert(scid_game_create_empty(NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_create_from_position(NULL, &game) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_create_from_position(position, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_to_pgn(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
     assert(scid_game_tag_get(NULL, "Event", text, sizeof(text), &text_size) ==
            SCID_ERROR_BAD_ARG);
