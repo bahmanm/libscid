@@ -38,9 +38,12 @@ static int text_equals(
 
 static int print_next_move(scid_movetext_cursor* cursor) {
     char san[64];
+    char uci[16];
     char comment[256];
+    scid_movespec move;
     scid_nag nag = 0;
     size_t san_size = 0;
+    size_t uci_size = 0;
     size_t comment_size = 0;
     size_t nag_count = 0;
     size_t variation_count = 0;
@@ -48,6 +51,13 @@ static int print_next_move(scid_movetext_cursor* cursor) {
 
     if (!check(scid_movetext_cursor_ply_get(cursor, &ply),
                "scid_movetext_cursor_ply_get") ||
+        !check(scid_movetext_cursor_next_movespec_get(cursor, &move),
+               "scid_movetext_cursor_next_movespec_get") ||
+        !read_text(scid_movespec_to_uci(move, uci, sizeof(uci), &uci_size),
+                   "scid_movespec_to_uci",
+                   "next uci: ",
+                   uci,
+                   uci_size) ||
         !read_text(scid_movetext_cursor_next_move_san_get(
                        cursor,
                        san,
@@ -74,6 +84,7 @@ static int print_next_move(scid_movetext_cursor* cursor) {
     }
 
     if (!text_equals(san, san_size, "e4") ||
+        !text_equals(uci, uci_size, "e2e4") ||
         !text_equals(comment, comment_size, "King pawn") ||
         ply != 0 ||
         nag_count != 1 ||
@@ -107,6 +118,7 @@ int main(void) {
     scid_movetext_cursor* cursor = NULL;
     char diagnostic[1024];
     char text[256];
+    scid_movespec move;
     int moved = 0;
     size_t diagnostic_size = 0;
     size_t text_size = 0;
@@ -185,6 +197,14 @@ int main(void) {
                    text,
                    text_size) ||
         !text_equals(text, text_size, "e4") ||
+        !check(scid_movetext_cursor_previous_movespec_get(cursor, &move),
+               "scid_movetext_cursor_previous_movespec_get") ||
+        !read_text(scid_movespec_to_uci(move, text, sizeof(text), &text_size),
+                   "scid_movespec_to_uci",
+                   "previous uci: ",
+                   text,
+                   text_size) ||
+        !text_equals(text, text_size, "e2e4") ||
         !read_text(scid_movetext_cursor_next_move_san_get(
                        cursor,
                        text,
@@ -194,7 +214,15 @@ int main(void) {
                    "next san after e4: ",
                    text,
                    text_size) ||
-        !text_equals(text, text_size, "e5")) {
+        !text_equals(text, text_size, "e5") ||
+        !check(scid_movetext_cursor_next_movespec_get(cursor, &move),
+               "scid_movetext_cursor_next_movespec_get") ||
+        !read_text(scid_movespec_to_uci(move, text, sizeof(text), &text_size),
+                   "scid_movespec_to_uci",
+                   "next uci after e4: ",
+                   text,
+                   text_size) ||
+        !text_equals(text, text_size, "e7e5")) {
         scid_movetext_cursor_free(cursor);
         scid_game_free(game);
         return 1;

@@ -1230,6 +1230,58 @@ scid_error scid_game_to_pgn(
     }
 }
 
+scid_error scid_game_mainline_halfmove_count_get(
+    const scid_game* game,
+    size_t* out_count
+) {
+    if (game == nullptr || out_count == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_size(game->value.mainlineHalfMoveCount(), out_count);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_game_initial_comment_get(
+    const scid_game* game,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_text(
+            game->value.initialComment(),
+            out_text,
+            out_text_capacity,
+            out_text_size
+        );
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_game_movetext_clear(
+    scid_game* game
+) {
+    if (game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        game->value.clearMovetext();
+        return SCID_OK;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_game_tag_get(
     const scid_game* game,
     const char* name,

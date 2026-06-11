@@ -265,6 +265,22 @@ SCID_API scid_error scid_game_to_pgn(
     size_t* out_text_size
 );
 
+SCID_API scid_error scid_game_mainline_halfmove_count_get(
+    const scid_game* game,
+    size_t* out_count
+);
+
+SCID_API scid_error scid_game_initial_comment_get(
+    const scid_game* game,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+);
+
+SCID_API scid_error scid_game_movetext_clear(
+    scid_game* game
+);
+
 SCID_API scid_error scid_game_tag_get(
     const scid_game* game,
     const char* name,
