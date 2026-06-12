@@ -1,1 +1,8 @@
 add_subdirectory( 000-python-bindings )
+add_subdirectory( 010-edit-pgn )
+add_subdirectory( 020-author-pgn )
+add_subdirectory( 030-nonstandard-start )
+add_subdirectory( 040-navigate-pgn )
+add_subdirectory( 050-position-and-moves )
+add_subdirectory( 060-mutate-pgn )
+add_subdirectory( 070-eco-lookup )

@@ -240,6 +240,11 @@ SCID_API scid_error scid_game_create_empty(
     scid_game** out_game
 );
 
+SCID_API scid_error scid_game_create_from_position(
+    const scid_position* position,
+    scid_game** out_game
+);
+
 SCID_API scid_error scid_game_create_from_pgn(
     const char* pgn,
     size_t pgn_size,
@@ -260,6 +265,22 @@ SCID_API scid_error scid_game_to_pgn(
     size_t* out_text_size
 );
 
+SCID_API scid_error scid_game_mainline_halfmove_count_get(
+    const scid_game* game,
+    size_t* out_count
+);
+
+SCID_API scid_error scid_game_initial_comment_get(
+    const scid_game* game,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+);
+
+SCID_API scid_error scid_game_movetext_clear(
+    scid_game* game
+);
+
 SCID_API scid_error scid_game_tag_get(
     const scid_game* game,
     const char* name,
@@ -272,6 +293,28 @@ SCID_API scid_error scid_game_tag_set(
     scid_game* game,
     const char* name,
     const char* value
+);
+
+SCID_API scid_error scid_game_tag_count_get(
+    const scid_game* game,
+    size_t* out_count
+);
+
+SCID_API scid_error scid_game_tag_at_get(
+    const scid_game* game,
+    size_t index,
+    char* out_name,
+    size_t out_name_capacity,
+    size_t* out_name_size,
+    char* out_value,
+    size_t out_value_capacity,
+    size_t* out_value_size
+);
+
+SCID_API scid_error scid_game_tag_remove(
+    scid_game* game,
+    const char* name,
+    int* out_removed
 );
 
 SCID_API scid_error scid_game_start_position_get(

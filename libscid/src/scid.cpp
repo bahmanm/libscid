@@ -41,6 +41,24 @@ struct scid_eco_book {
 
 namespace {
 
+constexpr std::string_view pgn_roster_tags[] = {
+    "Event",
+    "Site",
+    "Date",
+    "Round",
+    "White",
+    "Black",
+    "Result",
+};
+
+constexpr size_t pgn_roster_tag_count =
+    sizeof(pgn_roster_tags) / sizeof(pgn_roster_tags[0]);
+
+constexpr std::string_view pgn_special_tags[] = {
+    "ECO",
+    "EventDate",
+};
+
 bool square_is_valid(scid_square square) {
     return square <= scid::core::H8;
 }
@@ -384,6 +402,14 @@ scid_error result_from_string(
     return SCID_ERROR_BAD_ARG;
 }
 
+std::string position_fen(
+    const scid::core::Position& position
+) {
+    char fen[256];
+    position.PrintFEN(fen, sizeof(fen));
+    return fen;
+}
+
 std::string game_tag_value(
     const scid::core::Game& game,
     std::string_view name
@@ -413,7 +439,16 @@ std::string game_tag_value(
         return game.eco();
     }
     if (name == "EventDate") {
+        if (game.eventDate() == scid::core::ZERO_DATE) {
+            return {};
+        }
         return date_to_string(game.eventDate());
+    }
+    if (name == "FEN") {
+        if (const scid::core::Position* position = game.startPosition()) {
+            return position_fen(*position);
+        }
+        return {};
     }
 
     if (const std::string* value = game.findExtraTag(name)) {
@@ -421,6 +456,88 @@ std::string game_tag_value(
     }
 
     return {};
+}
+
+bool game_has_special_tag(
+    const scid::core::Game& game,
+    std::string_view name
+) {
+    if (name == "ECO") {
+        return !game.eco().empty();
+    }
+    if (name == "EventDate") {
+        return game.eventDate() != scid::core::ZERO_DATE;
+    }
+    if (name == "FEN") {
+        return game.startPosition() != nullptr;
+    }
+
+    return false;
+}
+
+size_t game_tag_count(
+    const scid::core::Game& game
+) {
+    size_t count = pgn_roster_tag_count + game.extraTags().size();
+    for (const auto tag : pgn_special_tags) {
+        if (game_has_special_tag(game, tag)) {
+            ++count;
+        }
+    }
+    if (game_has_special_tag(game, "FEN")) {
+        ++count;
+    }
+
+    return count;
+}
+
+bool game_tag_at(
+    const scid::core::Game& game,
+    size_t index,
+    std::string_view* out_name,
+    std::string* out_value
+) {
+    if (out_name == nullptr || out_value == nullptr) {
+        return false;
+    }
+
+    if (index < pgn_roster_tag_count) {
+        *out_name = pgn_roster_tags[index];
+        *out_value = game_tag_value(game, *out_name);
+        return true;
+    }
+
+    index -= pgn_roster_tag_count;
+
+    for (const auto tag : pgn_special_tags) {
+        if (!game_has_special_tag(game, tag)) {
+            continue;
+        }
+
+        if (index == 0) {
+            *out_name = tag;
+            *out_value = game_tag_value(game, tag);
+            return true;
+        }
+
+        --index;
+    }
+
+    const auto& extra_tags = game.extraTags();
+    if (index < extra_tags.size()) {
+        *out_name = extra_tags[index].first;
+        *out_value = extra_tags[index].second;
+        return true;
+    }
+
+    index -= extra_tags.size();
+    if (game_has_special_tag(game, "FEN") && index == 0) {
+        *out_name = "FEN";
+        *out_value = game_tag_value(game, "FEN");
+        return true;
+    }
+
+    return false;
 }
 
 scid_error game_set_tag(
@@ -1018,6 +1135,28 @@ scid_error scid_game_create_empty(
     }
 }
 
+scid_error scid_game_create_from_position(
+    const scid_position* position,
+    scid_game** out_game
+) {
+    if (position == nullptr || out_game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        auto* game = new scid_game;
+        if (!position->value.IsStdStart()) {
+            game->value.setStartPosition(position->value);
+        }
+
+        *out_game = game;
+        return SCID_OK;
+    } catch (...) {
+        *out_game = nullptr;
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_game_create_from_pgn(
     const char* pgn,
     size_t pgn_size,
@@ -1091,6 +1230,58 @@ scid_error scid_game_to_pgn(
     }
 }
 
+scid_error scid_game_mainline_halfmove_count_get(
+    const scid_game* game,
+    size_t* out_count
+) {
+    if (game == nullptr || out_count == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_size(game->value.mainlineHalfMoveCount(), out_count);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_game_initial_comment_get(
+    const scid_game* game,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_text(
+            game->value.initialComment(),
+            out_text,
+            out_text_capacity,
+            out_text_size
+        );
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_game_movetext_clear(
+    scid_game* game
+) {
+    if (game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        game->value.clearMovetext();
+        return SCID_OK;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_game_tag_get(
     const scid_game* game,
     const char* name,
@@ -1125,6 +1316,96 @@ scid_error scid_game_tag_set(
 
     try {
         return game_set_tag(game->value, name, value);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_game_tag_count_get(
+    const scid_game* game,
+    size_t* out_count
+) {
+    if (game == nullptr || out_count == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_size(game_tag_count(game->value), out_count);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_game_tag_at_get(
+    const scid_game* game,
+    size_t index,
+    char* out_name,
+    size_t out_name_capacity,
+    size_t* out_name_size,
+    char* out_value,
+    size_t out_value_capacity,
+    size_t* out_value_size
+) {
+    if (game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        std::string_view name;
+        std::string value;
+        if (!game_tag_at(game->value, index, &name, &value)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        if (const scid_error error =
+                write_text(name, out_name, out_name_capacity, out_name_size);
+            error != SCID_OK) {
+            return error;
+        }
+
+        return write_text(value, out_value, out_value_capacity, out_value_size);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_game_tag_remove(
+    scid_game* game,
+    const char* name,
+    int* out_removed
+) {
+    if (game == nullptr || name == nullptr || out_removed == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        const std::string_view tag_name(name);
+        if (tag_name == "ECO") {
+            const bool found = !game->value.eco().empty();
+            game->value.setEco({});
+            *out_removed = found ? 1 : 0;
+            return SCID_OK;
+        }
+
+        if (tag_name == "EventDate") {
+            const bool found = game->value.eventDate() != scid::core::ZERO_DATE;
+            game->value.setEventDate(scid::core::ZERO_DATE);
+            *out_removed = found ? 1 : 0;
+            return SCID_OK;
+        }
+
+        if (tag_name == "FEN") {
+            *out_removed = 0;
+            return SCID_OK;
+        }
+
+        const bool found = game->value.findExtraTag(name) != nullptr;
+        if (found) {
+            game->value.removeExtraTag(name);
+        }
+
+        *out_removed = found ? 1 : 0;
+        return SCID_OK;
     } catch (...) {
         return SCID_ERROR;
     }
