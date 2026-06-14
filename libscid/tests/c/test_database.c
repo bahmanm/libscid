@@ -27,7 +27,10 @@ void test_database(void) {
     size_t count = 99;
     size_t flags_size = 99;
     size_t text_size = 99;
+    scid_eco_code eco_code = 0;
+    scid_eco_code expected_eco_code = 0;
     int is_open = 0;
+    int deleted = 99;
 
     assert(scid_database_create_memory("scratch", &database) == SCID_OK);
     assert(database != NULL);
@@ -42,7 +45,7 @@ void test_database(void) {
            SCID_OK);
     assert(game != NULL);
 
-    assert(scid_database_game_add(database, game, NULL) == SCID_OK);
+    assert(scid_database_game_add(database, game, "D") == SCID_OK);
     assert(scid_database_game_count_get(database, &count) == SCID_OK);
     assert(count == 1);
 
@@ -52,6 +55,21 @@ void test_database(void) {
 
     assert(scid_database_game_halfmove_count_get(database, 1, &count) == SCID_OK);
     assert(count == 3);
+    assert(scid_database_game_number_get(database, 1, &count) == SCID_OK);
+    assert(count == 2);
+    assert(scid_database_game_deleted_get(database, 0, &deleted) == SCID_OK);
+    assert(deleted == 1);
+    assert(scid_database_game_deleted_get(database, 1, &deleted) == SCID_OK);
+    assert(deleted == 0);
+    assert(scid_database_game_result_get(
+               database, 1, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "1-0") == 0);
+    assert(scid_eco_code_from_string("C20", &expected_eco_code) == SCID_OK);
+    assert(scid_database_game_eco_get(database, 1, &eco_code) == SCID_OK);
+    assert(eco_code == expected_eco_code);
+    assert(scid_database_game_date_get(
+               database, 1, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "2024.06.14") == 0);
     assert(scid_database_game_tag_get(
                database, 1, "Event", text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Stored") == 0);
@@ -135,6 +153,35 @@ void test_database(void) {
     assert(scid_database_game_halfmove_count_get(database, 99, &count) ==
            SCID_ERROR_BAD_ARG);
     assert(scid_database_game_halfmove_count_get(database, 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_number_get(NULL, 0, &count) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_number_get(database, 99, &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_number_get(database, 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_deleted_get(NULL, 0, &deleted) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_deleted_get(database, 99, &deleted) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_deleted_get(database, 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_result_get(NULL, 0, text, sizeof(text), &text_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_result_get(
+               database, 99, text, sizeof(text), &text_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_result_get(database, 0, text, sizeof(text), NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_eco_get(NULL, 0, &eco_code) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_eco_get(database, 99, &eco_code) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_eco_get(database, 0, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_date_get(NULL, 0, text, sizeof(text), &text_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_date_get(
+               database, 99, text, sizeof(text), &text_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_date_get(database, 0, text, sizeof(text), NULL) ==
            SCID_ERROR_BAD_ARG);
     assert(scid_database_game_get(NULL, 0, &loaded, NULL, 0, NULL) ==
            SCID_ERROR_BAD_ARG);

@@ -391,6 +391,29 @@ bool database_game_index_to_core(
     return true;
 }
 
+bool database_game_info_get(
+    const scid::database::scidBaseT& database,
+    size_t index,
+    scid::database::GameInfo* out_info
+) {
+    if (out_info == nullptr) {
+        return false;
+    }
+
+    scid::database::gamenumT game_index = 0;
+    if (!database_game_index_to_core(index, &game_index)) {
+        return false;
+    }
+
+    const auto info = database.gameInfoBounds(game_index);
+    if (!info) {
+        return false;
+    }
+
+    *out_info = *info;
+    return true;
+}
+
 scid_error result_from_string(
     std::string_view text,
     scid::core::resultT* out_result
@@ -2471,6 +2494,126 @@ scid_error scid_database_game_halfmove_count_get(
         }
 
         return write_size(info->halfMoveCount, out_count);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_number_get(
+    const scid_database* database,
+    size_t index,
+    size_t* out_number
+) {
+    if (database == nullptr || out_number == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::GameInfo info;
+        if (!database_game_info_get(database->value, index, &info)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return write_size(index + 1, out_number);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_deleted_get(
+    const scid_database* database,
+    size_t index,
+    int* out_deleted
+) {
+    if (database == nullptr || out_deleted == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::GameInfo info;
+        if (!database_game_info_get(database->value, index, &info)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return write_bool(info.hasDeleteFlag(), out_deleted);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_result_get(
+    const scid_database* database,
+    size_t index,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::GameInfo info;
+        if (!database_game_info_get(database->value, index, &info)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return write_text(
+            scid::core::RESULT_LONGSTR[info.result],
+            out_text,
+            out_text_capacity,
+            out_text_size
+        );
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_eco_get(
+    const scid_database* database,
+    size_t index,
+    scid_eco_code* out_code
+) {
+    if (database == nullptr || out_code == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::GameInfo info;
+        if (!database_game_info_get(database->value, index, &info)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        *out_code = static_cast<scid_eco_code>(info.ecoCode);
+        return SCID_OK;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_date_get(
+    const scid_database* database,
+    size_t index,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::GameInfo info;
+        if (!database_game_info_get(database->value, index, &info)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return write_text(
+            date_to_string(info.date),
+            out_text,
+            out_text_capacity,
+            out_text_size
+        );
     } catch (...) {
         return SCID_ERROR;
     }

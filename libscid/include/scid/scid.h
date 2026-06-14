@@ -640,6 +640,40 @@ SCID_API scid_error scid_database_game_halfmove_count_get(
     size_t* out_count
 );
 
+SCID_API scid_error scid_database_game_number_get(
+    const scid_database* database,
+    size_t index,
+    size_t* out_number
+);
+
+SCID_API scid_error scid_database_game_deleted_get(
+    const scid_database* database,
+    size_t index,
+    int* out_deleted
+);
+
+SCID_API scid_error scid_database_game_result_get(
+    const scid_database* database,
+    size_t index,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+);
+
+SCID_API scid_error scid_database_game_eco_get(
+    const scid_database* database,
+    size_t index,
+    scid_eco_code* out_code
+);
+
+SCID_API scid_error scid_database_game_date_get(
+    const scid_database* database,
+    size_t index,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+);
+
 #ifdef __cplusplus
 }
 #endif
