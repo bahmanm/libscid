@@ -10,3 +10,4 @@ This directory contains examples that use the C ABI from `libscid`.
 - `050-position-and-moves/`: apply moves to a position and inspect the resulting state.
 - `060-mutate-pgn/`: edit move metadata and variations in an existing PGN game.
 - `070-eco-lookup/`: load an ECO book and classify a position.
+- `080-memory-database/`: create an in-memory database and add games to it.
