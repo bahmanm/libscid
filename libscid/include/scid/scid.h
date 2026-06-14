@@ -616,6 +616,15 @@ SCID_API scid_error scid_database_game_add(
     const char* flags
 );
 
+SCID_API scid_error scid_database_game_get(
+    const scid_database* database,
+    size_t index,
+    scid_game** out_game,
+    char* out_flags,
+    size_t out_flags_capacity,
+    size_t* out_flags_size
+);
+
 #ifdef __cplusplus
 }
 #endif

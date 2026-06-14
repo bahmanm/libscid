@@ -15,6 +15,7 @@
 #include "scid/eco/book.h"
 #include "scid/eco/code.h"
 
+#include <array>
 #include <cstring>
 #include <string>
 #include <string_view>
@@ -577,6 +578,19 @@ scid_error game_set_tag(
 }
 
 scid_error write_optional_diagnostic(
+    std::string_view text,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (out_text == nullptr && out_text_capacity == 0 && out_text_size == nullptr) {
+        return SCID_OK;
+    }
+
+    return write_text(text, out_text, out_text_capacity, out_text_size);
+}
+
+scid_error write_optional_text(
     std::string_view text,
     char* out_text,
     size_t out_text_capacity,
@@ -2299,6 +2313,54 @@ scid_error scid_database_game_add(
         );
         return error == scid::core::OK ? SCID_OK : SCID_ERROR;
     } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_get(
+    const scid_database* database,
+    size_t index,
+    scid_game** out_game,
+    char* out_flags,
+    size_t out_flags_capacity,
+    size_t* out_flags_size
+) {
+    if (database == nullptr || out_game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        auto* game = new scid_game;
+        std::array<char, 22> flags = {};
+        const auto error = database->value.loadGame(
+            static_cast<scid::database::gamenumT>(index),
+            game->value,
+            flags.data(),
+            flags.size()
+        );
+        if (error != scid::core::OK) {
+            delete game;
+            *out_game = nullptr;
+            return error == scid::core::ERROR_BadArg
+                       ? SCID_ERROR_BAD_ARG
+                       : SCID_ERROR;
+        }
+
+        if (const scid_error flags_error = write_optional_text(
+                flags.data(),
+                out_flags,
+                out_flags_capacity,
+                out_flags_size);
+            flags_error != SCID_OK) {
+            delete game;
+            *out_game = nullptr;
+            return flags_error;
+        }
+
+        *out_game = game;
+        return SCID_OK;
+    } catch (...) {
+        *out_game = nullptr;
         return SCID_ERROR;
     }
 }

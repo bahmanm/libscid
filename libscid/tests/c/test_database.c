@@ -16,7 +16,12 @@ void test_database(void) {
         "1. e4 e5 2. Nf3 1-0\n";
     scid_database* database = NULL;
     scid_game* game = NULL;
+    scid_game* loaded = NULL;
+    char flags[22];
+    char text[128];
     size_t count = 99;
+    size_t flags_size = 99;
+    size_t text_size = 99;
     int is_open = 0;
 
     assert(scid_database_create_memory("scratch", &database) == SCID_OK);
@@ -40,6 +45,34 @@ void test_database(void) {
     assert(scid_database_game_count_get(database, &count) == SCID_OK);
     assert(count == 2);
 
+    assert(scid_database_game_get(database, 0, &loaded, NULL, 0, NULL) == SCID_OK);
+    assert(loaded != NULL);
+    assert(scid_game_mainline_halfmove_count_get(loaded, &count) == SCID_OK);
+    assert(count == 3);
+    scid_game_free(loaded);
+    loaded = NULL;
+
+    assert(scid_database_game_get(
+               database, 1, &loaded, flags, sizeof(flags), &flags_size) == SCID_OK);
+    assert(loaded != NULL);
+    assert(strcmp(flags, "M") == 0);
+    assert(flags_size == strlen("M"));
+    assert(scid_game_tag_get(loaded, "Event", text, sizeof(text), &text_size) ==
+           SCID_OK);
+    assert(strcmp(text, "Stored") == 0);
+    assert(scid_game_mainline_halfmove_count_get(loaded, &count) == SCID_OK);
+    assert(count == 3);
+    scid_game_free(loaded);
+    loaded = NULL;
+
+    assert(scid_database_game_get(
+               database, 1, &loaded, NULL, 0, &flags_size) == SCID_ERROR_BUFFER_FULL);
+    assert(loaded == NULL);
+    assert(flags_size == strlen("M"));
+    assert(scid_database_game_get(database, 99, &loaded, NULL, 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(loaded == NULL);
+
     assert(scid_database_create_memory(NULL, &database) == SCID_ERROR_BAD_ARG);
     assert(scid_database_create_memory("bad", NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_is_open(NULL, &is_open) == SCID_ERROR_BAD_ARG);
@@ -48,6 +81,10 @@ void test_database(void) {
     assert(scid_database_game_count_get(database, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_add(NULL, game, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_add(database, NULL, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_get(NULL, 0, &loaded, NULL, 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_get(database, 0, NULL, NULL, 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
 
     scid_game_free(game);
     scid_database_free(database);
