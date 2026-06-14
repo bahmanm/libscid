@@ -596,6 +596,20 @@ SCID_API scid_error scid_database_create_memory(
     scid_database** out_database
 );
 
+SCID_API scid_error scid_database_create_scid5(
+    const char* path,
+    scid_database** out_database
+);
+
+SCID_API scid_error scid_database_open_scid5(
+    const char* path,
+    scid_database** out_database
+);
+
+SCID_API scid_error scid_database_close(
+    scid_database* database
+);
+
 SCID_API void scid_database_free(
     scid_database* database
 );

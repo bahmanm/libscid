@@ -435,7 +435,45 @@ bool database_game_index_is_valid(
 scid_error database_error_to_c(
     scid::core::errorT error
 ) {
-    return error == scid::core::OK ? SCID_OK : SCID_ERROR;
+    switch (error) {
+    case scid::core::OK:
+        return SCID_OK;
+    case scid::core::ERROR_BadArg:
+        return SCID_ERROR_BAD_ARG;
+    case scid::core::ERROR_FileOpen:
+        return SCID_ERROR_FILE_OPEN;
+    case scid::core::ERROR_Corrupt:
+        return SCID_ERROR_CORRUPT;
+    default:
+        return SCID_ERROR;
+    }
+}
+
+scid_error database_open(
+    std::string_view db_type,
+    scid::database::fileModeT mode,
+    const char* path,
+    scid_database** out_database
+) {
+    if (path == nullptr || out_database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        auto* database = new scid_database;
+        const auto error = database->value.open(db_type, mode, path);
+        if (error != scid::core::OK) {
+            delete database;
+            *out_database = nullptr;
+            return database_error_to_c(error);
+        }
+
+        *out_database = database;
+        return SCID_OK;
+    } catch (...) {
+        *out_database = nullptr;
+        return SCID_ERROR;
+    }
 }
 
 scid_error result_from_string(
@@ -2338,27 +2376,51 @@ scid_error scid_database_create_memory(
     const char* name,
     scid_database** out_database
 ) {
-    if (name == nullptr || out_database == nullptr) {
+    return database_open(
+        "MEMORY",
+        scid::database::FMODE_Create,
+        name,
+        out_database
+    );
+}
+
+scid_error scid_database_create_scid5(
+    const char* path,
+    scid_database** out_database
+) {
+    return database_open(
+        "SCID5",
+        scid::database::FMODE_Create,
+        path,
+        out_database
+    );
+}
+
+scid_error scid_database_open_scid5(
+    const char* path,
+    scid_database** out_database
+) {
+    return database_open(
+        "SCID5",
+        scid::database::FMODE_Both,
+        path,
+        out_database
+    );
+}
+
+scid_error scid_database_close(
+    scid_database* database
+) {
+    if (database == nullptr) {
         return SCID_ERROR_BAD_ARG;
     }
 
     try {
-        auto* database = new scid_database;
-        const auto error = database->value.open(
-            "MEMORY",
-            scid::database::FMODE_Create,
-            name
-        );
-        if (error != scid::core::OK) {
-            delete database;
-            *out_database = nullptr;
-            return SCID_ERROR;
+        if (database->value.isOpen()) {
+            database->value.Close();
         }
-
-        *out_database = database;
         return SCID_OK;
     } catch (...) {
-        *out_database = nullptr;
         return SCID_ERROR;
     }
 }
