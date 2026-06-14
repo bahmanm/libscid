@@ -11,3 +11,5 @@ This directory contains examples that use the C ABI from `libscid`.
 - `060-mutate-pgn/`: edit move metadata and variations in an existing PGN game.
 - `070-eco-lookup/`: load an ECO book and classify a position.
 - `080-memory-database/`: create an in-memory database and add games to it.
+- `090-list-database/`: list database games using lightweight metadata calls.
+- `100-edit-database/`: replace games and toggle the deleted marker.
