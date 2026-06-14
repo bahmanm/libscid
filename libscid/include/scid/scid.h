@@ -97,6 +97,8 @@ typedef struct scid_movetext_cursor scid_movetext_cursor;
 
 typedef struct scid_eco_book scid_eco_book;
 
+typedef struct scid_database scid_database;
+
 SCID_API scid_error scid_square_from_string(
     const char* text,
     scid_square* out_square
@@ -587,6 +589,25 @@ SCID_API scid_error scid_eco_book_name_find(
     char* out_text,
     size_t out_text_capacity,
     size_t* out_text_size
+);
+
+SCID_API scid_error scid_database_create_memory(
+    const char* name,
+    scid_database** out_database
+);
+
+SCID_API void scid_database_free(
+    scid_database* database
+);
+
+SCID_API scid_error scid_database_is_open(
+    const scid_database* database,
+    int* out_is_open
+);
+
+SCID_API scid_error scid_database_game_count_get(
+    const scid_database* database,
+    size_t* out_count
 );
 
 #ifdef __cplusplus

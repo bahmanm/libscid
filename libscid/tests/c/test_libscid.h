@@ -3,6 +3,7 @@
 
 void test_cursor(void);
 void test_cursor_mutation(void);
+void test_database(void);
 void test_eco(void);
 void test_game(void);
 void test_movespec(void);

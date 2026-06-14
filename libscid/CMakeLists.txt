@@ -46,6 +46,7 @@ target_link_libraries(
     scid
     PRIVATE
         LibScidCpp::Core
+        LibScidCpp::Database
         LibScidCpp::Eco )
 
 if( PROJECT_IS_TOP_LEVEL )
@@ -57,6 +58,7 @@ if( BUILD_TESTING )
         scid_tests_c
         tests/c/test_cursor.c
         tests/c/test_cursor_mutation.c
+        tests/c/test_database.c
         tests/c/test_eco.c
         tests/c/test_game.c
         tests/c/test_libscid.c

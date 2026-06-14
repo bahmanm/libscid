@@ -11,6 +11,7 @@
 #include "scid/core/pgn/encode.h"
 #include "scid/core/position.h"
 #include "scid/core/primitives.h"
+#include "scid/database/scidbase.h"
 #include "scid/eco/book.h"
 #include "scid/eco/code.h"
 
@@ -37,6 +38,10 @@ struct scid_movetext_cursor {
 
 struct scid_eco_book {
     scid::eco::Book value;
+};
+
+struct scid_database {
+    scid::database::scidBaseT value;
 };
 
 namespace {
@@ -2208,6 +2213,71 @@ scid_error scid_eco_book_name_find(
             out_text_capacity,
             out_text_size
         );
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_create_memory(
+    const char* name,
+    scid_database** out_database
+) {
+    if (name == nullptr || out_database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        auto* database = new scid_database;
+        const auto error = database->value.open(
+            "MEMORY",
+            scid::database::FMODE_Create,
+            name
+        );
+        if (error != scid::core::OK) {
+            delete database;
+            *out_database = nullptr;
+            return SCID_ERROR;
+        }
+
+        *out_database = database;
+        return SCID_OK;
+    } catch (...) {
+        *out_database = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+void scid_database_free(
+    scid_database* database
+) {
+    delete database;
+}
+
+scid_error scid_database_is_open(
+    const scid_database* database,
+    int* out_is_open
+) {
+    if (database == nullptr || out_is_open == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_bool(database->value.isOpen(), out_is_open);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_count_get(
+    const scid_database* database,
+    size_t* out_count
+) {
+    if (database == nullptr || out_count == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_size(database->value.numGames(), out_count);
     } catch (...) {
         return SCID_ERROR;
     }
