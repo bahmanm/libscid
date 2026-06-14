@@ -12,6 +12,15 @@ static int check(scid_error error, const char* call) {
     return 0;
 }
 
+static int text_equals(
+    const char* text,
+    size_t text_size,
+    const char* expected
+) {
+    return text_size == strlen(expected) &&
+           strncmp(text, expected, text_size) == 0;
+}
+
 int main(void) {
     const char* pgn =
         "[Event \"Memory\"]\n"
@@ -22,9 +31,14 @@ int main(void) {
         "1. e4 e5 2. Nf3 1-0\n";
     scid_database* database = NULL;
     scid_game* game = NULL;
+    scid_game* loaded = NULL;
     char diagnostic[1024];
+    char flags[22];
+    char text[128];
     size_t diagnostic_size = 0;
     size_t count = 0;
+    size_t flags_size = 0;
+    size_t text_size = 0;
     int is_open = 0;
 
     if (!check(scid_database_create_memory("example", &database),
@@ -76,6 +90,37 @@ int main(void) {
 
     printf("games after second add: %zu\n", count);
 
+    if (!check(scid_database_game_get(
+                   database,
+                   1,
+                   &loaded,
+                   flags,
+                   sizeof(flags),
+                   &flags_size),
+               "scid_database_game_get") ||
+        !text_equals(flags, flags_size, "M") ||
+        !check(scid_game_tag_get(
+                   loaded,
+                   "Event",
+                   text,
+                   sizeof(text),
+                   &text_size),
+               "scid_game_tag_get") ||
+        !text_equals(text, text_size, "Memory") ||
+        !check(scid_game_mainline_halfmove_count_get(loaded, &count),
+               "scid_game_mainline_halfmove_count_get") ||
+        count != 3) {
+        scid_game_free(loaded);
+        scid_game_free(game);
+        scid_database_free(database);
+        return 1;
+    }
+
+    printf("loaded flags: %.*s\n", (int)flags_size, flags);
+    printf("loaded event: %.*s\n", (int)text_size, text);
+    printf("loaded halfmoves: %zu\n", count);
+
+    scid_game_free(loaded);
     scid_game_free(game);
     scid_database_free(database);
     return 0;

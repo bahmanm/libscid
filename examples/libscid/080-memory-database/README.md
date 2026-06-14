@@ -1,7 +1,7 @@
 # 080 Memory Database
 
 This example creates an in-memory database, parses a PGN game, adds it to the
-database, and reads the database game count through the C ABI.
+database, loads it back, and reads the database game count through the C ABI.
 
 Install libscid first; see the installation guide:
 
