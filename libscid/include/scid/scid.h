@@ -610,6 +610,12 @@ SCID_API scid_error scid_database_game_count_get(
     size_t* out_count
 );
 
+SCID_API scid_error scid_database_game_add(
+    scid_database* database,
+    const scid_game* game,
+    const char* flags
+);
+
 #ifdef __cplusplus
 }
 #endif

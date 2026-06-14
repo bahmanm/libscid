@@ -2282,3 +2282,23 @@ scid_error scid_database_game_count_get(
         return SCID_ERROR;
     }
 }
+
+scid_error scid_database_game_add(
+    scid_database* database,
+    const scid_game* game,
+    const char* flags
+) {
+    if (database == nullptr || game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        const auto error = database->value.addGame(
+            game->value,
+            flags == nullptr ? "" : flags
+        );
+        return error == scid::core::OK ? SCID_OK : SCID_ERROR;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
