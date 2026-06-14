@@ -414,6 +414,30 @@ bool database_game_info_get(
     return true;
 }
 
+bool database_game_index_is_valid(
+    const scid::database::scidBaseT& database,
+    size_t index,
+    scid::database::gamenumT* out_index
+) {
+    scid::database::gamenumT game_index = 0;
+    if (!database_game_index_to_core(index, &game_index) ||
+        !database.gameInfoBounds(game_index)) {
+        return false;
+    }
+
+    if (out_index != nullptr) {
+        *out_index = game_index;
+    }
+
+    return true;
+}
+
+scid_error database_error_to_c(
+    scid::core::errorT error
+) {
+    return error == scid::core::OK ? SCID_OK : SCID_ERROR;
+}
+
 scid_error result_from_string(
     std::string_view text,
     scid::core::resultT* out_result
@@ -2389,7 +2413,81 @@ scid_error scid_database_game_add(
             game->value,
             flags == nullptr ? "" : flags
         );
-        return error == scid::core::OK ? SCID_OK : SCID_ERROR;
+        return database_error_to_c(error);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_replace(
+    scid_database* database,
+    size_t index,
+    const scid_game* game,
+    const char* flags
+) {
+    if (database == nullptr || game == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::gamenumT game_index = 0;
+        if (!database_game_index_is_valid(database->value, index, &game_index)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return database_error_to_c(database->value.saveGame(
+            game->value,
+            flags == nullptr ? "" : flags,
+            game_index
+        ));
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_delete(
+    scid_database* database,
+    size_t index
+) {
+    if (database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::gamenumT game_index = 0;
+        if (!database_game_index_is_valid(database->value, index, &game_index)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return database_error_to_c(database->value.setFlag(
+            true,
+            1u << scid::database::GAME_FLAG_DELETE,
+            game_index
+        ));
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_undelete(
+    scid_database* database,
+    size_t index
+) {
+    if (database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::gamenumT game_index = 0;
+        if (!database_game_index_is_valid(database->value, index, &game_index)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return database_error_to_c(database->value.setFlag(
+            false,
+            1u << scid::database::GAME_FLAG_DELETE,
+            game_index
+        ));
     } catch (...) {
         return SCID_ERROR;
     }

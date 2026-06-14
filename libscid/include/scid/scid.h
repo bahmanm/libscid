@@ -616,6 +616,23 @@ SCID_API scid_error scid_database_game_add(
     const char* flags
 );
 
+SCID_API scid_error scid_database_game_replace(
+    scid_database* database,
+    size_t index,
+    const scid_game* game,
+    const char* flags
+);
+
+SCID_API scid_error scid_database_game_delete(
+    scid_database* database,
+    size_t index
+);
+
+SCID_API scid_error scid_database_game_undelete(
+    scid_database* database,
+    size_t index
+);
+
 SCID_API scid_error scid_database_game_get(
     const scid_database* database,
     size_t index,

@@ -19,8 +19,19 @@ void test_database(void) {
         "[EventDate \"2024.06.01\"]\n"
         "\n"
         "1. e4 e5 2. Nf3 1-0\n";
+    const char* replacement_pgn =
+        "[Event \"Replacement\"]\n"
+        "[Site \"Vancouver\"]\n"
+        "[Date \"2025.01.02\"]\n"
+        "[Round \"1\"]\n"
+        "[White \"Gamma\"]\n"
+        "[Black \"Delta\"]\n"
+        "[Result \"0-1\"]\n"
+        "\n"
+        "1. d4 d5 0-1\n";
     scid_database* database = NULL;
     scid_game* game = NULL;
+    scid_game* replacement = NULL;
     scid_game* loaded = NULL;
     char flags[22];
     char text[128];
@@ -133,6 +144,41 @@ void test_database(void) {
            SCID_ERROR_BAD_ARG);
     assert(loaded == NULL);
 
+    assert(scid_game_create_from_pgn(
+               replacement_pgn, strlen(replacement_pgn), &replacement, NULL, 0, NULL) ==
+           SCID_OK);
+    assert(replacement != NULL);
+    assert(scid_database_game_replace(database, 1, replacement, "Q") == SCID_OK);
+    assert(scid_database_game_count_get(database, &count) == SCID_OK);
+    assert(count == 2);
+    assert(scid_database_game_tag_get(
+               database, 1, "Event", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "Replacement") == 0);
+    assert(scid_database_game_result_get(
+               database, 1, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "0-1") == 0);
+    assert(scid_database_game_date_get(
+               database, 1, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "2025.01.02") == 0);
+    assert(scid_database_game_halfmove_count_get(database, 1, &count) == SCID_OK);
+    assert(count == 2);
+    assert(scid_database_game_get(
+               database, 1, &loaded, flags, sizeof(flags), &flags_size) == SCID_OK);
+    assert(strcmp(flags, "Q") == 0);
+    scid_game_free(loaded);
+    loaded = NULL;
+
+    assert(scid_database_game_deleted_get(database, 1, &deleted) == SCID_OK);
+    assert(deleted == 0);
+    assert(scid_database_game_delete(database, 1) == SCID_OK);
+    assert(scid_database_game_deleted_get(database, 1, &deleted) == SCID_OK);
+    assert(deleted == 1);
+    assert(scid_database_game_undelete(database, 1) == SCID_OK);
+    assert(scid_database_game_deleted_get(database, 1, &deleted) == SCID_OK);
+    assert(deleted == 0);
+    assert(scid_database_game_count_get(database, &count) == SCID_OK);
+    assert(count == 2);
+
     assert(scid_database_create_memory(NULL, &database) == SCID_ERROR_BAD_ARG);
     assert(scid_database_create_memory("bad", NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_is_open(NULL, &is_open) == SCID_ERROR_BAD_ARG);
@@ -141,6 +187,16 @@ void test_database(void) {
     assert(scid_database_game_count_get(database, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_add(NULL, game, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_add(database, NULL, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_replace(NULL, 0, replacement, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_replace(database, 99, replacement, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_replace(database, 0, NULL, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_delete(NULL, 0) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_delete(database, 99) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_undelete(NULL, 0) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_undelete(database, 99) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_tag_get(NULL, 0, "Event", text, sizeof(text), &text_size) ==
            SCID_ERROR_BAD_ARG);
     assert(scid_database_game_tag_get(database, 0, NULL, text, sizeof(text), &text_size) ==
@@ -189,6 +245,7 @@ void test_database(void) {
            SCID_ERROR_BAD_ARG);
 
     scid_game_free(game);
+    scid_game_free(replacement);
     scid_database_free(database);
     scid_database_free(NULL);
 }
