@@ -625,6 +625,21 @@ SCID_API scid_error scid_database_game_get(
     size_t* out_flags_size
 );
 
+SCID_API scid_error scid_database_game_tag_get(
+    const scid_database* database,
+    size_t index,
+    const char* name,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+);
+
+SCID_API scid_error scid_database_game_halfmove_count_get(
+    const scid_database* database,
+    size_t index,
+    size_t* out_count
+);
+
 #ifdef __cplusplus
 }
 #endif

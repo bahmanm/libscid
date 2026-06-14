@@ -17,6 +17,7 @@
 
 #include <array>
 #include <cstring>
+#include <limits>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -377,6 +378,19 @@ std::string date_to_string(
     return text;
 }
 
+bool database_game_index_to_core(
+    size_t index,
+    scid::database::gamenumT* out_index
+) {
+    if (out_index == nullptr ||
+        index > std::numeric_limits<scid::database::gamenumT>::max()) {
+        return false;
+    }
+
+    *out_index = static_cast<scid::database::gamenumT>(index);
+    return true;
+}
+
 scid_error result_from_string(
     std::string_view text,
     scid::core::resultT* out_result
@@ -544,6 +558,47 @@ bool game_tag_at(
     }
 
     return false;
+}
+
+std::string database_game_tag_value(
+    const scid::database::scidBaseT& database,
+    scid::database::gamenumT index,
+    std::string_view name
+) {
+    const auto info = database.gameInfo(index);
+    const auto tags = database.tagRoster(index);
+
+    if (name == "Event") {
+        return tags.event;
+    }
+    if (name == "Site") {
+        return tags.site;
+    }
+    if (name == "Date") {
+        return date_to_string(info.date);
+    }
+    if (name == "Round") {
+        return tags.round;
+    }
+    if (name == "White") {
+        return tags.white;
+    }
+    if (name == "Black") {
+        return tags.black;
+    }
+    if (name == "Result") {
+        return scid::core::RESULT_LONGSTR[info.result];
+    }
+    if (name == "ECO") {
+        scid::eco::String text = {};
+        scid::eco::toExtendedString(info.ecoCode, text);
+        return text;
+    }
+    if (name == "EventDate") {
+        return date_to_string(info.eventDate);
+    }
+
+    return {};
 }
 
 scid_error game_set_tag(
@@ -2361,6 +2416,62 @@ scid_error scid_database_game_get(
         return SCID_OK;
     } catch (...) {
         *out_game = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_tag_get(
+    const scid_database* database,
+    size_t index,
+    const char* name,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (database == nullptr || name == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::gamenumT game_index = 0;
+        if (!database_game_index_to_core(index, &game_index) ||
+            !database->value.gameInfoBounds(game_index)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return write_text(
+            database_game_tag_value(database->value, game_index, name),
+            out_text,
+            out_text_capacity,
+            out_text_size
+        );
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_halfmove_count_get(
+    const scid_database* database,
+    size_t index,
+    size_t* out_count
+) {
+    if (database == nullptr || out_count == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::gamenumT game_index = 0;
+        if (!database_game_index_to_core(index, &game_index)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        const auto info = database->value.gameInfoBounds(game_index);
+        if (!info) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return write_size(info->halfMoveCount, out_count);
+    } catch (...) {
         return SCID_ERROR;
     }
 }
