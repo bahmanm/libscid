@@ -71,13 +71,18 @@ int main(void) {
     scid_database* reopened = NULL;
     scid_game* game = NULL;
     char event[128];
+    char filename[256];
     char result[16];
+    char type[16];
     char flags[22];
     size_t count = 0;
     size_t event_size = 0;
+    size_t filename_size = 0;
     size_t result_size = 0;
+    size_t type_size = 0;
     size_t flags_size = 0;
     int is_open = 0;
+    int read_only = 0;
 
     remove_scid5_database(path);
 
@@ -107,6 +112,23 @@ int main(void) {
 
     if (!check(scid_database_open_scid5(path, &reopened),
                "scid_database_open_scid5") ||
+        !check(scid_database_type_get(
+                   reopened,
+                   type,
+                   sizeof(type),
+                   &type_size),
+               "scid_database_type_get") ||
+        !text_equals(type, type_size, "scid5") ||
+        !check(scid_database_filename_get(
+                   reopened,
+                   filename,
+                   sizeof(filename),
+                   &filename_size),
+               "scid_database_filename_get") ||
+        !text_equals(filename, filename_size, "libscid-example-persistent-database.si5") ||
+        !check(scid_database_read_only_get(reopened, &read_only),
+               "scid_database_read_only_get") ||
+        read_only ||
         !check(scid_database_game_count_get(reopened, &count),
                "scid_database_game_count_get") ||
         count != 1 ||
@@ -142,7 +164,11 @@ int main(void) {
         return 1;
     }
 
-    printf("reopened: %.*s %.*s flags=%.*s\n",
+    printf("reopened %.*s %.*s: %.*s %.*s flags=%.*s\n",
+           (int)type_size,
+           type,
+           (int)filename_size,
+           filename,
            (int)event_size,
            event,
            (int)result_size,

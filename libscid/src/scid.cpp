@@ -46,6 +46,7 @@ struct scid_eco_book {
 
 struct scid_database {
     scid::database::scidBaseT value;
+    std::string type;
 };
 
 namespace {
@@ -468,6 +469,14 @@ scid_error database_open(
             delete database;
             *out_database = nullptr;
             return database_error_to_c(error);
+        }
+
+        if (db_type == "MEMORY") {
+            database->type = "memory";
+        } else if (db_type == "SCID5") {
+            database->type = "scid5";
+        } else {
+            database->type.assign(db_type);
         }
 
         *out_database = database;
@@ -2421,6 +2430,7 @@ scid_error scid_database_close(
         if (database->value.isOpen()) {
             database->value.Close();
         }
+        database->type.clear();
         return SCID_OK;
     } catch (...) {
         return SCID_ERROR;
@@ -2443,6 +2453,65 @@ scid_error scid_database_is_open(
 
     try {
         return write_bool(database->value.isOpen(), out_is_open);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_filename_get(
+    const scid_database* database,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_text(
+            database->value.getFileName(),
+            out_text,
+            out_text_capacity,
+            out_text_size
+        );
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_type_get(
+    const scid_database* database,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_text(
+            database->type,
+            out_text,
+            out_text_capacity,
+            out_text_size
+        );
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_read_only_get(
+    const scid_database* database,
+    int* out_read_only
+) {
+    if (database == nullptr || out_read_only == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_bool(database->value.isReadOnly(), out_read_only);
     } catch (...) {
         return SCID_ERROR;
     }

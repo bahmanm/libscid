@@ -619,6 +619,25 @@ SCID_API scid_error scid_database_is_open(
     int* out_is_open
 );
 
+SCID_API scid_error scid_database_filename_get(
+    const scid_database* database,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+);
+
+SCID_API scid_error scid_database_type_get(
+    const scid_database* database,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+);
+
+SCID_API scid_error scid_database_read_only_get(
+    const scid_database* database,
+    int* out_read_only
+);
+
 SCID_API scid_error scid_database_game_count_get(
     const scid_database* database,
     size_t* out_count

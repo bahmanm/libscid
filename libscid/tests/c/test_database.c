@@ -80,6 +80,7 @@ void test_database(void) {
     scid_eco_code eco_code = 0;
     scid_eco_code expected_eco_code = 0;
     int is_open = 0;
+    int read_only = 99;
     int deleted = 99;
 
     assert(scid_database_create_memory("scratch", &database) == SCID_OK);
@@ -87,6 +88,14 @@ void test_database(void) {
 
     assert(scid_database_is_open(database, &is_open) == SCID_OK);
     assert(is_open == 1);
+    assert(scid_database_filename_get(
+               database, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "<clipbase>") == 0);
+    assert(scid_database_type_get(database, text, sizeof(text), &text_size) ==
+           SCID_OK);
+    assert(strcmp(text, "memory") == 0);
+    assert(scid_database_read_only_get(database, &read_only) == SCID_OK);
+    assert(read_only == 0);
 
     assert(scid_database_game_count_get(database, &count) == SCID_OK);
     assert(count == 0);
@@ -250,18 +259,40 @@ void test_database(void) {
     assert(persisted != NULL);
     assert(scid_database_is_open(persisted, &is_open) == SCID_OK);
     assert(is_open == 1);
+    assert(scid_database_filename_get(
+               persisted, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "_libscid_c_test_scid5.si5") == 0);
+    assert(scid_database_type_get(persisted, text, sizeof(text), &text_size) ==
+           SCID_OK);
+    assert(strcmp(text, "scid5") == 0);
+    assert(scid_database_read_only_get(persisted, &read_only) == SCID_OK);
+    assert(read_only == 0);
     assert(scid_database_game_add(persisted, replacement, "P") == SCID_OK);
     assert(scid_database_game_count_get(persisted, &count) == SCID_OK);
     assert(count == 1);
     assert(scid_database_close(persisted) == SCID_OK);
     assert(scid_database_is_open(persisted, &is_open) == SCID_OK);
     assert(is_open == 0);
+    assert(scid_database_filename_get(
+               persisted, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "<empty>") == 0);
+    assert(scid_database_type_get(persisted, text, sizeof(text), &text_size) ==
+           SCID_OK);
+    assert(strcmp(text, "") == 0);
     assert(scid_database_close(persisted) == SCID_OK);
     scid_database_free(persisted);
     persisted = NULL;
 
     assert(scid_database_open_scid5(persisted_path, &reopened) == SCID_OK);
     assert(reopened != NULL);
+    assert(scid_database_filename_get(
+               reopened, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "_libscid_c_test_scid5.si5") == 0);
+    assert(scid_database_type_get(reopened, text, sizeof(text), &text_size) ==
+           SCID_OK);
+    assert(strcmp(text, "scid5") == 0);
+    assert(scid_database_read_only_get(reopened, &read_only) == SCID_OK);
+    assert(read_only == 0);
     assert(scid_database_game_count_get(reopened, &count) == SCID_OK);
     assert(count == 1);
     assert(scid_database_game_tag_get(
@@ -292,6 +323,22 @@ void test_database(void) {
     assert(scid_database_close(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_is_open(NULL, &is_open) == SCID_ERROR_BAD_ARG);
     assert(scid_database_is_open(database, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filename_get(NULL, text, sizeof(text), &text_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filename_get(database, text, sizeof(text), NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filename_get(database, NULL, 0, &text_size) ==
+           SCID_ERROR_BUFFER_FULL);
+    assert(text_size == strlen("<clipbase>"));
+    assert(scid_database_type_get(NULL, text, sizeof(text), &text_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_type_get(database, text, sizeof(text), NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_type_get(database, NULL, 0, &text_size) ==
+           SCID_ERROR_BUFFER_FULL);
+    assert(text_size == strlen("memory"));
+    assert(scid_database_read_only_get(NULL, &read_only) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_read_only_get(database, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_count_get(NULL, &count) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_count_get(database, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_import_pgn(
