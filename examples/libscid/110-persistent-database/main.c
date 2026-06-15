@@ -73,6 +73,8 @@ int main(void) {
     char event[128];
     char filename[256];
     char description[128];
+    char metadata_key[32];
+    char metadata_value[128];
     char result[16];
     char type[16];
     char flags[22];
@@ -81,6 +83,9 @@ int main(void) {
     size_t event_size = 0;
     size_t filename_size = 0;
     size_t result_size = 0;
+    size_t metadata_count = 0;
+    size_t metadata_key_size = 0;
+    size_t metadata_value_size = 0;
     size_t type_size = 0;
     size_t flags_size = 0;
     int is_open = 0;
@@ -145,6 +150,23 @@ int main(void) {
                    &description_size),
                "scid_database_metadata_get") ||
         !text_equals(description, description_size, "Example persistent database") ||
+        !check(scid_database_metadata_count_get(
+                   reopened,
+                   &metadata_count),
+               "scid_database_metadata_count_get") ||
+        metadata_count != 9 ||
+        !check(scid_database_metadata_at_get(
+                   reopened,
+                   1,
+                   metadata_key,
+                   sizeof(metadata_key),
+                   &metadata_key_size,
+                   metadata_value,
+                   sizeof(metadata_value),
+                   &metadata_value_size),
+               "scid_database_metadata_at_get") ||
+        !text_equals(metadata_key, metadata_key_size, "description") ||
+        !text_equals(metadata_value, metadata_value_size, "Example persistent database") ||
         !check(scid_database_game_count_get(reopened, &count),
                "scid_database_game_count_get") ||
         count != 1 ||

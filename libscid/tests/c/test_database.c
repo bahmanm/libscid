@@ -72,11 +72,13 @@ void test_database(void) {
     scid_database* read_only_database = NULL;
     char flags[22];
     char diagnostic[1024];
+    char key[64];
     char text[1024];
     size_t count = 99;
     size_t diagnostic_size = 99;
     size_t flags_size = 99;
     size_t imported_count = 99;
+    size_t key_size = 99;
     size_t text_size = 99;
     scid_eco_code eco_code = 0;
     scid_eco_code expected_eco_code = 0;
@@ -105,6 +107,21 @@ void test_database(void) {
                database, "description", text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "") == 0);
     assert(text_size == 0);
+    assert(scid_database_metadata_count_get(database, &count) == SCID_OK);
+    assert(count == 1);
+    assert(scid_database_metadata_at_get(
+               database,
+               0,
+               key,
+               sizeof(key),
+               &key_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(key, "type") == 0);
+    assert(key_size == strlen("type"));
+    assert(strcmp(text, "0") == 0);
+    assert(text_size == strlen("0"));
 
     assert(scid_database_game_count_get(database, &count) == SCID_OK);
     assert(count == 0);
@@ -280,10 +297,36 @@ void test_database(void) {
                persisted, "description", text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "") == 0);
     assert(text_size == 0);
+    assert(scid_database_metadata_count_get(persisted, &count) == SCID_OK);
+    assert(count == 9);
+    assert(scid_database_metadata_at_get(
+               persisted,
+               1,
+               key,
+               sizeof(key),
+               &key_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(key, "description") == 0);
+    assert(key_size == strlen("description"));
+    assert(strcmp(text, "") == 0);
+    assert(text_size == 0);
     assert(scid_database_metadata_set(
                persisted, "description", "C ABI persistent database") == SCID_OK);
     assert(scid_database_metadata_get(
                persisted, "description", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "C ABI persistent database") == 0);
+    assert(scid_database_metadata_at_get(
+               persisted,
+               1,
+               key,
+               sizeof(key),
+               &key_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(key, "description") == 0);
     assert(strcmp(text, "C ABI persistent database") == 0);
     assert(scid_database_metadata_get(
                persisted, "missing", text, sizeof(text), &text_size) == SCID_OK);
@@ -293,6 +336,35 @@ void test_database(void) {
                persisted, "description", NULL, 0, &text_size) ==
            SCID_ERROR_BUFFER_FULL);
     assert(text_size == strlen("C ABI persistent database"));
+    assert(scid_database_metadata_at_get(
+               persisted,
+               1,
+               NULL,
+               0,
+               &key_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_ERROR_BUFFER_FULL);
+    assert(key_size == strlen("description"));
+    assert(scid_database_metadata_at_get(
+               persisted,
+               1,
+               key,
+               sizeof(key),
+               &key_size,
+               NULL,
+               0,
+               &text_size) == SCID_ERROR_BUFFER_FULL);
+    assert(text_size == strlen("C ABI persistent database"));
+    assert(scid_database_metadata_at_get(
+               persisted,
+               99,
+               key,
+               sizeof(key),
+               &key_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_add(persisted, replacement, "P") == SCID_OK);
     assert(scid_database_game_count_get(persisted, &count) == SCID_OK);
     assert(count == 1);
@@ -301,6 +373,17 @@ void test_database(void) {
     assert(scid_database_is_open(persisted, &is_open) == SCID_OK);
     assert(is_open == 0);
     assert(scid_database_save(persisted) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_metadata_count_get(persisted, &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_metadata_at_get(
+               persisted,
+               0,
+               key,
+               sizeof(key),
+               &key_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_get(
                persisted, "description", text, sizeof(text), &text_size) ==
            SCID_ERROR_BAD_ARG);
@@ -330,6 +413,17 @@ void test_database(void) {
     assert(scid_database_metadata_get(
                reopened, "description", text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "C ABI persistent database") == 0);
+    assert(scid_database_metadata_at_get(
+               reopened,
+               1,
+               key,
+               sizeof(key),
+               &key_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(key, "description") == 0);
+    assert(strcmp(text, "C ABI persistent database") == 0);
     assert(scid_database_game_count_get(reopened, &count) == SCID_OK);
     assert(count == 1);
     assert(scid_database_game_tag_get(
@@ -356,6 +450,19 @@ void test_database(void) {
     assert(scid_database_metadata_get(
                read_only_database, "description", text, sizeof(text), &text_size) ==
            SCID_OK);
+    assert(strcmp(text, "C ABI persistent database") == 0);
+    assert(scid_database_metadata_count_get(read_only_database, &count) == SCID_OK);
+    assert(count == 9);
+    assert(scid_database_metadata_at_get(
+               read_only_database,
+               1,
+               key,
+               sizeof(key),
+               &key_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_OK);
+    assert(strcmp(key, "description") == 0);
     assert(strcmp(text, "C ABI persistent database") == 0);
     assert(scid_database_metadata_set(read_only_database, "description", "readonly") ==
            SCID_ERROR_FILE_READ_ONLY);
@@ -413,6 +520,35 @@ void test_database(void) {
            SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_get(database, "description", text, sizeof(text), NULL) ==
            SCID_ERROR_BAD_ARG);
+    assert(scid_database_metadata_count_get(NULL, &count) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_metadata_count_get(database, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_metadata_at_get(
+               NULL,
+               0,
+               key,
+               sizeof(key),
+               &key_size,
+               text,
+               sizeof(text),
+               &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_metadata_at_get(
+               database,
+               0,
+               key,
+               sizeof(key),
+               NULL,
+               text,
+               sizeof(text),
+               &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_metadata_at_get(
+               database,
+               0,
+               key,
+               sizeof(key),
+               &key_size,
+               text,
+               sizeof(text),
+               NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_set(NULL, "description", "bad") ==
            SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_set(database, NULL, "bad") ==

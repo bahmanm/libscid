@@ -662,6 +662,22 @@ SCID_API scid_error scid_database_metadata_set(
     const char* value
 );
 
+SCID_API scid_error scid_database_metadata_count_get(
+    const scid_database* database,
+    size_t* out_count
+);
+
+SCID_API scid_error scid_database_metadata_at_get(
+    const scid_database* database,
+    size_t index,
+    char* out_key,
+    size_t out_key_capacity,
+    size_t* out_key_size,
+    char* out_value,
+    size_t out_value_capacity,
+    size_t* out_value_size
+);
+
 SCID_API scid_error scid_database_game_count_get(
     const scid_database* database,
     size_t* out_count

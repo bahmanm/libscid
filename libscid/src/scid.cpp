@@ -2588,6 +2588,54 @@ scid_error scid_database_metadata_set(
     }
 }
 
+scid_error scid_database_metadata_count_get(
+    const scid_database* database,
+    size_t* out_count
+) {
+    if (database == nullptr || out_count == nullptr || !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return write_size(database->value.getExtraInfo().size(), out_count);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_metadata_at_get(
+    const scid_database* database,
+    size_t index,
+    char* out_key,
+    size_t out_key_capacity,
+    size_t* out_key_size,
+    char* out_value,
+    size_t out_value_capacity,
+    size_t* out_value_size
+) {
+    if (database == nullptr || !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        const auto metadata = database->value.getExtraInfo();
+        if (index >= metadata.size()) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        const auto& [key, value] = metadata[index];
+        if (const scid_error error =
+                write_text(key, out_key, out_key_capacity, out_key_size);
+            error != SCID_OK) {
+            return error;
+        }
+
+        return write_text(value, out_value, out_value_capacity, out_value_size);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_database_game_count_get(
     const scid_database* database,
     size_t* out_count
