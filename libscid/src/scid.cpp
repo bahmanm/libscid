@@ -16,11 +16,13 @@
 #include "scid/eco/code.h"
 
 #include <array>
+#include <cctype>
 #include <cstring>
 #include <limits>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 struct scid_position {
     scid::core::Position value;
@@ -2461,6 +2463,86 @@ scid_error scid_database_game_count_get(
     }
 }
 
+scid_error scid_database_import_pgn(
+    scid_database* database,
+    const char* pgn,
+    size_t pgn_size,
+    char* out_diagnostic,
+    size_t out_diagnostic_capacity,
+    size_t* out_diagnostic_size,
+    size_t* out_imported_count
+) {
+    if (database == nullptr || pgn == nullptr || out_imported_count == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_imported_count = 0;
+
+    try {
+        std::vector<scid::core::Game> games;
+        scid::core::pgn::ParseLog log;
+        size_t parsed_size = 0;
+
+        while (parsed_size < pgn_size) {
+            while (parsed_size < pgn_size &&
+                   std::isspace(static_cast<unsigned char>(pgn[parsed_size]))) {
+                ++parsed_size;
+            }
+            if (parsed_size >= pgn_size) {
+                break;
+            }
+
+            scid::core::Game game;
+            const auto start_size = log.n_bytes;
+            const bool ok = scid::core::pgn::parseGame(
+                pgn + parsed_size,
+                pgn_size - parsed_size,
+                game,
+                log
+            );
+            const auto consumed_size =
+                static_cast<size_t>(log.n_bytes - start_size);
+
+            if (!ok || consumed_size == 0) {
+                const scid_error diagnostic_error = write_optional_diagnostic(
+                    log.log,
+                    out_diagnostic,
+                    out_diagnostic_capacity,
+                    out_diagnostic_size
+                );
+                return diagnostic_error == SCID_OK ? SCID_ERROR_CORRUPT
+                                                   : diagnostic_error;
+            }
+
+            parsed_size += consumed_size;
+            games.push_back(std::move(game));
+        }
+
+        const scid_error diagnostic_error = write_optional_diagnostic(
+            log.log,
+            out_diagnostic,
+            out_diagnostic_capacity,
+            out_diagnostic_size
+        );
+        if (diagnostic_error != SCID_OK) {
+            return diagnostic_error;
+        }
+
+        for (const auto& game : games) {
+            const scid_error error =
+                database_error_to_c(database->value.addGame(game, ""));
+            if (error != SCID_OK) {
+                return error;
+            }
+            ++*out_imported_count;
+        }
+
+        return SCID_OK;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_database_game_add(
     scid_database* database,
     const scid_game* game,
@@ -2599,6 +2681,42 @@ scid_error scid_database_game_get(
         return SCID_OK;
     } catch (...) {
         *out_game = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_export_pgn(
+    const scid_database* database,
+    size_t index,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::gamenumT game_index = 0;
+        if (!database_game_index_to_core(index, &game_index)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        scid::core::Game game;
+        const auto error = database->value.loadGame(
+            game_index,
+            game,
+            nullptr,
+            0
+        );
+        if (error != scid::core::OK) {
+            return database_error_to_c(error);
+        }
+
+        std::string pgn;
+        scid::core::pgn::encode(game, pgn);
+        return write_text(pgn, out_text, out_text_capacity, out_text_size);
+    } catch (...) {
         return SCID_ERROR;
     }
 }

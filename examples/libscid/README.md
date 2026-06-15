@@ -14,3 +14,4 @@ This directory contains examples that use the C ABI from `libscid`.
 - `090-list-database/`: list database games using lightweight metadata calls.
 - `100-edit-database/`: replace games and toggle the deleted marker.
 - `110-persistent-database/`: create, close, and reopen a SCID5 database.
+- `120-import-export-pgn/`: import and export PGN through a database.

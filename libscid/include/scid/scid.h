@@ -624,6 +624,16 @@ SCID_API scid_error scid_database_game_count_get(
     size_t* out_count
 );
 
+SCID_API scid_error scid_database_import_pgn(
+    scid_database* database,
+    const char* pgn,
+    size_t pgn_size,
+    char* out_diagnostic,
+    size_t out_diagnostic_capacity,
+    size_t* out_diagnostic_size,
+    size_t* out_imported_count
+);
+
 SCID_API scid_error scid_database_game_add(
     scid_database* database,
     const scid_game* game,
@@ -654,6 +664,14 @@ SCID_API scid_error scid_database_game_get(
     char* out_flags,
     size_t out_flags_capacity,
     size_t* out_flags_size
+);
+
+SCID_API scid_error scid_database_game_export_pgn(
+    const scid_database* database,
+    size_t index,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
 );
 
 SCID_API scid_error scid_database_game_tag_get(

@@ -45,6 +45,24 @@ void test_database(void) {
         "[Result \"0-1\"]\n"
         "\n"
         "1. d4 d5 0-1\n";
+    const char* imported_pgn =
+        "[Event \"Imported\"]\n"
+        "[Site \"Montreal\"]\n"
+        "[Date \"2026.02.03\"]\n"
+        "[White \"Epsilon\"]\n"
+        "[Black \"Zeta\"]\n"
+        "[Result \"1/2-1/2\"]\n"
+        "\n"
+        "1. c4 c5 1/2-1/2\n"
+        "\n"
+        "[Event \"Imported Two\"]\n"
+        "[Site \"Calgary\"]\n"
+        "[Date \"2026.02.04\"]\n"
+        "[White \"Eta\"]\n"
+        "[Black \"Theta\"]\n"
+        "[Result \"0-1\"]\n"
+        "\n"
+        "1. d4 Nf6 0-1\n";
     scid_database* database = NULL;
     scid_game* game = NULL;
     scid_game* replacement = NULL;
@@ -52,9 +70,12 @@ void test_database(void) {
     scid_database* persisted = NULL;
     scid_database* reopened = NULL;
     char flags[22];
-    char text[128];
+    char diagnostic[1024];
+    char text[1024];
     size_t count = 99;
+    size_t diagnostic_size = 99;
     size_t flags_size = 99;
+    size_t imported_count = 99;
     size_t text_size = 99;
     scid_eco_code eco_code = 0;
     scid_eco_code expected_eco_code = 0;
@@ -197,6 +218,32 @@ void test_database(void) {
     assert(scid_database_game_count_get(database, &count) == SCID_OK);
     assert(count == 2);
 
+    assert(scid_database_import_pgn(
+               database,
+               imported_pgn,
+               strlen(imported_pgn),
+               diagnostic,
+               sizeof(diagnostic),
+               &diagnostic_size,
+               &imported_count) == SCID_OK);
+    assert(diagnostic_size == 0);
+    assert(imported_count == 2);
+    assert(scid_database_game_count_get(database, &count) == SCID_OK);
+    assert(count == 4);
+    assert(scid_database_game_tag_get(
+               database, 2, "Event", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "Imported") == 0);
+    assert(scid_database_game_tag_get(
+               database, 3, "Event", text, sizeof(text), &text_size) == SCID_OK);
+    assert(strcmp(text, "Imported Two") == 0);
+    assert(scid_database_game_export_pgn(
+               database, 2, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strstr(text, "[Event \"Imported\"]") != NULL);
+    assert(strstr(text, "1/2-1/2") != NULL);
+    assert(scid_database_game_export_pgn(database, 2, NULL, 0, &text_size) ==
+           SCID_ERROR_BUFFER_FULL);
+    assert(text_size > 0);
+
     remove_scid5_database(persisted_path);
     remove_scid5_database(missing_path);
     assert(scid_database_create_scid5(persisted_path, &persisted) == SCID_OK);
@@ -247,6 +294,45 @@ void test_database(void) {
     assert(scid_database_is_open(database, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_count_get(NULL, &count) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_count_get(database, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_import_pgn(
+               NULL,
+               imported_pgn,
+               strlen(imported_pgn),
+               diagnostic,
+               sizeof(diagnostic),
+               &diagnostic_size,
+               &imported_count) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_import_pgn(
+               database,
+               NULL,
+               0,
+               diagnostic,
+               sizeof(diagnostic),
+               &diagnostic_size,
+               &imported_count) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_import_pgn(
+               database,
+               imported_pgn,
+               strlen(imported_pgn),
+               diagnostic,
+               sizeof(diagnostic),
+               &diagnostic_size,
+               NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_import_pgn(
+               database,
+               imported_pgn,
+               strlen(imported_pgn),
+               NULL,
+               0,
+               NULL,
+               &imported_count) == SCID_OK);
+    assert(imported_count == 2);
+    assert(scid_database_game_export_pgn(
+               NULL, 0, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_export_pgn(
+               database, 99, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_export_pgn(database, 0, text, sizeof(text), NULL) ==
+           SCID_ERROR_BAD_ARG);
     assert(scid_database_game_add(NULL, game, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_add(database, NULL, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_game_replace(NULL, 0, replacement, NULL) ==
