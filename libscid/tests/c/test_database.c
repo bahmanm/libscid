@@ -69,6 +69,7 @@ void test_database(void) {
     scid_game* loaded = NULL;
     scid_database* persisted = NULL;
     scid_database* reopened = NULL;
+    scid_database* read_only_database = NULL;
     char flags[22];
     char diagnostic[1024];
     char text[1024];
@@ -309,6 +310,40 @@ void test_database(void) {
     assert(scid_database_close(reopened) == SCID_OK);
     scid_database_free(reopened);
     reopened = NULL;
+
+    assert(scid_database_open_scid5_read_only(persisted_path, &read_only_database) ==
+           SCID_OK);
+    assert(read_only_database != NULL);
+    assert(scid_database_read_only_get(read_only_database, &read_only) == SCID_OK);
+    assert(read_only == 1);
+    assert(scid_database_game_count_get(read_only_database, &count) == SCID_OK);
+    assert(count == 1);
+    assert(scid_database_game_tag_get(
+               read_only_database, 0, "Event", text, sizeof(text), &text_size) ==
+           SCID_OK);
+    assert(strcmp(text, "Replacement") == 0);
+    assert(scid_database_game_export_pgn(
+               read_only_database, 0, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strstr(text, "[Event \"Replacement\"]") != NULL);
+    assert(scid_database_game_add(read_only_database, replacement, NULL) ==
+           SCID_ERROR_FILE_READ_ONLY);
+    assert(scid_database_game_replace(read_only_database, 0, replacement, NULL) ==
+           SCID_ERROR_FILE_READ_ONLY);
+    assert(scid_database_game_delete(read_only_database, 0) ==
+           SCID_ERROR_FILE_READ_ONLY);
+    assert(scid_database_game_undelete(read_only_database, 0) ==
+           SCID_ERROR_FILE_READ_ONLY);
+    assert(scid_database_import_pgn(
+               read_only_database,
+               imported_pgn,
+               strlen(imported_pgn),
+               diagnostic,
+               sizeof(diagnostic),
+               &diagnostic_size,
+               &imported_count) == SCID_ERROR_FILE_READ_ONLY);
+    assert(scid_database_close(read_only_database) == SCID_OK);
+    scid_database_free(read_only_database);
+    read_only_database = NULL;
     remove_scid5_database(persisted_path);
 
     assert(scid_database_create_memory(NULL, &database) == SCID_ERROR_BAD_ARG);
@@ -320,6 +355,13 @@ void test_database(void) {
     assert(scid_database_open_scid5(missing_path, &reopened) ==
            SCID_ERROR_FILE_OPEN);
     assert(reopened == NULL);
+    assert(scid_database_open_scid5_read_only(NULL, &read_only_database) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_open_scid5_read_only("bad", NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_open_scid5_read_only(missing_path, &read_only_database) ==
+           SCID_ERROR_FILE_OPEN);
+    assert(read_only_database == NULL);
     assert(scid_database_close(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_is_open(NULL, &is_open) == SCID_ERROR_BAD_ARG);
     assert(scid_database_is_open(database, NULL) == SCID_ERROR_BAD_ARG);
@@ -441,6 +483,7 @@ void test_database(void) {
 
     scid_game_free(game);
     scid_game_free(replacement);
+    scid_database_free(read_only_database);
     scid_database_free(database);
     scid_database_free(NULL);
     remove_scid5_database(persisted_path);

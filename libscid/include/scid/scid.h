@@ -27,6 +27,7 @@ enum {
     SCID_ERROR_BAD_ARG = 3,
 
     SCID_ERROR_FILE_OPEN = 101,
+    SCID_ERROR_FILE_READ_ONLY = 111,
     SCID_ERROR_CORRUPT = 152,
 
     SCID_ERROR_INVALID_FEN = 301,
@@ -602,6 +603,11 @@ SCID_API scid_error scid_database_create_scid5(
 );
 
 SCID_API scid_error scid_database_open_scid5(
+    const char* path,
+    scid_database** out_database
+);
+
+SCID_API scid_error scid_database_open_scid5_read_only(
     const char* path,
     scid_database** out_database
 );

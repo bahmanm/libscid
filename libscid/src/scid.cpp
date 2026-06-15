@@ -445,6 +445,8 @@ scid_error database_error_to_c(
         return SCID_ERROR_BAD_ARG;
     case scid::core::ERROR_FileOpen:
         return SCID_ERROR_FILE_OPEN;
+    case scid::core::ERROR_FileReadOnly:
+        return SCID_ERROR_FILE_READ_ONLY;
     case scid::core::ERROR_Corrupt:
         return SCID_ERROR_CORRUPT;
     default:
@@ -2414,6 +2416,18 @@ scid_error scid_database_open_scid5(
     return database_open(
         "SCID5",
         scid::database::FMODE_Both,
+        path,
+        out_database
+    );
+}
+
+scid_error scid_database_open_scid5_read_only(
+    const char* path,
+    scid_database** out_database
+) {
+    return database_open(
+        "SCID5",
+        scid::database::FMODE_ReadOnly,
         path,
         out_database
     );

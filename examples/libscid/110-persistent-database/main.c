@@ -110,8 +110,8 @@ int main(void) {
     scid_database_free(created);
     created = NULL;
 
-    if (!check(scid_database_open_scid5(path, &reopened),
-               "scid_database_open_scid5") ||
+    if (!check(scid_database_open_scid5_read_only(path, &reopened),
+               "scid_database_open_scid5_read_only") ||
         !check(scid_database_type_get(
                    reopened,
                    type,
@@ -128,7 +128,7 @@ int main(void) {
         !text_equals(filename, filename_size, "libscid-example-persistent-database.si5") ||
         !check(scid_database_read_only_get(reopened, &read_only),
                "scid_database_read_only_get") ||
-        read_only ||
+        !read_only ||
         !check(scid_database_game_count_get(reopened, &count),
                "scid_database_game_count_get") ||
         count != 1 ||
