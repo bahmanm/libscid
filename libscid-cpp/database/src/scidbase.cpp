@@ -199,6 +199,16 @@ scid::core::errorT scidBaseT::setExtraInfo(const char* tagname, const char* new_
 	return (res != scid::core::OK) ? res : storage_->codec->flush();
 }
 
+scid::core::errorT scidBaseT::flush() {
+	if (!isOpen())
+		return scid::core::ERROR_BadArg;
+
+	if (isReadOnly())
+		return scid::core::ERROR_FileReadOnly;
+
+	return storage_->codec->flush();
+}
+
 void scidBaseT::Close() {
 	ASSERT(inUse);
 

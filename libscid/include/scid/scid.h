@@ -644,6 +644,10 @@ SCID_API scid_error scid_database_read_only_get(
     int* out_read_only
 );
 
+SCID_API scid_error scid_database_save(
+    scid_database* database
+);
+
 SCID_API scid_error scid_database_game_count_get(
     const scid_database* database,
     size_t* out_count

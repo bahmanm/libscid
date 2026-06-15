@@ -97,6 +97,7 @@ int main(void) {
         !check(scid_database_game_count_get(created, &count),
                "scid_database_game_count_get") ||
         count != 1 ||
+        !check(scid_database_save(created), "scid_database_save") ||
         !check(scid_database_close(created), "scid_database_close") ||
         !check(scid_database_is_open(created, &is_open),
                "scid_database_is_open") ||

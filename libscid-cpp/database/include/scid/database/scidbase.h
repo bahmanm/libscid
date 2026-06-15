@@ -243,6 +243,15 @@ struct scidBaseT {
 	                                const char* new_value);
 
 	/**
+	 * Flushes pending codec state to storage.
+	 *
+	 * Closed databases return @ref scid::core::ERROR_BadArg.  In-memory
+	 * databases return @ref scid::core::OK.  Read-only databases return
+	 * @ref scid::core::ERROR_FileReadOnly.
+	 */
+	scid::core::errorT flush();
+
+	/**
 	 * Returns the index entry for game @p g.
 	 *
 	 * @p g must be less than @ref numGames().  The returned pointer is owned by

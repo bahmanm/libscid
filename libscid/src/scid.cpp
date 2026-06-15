@@ -2531,6 +2531,20 @@ scid_error scid_database_read_only_get(
     }
 }
 
+scid_error scid_database_save(
+    scid_database* database
+) {
+    if (database == nullptr) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return database_error_to_c(database->value.flush());
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_database_game_count_get(
     const scid_database* database,
     size_t* out_count

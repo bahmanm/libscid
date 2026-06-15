@@ -97,6 +97,7 @@ void test_database(void) {
     assert(strcmp(text, "memory") == 0);
     assert(scid_database_read_only_get(database, &read_only) == SCID_OK);
     assert(read_only == 0);
+    assert(scid_database_save(database) == SCID_OK);
 
     assert(scid_database_game_count_get(database, &count) == SCID_OK);
     assert(count == 0);
@@ -271,9 +272,11 @@ void test_database(void) {
     assert(scid_database_game_add(persisted, replacement, "P") == SCID_OK);
     assert(scid_database_game_count_get(persisted, &count) == SCID_OK);
     assert(count == 1);
+    assert(scid_database_save(persisted) == SCID_OK);
     assert(scid_database_close(persisted) == SCID_OK);
     assert(scid_database_is_open(persisted, &is_open) == SCID_OK);
     assert(is_open == 0);
+    assert(scid_database_save(persisted) == SCID_ERROR_BAD_ARG);
     assert(scid_database_filename_get(
                persisted, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "<empty>") == 0);
@@ -294,6 +297,7 @@ void test_database(void) {
     assert(strcmp(text, "scid5") == 0);
     assert(scid_database_read_only_get(reopened, &read_only) == SCID_OK);
     assert(read_only == 0);
+    assert(scid_database_save(reopened) == SCID_OK);
     assert(scid_database_game_count_get(reopened, &count) == SCID_OK);
     assert(count == 1);
     assert(scid_database_game_tag_get(
@@ -316,6 +320,7 @@ void test_database(void) {
     assert(read_only_database != NULL);
     assert(scid_database_read_only_get(read_only_database, &read_only) == SCID_OK);
     assert(read_only == 1);
+    assert(scid_database_save(read_only_database) == SCID_ERROR_FILE_READ_ONLY);
     assert(scid_database_game_count_get(read_only_database, &count) == SCID_OK);
     assert(count == 1);
     assert(scid_database_game_tag_get(
@@ -363,6 +368,7 @@ void test_database(void) {
            SCID_ERROR_FILE_OPEN);
     assert(read_only_database == NULL);
     assert(scid_database_close(NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_save(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_is_open(NULL, &is_open) == SCID_ERROR_BAD_ARG);
     assert(scid_database_is_open(database, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_filename_get(NULL, text, sizeof(text), &text_size) ==
