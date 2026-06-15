@@ -2545,6 +2545,49 @@ scid_error scid_database_save(
     }
 }
 
+scid_error scid_database_metadata_get(
+    const scid_database* database,
+    const char* key,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+) {
+    if (database == nullptr || key == nullptr || !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        for (const auto& [name, value] : database->value.getExtraInfo()) {
+            if (std::strcmp(name, key) == 0) {
+                return write_text(value, out_text, out_text_capacity, out_text_size);
+            }
+        }
+
+        return write_text("", out_text, out_text_capacity, out_text_size);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_metadata_set(
+    scid_database* database,
+    const char* key,
+    const char* value
+) {
+    if (database == nullptr ||
+        key == nullptr ||
+        value == nullptr ||
+        !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        return database_error_to_c(database->value.setExtraInfo(key, value));
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_database_game_count_get(
     const scid_database* database,
     size_t* out_count

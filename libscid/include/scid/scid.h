@@ -648,6 +648,20 @@ SCID_API scid_error scid_database_save(
     scid_database* database
 );
 
+SCID_API scid_error scid_database_metadata_get(
+    const scid_database* database,
+    const char* key,
+    char* out_text,
+    size_t out_text_capacity,
+    size_t* out_text_size
+);
+
+SCID_API scid_error scid_database_metadata_set(
+    scid_database* database,
+    const char* key,
+    const char* value
+);
+
 SCID_API scid_error scid_database_game_count_get(
     const scid_database* database,
     size_t* out_count

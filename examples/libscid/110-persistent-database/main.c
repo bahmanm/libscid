@@ -72,10 +72,12 @@ int main(void) {
     scid_game* game = NULL;
     char event[128];
     char filename[256];
+    char description[128];
     char result[16];
     char type[16];
     char flags[22];
     size_t count = 0;
+    size_t description_size = 0;
     size_t event_size = 0;
     size_t filename_size = 0;
     size_t result_size = 0;
@@ -97,6 +99,11 @@ int main(void) {
         !check(scid_database_game_count_get(created, &count),
                "scid_database_game_count_get") ||
         count != 1 ||
+        !check(scid_database_metadata_set(
+                   created,
+                   "description",
+                   "Example persistent database"),
+               "scid_database_metadata_set") ||
         !check(scid_database_save(created), "scid_database_save") ||
         !check(scid_database_close(created), "scid_database_close") ||
         !check(scid_database_is_open(created, &is_open),
@@ -130,6 +137,14 @@ int main(void) {
         !check(scid_database_read_only_get(reopened, &read_only),
                "scid_database_read_only_get") ||
         !read_only ||
+        !check(scid_database_metadata_get(
+                   reopened,
+                   "description",
+                   description,
+                   sizeof(description),
+                   &description_size),
+               "scid_database_metadata_get") ||
+        !text_equals(description, description_size, "Example persistent database") ||
         !check(scid_database_game_count_get(reopened, &count),
                "scid_database_game_count_get") ||
         count != 1 ||
@@ -165,7 +180,7 @@ int main(void) {
         return 1;
     }
 
-    printf("reopened %.*s %.*s: %.*s %.*s flags=%.*s\n",
+    printf("reopened %.*s %.*s: %.*s %.*s flags=%.*s description=%.*s\n",
            (int)type_size,
            type,
            (int)filename_size,
@@ -175,7 +190,9 @@ int main(void) {
            (int)result_size,
            result,
            (int)flags_size,
-           flags);
+           flags,
+           (int)description_size,
+           description);
 
     scid_game_free(game);
     scid_database_close(reopened);
