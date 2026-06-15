@@ -2636,6 +2636,70 @@ scid_error scid_database_metadata_at_get(
     }
 }
 
+scid_error scid_database_stats_date_range_get(
+    const scid_database* database,
+    char* out_min_date,
+    size_t out_min_date_capacity,
+    size_t* out_min_date_size,
+    char* out_max_date,
+    size_t out_max_date_capacity,
+    size_t* out_max_date_size
+) {
+    if (database == nullptr ||
+        out_min_date_size == nullptr ||
+        out_max_date_size == nullptr ||
+        !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        const auto& stats = database->value.getStats();
+        if (const scid_error error = write_text(
+                date_to_string(stats.minDate),
+                out_min_date,
+                out_min_date_capacity,
+                out_min_date_size
+            );
+            error != SCID_OK) {
+            return error;
+        }
+
+        return write_text(
+            date_to_string(stats.maxDate),
+            out_max_date,
+            out_max_date_capacity,
+            out_max_date_size
+        );
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_stats_result_count_get(
+    const scid_database* database,
+    const char* result,
+    size_t* out_count
+) {
+    if (database == nullptr ||
+        result == nullptr ||
+        out_count == nullptr ||
+        !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::core::resultT core_result = scid::core::RESULT_None;
+        if (const scid_error error = result_from_string(result, &core_result);
+            error != SCID_OK) {
+            return error;
+        }
+
+        return write_size(database->value.getStats().nResults[core_result], out_count);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_database_game_count_get(
     const scid_database* database,
     size_t* out_count

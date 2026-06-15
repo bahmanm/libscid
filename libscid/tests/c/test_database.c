@@ -73,12 +73,14 @@ void test_database(void) {
     char flags[22];
     char diagnostic[1024];
     char key[64];
+    char max_date[32];
     char text[1024];
     size_t count = 99;
     size_t diagnostic_size = 99;
     size_t flags_size = 99;
     size_t imported_count = 99;
     size_t key_size = 99;
+    size_t max_date_size = 99;
     size_t text_size = 99;
     scid_eco_code eco_code = 0;
     scid_eco_code expected_eco_code = 0;
@@ -124,6 +126,18 @@ void test_database(void) {
     assert(text_size == strlen("0"));
 
     assert(scid_database_game_count_get(database, &count) == SCID_OK);
+    assert(count == 0);
+    assert(scid_database_stats_date_range_get(
+               database,
+               text,
+               sizeof(text),
+               &text_size,
+               max_date,
+               sizeof(max_date),
+               &max_date_size) == SCID_OK);
+    assert(strcmp(text, "????.??.??") == 0);
+    assert(strcmp(max_date, "????.??.??") == 0);
+    assert(scid_database_stats_result_count_get(database, "1-0", &count) == SCID_OK);
     assert(count == 0);
 
     assert(scid_game_create_from_pgn(pgn, strlen(pgn), &game, NULL, 0, NULL) ==
@@ -278,6 +292,25 @@ void test_database(void) {
     assert(scid_database_game_export_pgn(database, 2, NULL, 0, &text_size) ==
            SCID_ERROR_BUFFER_FULL);
     assert(text_size > 0);
+    assert(scid_database_stats_date_range_get(
+               database,
+               text,
+               sizeof(text),
+               &text_size,
+               max_date,
+               sizeof(max_date),
+               &max_date_size) == SCID_OK);
+    assert(strcmp(text, "2024.06.14") == 0);
+    assert(strcmp(max_date, "2026.02.04") == 0);
+    assert(scid_database_stats_result_count_get(database, "1-0", &count) == SCID_OK);
+    assert(count == 1);
+    assert(scid_database_stats_result_count_get(database, "0-1", &count) == SCID_OK);
+    assert(count == 2);
+    assert(scid_database_stats_result_count_get(
+               database, "1/2-1/2", &count) == SCID_OK);
+    assert(count == 1);
+    assert(scid_database_stats_result_count_get(database, "*", &count) == SCID_OK);
+    assert(count == 0);
 
     remove_scid5_database(persisted_path);
     remove_scid5_database(missing_path);
@@ -373,6 +406,16 @@ void test_database(void) {
     assert(scid_database_is_open(persisted, &is_open) == SCID_OK);
     assert(is_open == 0);
     assert(scid_database_save(persisted) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_stats_date_range_get(
+               persisted,
+               text,
+               sizeof(text),
+               &text_size,
+               max_date,
+               sizeof(max_date),
+               &max_date_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_stats_result_count_get(persisted, "0-1", &count) ==
+           SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_count_get(persisted, &count) ==
            SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_at_get(
@@ -424,6 +467,20 @@ void test_database(void) {
                &text_size) == SCID_OK);
     assert(strcmp(key, "description") == 0);
     assert(strcmp(text, "C ABI persistent database") == 0);
+    assert(scid_database_stats_date_range_get(
+               reopened,
+               text,
+               sizeof(text),
+               &text_size,
+               max_date,
+               sizeof(max_date),
+               &max_date_size) == SCID_OK);
+    assert(strcmp(text, "2025.01.02") == 0);
+    assert(strcmp(max_date, "2025.01.02") == 0);
+    assert(scid_database_stats_result_count_get(reopened, "0-1", &count) == SCID_OK);
+    assert(count == 1);
+    assert(scid_database_stats_result_count_get(reopened, "1-0", &count) == SCID_OK);
+    assert(count == 0);
     assert(scid_database_game_count_get(reopened, &count) == SCID_OK);
     assert(count == 1);
     assert(scid_database_game_tag_get(
@@ -464,6 +521,19 @@ void test_database(void) {
                &text_size) == SCID_OK);
     assert(strcmp(key, "description") == 0);
     assert(strcmp(text, "C ABI persistent database") == 0);
+    assert(scid_database_stats_date_range_get(
+               read_only_database,
+               text,
+               sizeof(text),
+               &text_size,
+               max_date,
+               sizeof(max_date),
+               &max_date_size) == SCID_OK);
+    assert(strcmp(text, "2025.01.02") == 0);
+    assert(strcmp(max_date, "2025.01.02") == 0);
+    assert(scid_database_stats_result_count_get(
+               read_only_database, "0-1", &count) == SCID_OK);
+    assert(count == 1);
     assert(scid_database_metadata_set(read_only_database, "description", "readonly") ==
            SCID_ERROR_FILE_READ_ONLY);
     assert(scid_database_game_count_get(read_only_database, &count) == SCID_OK);
@@ -549,6 +619,47 @@ void test_database(void) {
                text,
                sizeof(text),
                NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_stats_date_range_get(
+               NULL,
+               text,
+               sizeof(text),
+               &text_size,
+               max_date,
+               sizeof(max_date),
+               &max_date_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_stats_date_range_get(
+               database,
+               text,
+               sizeof(text),
+               NULL,
+               max_date,
+               sizeof(max_date),
+               &max_date_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_stats_date_range_get(
+               database,
+               text,
+               sizeof(text),
+               &text_size,
+               max_date,
+               sizeof(max_date),
+               NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_stats_date_range_get(
+               database,
+               NULL,
+               0,
+               &text_size,
+               max_date,
+               sizeof(max_date),
+               &max_date_size) == SCID_ERROR_BUFFER_FULL);
+    assert(text_size == strlen("2024.06.14"));
+    assert(scid_database_stats_result_count_get(NULL, "1-0", &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_stats_result_count_get(database, NULL, &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_stats_result_count_get(database, "bad", &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_stats_result_count_get(database, "1-0", NULL) ==
+           SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_set(NULL, "description", "bad") ==
            SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_set(database, NULL, "bad") ==

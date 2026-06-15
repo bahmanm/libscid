@@ -678,6 +678,22 @@ SCID_API scid_error scid_database_metadata_at_get(
     size_t* out_value_size
 );
 
+SCID_API scid_error scid_database_stats_date_range_get(
+    const scid_database* database,
+    char* out_min_date,
+    size_t out_min_date_capacity,
+    size_t* out_min_date_size,
+    char* out_max_date,
+    size_t out_max_date_capacity,
+    size_t* out_max_date_size
+);
+
+SCID_API scid_error scid_database_stats_result_count_get(
+    const scid_database* database,
+    const char* result,
+    size_t* out_count
+);
+
 SCID_API scid_error scid_database_game_count_get(
     const scid_database* database,
     size_t* out_count

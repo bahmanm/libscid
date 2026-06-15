@@ -75,6 +75,8 @@ int main(void) {
     char description[128];
     char metadata_key[32];
     char metadata_value[128];
+    char min_date[32];
+    char max_date[32];
     char result[16];
     char type[16];
     char flags[22];
@@ -86,6 +88,9 @@ int main(void) {
     size_t metadata_count = 0;
     size_t metadata_key_size = 0;
     size_t metadata_value_size = 0;
+    size_t min_date_size = 0;
+    size_t max_date_size = 0;
+    size_t result_count = 0;
     size_t type_size = 0;
     size_t flags_size = 0;
     int is_open = 0;
@@ -167,6 +172,23 @@ int main(void) {
                "scid_database_metadata_at_get") ||
         !text_equals(metadata_key, metadata_key_size, "description") ||
         !text_equals(metadata_value, metadata_value_size, "Example persistent database") ||
+        !check(scid_database_stats_date_range_get(
+                   reopened,
+                   min_date,
+                   sizeof(min_date),
+                   &min_date_size,
+                   max_date,
+                   sizeof(max_date),
+                   &max_date_size),
+               "scid_database_stats_date_range_get") ||
+        !text_equals(min_date, min_date_size, "2026.06.14") ||
+        !text_equals(max_date, max_date_size, "2026.06.14") ||
+        !check(scid_database_stats_result_count_get(
+                   reopened,
+                   "1-0",
+                   &result_count),
+               "scid_database_stats_result_count_get") ||
+        result_count != 1 ||
         !check(scid_database_game_count_get(reopened, &count),
                "scid_database_game_count_get") ||
         count != 1 ||
