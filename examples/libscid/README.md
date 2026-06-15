@@ -13,3 +13,4 @@ This directory contains examples that use the C ABI from `libscid`.
 - `080-memory-database/`: create an in-memory database and add games to it.
 - `090-list-database/`: list database games using lightweight metadata calls.
 - `100-edit-database/`: replace games and toggle the deleted marker.
+- `110-persistent-database/`: create, close, and reopen a SCID5 database.
