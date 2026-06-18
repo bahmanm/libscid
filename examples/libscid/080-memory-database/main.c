@@ -33,10 +33,13 @@ int main(void) {
     scid_game* game = NULL;
     scid_game* loaded = NULL;
     char diagnostic[1024];
+    char filter_id[16] = {0};
     char flags[22];
     char text[128];
     size_t diagnostic_size = 0;
     size_t count = 0;
+    size_t filter_id_size = 0;
+    size_t game_index = 0;
     size_t flags_size = 0;
     size_t text_size = 0;
     int is_open = 0;
@@ -90,9 +93,29 @@ int main(void) {
 
     printf("games after second add: %zu\n", count);
 
-    if (!check(scid_database_game_get(
+    if (!check(scid_database_filter_create(
                    database,
-                   1,
+                   filter_id,
+                   sizeof(filter_id),
+                   &filter_id_size),
+               "scid_database_filter_create") ||
+        !check(scid_database_filter_fill(database, filter_id, 0),
+               "scid_database_filter_fill") ||
+        !check(scid_database_filter_value_set(database, filter_id, 1, 1),
+               "scid_database_filter_value_set") ||
+        !check(scid_database_filter_count_get(database, filter_id, &count),
+               "scid_database_filter_count_get") ||
+        count != 1 ||
+        !check(scid_database_filter_game_at_get(
+                   database,
+                   filter_id,
+                   0,
+                   &game_index),
+               "scid_database_filter_game_at_get") ||
+        game_index != 1 ||
+        !check(scid_database_game_get(
+                   database,
+                   game_index,
                    &loaded,
                    flags,
                    sizeof(flags),
@@ -110,6 +133,7 @@ int main(void) {
         !check(scid_game_mainline_halfmove_count_get(loaded, &count),
                "scid_game_mainline_halfmove_count_get") ||
         count != 3) {
+        scid_database_filter_delete(database, filter_id);
         scid_game_free(loaded);
         scid_game_free(game);
         scid_database_free(database);
@@ -120,6 +144,7 @@ int main(void) {
     printf("loaded event: %.*s\n", (int)text_size, text);
     printf("loaded halfmoves: %zu\n", count);
 
+    scid_database_filter_delete(database, filter_id);
     scid_game_free(loaded);
     scid_game_free(game);
     scid_database_free(database);

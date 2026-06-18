@@ -644,6 +644,51 @@ SCID_API scid_error scid_database_read_only_get(
     int* out_read_only
 );
 
+SCID_API scid_error scid_database_filter_create(
+    scid_database* database,
+    char* out_filter_id,
+    size_t out_filter_id_capacity,
+    size_t* out_filter_id_size
+);
+
+SCID_API scid_error scid_database_filter_delete(
+    scid_database* database,
+    const char* filter_id
+);
+
+SCID_API scid_error scid_database_filter_fill(
+    scid_database* database,
+    const char* filter_id,
+    unsigned value
+);
+
+SCID_API scid_error scid_database_filter_value_set(
+    scid_database* database,
+    const char* filter_id,
+    size_t game_index,
+    unsigned value
+);
+
+SCID_API scid_error scid_database_filter_value_get(
+    const scid_database* database,
+    const char* filter_id,
+    size_t game_index,
+    unsigned* out_value
+);
+
+SCID_API scid_error scid_database_filter_count_get(
+    const scid_database* database,
+    const char* filter_id,
+    size_t* out_count
+);
+
+SCID_API scid_error scid_database_filter_game_at_get(
+    const scid_database* database,
+    const char* filter_id,
+    size_t index,
+    size_t* out_game_index
+);
+
 SCID_API scid_error scid_database_save(
     scid_database* database
 );

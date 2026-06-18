@@ -71,12 +71,16 @@ void test_database(void) {
     scid_database* reopened = NULL;
     scid_database* read_only_database = NULL;
     char flags[22];
+    char filter_id[16];
+    char filter_id_two[16];
     char diagnostic[1024];
     char key[64];
     char max_date[32];
     char text[1024];
     size_t count = 99;
     size_t diagnostic_size = 99;
+    size_t filter_id_size = 99;
+    size_t filter_id_two_size = 99;
     size_t flags_size = 99;
     size_t imported_count = 99;
     size_t key_size = 99;
@@ -84,6 +88,7 @@ void test_database(void) {
     size_t text_size = 99;
     scid_eco_code eco_code = 0;
     scid_eco_code expected_eco_code = 0;
+    unsigned filter_value = 99;
     int is_open = 0;
     int read_only = 99;
     int deleted = 99;
@@ -312,6 +317,81 @@ void test_database(void) {
     assert(scid_database_stats_result_count_get(database, "*", &count) == SCID_OK);
     assert(count == 0);
 
+    assert(scid_database_filter_create(
+               database, filter_id, sizeof(filter_id), &filter_id_size) == SCID_OK);
+    assert(filter_id_size > 0);
+    assert(scid_database_filter_count_get(database, filter_id, &count) == SCID_OK);
+    assert(count == 4);
+    assert(scid_database_filter_value_get(
+               database, filter_id, 0, &filter_value) == SCID_OK);
+    assert(filter_value == 1);
+    assert(scid_database_filter_value_get(
+               database, filter_id, 3, &filter_value) == SCID_OK);
+    assert(filter_value == 1);
+    assert(scid_database_filter_game_at_get(database, filter_id, 0, &count) ==
+           SCID_OK);
+    assert(count == 0);
+    assert(scid_database_filter_game_at_get(database, filter_id, 3, &count) ==
+           SCID_OK);
+    assert(count == 3);
+    assert(scid_database_filter_value_set(database, filter_id, 1, 0) == SCID_OK);
+    assert(scid_database_filter_count_get(database, filter_id, &count) == SCID_OK);
+    assert(count == 3);
+    assert(scid_database_filter_value_get(
+               database, filter_id, 1, &filter_value) == SCID_OK);
+    assert(filter_value == 0);
+    assert(scid_database_filter_game_at_get(database, filter_id, 1, &count) ==
+           SCID_OK);
+    assert(count == 2);
+    assert(scid_database_filter_value_set(database, filter_id, 1, 1) == SCID_OK);
+    assert(scid_database_filter_count_get(database, filter_id, &count) == SCID_OK);
+    assert(count == 4);
+    assert(scid_database_filter_fill(database, filter_id, 0) == SCID_OK);
+    assert(scid_database_filter_count_get(database, filter_id, &count) == SCID_OK);
+    assert(count == 0);
+    assert(scid_database_filter_value_get(
+               database, filter_id, 0, &filter_value) == SCID_OK);
+    assert(filter_value == 0);
+    assert(scid_database_filter_fill(database, filter_id, 1) == SCID_OK);
+    assert(scid_database_filter_count_get(database, filter_id, &count) == SCID_OK);
+    assert(count == 4);
+
+    assert(scid_database_filter_create(
+               database, filter_id_two, sizeof(filter_id_two), &filter_id_two_size) ==
+           SCID_OK);
+    assert(filter_id_two_size > 0);
+    assert(strcmp(filter_id, filter_id_two) != 0);
+    assert(scid_database_filter_fill(database, filter_id_two, 0) == SCID_OK);
+    assert(scid_database_filter_count_get(database, filter_id_two, &count) == SCID_OK);
+    assert(count == 0);
+    assert(scid_database_filter_value_set(database, filter_id_two, 2, 1) == SCID_OK);
+    assert(scid_database_filter_value_set(database, filter_id_two, 3, 1) == SCID_OK);
+    assert(scid_database_filter_count_get(database, filter_id_two, &count) == SCID_OK);
+    assert(count == 2);
+    assert(scid_database_filter_game_at_get(database, filter_id_two, 0, &count) ==
+           SCID_OK);
+    assert(count == 2);
+    assert(scid_database_filter_game_at_get(database, filter_id_two, 1, &count) ==
+           SCID_OK);
+    assert(count == 3);
+    assert(scid_database_filter_value_set(database, filter_id_two, 2, 0) == SCID_OK);
+    assert(scid_database_filter_count_get(database, filter_id_two, &count) == SCID_OK);
+    assert(count == 1);
+    assert(scid_database_filter_game_at_get(database, filter_id_two, 0, &count) ==
+           SCID_OK);
+    assert(count == 3);
+    assert(scid_database_filter_count_get(database, "all", &count) == SCID_OK);
+    assert(count == 4);
+    assert(scid_database_filter_value_get(database, "all", 1, &filter_value) ==
+           SCID_OK);
+    assert(filter_value == 1);
+    assert(scid_database_filter_fill(database, "all", 0) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_set(database, "all", 1, 0) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_delete(database, "all") == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_delete(database, filter_id) == SCID_OK);
+    assert(scid_database_filter_delete(database, filter_id_two) == SCID_OK);
+
     remove_scid5_database(persisted_path);
     remove_scid5_database(missing_path);
     assert(scid_database_create_scid5(persisted_path, &persisted) == SCID_OK);
@@ -406,6 +486,11 @@ void test_database(void) {
     assert(scid_database_is_open(persisted, &is_open) == SCID_OK);
     assert(is_open == 0);
     assert(scid_database_save(persisted) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_create(
+               persisted, filter_id, sizeof(filter_id), &filter_id_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_count_get(persisted, "all", &count) ==
+           SCID_ERROR_BAD_ARG);
     assert(scid_database_stats_date_range_get(
                persisted,
                text,
@@ -582,6 +667,60 @@ void test_database(void) {
     assert(scid_database_open_scid5_read_only(missing_path, &read_only_database) ==
            SCID_ERROR_FILE_OPEN);
     assert(read_only_database == NULL);
+    assert(scid_database_filter_create(
+               NULL, filter_id, sizeof(filter_id), &filter_id_size) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_create(database, NULL, 0, &filter_id_size) ==
+           SCID_ERROR_BUFFER_FULL);
+    assert(filter_id_size > 0);
+    assert(scid_database_filter_create(database, filter_id, sizeof(filter_id), NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_delete(NULL, "missing") == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_delete(database, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_delete(database, "missing") == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_fill(NULL, "all", 1) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_fill(database, NULL, 1) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_fill(database, "missing", 1) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_fill(database, "dbfilter", 256) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_set(NULL, "dbfilter", 0, 1) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_set(database, NULL, 0, 1) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_set(database, "missing", 0, 1) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_set(database, "dbfilter", 99, 1) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_set(database, "dbfilter", 0, 256) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_get(NULL, "all", 0, &filter_value) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_get(database, NULL, 0, &filter_value) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_get(database, "missing", 0, &filter_value) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_get(database, "all", 99, &filter_value) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_value_get(database, "all", 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_count_get(NULL, "all", &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_count_get(database, NULL, &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_count_get(database, "missing", &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_count_get(database, "all", NULL) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_game_at_get(NULL, "all", 0, &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_game_at_get(database, NULL, 0, &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_game_at_get(database, "missing", 0, &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_game_at_get(database, "all", 99, &count) ==
+           SCID_ERROR_BAD_ARG);
+    assert(scid_database_filter_game_at_get(database, "all", 0, NULL) ==
+           SCID_ERROR_BAD_ARG);
     assert(scid_database_close(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_save(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_get(NULL, "description", text, sizeof(text), &text_size) ==

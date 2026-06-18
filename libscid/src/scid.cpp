@@ -454,6 +454,45 @@ scid_error database_error_to_c(
     }
 }
 
+bool filter_value_is_valid(
+    unsigned value
+) {
+    return value <= std::numeric_limits<scid::core::byte>::max();
+}
+
+bool database_filter_id_is_builtin(
+    std::string_view filter_id
+) {
+    return filter_id == "all" || filter_id == "dbfilter";
+}
+
+bool database_filter_id_is_mutable(
+    std::string_view filter_id
+) {
+    return filter_id != "all";
+}
+
+bool database_filter_get(
+    const scid_database* database,
+    const char* filter_id,
+    scid::database::HFilter* out_filter
+) {
+    if (database == nullptr ||
+        filter_id == nullptr ||
+        out_filter == nullptr ||
+        !database->value.isOpen()) {
+        return false;
+    }
+
+    auto filter = database->value.getFilter(filter_id);
+    if (filter == nullptr) {
+        return false;
+    }
+
+    *out_filter = filter;
+    return true;
+}
+
 scid_error database_open(
     std::string_view db_type,
     scid::database::fileModeT mode,
@@ -2526,6 +2565,207 @@ scid_error scid_database_read_only_get(
 
     try {
         return write_bool(database->value.isReadOnly(), out_read_only);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_filter_create(
+    scid_database* database,
+    char* out_filter_id,
+    size_t out_filter_id_capacity,
+    size_t* out_filter_id_size
+) {
+    if (database == nullptr || out_filter_id_size == nullptr || !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        const std::string filter_id = database->value.newFilter();
+        const scid_error error = write_text(
+            filter_id,
+            out_filter_id,
+            out_filter_id_capacity,
+            out_filter_id_size
+        );
+        if (error != SCID_OK) {
+            database->value.deleteFilter(filter_id.c_str());
+            return error;
+        }
+
+        return SCID_OK;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_filter_delete(
+    scid_database* database,
+    const char* filter_id
+) {
+    if (database == nullptr ||
+        filter_id == nullptr ||
+        !database->value.isOpen() ||
+        database_filter_id_is_builtin(filter_id)) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        database->value.deleteFilter(filter_id);
+        return SCID_OK;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_filter_fill(
+    scid_database* database,
+    const char* filter_id,
+    unsigned value
+) {
+    if (database == nullptr ||
+        filter_id == nullptr ||
+        !database->value.isOpen() ||
+        !database_filter_id_is_mutable(filter_id) ||
+        !filter_value_is_valid(value)) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        filter.mainFilter()->Fill(static_cast<scid::core::byte>(value));
+        return SCID_OK;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_filter_value_set(
+    scid_database* database,
+    const char* filter_id,
+    size_t game_index,
+    unsigned value
+) {
+    if (database == nullptr ||
+        filter_id == nullptr ||
+        !database->value.isOpen() ||
+        !database_filter_id_is_mutable(filter_id) ||
+        !filter_value_is_valid(value)) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::gamenumT core_game_index = 0;
+        if (!database_game_index_is_valid(database->value, game_index, &core_game_index)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        filter->set(core_game_index, static_cast<scid::core::byte>(value));
+        return SCID_OK;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_filter_value_get(
+    const scid_database* database,
+    const char* filter_id,
+    size_t game_index,
+    unsigned* out_value
+) {
+    if (database == nullptr ||
+        filter_id == nullptr ||
+        out_value == nullptr ||
+        !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::gamenumT core_game_index = 0;
+        if (!database_game_index_is_valid(database->value, game_index, &core_game_index)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        *out_value = filter->get(core_game_index);
+        return SCID_OK;
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_filter_count_get(
+    const scid_database* database,
+    const char* filter_id,
+    size_t* out_count
+) {
+    if (database == nullptr ||
+        filter_id == nullptr ||
+        out_count == nullptr ||
+        !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return write_size(filter->size(), out_count);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_filter_game_at_get(
+    const scid_database* database,
+    const char* filter_id,
+    size_t index,
+    size_t* out_game_index
+) {
+    if (database == nullptr ||
+        filter_id == nullptr ||
+        out_game_index == nullptr ||
+        !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter) ||
+            index >= filter->size()) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        size_t ordinal = 0;
+        for (const auto core_game_index : *filter) {
+            if (ordinal == index) {
+                *out_game_index = core_game_index;
+                return SCID_OK;
+            }
+            ++ordinal;
+        }
+
+        return SCID_ERROR_BAD_ARG;
     } catch (...) {
         return SCID_ERROR;
     }
