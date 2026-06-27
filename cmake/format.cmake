@@ -1,6 +1,6 @@
 find_program(
     LIBSCID_CLANG_FORMAT
-    NAMES clang-format )
+    NAMES clang-format-20 clang-format )
 
 if( NOT LIBSCID_CLANG_FORMAT )
     add_custom_target(
