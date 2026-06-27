@@ -3,8 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 
-static int check(scid_error error, const char* call) {
-    if (error == SCID_OK) {
+static int
+check(
+    scid_error error,
+    const char* call)
+{
+    if (error == SCID_OK)
+    {
         return 1;
     }
 
@@ -12,24 +17,30 @@ static int check(scid_error error, const char* call) {
     return 0;
 }
 
-static int contains(const char* text, const char* needle) {
+static int
+contains(
+    const char* text,
+    const char* needle)
+{
     return strstr(text, needle) != NULL;
 }
 
-int main(void) {
-    const char* pgn =
-        "[Event \"St Petersburg final\"]\n"
-        "[Site \"St Petersburg\"]\n"
-        "[Date \"1914.05.18\"]\n"
-        "[Round \"7\"]\n"
-        "[White \"Lasker, Emanuel\"]\n"
-        "[Black \"Capablanca, Jose Raul\"]\n"
-        "[Result \"1-0\"]\n"
-        "[ECO \"C68\"]\n"
-        "[EventDate \"1914.04.21\"]\n"
-        "[Annotator \"Example\"]\n"
-        "\n"
-        "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0\n";
+int
+main(
+    void)
+{
+    const char* pgn = "[Event \"St Petersburg final\"]\n"
+                      "[Site \"St Petersburg\"]\n"
+                      "[Date \"1914.05.18\"]\n"
+                      "[Round \"7\"]\n"
+                      "[White \"Lasker, Emanuel\"]\n"
+                      "[Black \"Capablanca, Jose Raul\"]\n"
+                      "[Result \"1-0\"]\n"
+                      "[ECO \"C68\"]\n"
+                      "[EventDate \"1914.04.21\"]\n"
+                      "[Annotator \"Example\"]\n"
+                      "\n"
+                      "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0\n";
     scid_game* game = NULL;
     char diagnostic[1024];
     char name[64];
@@ -42,35 +53,28 @@ int main(void) {
     size_t tag_count = 0;
     int removed = 0;
 
-    if (!check(scid_game_create_from_pgn(
-                   pgn,
-                   strlen(pgn),
-                   &game,
-                   diagnostic,
-                   sizeof(diagnostic),
-                   &diagnostic_size),
-               "scid_game_create_from_pgn")) {
+    if (!check(
+            scid_game_create_from_pgn(
+                pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic), &diagnostic_size),
+            "scid_game_create_from_pgn"))
+    {
         fprintf(stderr, "%.*s\n", (int)diagnostic_size, diagnostic);
         return 1;
     }
 
-    if (!check(scid_game_tag_count_get(game, &tag_count),
-               "scid_game_tag_count_get")) {
+    if (!check(scid_game_tag_count_get(game, &tag_count), "scid_game_tag_count_get"))
+    {
         scid_game_free(game);
         return 1;
     }
 
-    for (size_t i = 0; i < tag_count; ++i) {
-        if (!check(scid_game_tag_at_get(
-                       game,
-                       i,
-                       name,
-                       sizeof(name),
-                       &name_size,
-                       value,
-                       sizeof(value),
-                       &value_size),
-                   "scid_game_tag_at_get")) {
+    for (size_t i = 0; i < tag_count; ++i)
+    {
+        if (!check(
+                scid_game_tag_at_get(
+                    game, i, name, sizeof(name), &name_size, value, sizeof(value), &value_size),
+                "scid_game_tag_at_get"))
+        {
             scid_game_free(game);
             return 1;
         }
@@ -78,21 +82,19 @@ int main(void) {
         printf("%.*s: %.*s\n", (int)name_size, name, (int)value_size, value);
     }
 
-    if (!check(scid_game_tag_set(game, "Annotator", "C ABI example"),
-               "scid_game_tag_set") ||
-        !check(scid_game_tag_remove(game, "EventDate", &removed),
-               "scid_game_tag_remove") ||
-        !check(scid_game_to_pgn(game, encoded, sizeof(encoded), &encoded_size),
-               "scid_game_to_pgn")) {
+    if (!check(scid_game_tag_set(game, "Annotator", "C ABI example"), "scid_game_tag_set") ||
+        !check(scid_game_tag_remove(game, "EventDate", &removed), "scid_game_tag_remove") ||
+        !check(scid_game_to_pgn(game, encoded, sizeof(encoded), &encoded_size), "scid_game_to_pgn"))
+    {
         scid_game_free(game);
         return 1;
     }
 
     printf("\n%.*s", (int)encoded_size, encoded);
 
-    if (!removed ||
-        !contains(encoded, "[Annotator \"C ABI example\"]") ||
-        contains(encoded, "[EventDate ")) {
+    if (!removed || !contains(encoded, "[Annotator \"C ABI example\"]") ||
+        contains(encoded, "[EventDate "))
+    {
         scid_game_free(game);
         return 1;
     }

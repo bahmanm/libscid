@@ -10,6 +10,35 @@ permissions:
   contents: read
 
 jobs:
+  format:
+    name: format
+    runs-on: ubuntu-24.04
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install clang-format
+        run: >
+          sudo apt-get update
+          && sudo apt-get install --yes clang-format-20
+
+      - name: Configure
+        run: >
+          cmake
+          -S .
+          -B _build-format
+
+      - name: Check formatting
+        run: >
+          cmake
+          --build _build-format
+          --target format-check
+          --verbose
+
   unix-build-and-test:
     name: unix-build-and-test (${{ matrix.check_label }})
     runs-on: ${{ matrix.os }}

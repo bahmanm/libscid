@@ -33,48 +33,65 @@
 #endif
 #endif
 
-namespace scid::database {
+namespace scid::database
+{
 
-class SCID_DATABASE_INTERNAL_API StoredLine {
-	static constexpr int STORED_LINES = 255;
-	static const scid::core::FullMove* Moves_[STORED_LINES + 1];
+    class SCID_DATABASE_INTERNAL_API StoredLine
+    {
+            static constexpr int STORED_LINES = 255;
+            static const scid::core::FullMove* Moves_[STORED_LINES + 1];
 
-	int8_t matches_[STORED_LINES + 1];
+            int8_t matches_[STORED_LINES + 1];
 
-public:
-	StoredLine(const scid::core::pieceT* board, scid::core::colorT toMove);
+        public:
+            StoredLine(const scid::core::pieceT* board, scid::core::colorT toMove);
 
-	// Result:
-	//-2 : the game cannot reach the searched position
-	//-1 : the game can reach the searched position
-	//>=0: the game reach the searched position at the returned ply
-	int match(scid::core::byte code) const { return matches_[code]; }
+            // Result:
+            //-2 : the game cannot reach the searched position
+            //-1 : the game can reach the searched position
+            //>=0: the game reach the searched position at the returned ply
+            int
+            match(
+                scid::core::byte code) const
+            {
+                return matches_[code];
+            }
 
-	template <typename CompareOp> static scid::core::byte classify(CompareOp comp) {
-		int res = 0;
-		std::ptrdiff_t longest = 0;
-		for (int i = 1; i < STORED_LINES; ++i) {
-			const auto begin = Moves_[i];
-			const auto end = Moves_[i + 1];
-			if (std::distance(begin, end) > longest && comp(begin, end)) {
-				res = i;
-				longest = std::distance(begin, end);
-			}
-		}
-		return static_cast<scid::core::byte>(res);
-	}
+            template <typename CompareOp>
+            static scid::core::byte
+            classify(
+                CompareOp comp)
+            {
+                int res = 0;
+                std::ptrdiff_t longest = 0;
+                for (int i = 1; i < STORED_LINES; ++i)
+                {
+                    const auto begin = Moves_[i];
+                    const auto end = Moves_[i + 1];
+                    if (std::distance(begin, end) > longest && comp(begin, end))
+                    {
+                        res = i;
+                        longest = std::distance(begin, end);
+                    }
+                }
+                return static_cast<scid::core::byte>(res);
+            }
 
-	static scid::core::FullMove getMove(scid::core::byte code, scid::core::uint ply = 0) {
-		if ((code < STORED_LINES) && (Moves_[code] + ply) < Moves_[code + 1]) {
-			return Moves_[code][ply];
-		}
-		return scid::core::FullMove();
-	}
-};
-
+            static scid::core::FullMove
+            getMove(
+                scid::core::byte code,
+                scid::core::uint ply = 0)
+            {
+                if ((code < STORED_LINES) && (Moves_[code] + ply) < Moves_[code + 1])
+                {
+                    return Moves_[code][ply];
+                }
+                return scid::core::FullMove();
+            }
+    };
 
 } // namespace scid::database
-#endif  // #ifndef SCID_STORED_H
+#endif // #ifndef SCID_STORED_H
 
 //////////////////////////////////////////////////////////////////////
 //  EOF:    stored.h

@@ -6,13 +6,15 @@
 #include <stddef.h>
 #include <string.h>
 
-void test_cursor(void) {
-    const char* pgn =
-        "[Event \"Cursor\"]\n"
-        "[Result \"*\"]\n"
-        "\n"
-        "{Before game} 1. e4 $1 {Best by test} ({Queen pawn alternative} "
-        "1. d4 {Queen pawn} d5) e5 *\n";
+void
+test_cursor(
+    void)
+{
+    const char* pgn = "[Event \"Cursor\"]\n"
+                      "[Result \"*\"]\n"
+                      "\n"
+                      "{Before game} 1. e4 $1 {Best by test} ({Queen pawn alternative} "
+                      "1. d4 {Queen pawn} d5) e5 *\n";
     scid_game* game = NULL;
     scid_movetext_cursor* cursor = NULL;
     scid_position* position = NULL;
@@ -61,28 +63,31 @@ void test_cursor(void) {
     assert(scid_movetext_cursor_comment_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Before game") == 0);
     assert(text_size == 11);
-    assert(scid_movetext_cursor_previous_movespec_get(cursor, &move) ==
-           SCID_ERROR_INVALID_MOVE);
-    assert(scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) ==
-           SCID_ERROR_INVALID_MOVE);
-    assert(scid_movetext_cursor_previous_move_comment_get(
-               cursor, text, sizeof(text), &text_size) == SCID_ERROR_INVALID_MOVE);
-    assert(scid_movetext_cursor_previous_move_nag_count_get(cursor, &count) ==
-           SCID_ERROR_INVALID_MOVE);
-    assert(scid_movetext_cursor_previous_move_nag_at_get(cursor, 0, &nag) ==
-           SCID_ERROR_INVALID_MOVE);
+    assert(scid_movetext_cursor_previous_movespec_get(cursor, &move) == SCID_ERROR_INVALID_MOVE);
+    assert(
+        scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_ERROR_INVALID_MOVE);
+    assert(
+        scid_movetext_cursor_previous_move_comment_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_ERROR_INVALID_MOVE);
+    assert(
+        scid_movetext_cursor_previous_move_nag_count_get(cursor, &count) ==
+        SCID_ERROR_INVALID_MOVE);
+    assert(
+        scid_movetext_cursor_previous_move_nag_at_get(cursor, 0, &nag) == SCID_ERROR_INVALID_MOVE);
 
     assert(scid_movetext_cursor_next_movespec_get(cursor, &move) == SCID_OK);
     assert(move.from == 12);
     assert(move.to == 28);
     assert(move.promotion == SCID_PIECE_NONE);
     assert(move.is_castling == 0);
-    assert(scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) ==
-           SCID_OK);
+    assert(
+        scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "e4") == 0);
     assert(text_size == 2);
-    assert(scid_movetext_cursor_next_move_comment_get(cursor, text, sizeof(text), &text_size) ==
-           SCID_OK);
+    assert(
+        scid_movetext_cursor_next_move_comment_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_OK);
     assert(strcmp(text, "Best by test") == 0);
     assert(text_size == 12);
     assert(scid_movetext_cursor_next_move_nag_count_get(cursor, &count) == SCID_OK);
@@ -104,12 +109,14 @@ void test_cursor(void) {
     assert(move.to == 28);
     assert(move.promotion == SCID_PIECE_NONE);
     assert(move.is_castling == 0);
-    assert(scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) ==
-           SCID_OK);
+    assert(
+        scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_OK);
     assert(strcmp(text, "e4") == 0);
     assert(text_size == 2);
-    assert(scid_movetext_cursor_previous_move_comment_get(
-               cursor, text, sizeof(text), &text_size) == SCID_OK);
+    assert(
+        scid_movetext_cursor_previous_move_comment_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_OK);
     assert(strcmp(text, "Best by test") == 0);
     assert(text_size == 12);
     assert(scid_movetext_cursor_previous_move_nag_count_get(cursor, &count) == SCID_OK);
@@ -122,8 +129,9 @@ void test_cursor(void) {
     assert(scid_movetext_cursor_comment_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Changed e4") == 0);
     assert(text_size == 10);
-    assert(scid_movetext_cursor_previous_move_comment_get(
-               cursor, text, sizeof(text), &text_size) == SCID_OK);
+    assert(
+        scid_movetext_cursor_previous_move_comment_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_OK);
     assert(strcmp(text, "Changed e4") == 0);
     assert(text_size == 10);
 
@@ -177,14 +185,14 @@ void test_cursor(void) {
     assert(scid_movetext_cursor_is_game_end(cursor, &truth) == SCID_OK);
     assert(truth == 1);
     assert(scid_movetext_cursor_next_movespec_get(cursor, &move) == SCID_ERROR_INVALID_MOVE);
-    assert(scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) ==
-           SCID_ERROR_INVALID_MOVE);
-    assert(scid_movetext_cursor_next_move_comment_get(cursor, text, sizeof(text), &text_size) ==
-           SCID_ERROR_INVALID_MOVE);
-    assert(scid_movetext_cursor_next_move_nag_count_get(cursor, &count) ==
-           SCID_ERROR_INVALID_MOVE);
-    assert(scid_movetext_cursor_next_move_nag_at_get(cursor, 0, &nag) ==
-           SCID_ERROR_INVALID_MOVE);
+    assert(
+        scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_ERROR_INVALID_MOVE);
+    assert(
+        scid_movetext_cursor_next_move_comment_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_ERROR_INVALID_MOVE);
+    assert(scid_movetext_cursor_next_move_nag_count_get(cursor, &count) == SCID_ERROR_INVALID_MOVE);
+    assert(scid_movetext_cursor_next_move_nag_at_get(cursor, 0, &nag) == SCID_ERROR_INVALID_MOVE);
 
     assert(scid_movetext_cursor_create(NULL, &cursor) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_create(game, NULL) == SCID_ERROR_BAD_ARG);
@@ -204,38 +212,44 @@ void test_cursor(void) {
     assert(scid_movetext_cursor_variation_exit(cursor, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_to_start(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_to_end(NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_comment_get(NULL, text, sizeof(text), &text_size) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_comment_get(cursor, text, sizeof(text), NULL) ==
-           SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_comment_get(NULL, text, sizeof(text), &text_size) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_comment_get(cursor, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_comment_set(NULL, "comment") == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_comment_set(cursor, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_previous_movespec_get(NULL, &move) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_previous_movespec_get(cursor, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_previous_move_san_get(NULL, text, sizeof(text), &text_size) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), NULL) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_previous_move_comment_get(
-               NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_previous_move_comment_get(
-               cursor, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_previous_move_nag_count_get(NULL, &count) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_previous_move_nag_at_get(NULL, 0, &nag) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_previous_move_nag_at_get(cursor, 0, NULL) ==
-           SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_previous_move_san_get(NULL, text, sizeof(text), &text_size) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), NULL) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_previous_move_comment_get(NULL, text, sizeof(text), &text_size) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_previous_move_comment_get(cursor, text, sizeof(text), NULL) ==
+        SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_previous_move_nag_count_get(NULL, &count) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_previous_move_nag_at_get(NULL, 0, &nag) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_previous_move_nag_at_get(cursor, 0, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_next_movespec_get(NULL, &move) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_next_movespec_get(cursor, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_next_move_san_get(NULL, text, sizeof(text), &text_size) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), NULL) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_next_move_comment_get(
-               NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_next_move_comment_get(
-               cursor, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_next_move_san_get(NULL, text, sizeof(text), &text_size) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), NULL) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_next_move_comment_get(NULL, text, sizeof(text), &text_size) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movetext_cursor_next_move_comment_get(cursor, text, sizeof(text), NULL) ==
+        SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_next_move_nag_count_get(NULL, &count) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_next_move_nag_at_get(NULL, 0, &nag) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_next_move_nag_at_get(cursor, 0, NULL) == SCID_ERROR_BAD_ARG);

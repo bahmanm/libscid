@@ -57,3 +57,4 @@ CTestTestfile.cmake
 out/
 dist/
 _build/
+_build*/

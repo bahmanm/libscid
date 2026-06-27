@@ -24,55 +24,55 @@
 #include <cstdint>
 #define ASSERT(f) assert(f)
 
-namespace scid::database {
+namespace scid::database
+{
 
-/**
- * Encoded Scid database format version.
- *
- * Versions are stored as @c major * 100 + minor, so @c 109 represents 1.9
- * and @c 110 represents 1.10.  The value describes the on-disk database
- * format, not the library release.
- */
-typedef unsigned short versionT;
+    /**
+     * Encoded Scid database format version.
+     *
+     * Versions are stored as @c major * 100 + minor, so @c 109 represents 1.9
+     * and @c 110 represents 1.10.  The value describes the on-disk database
+     * format, not the library release.
+     */
+    typedef unsigned short versionT;
 
-/** Current Scid 4 database format version. */
-const versionT SCID_VERSION = 400;
+    /** Current Scid 4 database format version. */
+    const versionT SCID_VERSION = 400;
 
-/**
- * Compact numeric ECO code used by the database index.
- *
- * Use the ECO conversion helpers when crossing the public string boundary;
- * this type is the packed representation stored in index entries and used for
- * fast ECO searches.
- */
-using EcoCode = std::uint16_t;
+    /**
+     * Compact numeric ECO code used by the database index.
+     *
+     * Use the ECO conversion helpers when crossing the public string boundary;
+     * this type is the packed representation stored in index entries and used for
+     * fast ECO searches.
+     */
+    using EcoCode = std::uint16_t;
 
-/** Sentinel ECO value used when a game has no known ECO classification. */
-inline constexpr EcoCode ECO_CODE_NONE = 0;
+    /** Sentinel ECO value used when a game has no known ECO classification. */
+    inline constexpr EcoCode ECO_CODE_NONE = 0;
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TYPE DEFINITIONS
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TYPE DEFINITIONS
-
-/**
- * File access mode requested when opening a database codec.
- */
-enum fileModeT {
-    /** No file access has been requested. */
-    FMODE_None = 0,
-    /** Open an existing database for reads only. */
-    FMODE_ReadOnly,
-    /** Open an existing database for writes only. */
-    FMODE_WriteOnly,
-    /** Open an existing database for both reads and writes. */
-    FMODE_Both,
-    /** Create a new database, replacing any existing files as the codec allows. */
-    FMODE_Create
-};
-
+    /**
+     * File access mode requested when opening a database codec.
+     */
+    enum fileModeT
+    {
+        /** No file access has been requested. */
+        FMODE_None = 0,
+        /** Open an existing database for reads only. */
+        FMODE_ReadOnly,
+        /** Open an existing database for writes only. */
+        FMODE_WriteOnly,
+        /** Open an existing database for both reads and writes. */
+        FMODE_Both,
+        /** Create a new database, replacing any existing files as the codec allows. */
+        FMODE_Create
+    };
 
 } // namespace scid::database
-#endif  // #ifdef SCID_COMMON_H
+#endif // #ifdef SCID_COMMON_H
 
 //////////////////////////////////////////////////////////////////////
 //  EOF:  common.h

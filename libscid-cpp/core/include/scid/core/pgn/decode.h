@@ -32,58 +32,65 @@
 #include <cstddef>
 #include <string>
 
-namespace scid::core::pgn {
+namespace scid::core::pgn
+{
 
-/** Aggregated parse progress and diagnostics.
- *
- * ParseLog is cumulative: callers may reuse the same instance across multiple
- * parseGame() calls to collect total bytes, line counts, game counts, and
- * warning/error text.  Diagnostics are formatted for humans and include the
- * game and line number tracked by the parser.
- */
-struct ParseLog {
-	/** Human-readable warnings and errors produced while parsing. */
-	std::string log;
-	/** Number of input bytes consumed across parsed games. */
-	unsigned long long n_bytes = 0;
-	/** Number of input lines processed across parsed games. */
-	unsigned long long n_lines = 0;
-	/** Number of parse attempts recorded as games. */
-	unsigned long long n_games = 0;
-};
+    /** Aggregated parse progress and diagnostics.
+     *
+     * ParseLog is cumulative: callers may reuse the same instance across multiple
+     * parseGame() calls to collect total bytes, line counts, game counts, and
+     * warning/error text.  Diagnostics are formatted for humans and include the
+     * game and line number tracked by the parser.
+     */
+    struct ParseLog
+    {
+            /** Human-readable warnings and errors produced while parsing. */
+            std::string log;
+            /** Number of input bytes consumed across parsed games. */
+            unsigned long long n_bytes = 0;
+            /** Number of input lines processed across parsed games. */
+            unsigned long long n_lines = 0;
+            /** Number of parse attempts recorded as games. */
+            unsigned long long n_games = 0;
+    };
 
-/** Parses PGN text into @p game.
- *
- * The game is not cleared before parsing.  This lets callers append movetext to
- * an existing game, but callers that want replacement semantics should clear or
- * construct the Game themselves first.  Parsing may succeed while still adding
- * warnings to @p log.
- *
- * @param input memory containing the PGN text.
- * @param inputLen number of bytes available at @p input.
- * @param game destination game.
- * @param log cumulative parse diagnostics and progress counters.
- * @returns true when the input was parsed without discarding a trailing portion
- * after a fatal parse error.
- */
-bool parseGame(const char* input, size_t inputLen, scid::core::Game& game,
-               ParseLog& log);
-/** Parses PGN text into @p game starting at @p location.
- *
- * This overload is used by editors that insert moves, comments, NAGs, and
- * variations at the current cursor location.  On success, @p location is
- * updated to the parser's final movetext location.
- *
- * @param input memory containing the PGN text.
- * @param inputLen number of bytes available at @p input.
- * @param game destination game.
- * @param location movetext location where parsing starts and where the final
- * parser location is stored.
- * @param log cumulative parse diagnostics and progress counters.
- * @returns true when the input was parsed without discarding a trailing portion
- * after a fatal parse error.
- */
-bool parseGame(const char* input, size_t inputLen, scid::core::Game& game,
-               scid::core::MovetextLocation& location, ParseLog& log);
+    /** Parses PGN text into @p game.
+     *
+     * The game is not cleared before parsing.  This lets callers append movetext to
+     * an existing game, but callers that want replacement semantics should clear or
+     * construct the Game themselves first.  Parsing may succeed while still adding
+     * warnings to @p log.
+     *
+     * @param input memory containing the PGN text.
+     * @param inputLen number of bytes available at @p input.
+     * @param game destination game.
+     * @param log cumulative parse diagnostics and progress counters.
+     * @returns true when the input was parsed without discarding a trailing portion
+     * after a fatal parse error.
+     */
+    bool
+    parseGame(const char* input, size_t inputLen, scid::core::Game& game, ParseLog& log);
+    /** Parses PGN text into @p game starting at @p location.
+     *
+     * This overload is used by editors that insert moves, comments, NAGs, and
+     * variations at the current cursor location.  On success, @p location is
+     * updated to the parser's final movetext location.
+     *
+     * @param input memory containing the PGN text.
+     * @param inputLen number of bytes available at @p input.
+     * @param game destination game.
+     * @param location movetext location where parsing starts and where the final
+     * parser location is stored.
+     * @param log cumulative parse diagnostics and progress counters.
+     * @returns true when the input was parsed without discarding a trailing portion
+     * after a fatal parse error.
+     */
+    bool
+    parseGame(
+        const char* input,
+        size_t inputLen,
+        scid::core::Game& game,
+        scid::core::MovetextLocation& location,
+        ParseLog& log);
 
 } // namespace scid::core::pgn

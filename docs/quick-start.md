@@ -15,11 +15,13 @@ Create `main.cpp`:
 
 #include <iostream>
 
-int main()
+int
+main()
 {
     const auto& position = scid::core::Position::getStdStart();
 
-    if( !position.IsStdStart() ) {
+    if (!position.IsStdStart())
+    {
         return 1;
     }
 

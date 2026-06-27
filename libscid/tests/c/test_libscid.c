@@ -1,6 +1,9 @@
 #include "test_libscid.h"
 
-int main(void) {
+int
+main(
+    void)
+{
     test_square();
     test_piece();
     test_movespec();

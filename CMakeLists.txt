@@ -36,6 +36,7 @@ if( PROJECT_IS_TOP_LEVEL )
         set( BUILD_TESTING OFF CACHE BOOL "Build tests" )
     endif()
     include( CTest )
+    include( cmake/format.cmake )
 endif()
 
 add_subdirectory( libscid-cpp/core )

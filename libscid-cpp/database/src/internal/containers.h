@@ -23,112 +23,155 @@
 #include <cassert>
 #include <vector>
 
-namespace scid::database {
+namespace scid::database
+{
 
-/**
- * A vector-like container. Not all the elements are stored contiguously like in
- * a normal vector, but are allocated in separate chunks so that:
- * - growing in size do not move the elements and old references remain valid;
- * - very large containers can be created.
- * @e CHUNKSHIFT: is the base-2 logarithm of the number of T entries per chunk.
- *                Total size of a chunk: (2^CHUNKSHIFT)*sizeof(T)
- */
-template <class T, size_t CHUNKSHIFT> class VectorChunked {
-	std::vector<T*> chunks_;
-	size_t size_ = 0;
+    /**
+     * A vector-like container. Not all the elements are stored contiguously like in
+     * a normal vector, but are allocated in separate chunks so that:
+     * - growing in size do not move the elements and old references remain valid;
+     * - very large containers can be created.
+     * @e CHUNKSHIFT: is the base-2 logarithm of the number of T entries per chunk.
+     *                Total size of a chunk: (2^CHUNKSHIFT)*sizeof(T)
+     */
+    template <class T, size_t CHUNKSHIFT> class VectorChunked
+    {
+            std::vector<T*> chunks_;
+            size_t size_ = 0;
 
-	static constexpr size_t low_mask = ((1ULL << CHUNKSHIFT) - 1);
+            static constexpr size_t low_mask = ((1ULL << CHUNKSHIFT) - 1);
 
-public:
-	VectorChunked() = default;
-	VectorChunked(const VectorChunked&) = delete;
-	VectorChunked& operator=(const VectorChunked&) = delete;
-	~VectorChunked() {
-		for (auto& chunk : chunks_)
-			delete[] chunk;
-	}
+        public:
+            VectorChunked() = default;
+            VectorChunked(const VectorChunked&) = delete;
+            VectorChunked&
+            operator=(const VectorChunked&) = delete;
+            ~VectorChunked()
+            {
+                for (auto& chunk : chunks_)
+                    delete[] chunk;
+            }
 
-	const T& operator[](size_t idx) const {
-		assert(idx < size_);
-		return chunks_[idx >> CHUNKSHIFT][idx & low_mask];
-	}
-	T& operator[](size_t idx) {
-		assert(idx < size_);
-		return chunks_[idx >> CHUNKSHIFT][idx & low_mask];
-	}
+            const T&
+            operator[](
+                size_t idx) const
+            {
+                assert(idx < size_);
+                return chunks_[idx >> CHUNKSHIFT][idx & low_mask];
+            }
+            T&
+            operator[](
+                size_t idx)
+            {
+                assert(idx < size_);
+                return chunks_[idx >> CHUNKSHIFT][idx & low_mask];
+            }
 
-	size_t capacity() const { return chunks_.size() << CHUNKSHIFT; }
+            size_t
+            capacity() const
+            {
+                return chunks_.size() << CHUNKSHIFT;
+            }
 
-	/**
-	 * @returns
-	 * the count of contiguously allocated objects starting at @e pos (included)
-	 */
-	size_t contiguous(size_t pos) const {
-		assert(pos < size());
-		return 1 + (~pos & low_mask);
-	}
+            /**
+             * @returns
+             * the count of contiguously allocated objects starting at @e pos (included)
+             */
+            size_t
+            contiguous(
+                size_t pos) const
+            {
+                assert(pos < size());
+                return 1 + (~pos & low_mask);
+            }
 
-	/// Returns the next offset in the container where at least @e nElements
-	/// can be inserted contiguously
-	size_t next_contiguous(size_t nElements) const {
-		const auto offset = size();
-		const auto capacity = this->capacity();
-		return capacity - offset < nElements // Doesn't fit in the current chunk
-		           ? capacity
-		           : offset;
-	}
+            /// Returns the next offset in the container where at least @e nElements
+            /// can be inserted contiguously
+            size_t
+            next_contiguous(
+                size_t nElements) const
+            {
+                const auto offset = size();
+                const auto capacity = this->capacity();
+                return capacity - offset < nElements // Doesn't fit in the current chunk
+                           ? capacity
+                           : offset;
+            }
 
-	/// Append elements to the container
-	/// @param src: an array of T objects
-	/// @param srcSize: the number of elements in the array
-	/// @param offset: a value >= size() where the new elements can be inserted
-	///                contiguously
-	void append(const T* src, size_t srcSize, size_t offset) {
-		assert(offset >= size());
-		resize(offset + srcSize);
-		assert(contiguous(offset) >= srcSize);
-		std::copy_n(src, srcSize, &operator[](offset));
-	}
+            /// Append elements to the container
+            /// @param src: an array of T objects
+            /// @param srcSize: the number of elements in the array
+            /// @param offset: a value >= size() where the new elements can be inserted
+            ///                contiguously
+            void
+            append(
+                const T* src,
+                size_t srcSize,
+                size_t offset)
+            {
+                assert(offset >= size());
+                resize(offset + srcSize);
+                assert(contiguous(offset) >= srcSize);
+                std::copy_n(src, srcSize, &operator[](offset));
+            }
 
-	/// Append elements to the container
-	/// @param src: an array of T objects
-	/// @param srcSize: the number of elements in the array
-	/// @return: a pointer to the first inserted element
-	const T* append(const T* src, size_t srcSize) {
-		const auto offset = next_contiguous(srcSize);
-		append(src, srcSize, offset);
-		return &operator[](offset);
-	}
+            /// Append elements to the container
+            /// @param src: an array of T objects
+            /// @param srcSize: the number of elements in the array
+            /// @return: a pointer to the first inserted element
+            const T*
+            append(
+                const T* src,
+                size_t srcSize)
+            {
+                const auto offset = next_contiguous(srcSize);
+                append(src, srcSize, offset);
+                return &operator[](offset);
+            }
 
-	void push_back(const T& e) {
-		size_t idx = size_;
-		resize(size_ + 1);
-		operator[](idx) = e;
-	}
+            void
+            push_back(
+                const T& e)
+            {
+                size_t idx = size_;
+                resize(size_ + 1);
+                operator[](idx) = e;
+            }
 
-	void resize(size_t count) {
-		size_ = count;
-		size_t newSize = (count > 0) ? 1 + (count >> CHUNKSHIFT) : 0;
-		size_t chunksSz = chunks_.size();
-		if (newSize == chunksSz)
-			return;
+            void
+            resize(
+                size_t count)
+            {
+                size_ = count;
+                size_t newSize = (count > 0) ? 1 + (count >> CHUNKSHIFT) : 0;
+                size_t chunksSz = chunks_.size();
+                if (newSize == chunksSz)
+                    return;
 
-		if (newSize > chunksSz) {
-			chunks_.resize(newSize);
-			for (auto i = chunksSz; i < newSize; ++i) {
-				chunks_[i] = new T[1ULL << CHUNKSHIFT];
-			}
-		} else {
-			for (auto i = newSize; i < chunksSz; ++i) {
-				delete[] chunks_[i];
-			}
-			chunks_.resize(newSize);
-		}
-	}
+                if (newSize > chunksSz)
+                {
+                    chunks_.resize(newSize);
+                    for (auto i = chunksSz; i < newSize; ++i)
+                    {
+                        chunks_[i] = new T[1ULL << CHUNKSHIFT];
+                    }
+                }
+                else
+                {
+                    for (auto i = newSize; i < chunksSz; ++i)
+                    {
+                        delete[] chunks_[i];
+                    }
+                    chunks_.resize(newSize);
+                }
+            }
 
-	size_t size() const { return size_; }
-};
-
+            size_t
+            size() const
+            {
+                return size_;
+            }
+    };
 
 } // namespace scid::database
 #endif

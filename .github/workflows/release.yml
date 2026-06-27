@@ -94,7 +94,9 @@ jobs:
           --verbose
 
       - name: Package
-        run: cpack --preset portable-tgz
+        run: >
+          cpack
+          --preset portable-tgz
 
       - name: Extract package
         run: |
@@ -199,7 +201,10 @@ jobs:
           --verbose
 
       - name: Package
-        run: cpack --preset portable-tgz -C Release
+        run: >
+          cpack
+          --preset portable-tgz
+          -C Release
 
       - name: Extract package
         run: |

@@ -4,7 +4,8 @@
 #include <iostream>
 #include <string>
 
-int main()
+int
+main()
 {
     const std::string pgn = R"([Event "St Petersburg final"]
 [Site "St Petersburg"]
@@ -29,26 +30,31 @@ int main()
     scid::core::Game game;
     scid::core::pgn::ParseLog log;
 
-    if( !scid::core::pgn::parseGame( pgn.data(), pgn.size(), game, log ) ) {
+    if (!scid::core::pgn::parseGame(pgn.data(), pgn.size(), game, log))
+    {
         std::cerr << log.log << '\n';
         return 1;
     }
 
     std::string encoded;
-    scid::core::pgn::encode( game, encoded );
+    scid::core::pgn::encode(game, encoded);
 
     std::cout << encoded;
 
-    if( game.white().name != "Lasker, Emanuel" ) {
+    if (game.white().name != "Lasker, Emanuel")
+    {
         return 1;
     }
-    if( game.black().name != "Capablanca, Jose Raul" ) {
+    if (game.black().name != "Capablanca, Jose Raul")
+    {
         return 1;
     }
-    if( game.mainlineHalfMoveCount() != 83 ) {
+    if (game.mainlineHalfMoveCount() != 83)
+    {
         return 1;
     }
-    if( encoded.find( "[White \"Lasker, Emanuel\"]" ) == std::string::npos ) {
+    if (encoded.find("[White \"Lasker, Emanuel\"]") == std::string::npos)
+    {
         return 1;
     }
 

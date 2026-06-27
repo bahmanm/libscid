@@ -6,17 +6,19 @@
 #include <stddef.h>
 #include <string.h>
 
-void test_pgn_contract(void) {
-    const char* input =
-        "[Event \"Original\"]\n"
-        "[Site \"Internet\"]\n"
-        "[Date \"2026.06.07\"]\n"
-        "[Round \"1\"]\n"
-        "[White \"White\"]\n"
-        "[Black \"Black\"]\n"
-        "[Result \"*\"]\n"
-        "\n"
-        "1. e4 e5 2. Nf3 Nc6 *\n";
+void
+test_pgn_contract(
+    void)
+{
+    const char* input = "[Event \"Original\"]\n"
+                        "[Site \"Internet\"]\n"
+                        "[Date \"2026.06.07\"]\n"
+                        "[Round \"1\"]\n"
+                        "[White \"White\"]\n"
+                        "[Black \"Black\"]\n"
+                        "[Result \"*\"]\n"
+                        "\n"
+                        "1. e4 e5 2. Nf3 Nc6 *\n";
     scid_game* game = NULL;
     scid_game* reparsed = NULL;
     scid_movetext_cursor* cursor = NULL;
@@ -79,8 +81,9 @@ void test_pgn_contract(void) {
 
     assert(scid_movetext_cursor_next(cursor, &truth) == SCID_OK);
     assert(truth == 1);
-    assert(scid_movetext_cursor_previous_move_comment_get(
-               cursor, text, sizeof(text), &text_size) == SCID_OK);
+    assert(
+        scid_movetext_cursor_previous_move_comment_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_OK);
     assert(strcmp(text, "King pawn") == 0);
     assert(scid_movetext_cursor_previous_move_nag_count_get(cursor, &count) == SCID_OK);
     assert(count == 1);
@@ -93,18 +96,20 @@ void test_pgn_contract(void) {
     assert(truth == 1);
     assert(scid_movetext_cursor_comment_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Sicilian branch") == 0);
-    assert(scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) ==
-           SCID_OK);
+    assert(
+        scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "c5") == 0);
     assert(scid_movetext_cursor_variation_exit(cursor, &truth) == SCID_OK);
     assert(truth == 1);
 
     assert(scid_movetext_cursor_to_end(cursor) == SCID_OK);
-    assert(scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) ==
-           SCID_OK);
+    assert(
+        scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_OK);
     assert(strcmp(text, "Nc3") == 0);
-    assert(scid_movetext_cursor_previous_move_comment_get(
-               cursor, text, sizeof(text), &text_size) == SCID_OK);
+    assert(
+        scid_movetext_cursor_previous_move_comment_get(cursor, text, sizeof(text), &text_size) ==
+        SCID_OK);
     assert(strcmp(text, "Developed") == 0);
 
     scid_movetext_cursor_free(cursor);
