@@ -6,7 +6,10 @@
 #include <stddef.h>
 #include <string.h>
 
-void test_nag(void) {
+void
+test_nag(
+    void)
+{
     scid_nag nag = 0;
     char text[8];
     size_t text_size = 0;

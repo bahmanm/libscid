@@ -78,20 +78,20 @@ jobs:
       - name: Configure
         run: >
           cmake
-          --preset package
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DLIBSCID_PROJECT_VERSION="$LIBSCID_PROJECT_VERSION"
-          -DLIBSCID_VERSION="$LIBSCID_VERSION"
-          -DLIBSCID_PACKAGE_VERSION_LABEL="$LIBSCID_PACKAGE_VERSION_LABEL"
-          -DLIBSCID_PACKAGE_PLATFORM="${{ matrix.asset_label }}"
-          -DLIBSCID_PLANTUML_JAR_PATH="$LIBSCID_PLANTUML_JAR_PATH"
+            --preset package
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+            -DLIBSCID_PROJECT_VERSION="$LIBSCID_PROJECT_VERSION"
+            -DLIBSCID_VERSION="$LIBSCID_VERSION"
+            -DLIBSCID_PACKAGE_VERSION_LABEL="$LIBSCID_PACKAGE_VERSION_LABEL"
+            -DLIBSCID_PACKAGE_PLATFORM="${{ matrix.asset_label }}"
+            -DLIBSCID_PLANTUML_JAR_PATH="$LIBSCID_PLANTUML_JAR_PATH"
 
       - name: Build
         run: >
           cmake
-          --build
-          --preset package
-          --verbose
+            --build
+            --preset package
+            --verbose
 
       - name: Package
         run: cpack --preset portable-tgz
@@ -184,19 +184,19 @@ jobs:
       - name: Configure
         run: >
           cmake
-          --preset package
-          "-DLIBSCID_PROJECT_VERSION=$env:LIBSCID_PROJECT_VERSION"
-          "-DLIBSCID_VERSION=$env:LIBSCID_VERSION"
-          "-DLIBSCID_PACKAGE_VERSION_LABEL=$env:LIBSCID_PACKAGE_VERSION_LABEL"
-          "-DLIBSCID_PACKAGE_PLATFORM=windows"
+            --preset package
+            "-DLIBSCID_PROJECT_VERSION=$env:LIBSCID_PROJECT_VERSION"
+            "-DLIBSCID_VERSION=$env:LIBSCID_VERSION"
+            "-DLIBSCID_PACKAGE_VERSION_LABEL=$env:LIBSCID_PACKAGE_VERSION_LABEL"
+            "-DLIBSCID_PACKAGE_PLATFORM=windows"
 
       - name: Build
         run: >
           cmake
-          --build
-          --preset package
-          --config Release
-          --verbose
+            --build
+            --preset package
+            --config Release
+            --verbose
 
       - name: Package
         run: cpack --preset portable-tgz -C Release

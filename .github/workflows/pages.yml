@@ -43,15 +43,15 @@ jobs:
       - name: Configure
         run: >
           cmake
-          --preset docs
-          -DLIBSCID_PLANTUML_JAR_PATH="$LIBSCID_PLANTUML_JAR_PATH"
+            --preset docs
+            -DLIBSCID_PLANTUML_JAR_PATH="$LIBSCID_PLANTUML_JAR_PATH"
 
       - name: Build documentation
         run: >
           cmake
-          --build
-          --preset docs
-          --verbose
+            --build
+            --preset docs
+            --verbose
 
       - name: Verify documentation output
         run: test -f _build/docs/doxygen/html/index.html

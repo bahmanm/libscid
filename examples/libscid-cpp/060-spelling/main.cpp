@@ -9,66 +9,75 @@
 #include <string>
 #include <vector>
 
-namespace {
-
-std::string date_to_string( scid::core::dateT date )
+namespace
 {
-    char text[ 16 ] = {};
-    scid::core::date_DecodeToString( date, text );
-    return text;
-}
+
+    std::string
+    date_to_string(
+        scid::core::dateT date)
+    {
+        char text[16] = {};
+        scid::core::date_DecodeToString(date, text);
+        return text;
+    }
 
 } // namespace
 
-int main()
+int
+main()
 {
-    const auto [ err, spelling ] = scid::spelling::SpellChecker::create(
-        LIBSCID_EXAMPLE_SPELLING_FILE,
-        scid::database::Progress() );
+    const auto [err, spelling] = scid::spelling::SpellChecker::create(
+        LIBSCID_EXAMPLE_SPELLING_FILE, scid::database::Progress());
 
-    if( err != scid::core::OK ) {
+    if (err != scid::core::OK)
+    {
         std::cerr << "could not load spelling file, error " << err << '\n';
         return 1;
     }
 
-    const auto matches = spelling->find(
-        scid::database::NAME_PLAYER,
-        "Emanuel Lasker" );
+    const auto matches = spelling->find(scid::database::NAME_PLAYER, "Emanuel Lasker");
 
-    if( matches.empty() ) {
+    if (matches.empty())
+    {
         return 1;
     }
 
     std::vector<const char*> bio;
-    const auto* info = spelling->getPlayerInfo( matches.front(), &bio );
-    if( info == nullptr || bio.empty() ) {
+    const auto* info = spelling->getPlayerInfo(matches.front(), &bio);
+    if (info == nullptr || bio.empty())
+    {
         return 1;
     }
 
     std::string event = "Example New York";
-    spelling->getGeneralCorrections( scid::database::NAME_EVENT ).normalize( &event );
+    spelling->getGeneralCorrections(scid::database::NAME_EVENT).normalize(&event);
 
     std::cout << "Input: Emanuel Lasker\n"
               << "Corrected: " << matches.front() << '\n'
               << "Title: " << info->getTitle() << '\n'
               << "Country: " << info->getLastCountry() << '\n'
-              << "Birth: " << date_to_string( info->getBirthdate() ) << '\n'
+              << "Birth: " << date_to_string(info->getBirthdate()) << '\n'
               << "Event: " << event << '\n'
               << "Bio: " << bio.front() << '\n';
 
-    if( std::string( matches.front() ) != "Lasker, Emanuel" ) {
+    if (std::string(matches.front()) != "Lasker, Emanuel")
+    {
         return 1;
     }
-    if( std::string( info->getTitle() ) != "GM" ) {
+    if (std::string(info->getTitle()) != "GM")
+    {
         return 1;
     }
-    if( info->getLastCountry() != "GER" ) {
+    if (info->getLastCountry() != "GER")
+    {
         return 1;
     }
-    if( date_to_string( info->getBirthdate() ) != "1868.12.24" ) {
+    if (date_to_string(info->getBirthdate()) != "1868.12.24")
+    {
         return 1;
     }
-    if( event != "Example, New York" ) {
+    if (event != "Example, New York")
+    {
         return 1;
     }
 

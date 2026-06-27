@@ -2,10 +2,13 @@
 
 #include <utility>
 
-namespace scid::core {
+namespace scid::core
+{
 
-MovetextLocation::MovetextLocation(std::vector<Step> path,
-                                   std::size_t nextIndex)
-    : path_(std::move(path)), nextIndex_(nextIndex) {}
+    MovetextLocation::MovetextLocation(
+        std::vector<Step> path,
+        std::size_t nextIndex)
+        : path_(std::move(path)), nextIndex_(nextIndex)
+    {}
 
 } // namespace scid::core

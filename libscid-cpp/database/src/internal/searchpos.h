@@ -24,103 +24,123 @@
 #define SEARCHPOS_H
 
 #include "scid/core/fullmove.h"
+#include "scid/core/position.h"
 #include "scid/database/common.h"
 #include "scid/database/game_id.h"
 #include "scid/database/matsig.h"
-#include "scid/core/position.h"
 #include "scid/database/scidbase.h"
 #include <algorithm>
 #include <memory>
 
-namespace scid::database {
+namespace scid::database
+{
 
-class StoredLine;
+    class StoredLine;
 
-/// Search for an exact position (same material in the same squares).
-class SearchPos {
-	matSigT materialSig_;
-	scid::core::pieceT board_[64];
-	std::unique_ptr<StoredLine> storedLine_;
-	std::pair<uint16_t, uint16_t> hpSig_;
-	scid::core::colorT toMove_;
-	bool isStdStard_;
+    /// Search for an exact position (same material in the same squares).
+    class SearchPos
+    {
+            matSigT materialSig_;
+            scid::core::pieceT board_[64];
+            std::unique_ptr<StoredLine> storedLine_;
+            std::pair<uint16_t, uint16_t> hpSig_;
+            scid::core::colorT toMove_;
+            bool isStdStard_;
 
-public:
-	explicit SearchPos(scid::core::Position const& pos);
-	~SearchPos();
+        public:
+            explicit SearchPos(scid::core::Position const& pos);
+            ~SearchPos();
 
-	/// Disable the stored lines optimization
-	void disableOptStoredLine();
+            /// Disable the stored lines optimization
+            void
+            disableOptStoredLine();
 
-	/// Disable the home pawn optimization
-	void disableOptHpSig() { hpSig_ = {0, 0}; }
+            /// Disable the home pawn optimization
+            void
+            disableOptHpSig()
+            {
+                hpSig_ = {0, 0};
+            }
 
-	/// Search for the position using the optimizations in a game's index.
-	/// @returns
-	/// -2 : the game cannot reach the searched position
-	/// -1 : the game can reach the searched position
-	/// >=0: the game reach the searched position at the returned ply
-	int index_match(const IndexEntry& ie) const;
+            /// Search for the position using the optimizations in a game's index.
+            /// @returns
+            /// -2 : the game cannot reach the searched position
+            /// -1 : the game can reach the searched position
+            /// >=0: the game reach the searched position at the returned ply
+            int
+            index_match(const IndexEntry& ie) const;
 
-	/// Search the position in the main line of the specified game.
-	/// @returns a std::pair containg the ply where the position was reached and
-	///          the next move. Returns ply==0 if the position was not found.
-	/// TODO: filling the SAN info of the returned move may be unnecessary
-	std::pair<int, scid::core::FullMove> match(scidBaseT const& base, gamenumT gnum) const;
+            /// Search the position in the main line of the specified game.
+            /// @returns a std::pair containg the ply where the position was reached and
+            ///          the next move. Returns ply==0 if the position was not found.
+            /// TODO: filling the SAN info of the returned move may be unnecessary
+            std::pair<int, scid::core::FullMove>
+            match(scidBaseT const& base, gamenumT gnum) const;
 
-	/// Reset @e filter to include only the games that reached the searched
-	/// position in their main line.
-	bool setFilter(scidBaseT const& base, HFilter& filter,
-	               const Progress& progress) const {
-		if (toMove_ == scid::core::BLACK)
-			return SetFilter<scid::core::BLACK>(base, filter, progress);
+            /// Reset @e filter to include only the games that reached the searched
+            /// position in their main line.
+            bool
+            setFilter(
+                scidBaseT const& base,
+                HFilter& filter,
+                const Progress& progress) const
+            {
+                if (toMove_ == scid::core::BLACK)
+                    return SetFilter<scid::core::BLACK>(base, filter, progress);
 
-		if (!isStdStard_)
-			return SetFilter<scid::core::WHITE>(base, filter, progress);
+                if (!isStdStard_)
+                    return SetFilter<scid::core::WHITE>(base, filter, progress);
 
-		return setFilterStdStart(base, filter);
-	}
+                return setFilterStdStart(base, filter);
+            }
 
-private:
-	bool setFilterStdStart(scidBaseT const& base, HFilter& filter) const;
+        private:
+            bool
+            setFilterStdStart(scidBaseT const& base, HFilter& filter) const;
 
-	template <scid::core::colorT TOMOVE>
-	bool SetFilter(scidBaseT const& base, HFilter& filter,
-	               const Progress& prg) const;
+            template <scid::core::colorT TOMOVE>
+            bool
+            SetFilter(scidBaseT const& base, HFilter& filter, const Progress& prg) const;
 
-	/// Return true if any searched material count is below its final-game
-	/// counterpart.
-	static bool less_mat(matSigT a, matSigT b, bool promo, bool upromo) {
-		int wp_diff = static_cast<int>(MATSIG_Count_WP(a)) -
-		              static_cast<int>(MATSIG_Count_WP(b));
-		int bp_diff = static_cast<int>(MATSIG_Count_BP(a)) -
-		              static_cast<int>(MATSIG_Count_BP(b));
-		if (wp_diff < 0 || bp_diff < 0)
-			return true;
+            /// Return true if any searched material count is below its final-game
+            /// counterpart.
+            static bool
+            less_mat(
+                matSigT a,
+                matSigT b,
+                bool promo,
+                bool upromo)
+            {
+                int wp_diff =
+                    static_cast<int>(MATSIG_Count_WP(a)) - static_cast<int>(MATSIG_Count_WP(b));
+                int bp_diff =
+                    static_cast<int>(MATSIG_Count_BP(a)) - static_cast<int>(MATSIG_Count_BP(b));
+                if (wp_diff < 0 || bp_diff < 0)
+                    return true;
 
-		int wq_diff = static_cast<int>(MATSIG_Count_WQ(a)) -
-		              static_cast<int>(MATSIG_Count_WQ(b));
-		int bq_diff = static_cast<int>(MATSIG_Count_BQ(a)) -
-		              static_cast<int>(MATSIG_Count_BQ(b));
-		if (promo) {
-			wq_diff += wp_diff;
-			bq_diff += bp_diff;
-		}
-		if (wq_diff < 0 || bq_diff < 0)
-			return true;
+                int wq_diff =
+                    static_cast<int>(MATSIG_Count_WQ(a)) - static_cast<int>(MATSIG_Count_WQ(b));
+                int bq_diff =
+                    static_cast<int>(MATSIG_Count_BQ(a)) - static_cast<int>(MATSIG_Count_BQ(b));
+                if (promo)
+                {
+                    wq_diff += wp_diff;
+                    bq_diff += bp_diff;
+                }
+                if (wq_diff < 0 || bq_diff < 0)
+                    return true;
 
-		if (upromo)
-			return false;
+                if (upromo)
+                    return false;
 
-		return MATSIG_Count_WR(a) < MATSIG_Count_WR(b) ||
-		       MATSIG_Count_WB(a) < MATSIG_Count_WB(b) ||
-		       MATSIG_Count_WN(a) < MATSIG_Count_WN(b) ||
-		       MATSIG_Count_BR(a) < MATSIG_Count_BR(b) ||
-		       MATSIG_Count_BB(a) < MATSIG_Count_BB(b) ||
-		       MATSIG_Count_BN(a) < MATSIG_Count_BN(b);
-	}
-};
-
+                return MATSIG_Count_WR(a) < MATSIG_Count_WR(b) ||
+                       MATSIG_Count_WB(a) < MATSIG_Count_WB(b) ||
+                       MATSIG_Count_WN(a) < MATSIG_Count_WN(b) ||
+                       MATSIG_Count_BR(a) < MATSIG_Count_BR(b) ||
+                       MATSIG_Count_BB(a) < MATSIG_Count_BB(b) ||
+                       MATSIG_Count_BN(a) < MATSIG_Count_BN(b);
+            }
+    };
 
 } // namespace scid::database
 #endif

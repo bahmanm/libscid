@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-int main()
+int
+main()
 {
     const auto& position = scid::core::Position::getStdStart();
     std::cout << "libscid is available\n";

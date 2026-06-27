@@ -4,7 +4,10 @@
 
 #include <assert.h>
 
-void test_piece(void) {
+void
+test_piece(
+    void)
+{
     scid_piece piece = SCID_PIECE_NONE;
 
     assert(scid_piece_type_from_string("K", &piece) == SCID_OK);

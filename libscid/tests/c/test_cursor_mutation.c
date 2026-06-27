@@ -6,7 +6,10 @@
 #include <stddef.h>
 #include <string.h>
 
-static void test_cursor_move_and_nag_mutation(void) {
+static void
+test_cursor_move_and_nag_mutation(
+    void)
+{
     scid_game* game = NULL;
     scid_movetext_cursor* cursor = NULL;
     scid_movespec move = {0, 0, 0, 0};
@@ -92,12 +95,14 @@ static void test_cursor_move_and_nag_mutation(void) {
     scid_game_free(game);
 }
 
-static void test_cursor_variation_promotion(void) {
-    const char* pgn =
-        "[Event \"Promote\"]\n"
-        "[Result \"*\"]\n"
-        "\n"
-        "1. e4 e5 (1... c5) (1... e6) *\n";
+static void
+test_cursor_variation_promotion(
+    void)
+{
+    const char* pgn = "[Event \"Promote\"]\n"
+                      "[Result \"*\"]\n"
+                      "\n"
+                      "1. e4 e5 (1... c5) (1... e6) *\n";
     scid_game* game = NULL;
     scid_movetext_cursor* cursor = NULL;
     char text[32];
@@ -124,28 +129,26 @@ static void test_cursor_variation_promotion(void) {
     assert(truth == 1);
     assert(scid_movetext_cursor_variation_depth_get(cursor, &count) == SCID_OK);
     assert(count == 0);
-    assert(scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &count) ==
-           SCID_OK);
+    assert(scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &count) == SCID_OK);
     assert(strcmp(text, "e6") == 0);
 
     assert(scid_movetext_cursor_variation_promote_to_first(cursor, &truth) == SCID_OK);
     assert(truth == 0);
     assert(scid_movetext_cursor_variation_promote_to_mainline(cursor, &truth) == SCID_OK);
     assert(truth == 0);
-    assert(scid_movetext_cursor_variation_promote_to_first(NULL, &truth) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_variation_promote_to_first(cursor, NULL) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_variation_promote_to_mainline(NULL, &truth) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_variation_promote_to_mainline(cursor, NULL) ==
-           SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_promote_to_first(NULL, &truth) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_promote_to_first(cursor, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_promote_to_mainline(NULL, &truth) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_promote_to_mainline(cursor, NULL) == SCID_ERROR_BAD_ARG);
 
     scid_movetext_cursor_free(cursor);
     scid_game_free(game);
 }
 
-void test_cursor_mutation(void) {
+void
+test_cursor_mutation(
+    void)
+{
     test_cursor_move_and_nag_mutation();
     test_cursor_variation_promotion();
 }

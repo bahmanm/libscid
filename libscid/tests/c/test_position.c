@@ -6,13 +6,14 @@
 #include <stddef.h>
 #include <string.h>
 
-void test_position(void) {
-    const char* start_fen =
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+void
+test_position(
+    void)
+{
+    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const char* custom_fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
     const char* check_fen = "4k3/8/8/8/8/8/4q3/4K3 w - - 0 1";
-    const char* mate_fen =
-        "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
+    const char* mate_fen = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
     scid_position* position = NULL;
     scid_colour side_to_move = SCID_WHITE;
     char fen[128];
@@ -104,8 +105,9 @@ void test_position(void) {
     assert(scid_position_to_fen(position, NULL, 0, &fen_size) == SCID_ERROR_BUFFER_FULL);
     assert(fen_size == strlen(custom_fen));
 
-    assert(scid_position_to_fen(position, fen, strlen(custom_fen), &fen_size) ==
-           SCID_ERROR_BUFFER_FULL);
+    assert(
+        scid_position_to_fen(position, fen, strlen(custom_fen), &fen_size) ==
+        SCID_ERROR_BUFFER_FULL);
     assert(fen_size == strlen(custom_fen));
 
     assert(scid_position_to_fen(position, fen, sizeof(fen), NULL) == SCID_ERROR_BAD_ARG);
@@ -130,9 +132,9 @@ void test_position(void) {
     scid_position_free(position);
 
     position = (scid_position*)1;
-    assert(scid_position_create_from_fen(
-               "rnb1k2/Q1p5p/p7/4p3/4q3/8/PPP2R1P/2K5 b",
-               &position) == SCID_ERROR_INVALID_FEN);
+    assert(
+        scid_position_create_from_fen("rnb1k2/Q1p5p/p7/4p3/4q3/8/PPP2R1P/2K5 b", &position) ==
+        SCID_ERROR_INVALID_FEN);
     assert(position == NULL);
 
     assert(scid_position_create_standard(NULL) == SCID_ERROR_BAD_ARG);

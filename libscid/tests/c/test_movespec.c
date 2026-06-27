@@ -6,7 +6,10 @@
 #include <stddef.h>
 #include <string.h>
 
-void test_movespec(void) {
+void
+test_movespec(
+    void)
+{
     scid_movespec move = {0, 0, 0, 0};
     scid_position* position = NULL;
     char text[8];
@@ -118,16 +121,13 @@ void test_movespec(void) {
     assert(strcmp(text, "e4") == 0);
     assert(text_size == 2);
 
-    assert(scid_movespec_to_san(position, move, NULL, 0, &text_size) ==
-           SCID_ERROR_BUFFER_FULL);
+    assert(scid_movespec_to_san(position, move, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
     assert(text_size == 2);
 
-    assert(scid_movespec_to_san(position, move, text, 2, &text_size) ==
-           SCID_ERROR_BUFFER_FULL);
+    assert(scid_movespec_to_san(position, move, text, 2, &text_size) == SCID_ERROR_BUFFER_FULL);
     assert(text_size == 2);
 
-    assert(scid_movespec_create_from_san(position, "not-a-move", &move) ==
-           SCID_ERROR_INVALID_MOVE);
+    assert(scid_movespec_create_from_san(position, "not-a-move", &move) == SCID_ERROR_INVALID_MOVE);
     assert(scid_movespec_create_from_san(NULL, "e4", &move) == SCID_ERROR_BAD_ARG);
     assert(scid_movespec_create_from_san(position, NULL, &move) == SCID_ERROR_BAD_ARG);
     assert(scid_movespec_create_from_san(position, "e4", NULL) == SCID_ERROR_BAD_ARG);
@@ -136,17 +136,15 @@ void test_movespec(void) {
     move.to = 28;
     move.promotion = SCID_PIECE_NONE;
     move.is_castling = 0;
-    assert(scid_movespec_to_san(position, move, text, sizeof(text), &text_size) ==
-           SCID_ERROR_BAD_ARG);
+    assert(
+        scid_movespec_to_san(position, move, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
 
     move.from = 12;
     move.to = 28;
     move.promotion = SCID_PIECE_NONE;
     move.is_castling = 0;
-    assert(scid_movespec_to_san(NULL, move, text, sizeof(text), &text_size) ==
-           SCID_ERROR_BAD_ARG);
-    assert(scid_movespec_to_san(position, move, text, sizeof(text), NULL) ==
-           SCID_ERROR_BAD_ARG);
+    assert(scid_movespec_to_san(NULL, move, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_movespec_to_san(position, move, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
 
     scid_position_free(position);
 }
