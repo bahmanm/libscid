@@ -39,8 +39,10 @@ int main(void) {
     size_t diagnostic_size = 0;
     size_t count = 0;
     size_t filter_id_size = 0;
-    size_t game_index = 0;
+    size_t game_indexes[1] = {0};
     size_t flags_size = 0;
+    size_t listed_count = 0;
+    size_t sorted_position = 0;
     size_t text_size = 0;
     int is_open = 0;
 
@@ -106,16 +108,29 @@ int main(void) {
         !check(scid_database_filter_count_get(database, filter_id, &count),
                "scid_database_filter_count_get") ||
         count != 1 ||
-        !check(scid_database_filter_game_at_get(
+        !check(scid_database_game_list_get(
                    database,
                    filter_id,
+                   "d+",
                    0,
-                   &game_index),
-               "scid_database_filter_game_at_get") ||
-        game_index != 1 ||
+                   1,
+                   game_indexes,
+                   1,
+                   &listed_count),
+               "scid_database_game_list_get") ||
+        listed_count != 1 ||
+        game_indexes[0] != 1 ||
+        !check(scid_database_game_sorted_position_get(
+                   database,
+                   filter_id,
+                   "d+",
+                   game_indexes[0],
+                   &sorted_position),
+               "scid_database_game_sorted_position_get") ||
+        sorted_position != 0 ||
         !check(scid_database_game_get(
                    database,
-                   game_index,
+                   game_indexes[0],
                    &loaded,
                    flags,
                    sizeof(flags),

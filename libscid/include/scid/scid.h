@@ -689,6 +689,25 @@ SCID_API scid_error scid_database_filter_game_at_get(
     size_t* out_game_index
 );
 
+SCID_API scid_error scid_database_game_list_get(
+    const scid_database* database,
+    const char* filter_id,
+    const char* sort_criteria,
+    size_t start,
+    size_t count,
+    size_t* out_game_indexes,
+    size_t out_game_indexes_capacity,
+    size_t* out_game_indexes_count
+);
+
+SCID_API scid_error scid_database_game_sorted_position_get(
+    const scid_database* database,
+    const char* filter_id,
+    const char* sort_criteria,
+    size_t game_index,
+    size_t* out_position
+);
+
 SCID_API scid_error scid_database_save(
     scid_database* database
 );

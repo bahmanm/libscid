@@ -2771,6 +2771,97 @@ scid_error scid_database_filter_game_at_get(
     }
 }
 
+scid_error scid_database_game_list_get(
+    const scid_database* database,
+    const char* filter_id,
+    const char* sort_criteria,
+    size_t start,
+    size_t count,
+    size_t* out_game_indexes,
+    size_t out_game_indexes_capacity,
+    size_t* out_game_indexes_count
+) {
+    if (database == nullptr ||
+        filter_id == nullptr ||
+        sort_criteria == nullptr ||
+        out_game_indexes_count == nullptr ||
+        !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (out_game_indexes == nullptr || out_game_indexes_capacity < count) {
+        *out_game_indexes_count = count;
+        return SCID_ERROR_BUFFER_FULL;
+    }
+
+    try {
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        auto& mutable_database = const_cast<scid::database::scidBaseT&>(database->value);
+        std::vector<scid::database::gamenumT> game_indexes(count);
+        const size_t listed = mutable_database.listGames(
+            sort_criteria,
+            start,
+            count,
+            filter,
+            game_indexes.data()
+        );
+
+        for (size_t i = 0; i < listed; ++i) {
+            out_game_indexes[i] = game_indexes[i];
+        }
+
+        return write_size(listed, out_game_indexes_count);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
+scid_error scid_database_game_sorted_position_get(
+    const scid_database* database,
+    const char* filter_id,
+    const char* sort_criteria,
+    size_t game_index,
+    size_t* out_position
+) {
+    if (database == nullptr ||
+        filter_id == nullptr ||
+        sort_criteria == nullptr ||
+        out_position == nullptr ||
+        !database->value.isOpen()) {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try {
+        scid::database::gamenumT core_game_index = 0;
+        if (!database_game_index_is_valid(database->value, game_index, &core_game_index)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter)) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        auto& mutable_database = const_cast<scid::database::scidBaseT&>(database->value);
+        const size_t position = mutable_database.sortedPosition(
+            sort_criteria,
+            filter,
+            core_game_index
+        );
+        if (position == scid::database::INVALID_GAMEID) {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return write_size(position, out_position);
+    } catch (...) {
+        return SCID_ERROR;
+    }
+}
+
 scid_error scid_database_save(
     scid_database* database
 ) {

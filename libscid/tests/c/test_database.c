@@ -82,9 +82,12 @@ void test_database(void) {
     size_t filter_id_size = 99;
     size_t filter_id_two_size = 99;
     size_t flags_size = 99;
+    size_t game_indexes[4] = {99, 99, 99, 99};
     size_t imported_count = 99;
     size_t key_size = 99;
+    size_t list_count = 99;
     size_t max_date_size = 99;
+    size_t sorted_position = 99;
     size_t text_size = 99;
     scid_eco_code eco_code = 0;
     scid_eco_code expected_eco_code = 0;
@@ -385,6 +388,63 @@ void test_database(void) {
     assert(scid_database_filter_value_get(database, "all", 1, &filter_value) ==
            SCID_OK);
     assert(filter_value == 1);
+    assert(scid_database_game_list_get(
+               database,
+               "all",
+               "d+",
+               0,
+               4,
+               game_indexes,
+               4,
+               &list_count) == SCID_OK);
+    assert(list_count == 4);
+    assert(game_indexes[0] == 0);
+    assert(game_indexes[1] == 1);
+    assert(game_indexes[2] == 2);
+    assert(game_indexes[3] == 3);
+    assert(scid_database_game_list_get(
+               database,
+               "all",
+               "d+",
+               1,
+               2,
+               game_indexes,
+               4,
+               &list_count) == SCID_OK);
+    assert(list_count == 2);
+    assert(game_indexes[0] == 1);
+    assert(game_indexes[1] == 2);
+    assert(scid_database_game_sorted_position_get(
+               database,
+               "all",
+               "d+",
+               2,
+               &sorted_position) == SCID_OK);
+    assert(sorted_position == 2);
+    assert(scid_database_game_list_get(
+               database,
+               filter_id_two,
+               "d+",
+               0,
+               2,
+               game_indexes,
+               4,
+               &list_count) == SCID_OK);
+    assert(list_count == 1);
+    assert(game_indexes[0] == 3);
+    assert(scid_database_game_sorted_position_get(
+               database,
+               filter_id_two,
+               "d+",
+               3,
+               &sorted_position) == SCID_OK);
+    assert(sorted_position == 0);
+    assert(scid_database_game_sorted_position_get(
+               database,
+               filter_id_two,
+               "d+",
+               2,
+               &sorted_position) == SCID_ERROR_BAD_ARG);
     assert(scid_database_filter_fill(database, "all", 0) == SCID_ERROR_BAD_ARG);
     assert(scid_database_filter_value_set(database, "all", 1, 0) ==
            SCID_ERROR_BAD_ARG);
@@ -721,6 +781,97 @@ void test_database(void) {
            SCID_ERROR_BAD_ARG);
     assert(scid_database_filter_game_at_get(database, "all", 0, NULL) ==
            SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_list_get(
+               NULL,
+               "all",
+               "d+",
+               0,
+               1,
+               game_indexes,
+               4,
+               &list_count) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_list_get(
+               database,
+               NULL,
+               "d+",
+               0,
+               1,
+               game_indexes,
+               4,
+               &list_count) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_list_get(
+               database,
+               "all",
+               NULL,
+               0,
+               1,
+               game_indexes,
+               4,
+               &list_count) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_list_get(
+               database,
+               "missing",
+               "d+",
+               0,
+               1,
+               game_indexes,
+               4,
+               &list_count) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_list_get(
+               database,
+               "all",
+               "d+",
+               0,
+               1,
+               NULL,
+               0,
+               &list_count) == SCID_ERROR_BUFFER_FULL);
+    assert(list_count == 1);
+    assert(scid_database_game_list_get(
+               database,
+               "all",
+               "d+",
+               0,
+               1,
+               game_indexes,
+               4,
+               NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_sorted_position_get(
+               NULL,
+               "all",
+               "d+",
+               0,
+               &sorted_position) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_sorted_position_get(
+               database,
+               NULL,
+               "d+",
+               0,
+               &sorted_position) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_sorted_position_get(
+               database,
+               "all",
+               NULL,
+               0,
+               &sorted_position) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_sorted_position_get(
+               database,
+               "missing",
+               "d+",
+               0,
+               &sorted_position) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_sorted_position_get(
+               database,
+               "all",
+               "d+",
+               99,
+               &sorted_position) == SCID_ERROR_BAD_ARG);
+    assert(scid_database_game_sorted_position_get(
+               database,
+               "all",
+               "d+",
+               0,
+               NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_close(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_save(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_metadata_get(NULL, "description", text, sizeof(text), &text_size) ==
