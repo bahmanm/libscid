@@ -29,15 +29,15 @@ jobs:
       - name: Configure
         run: >
           cmake
-            -S .
-            -B _build-format
+          -S .
+          -B _build-format
 
       - name: Check formatting
         run: >
           cmake
-            --build _build-format
-            --target format-check
-            --verbose
+          --build _build-format
+          --target format-check
+          --verbose
 
   unix-build-and-test:
     name: unix-build-and-test (${{ matrix.check_label }})
@@ -64,25 +64,25 @@ jobs:
       - name: Configure
         run: >
           cmake
-            -S .
-            -B _build
-            -DBUILD_TESTING=ON
-            -DCMAKE_BUILD_TYPE=Release
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -S .
+          -B _build
+          -DBUILD_TESTING=ON
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
 
       - name: Build
         run: >
           cmake
-            --build _build
-            --config Release
-            --verbose
+          --build _build
+          --config Release
+          --verbose
 
       - name: Test
         run: >
           ctest
-            --test-dir _build
-            -C Release
-            --output-on-failure
+          --test-dir _build
+          -C Release
+          --output-on-failure
 
   windoze-build-and-test:
     name: windoze-build-and-test
@@ -98,23 +98,23 @@ jobs:
       - name: Configure
         run: >
           cmake
-            -S .
-            -B _build
-            -DBUILD_TESTING=ON
+          -S .
+          -B _build
+          -DBUILD_TESTING=ON
 
       - name: Build
         run: >
           cmake
-            --build _build
-            --config Release
-            --verbose
+          --build _build
+          --config Release
+          --verbose
 
       - name: Test
         run: >
           ctest
-            --test-dir _build
-            -C Release
-            --output-on-failure
+          --test-dir _build
+          -C Release
+          --output-on-failure
 
   unix-shared-build-and-test:
     name: unix-shared-build-and-test (${{ matrix.check_label }})
@@ -145,12 +145,12 @@ jobs:
       - name: Configure
         run: >
           cmake
-            -S .
-            -B _build-shared
-            -DBUILD_SHARED_LIBS=ON
-            -DBUILD_TESTING=ON
-            -DCMAKE_BUILD_TYPE=Release
-            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -S .
+          -B _build-shared
+          -DBUILD_SHARED_LIBS=ON
+          -DBUILD_TESTING=ON
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
 
       - name: Build
         run: >
@@ -162,9 +162,9 @@ jobs:
       - name: Test
         run: >
           ctest
-            --test-dir _build-shared
-            -C Release
-            --output-on-failure
+          --test-dir _build-shared
+          -C Release
+          --output-on-failure
 
       - name: Test Python examples
         run: |
@@ -194,27 +194,27 @@ jobs:
       - name: Configure
         run: >
           cmake
-            -S .
-            -B _build-shared
-            -DBUILD_SHARED_LIBS=ON
-            -DBUILD_TESTING=ON
+          -S .
+          -B _build-shared
+          -DBUILD_SHARED_LIBS=ON
+          -DBUILD_TESTING=ON
 
       - name: Build
         run: >
           cmake
-            --build _build-shared
-            --config Release
-            --verbose
+          --build _build-shared
+          --config Release
+          --verbose
 
       - name: Test
         run: >
           ctest
-            --test-dir _build-shared
-            -C Release
-            --output-on-failure
+          --test-dir _build-shared
+          -C Release
+          --output-on-failure
 
       - name: Test Python examples
         run: >
           python
-            examples/libscid/000-python-bindings/pgn_roundtrip.py
-            --library _build-shared/libscid/Release/scid.dll
+          examples/libscid/000-python-bindings/pgn_roundtrip.py
+          --library _build-shared/libscid/Release/scid.dll
