@@ -10,3 +10,8 @@ This directory contains examples that use the C ABI from `libscid`.
 - `050-position-and-moves/`: apply moves to a position and inspect the resulting state.
 - `060-mutate-pgn/`: edit move metadata and variations in an existing PGN game.
 - `070-eco-lookup/`: load an ECO book and classify a position.
+- `080-memory-database/`: create an in-memory database and list a filtered game.
+- `090-list-database/`: list database games using lightweight metadata calls.
+- `100-edit-database/`: replace games and toggle the deleted marker.
+- `110-persistent-database/`: create, close, and reopen a SCID5 database.
+- `120-import-export-pgn/`: import and export PGN through a database.
