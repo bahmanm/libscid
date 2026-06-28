@@ -16,6 +16,7 @@ set(
 
 add_library(
     scid_spelling
+    STATIC
     ${SCID_SPELLING_SOURCES} )
 add_library(
     LibScidCpp::Spelling
@@ -31,11 +32,9 @@ target_compile_features(
     scid_spelling
     PUBLIC cxx_std_20 )
 
-if( BUILD_SHARED_LIBS )
-    set_target_properties(
-        scid_spelling
-        PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON )
-endif()
+set_target_properties(
+    scid_spelling
+    PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
 target_include_directories(
     scid_spelling

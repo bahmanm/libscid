@@ -7,24 +7,25 @@ prebuilt archive is not available for the target platform.
 
 ## Requirements
 
-- A C++20 compiler.
-- CMake 3.23 or newer for source builds.
+- A C11 compiler for public C ABI consumers.
+- A C++20 compiler for source builds.
+- CMake 3.23 or newer for source builds and CMake consumers.
 - CMake 3.25 or newer when using the repository's CMake presets.
 
 ## Install From A Release Archive
 
 Pick the archive for your platform from the GitHub release assets:
 
-- `libscid-cpp__<version>__linux.tar.gz`
-- `libscid-cpp__<version>__macos-arm.tar.gz`
-- `libscid-cpp__<version>__windows.tar.gz`
+- `libscid__<version>__linux.tar.gz`
+- `libscid__<version>__macos-arm.tar.gz`
+- `libscid__<version>__windows.tar.gz`
 
 For example:
 
 ```sh
 version=vX.Y.Z
 platform=linux # linux, macos-arm, or windows
-asset_name="libscid-cpp__${version}__${platform}.tar.gz"
+asset_name="libscid__${version}__${platform}.tar.gz"
 
 mkdir -p downloads install/libscid
 curl -L \
@@ -48,19 +49,16 @@ cmake --build _build/your-project
 
 A release archive contains:
 
-- `include/`: installed public headers.
-- `lib/`: compiled libscid libraries and CMake package files under `lib/cmake/libscid-cpp`.
-- `share/doc/libscid-cpp/COPYING`: the GNU GPL v2 licence text.
-- `share/doc/libscid-cpp/README.md`: the release README.
-- `share/doc/libscid-cpp/examples/`: standalone example projects and fixtures.
-- `share/doc/libscid-cpp/html/`: generated API documentation when built into the package archive.
+- `include/`: installed public C ABI headers.
+- `lib/`: the compiled libscid library and CMake package files under `lib/cmake/libscid`.
+- `share/doc/libscid/COPYING`: the GNU GPL v2 licence text.
+- `share/doc/libscid/README.md`: the release README.
+- `share/doc/libscid/examples/`: standalone C ABI example projects and fixtures.
+- `share/doc/libscid/html/`: generated API documentation when built into the package archive.
 
-The package exports these CMake targets:
+The package exports one CMake target:
 
-- `LibScidCpp::Core`
-- `LibScidCpp::Database`
-- `LibScidCpp::Eco`
-- `LibScidCpp::Spelling`
+- `LibScid::LibScid`
 
 ## Build And Install From Source
 
@@ -106,7 +104,7 @@ cpack --preset portable-tgz
 Tests are disabled by default in top-level builds. Enable them explicitly:
 
 ```sh
-cmake -S . -B _build -DBUILD_TESTING=ON
+cmake -S . -B _build -DBUILD_TESTING=ON -DLIBSCID_INSTALL=OFF
 cmake --build _build
 ctest --test-dir _build --output-on-failure
 ```
@@ -117,6 +115,7 @@ Focused module test runs are also available after configuring with tests:
 ctest --test-dir _build -L core --output-on-failure
 ctest --test-dir _build -L database --output-on-failure
 ctest --test-dir _build -L eco --output-on-failure
+ctest --test-dir _build -L libscid --output-on-failure
 ```
 
 ## Build Documentation For GitHub Pages Locally

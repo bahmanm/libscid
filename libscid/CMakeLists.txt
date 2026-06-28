@@ -10,8 +10,14 @@ set(
     SCID_PUBLIC_HEADERS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/scid.h" )
 
+set( SCID_LIBRARY_TYPE "" )
+if( DEFINED LIBSCID_INSTALL AND LIBSCID_INSTALL )
+    set( SCID_LIBRARY_TYPE SHARED )
+endif()
+
 add_library(
     scid
+    ${SCID_LIBRARY_TYPE}
     src/scid.cpp )
 add_library(
     LibScid::LibScid
@@ -29,7 +35,8 @@ target_compile_features(
     scid
     PRIVATE cxx_std_20 )
 
-if( BUILD_SHARED_LIBS )
+get_target_property( SCID_TARGET_TYPE scid TYPE )
+if( SCID_TARGET_TYPE STREQUAL "SHARED_LIBRARY" )
     target_compile_definitions(
         scid
         PRIVATE SCID_BUILDING_LIBRARY

@@ -1,7 +1,7 @@
 # Examples and Recipes {#examples_recipes}
 
 The examples are small standalone consumers of an installed libscid package.
-They double as concept guides: each one introduces a narrow public workflow and
+They double as concept guides: each one introduces a narrow C ABI workflow and
 keeps the surrounding project structure minimal.
 
 Install libscid first, then configure the example tree with `CMAKE_PREFIX_PATH`
@@ -14,43 +14,43 @@ ctest --test-dir _build/examples --output-on-failure
 ```
 
 The same examples are included in release archives under
-`share/doc/libscid-cpp/examples`.
+`share/doc/libscid/examples`.
 
-## First Consumer
+## Language Bindings
 
-- `examples/libscid-cpp/000-minimal-consumer`: discover the installed CMake package, link
-  `LibScidCpp::Core`, and run a minimal program.
+- `examples/libscid/000-python-bindings`: load the shared C ABI from Python
+  with `ctypes` and roundtrip PGN.
 
 ## Games, Positions And PGN
 
-- `examples/libscid-cpp/010-pgn-roundtrip`: parse a PGN game into `scid::core::Game`, read
-  metadata and encode it back to PGN.
-- `examples/libscid-cpp/020-position-and-moves`: start from the normal chess position,
-  apply coordinate moves, print FEN and generate legal replies.
-- `examples/libscid-cpp/030-build-game`: build a `scid::core::Game` programmatically and
-  encode it as PGN.
+- `examples/libscid/010-edit-pgn`: parse, inspect, edit and write a PGN game.
+- `examples/libscid/020-author-pgn`: author a PGN game with moves, comments,
+  NAGs and a variation.
+- `examples/libscid/030-nonstandard-start`: create a game from a FEN start
+  position and export it.
+- `examples/libscid/040-navigate-pgn`: navigate mainline moves and variations
+  with a movetext cursor.
+- `examples/libscid/050-position-and-moves`: apply moves to a position and
+  inspect the resulting state.
+- `examples/libscid/060-mutate-pgn`: edit move metadata and variations in an
+  existing PGN game.
 
 ## Databases
 
-- `examples/libscid-cpp/040-open-database`: open a SCID5 database in read-only mode and
-  print a summary of the first game.
-- `examples/libscid-cpp/070-list-database`: create a sort cache and list games in date
-  order.
-- `examples/libscid-cpp/080-search-position`: load a position from a game and search the
-  database for games that reached that position.
-- `examples/libscid-cpp/090-opening-tree`: build opening-tree statistics for games matching
-  a searched position.
-- `examples/libscid-cpp/100-import-pgn`: import PGN into an in-memory database and load an
-  imported game back through the database API.
-- `examples/libscid-cpp/110-database-stats`: read aggregate database statistics such as
-  dates, results, ratings and ECO coverage.
+- `examples/libscid/080-memory-database`: create an in-memory database and list
+  a filtered game.
+- `examples/libscid/090-list-database`: list database games using lightweight
+  metadata calls.
+- `examples/libscid/100-edit-database`: replace games and toggle the deleted
+  marker.
+- `examples/libscid/110-persistent-database`: create, close and reopen a SCID5
+  database.
+- `examples/libscid/120-import-export-pgn`: import and export PGN through a
+  database.
 
-## ECO And Spelling
+## ECO
 
-- `examples/libscid-cpp/050-eco-classification`: load an ECO book and classify an opening
-  position.
-- `examples/libscid-cpp/060-spelling`: load a spelling file, correct a player-name alias
-  and read player metadata.
+- `examples/libscid/070-eco-lookup`: load an ECO book and classify a position.
 
 ## Fixtures
 

@@ -205,10 +205,6 @@ def _enable_windows_dll_search_dirs(library_path: Path) -> None:
         for relative in [
             ("lib", "Release"),
             ("libscid", "Release"),
-            ("libscid-cpp", "core", "Release"),
-            ("libscid-cpp", "eco", "Release"),
-            ("libscid-cpp", "database", "Release"),
-            ("libscid-cpp", "spelling", "Release"),
         ]:
             directories.append(root / build_dir / Path(*relative))
 

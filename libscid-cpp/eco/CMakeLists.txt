@@ -18,6 +18,7 @@ set(
 
 add_library(
     scid_eco
+    STATIC
     ${SCID_ECO_SOURCES} )
 add_library(
     LibScidCpp::Eco
@@ -33,11 +34,9 @@ target_compile_features(
     scid_eco
     PUBLIC cxx_std_20 )
 
-if( BUILD_SHARED_LIBS )
-    set_target_properties(
-        scid_eco
-        PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON )
-endif()
+set_target_properties(
+    scid_eco
+    PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
 target_include_directories(
     scid_eco

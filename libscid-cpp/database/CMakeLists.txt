@@ -59,6 +59,7 @@ set(
 
 add_library(
     scid_database
+    STATIC
     ${SCID_DATABASE_SOURCES} )
 add_library(
     LibScidCpp::Database
@@ -76,15 +77,9 @@ target_compile_features(
     scid_database
     PUBLIC cxx_std_20 )
 
-if( BUILD_SHARED_LIBS )
-    set_target_properties(
-        scid_database
-        PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON )
-    target_compile_definitions(
-        scid_database
-        PRIVATE SCID_DATABASE_BUILDING_LIBRARY
-        PUBLIC SCID_DATABASE_SHARED )
-endif()
+set_target_properties(
+    scid_database
+    PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
 target_include_directories(
     scid_database
