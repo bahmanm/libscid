@@ -27,6 +27,7 @@
 #include "scid/database/game_id.h"
 #include "scid/database/matsig.h"
 #include <cstring> //memcmp
+#include <type_traits>
 
 namespace scid::database
 {

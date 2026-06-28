@@ -478,7 +478,7 @@ namespace scid::spelling
         std::string res;
         for (const char* i = s; *i != 0; i++)
         {
-            if (excludeChars_[nt].find(*i) != std::string::npos)
+            if (excludeChars_[nt].contains(*i))
                 continue;
 
             res += *i;

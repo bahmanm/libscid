@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.23 )
+cmake_minimum_required( VERSION 3.28 )
 
 if( DEFINED LIBSCID_VERSION AND LIBSCID_VERSION MATCHES "^[0-9]+(\\.[0-9]+)?(\\.[0-9]+)?(\\.[0-9]+)?$" )
     unset( LIBSCID_VERSION CACHE )
