@@ -21,7 +21,7 @@ add_library(
     STATIC
     ${SCID_ECO_SOURCES} )
 add_library(
-    LibScidCpp::Eco
+    LibScidInternal::Eco
     ALIAS scid_eco )
 target_sources(
     scid_eco
@@ -45,7 +45,7 @@ target_include_directories(
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>" )
 target_link_libraries(
     scid_eco
-    PUBLIC LibScidCpp::Core )
+    PUBLIC LibScidInternal::Core )
 
 if( PROJECT_IS_TOP_LEVEL )
     include( CTest )
@@ -75,15 +75,15 @@ if( BUILD_TESTING )
         ${SCID_ECO_TEST_SOURCES} )
     target_link_libraries(
         scid_tests_eco_cpp
-        PRIVATE LibScidCpp::Eco gtest_main )
+        PRIVATE LibScidInternal::Eco gtest_main )
     libscid_enable_test_runtime_dlls( scid_tests_eco_cpp )
     add_executable(
-        LibScidCpp::Tests::Eco::Cpp
+        LibScidInternal::Tests::Eco::Cpp
         ALIAS scid_tests_eco_cpp )
 
     add_test(
         NAME eco_cpp_test
-        COMMAND $<TARGET_FILE:LibScidCpp::Tests::Eco::Cpp> )
+        COMMAND $<TARGET_FILE:LibScidInternal::Tests::Eco::Cpp> )
     set_tests_properties(
         eco_cpp_test
         PROPERTIES LABELS "cpp;eco" )

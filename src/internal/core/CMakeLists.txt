@@ -53,7 +53,7 @@ add_library(
     STATIC
     ${SCID_CORE_SOURCES} )
 add_library(
-    LibScidCpp::Core
+    LibScidInternal::Core
     ALIAS scid_core )
 target_sources(
     scid_core
@@ -108,15 +108,15 @@ if( BUILD_TESTING )
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
     target_link_libraries(
         scid_tests_core_cpp
-        PRIVATE LibScidCpp::Core gtest_main )
+        PRIVATE LibScidInternal::Core gtest_main )
     libscid_enable_test_runtime_dlls( scid_tests_core_cpp )
     add_executable(
-        LibScidCpp::Tests::Core::Cpp
+        LibScidInternal::Tests::Core::Cpp
         ALIAS scid_tests_core_cpp )
 
     add_test(
         NAME core_cpp_test
-        COMMAND $<TARGET_FILE:LibScidCpp::Tests::Core::Cpp> )
+        COMMAND $<TARGET_FILE:LibScidInternal::Tests::Core::Cpp> )
     set_tests_properties(
         core_cpp_test
         PROPERTIES LABELS "cpp;core" )
