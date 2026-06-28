@@ -63,18 +63,18 @@ endif()
 if( BUILD_TESTING )
     add_executable(
         scid_tests_c
-        tests/c/test_cursor.c
-        tests/c/test_cursor_mutation.c
-        tests/c/test_database.c
-        tests/c/test_eco.c
-        tests/c/test_game.c
-        tests/c/test_libscid.c
-        tests/c/test_movespec.c
-        tests/c/test_nag.c
-        tests/c/test_piece.c
-        tests/c/test_position.c
-        tests/c/test_pgn_contract.c
-        tests/c/test_square.c )
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_cursor.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_cursor_mutation.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_database.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_eco.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_game.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_libscid.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_movespec.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_nag.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_piece.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_position.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_pgn_contract.c"
+        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_square.c" )
     target_link_libraries(
         scid_tests_c
         PRIVATE LibScid::LibScid )

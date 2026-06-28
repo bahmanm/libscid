@@ -99,7 +99,7 @@ if( BUILD_TESTING )
     file(
         GLOB SCID_CORE_TEST_SOURCES
         CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/*.cpp" )
+        "${LIBSCID_SOURCE_ROOT}/tests/internal/core/cxx/*.cpp" )
     add_executable(
         scid_tests_core_cpp
         ${SCID_CORE_TEST_SOURCES} )

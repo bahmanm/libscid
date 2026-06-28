@@ -113,13 +113,13 @@ if( BUILD_TESTING )
     file(
         GLOB SCID_DATABASE_TEST_SOURCES
         CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/*.cpp" )
+        "${LIBSCID_SOURCE_ROOT}/tests/internal/database/cxx/*.cpp" )
     add_executable(
         scid_tests_database_cpp
         ${SCID_DATABASE_TEST_SOURCES} )
     target_compile_definitions(
         scid_tests_database_cpp
-        PRIVATE SCID_TEST_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/\" )
+        PRIVATE SCID_TEST_RESOURCES_DIR=\"${LIBSCID_SOURCE_ROOT}/tests/internal/database/cxx/\" )
     target_include_directories(
         scid_tests_database_cpp
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )

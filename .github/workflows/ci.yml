@@ -174,7 +174,7 @@ jobs:
           fi
 
           python examples/libscid/000-python-bindings/pgn_roundtrip.py \
-            --library "_build-shared/libscid/${library_name}"
+            --library "_build-shared/src/libscid/${library_name}"
 
   windoze-shared-build-and-test:
     name: windoze-shared-build-and-test
@@ -217,4 +217,4 @@ jobs:
         run: >
           python
           examples/libscid/000-python-bindings/pgn_roundtrip.py
-          --library _build-shared/libscid/Release/scid.dll
+          --library _build-shared/src/libscid/Release/scid.dll
