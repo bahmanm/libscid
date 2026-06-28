@@ -124,7 +124,7 @@ jobs:
           examples_build_dir="${RUNNER_TEMP}/libscid-package-examples"
 
           rm -rf "$examples_build_dir"
-          cmake -S "$PACKAGE_INSTALL_ROOT/share/doc/libscid-cpp/examples" -B "$examples_build_dir" -DCMAKE_PREFIX_PATH="$PACKAGE_INSTALL_ROOT"
+          cmake -S "$PACKAGE_INSTALL_ROOT/share/doc/libscid/examples" -B "$examples_build_dir" -DCMAKE_PREFIX_PATH="$PACKAGE_INSTALL_ROOT"
           cmake --build "$examples_build_dir" --verbose
           if [[ "$RUNNER_OS" == "macOS" ]]; then
             export DYLD_LIBRARY_PATH="$PACKAGE_INSTALL_ROOT/lib:${DYLD_LIBRARY_PATH:-}"
@@ -230,7 +230,7 @@ jobs:
       - name: Test examples against package
         run: |
           $examplesBuildDir = Join-Path $env:RUNNER_TEMP "libscid-package-examples"
-          $examplesSourceDir = Join-Path $env:PACKAGE_INSTALL_ROOT "share/doc/libscid-cpp/examples"
+          $examplesSourceDir = Join-Path $env:PACKAGE_INSTALL_ROOT "share/doc/libscid/examples"
 
           Remove-Item -Recurse -Force -ErrorAction Ignore $examplesBuildDir
           cmake -S $examplesSourceDir -B $examplesBuildDir "-DCMAKE_PREFIX_PATH=$env:PACKAGE_INSTALL_ROOT"
@@ -262,7 +262,7 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v3
         with:
-          name: libscid-cpp ${{ github.ref_name }}
+          name: libscid ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-testing') }}
           files: dist/*.tar.gz
           fail_on_unmatched_files: true

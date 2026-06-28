@@ -42,6 +42,13 @@ def _extract_node_by_url(text: str, url: str) -> str:
     return text[start:end]
 
 
+def _try_extract_node_by_url(text: str, url: str) -> str | None:
+    try:
+        return _extract_node_by_url(text, url)
+    except ValueError:
+        return None
+
+
 def _extract_menu_object(text: str, title: str) -> str:
     marker = f'{{text:"{title}",'
     start = text.index(marker)
@@ -73,32 +80,49 @@ def _extract_menu_object(text: str, title: str) -> str:
     return text[start:end]
 
 
+def _try_extract_menu_object(text: str, title: str) -> str | None:
+    try:
+        return _extract_menu_object(text, title)
+    except ValueError:
+        return None
+
+
 def _patch_navtree(html_dir: Path) -> None:
     nav_path = html_dir / "navtreedata.js"
     text = nav_path.read_text()
 
-    quick_start = _extract_node_by_url(text, "quick_start.html")
-    installation = _extract_node_by_url(text, "installation.html")
-    recipes = _extract_node_by_url(text, "examples_recipes.html")
-    architecture = _extract_node_by_url(text, "architecture.html")
-    api_surface = _extract_node_by_url(text, "api_surface.html")
-    namespaces = _extract_node_by_url(text, "namespaces.html")
-    classes = _extract_node_by_url(text, "annotated.html")
-    files = _extract_node_by_url(text, "files.html")
+    root_nodes = []
+    for url in (
+        "quick_start.html",
+        "installation.html",
+        "examples_recipes.html",
+        "api_surface.html",
+    ):
+        node = _try_extract_node_by_url(text, url)
+        if node is not None:
+            root_nodes.append(node)
+
+    api_nodes = []
+    for url in (
+        "annotated.html",
+        "files.html",
+        "globals.html",
+    ):
+        node = _try_extract_node_by_url(text, url)
+        if node is not None:
+            api_nodes.append(node)
+
+    if api_nodes:
+        root_nodes.append(
+            '[ "API Reference", "files.html", [\n      '
+            + ",\n      ".join(api_nodes)
+            + "\n    ] ]"
+        )
 
     root = f'''var NAVTREE =
 [
   [ "libscid", "index.html", [
-    {quick_start},
-    {installation},
-    {recipes},
-    {architecture},
-    {api_surface},
-    [ "API Reference", "namespaces.html", [
-      {namespaces},
-      {classes},
-      {files}
-    ] ]
+    {",\n    ".join(root_nodes)}
   ] ]
 ];
 '''
@@ -114,16 +138,14 @@ def _read_navtree_index_paths(html_dir: Path) -> dict[str, tuple[int, ...]]:
         "quick_start.html",
         "installation.html",
         "examples_recipes.html",
-        "architecture.html",
         "api_surface.html",
-        "namespaces.html",
         "annotated.html",
         "files.html",
+        "globals.html",
     ):
         match = re.search(rf'"{re.escape(url)}":\[(.*?)\]', text)
-        if not match:
-            raise ValueError(f"could not find navtree index path for {url}")
-        paths[url] = tuple(int(part) for part in match.group(1).split(",") if part)
+        if match:
+            paths[url] = tuple(int(part) for part in match.group(1).split(",") if part)
     return paths
 
 
@@ -131,16 +153,27 @@ def _patch_navtree_indexes(
     html_dir: Path,
     old_paths: dict[str, tuple[int, ...]],
 ) -> None:
-    path_map = {
-        old_paths["quick_start.html"]: (0,),
-        old_paths["installation.html"]: (1,),
-        old_paths["examples_recipes.html"]: (2,),
-        old_paths["architecture.html"]: (3,),
-        old_paths["api_surface.html"]: (4,),
-        old_paths["namespaces.html"]: (5, 0),
-        old_paths["annotated.html"]: (5, 1),
-        old_paths["files.html"]: (5, 2),
-    }
+    path_map = {}
+    root_index = 0
+    for url in (
+        "quick_start.html",
+        "installation.html",
+        "examples_recipes.html",
+        "api_surface.html",
+    ):
+        if url in old_paths:
+            path_map[old_paths[url]] = (root_index,)
+            root_index += 1
+
+    api_index = 0
+    for url in (
+        "annotated.html",
+        "files.html",
+        "globals.html",
+    ):
+        if url in old_paths:
+            path_map[old_paths[url]] = (root_index, api_index)
+            api_index += 1
     ordered = sorted(path_map.items(), key=lambda item: len(item[0]), reverse=True)
 
     def replace(match: re.Match[str]) -> str:
@@ -163,20 +196,24 @@ def _patch_menudata(html_dir: Path) -> None:
     menu_path = html_dir / "menudata.js"
     text = menu_path.read_text()
 
-    namespaces = _extract_menu_object(text, "Namespaces")
-    classes = _extract_menu_object(text, "Classes")
-    files = _extract_menu_object(text, "Files")
+    api_children = []
+    for title in (
+        "Data Structures",
+        "Classes",
+        "Files",
+        "Globals",
+    ):
+        child = _try_extract_menu_object(text, title)
+        if child is not None:
+            api_children.append(child)
 
     menu = f'''var menudata={{children:[
 {{text:"Quick Start",url:"quick_start.html"}},
 {{text:"Installation",url:"installation.html"}},
 {{text:"Examples and Recipes",url:"examples_recipes.html"}},
-{{text:"Architecture and Diagrams",url:"architecture.html"}},
 {{text:"API Surface",url:"api_surface.html"}},
-{{text:"API Reference",url:"namespaces.html",children:[
-{namespaces},
-{classes},
-{files}]}}]}}
+{{text:"API Reference",url:"files.html",children:[
+{",\n".join(api_children)}]}}]}}
 '''
 
     text = re.sub(r"var menudata=\{children:\[.*?\]\}\s*$", menu, text, count=1, flags=re.S)

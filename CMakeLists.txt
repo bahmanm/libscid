@@ -7,12 +7,14 @@ endif()
 set( LIBSCID_PROJECT_VERSION "0.0.0" CACHE STRING "Numeric libscid version used for CMake package compatibility." )
 
 project(
-    libscid-cpp
+    libscid
     VERSION "${LIBSCID_PROJECT_VERSION}"
     LANGUAGES CXX )
 
 include( GNUInstallDirs )
 include( cmake/test/runtime-dlls.cmake )
+
+set( LIBSCID_SOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 set( _libscid_default_version "snapshot" )
 find_package( Git QUIET )
@@ -39,11 +41,11 @@ if( PROJECT_IS_TOP_LEVEL )
     include( cmake/format.cmake )
 endif()
 
-add_subdirectory( libscid-cpp/core )
-add_subdirectory( libscid-cpp/eco )
-add_subdirectory( libscid-cpp/database )
-add_subdirectory( libscid-cpp/spelling )
-add_subdirectory( libscid )
+add_subdirectory( src/internal/core )
+add_subdirectory( src/internal/eco )
+add_subdirectory( src/internal/database )
+add_subdirectory( src/internal/spelling )
+add_subdirectory( src/libscid )
 
 if( LIBSCID_BUILD_DOCS )
     include( cmake/docs.cmake )

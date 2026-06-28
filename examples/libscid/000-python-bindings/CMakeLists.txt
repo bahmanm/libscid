@@ -8,6 +8,7 @@ include( CTest )
 include( GNUInstallDirs )
 
 find_package( Python3 COMPONENTS Interpreter REQUIRED )
+find_package( libscid CONFIG REQUIRED )
 
 set(
     LIBSCID_EXAMPLE_C_ABI_LIBRARY
@@ -16,6 +17,10 @@ set(
 
 if( LIBSCID_EXAMPLE_C_ABI_LIBRARY STREQUAL "" AND TARGET scid )
     set( LIBSCID_EXAMPLE_C_ABI_LIBRARY "$<TARGET_FILE:scid>" )
+endif()
+
+if( LIBSCID_EXAMPLE_C_ABI_LIBRARY STREQUAL "" AND TARGET LibScid::LibScid )
+    set( LIBSCID_EXAMPLE_C_ABI_LIBRARY "$<TARGET_FILE:LibScid::LibScid>" )
 endif()
 
 if( LIBSCID_EXAMPLE_C_ABI_LIBRARY STREQUAL "" )

@@ -6,19 +6,7 @@ project(
 
 include( CTest )
 
-find_path(
-    LIBSCID_C_INCLUDE_DIR
-    NAMES scid/scid.h )
-
-find_library(
-    LIBSCID_C_LIBRARY
-    NAMES scid libscid )
-
-if( NOT LIBSCID_C_INCLUDE_DIR OR NOT LIBSCID_C_LIBRARY )
-    message(
-        FATAL_ERROR
-        "Could not find libscid C ABI. Set CMAKE_PREFIX_PATH to the install root." )
-endif()
+find_package( libscid CONFIG REQUIRED )
 
 add_executable(
     libscid-example-070-eco-lookup
@@ -36,13 +24,9 @@ target_compile_definitions(
     PRIVATE
         LIBSCID_EXAMPLE_ECO_FILE="${CMAKE_CURRENT_SOURCE_DIR}/../../fixtures/mini.eco" )
 
-target_include_directories(
-    libscid-example-070-eco-lookup
-    PRIVATE "${LIBSCID_C_INCLUDE_DIR}" )
-
 target_link_libraries(
     libscid-example-070-eco-lookup
-    PRIVATE "${LIBSCID_C_LIBRARY}" )
+    PRIVATE LibScid::LibScid )
 
 if( BUILD_TESTING )
     add_test(

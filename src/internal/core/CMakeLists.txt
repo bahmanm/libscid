@@ -50,6 +50,7 @@ set(
 
 add_library(
     scid_core
+    STATIC
     ${SCID_CORE_SOURCES} )
 add_library(
     LibScidCpp::Core
@@ -65,11 +66,9 @@ target_compile_features(
     scid_core
     PUBLIC cxx_std_20 )
 
-if( BUILD_SHARED_LIBS )
-    set_target_properties(
-        scid_core
-        PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON )
-endif()
+set_target_properties(
+    scid_core
+    PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
 target_include_directories(
     scid_core
@@ -100,7 +99,7 @@ if( BUILD_TESTING )
     file(
         GLOB SCID_CORE_TEST_SOURCES
         CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/*.cpp" )
+        "${LIBSCID_SOURCE_ROOT}/tests/internal/core/cxx/*.cpp" )
     add_executable(
         scid_tests_core_cpp
         ${SCID_CORE_TEST_SOURCES} )

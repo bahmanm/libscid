@@ -59,6 +59,7 @@ set(
 
 add_library(
     scid_database
+    STATIC
     ${SCID_DATABASE_SOURCES} )
 add_library(
     LibScidCpp::Database
@@ -76,15 +77,9 @@ target_compile_features(
     scid_database
     PUBLIC cxx_std_20 )
 
-if( BUILD_SHARED_LIBS )
-    set_target_properties(
-        scid_database
-        PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON )
-    target_compile_definitions(
-        scid_database
-        PRIVATE SCID_DATABASE_BUILDING_LIBRARY
-        PUBLIC SCID_DATABASE_SHARED )
-endif()
+set_target_properties(
+    scid_database
+    PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
 target_include_directories(
     scid_database
@@ -118,13 +113,13 @@ if( BUILD_TESTING )
     file(
         GLOB SCID_DATABASE_TEST_SOURCES
         CONFIGURE_DEPENDS
-        "${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/*.cpp" )
+        "${LIBSCID_SOURCE_ROOT}/tests/internal/database/cxx/*.cpp" )
     add_executable(
         scid_tests_database_cpp
         ${SCID_DATABASE_TEST_SOURCES} )
     target_compile_definitions(
         scid_tests_database_cpp
-        PRIVATE SCID_TEST_RESOURCES_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx/\" )
+        PRIVATE SCID_TEST_RESOURCES_DIR=\"${LIBSCID_SOURCE_ROOT}/tests/internal/database/cxx/\" )
     target_include_directories(
         scid_tests_database_cpp
         PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/internal" )
