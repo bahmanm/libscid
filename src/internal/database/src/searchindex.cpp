@@ -426,9 +426,10 @@ namespace scid::database
                             }
                             else if (++extra < op_.length())
                             {
-                                if (op_.find('!', extra) != std::string::npos)
+                                const auto extraOps = std::string_view(op_).substr(extra);
+                                if (extraOps.contains('!'))
                                     opNot_ = true;
-                                if (op_.find('|', extra) != std::string::npos)
+                                if (extraOps.contains('|'))
                                     opOr_ = true;
                                 op_.erase(extra);
                             }

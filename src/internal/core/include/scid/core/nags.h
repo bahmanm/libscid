@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace scid::core
 {
@@ -90,7 +91,7 @@ namespace scid::core
     nagCode(
         Nag nag)
     {
-        return static_cast<std::uint8_t>(nag);
+        return std::to_underlying(nag);
     }
 
     /** Builds a Nag value from a numeric PGN code. */

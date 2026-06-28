@@ -239,7 +239,7 @@ TEST(
             std::string fen = "4k3/8/8/8/8/8/8/4K2R ";
             fen.append(1, color).append(1, ' ');
             auto expected = fen;
-            expected.append(flag.find('K') != std::string::npos ? "K" : "-");
+            expected.append(flag.contains('K') ? "K" : "-");
             expected.append(" - 0 1");
             fen.append(flag).append(" - 0 1");
 

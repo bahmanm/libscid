@@ -23,6 +23,7 @@
 
 #include "scid/core/error.h"
 #include "scid/eco/code.h"
+#include <expected>
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -94,6 +95,9 @@ namespace scid::eco
                                           // position in the book. In the range 0..32.
 
         public:
+            /** Result type returned by ECO book loading. */
+            using LoadResult = std::expected<Book, Error>;
+
             /**
              * Loads a Scid ECO file.
              *
@@ -105,14 +109,13 @@ namespace scid::eco
              *
              * Blank text and comment lines beginning with @c # are skipped while
              * looking for the next ECO code.  Each move sequence is parsed from the
-             * standard chess starting position.  If the file cannot be opened,
-             * @c ERROR_FileOpen is returned.  If a line is malformed or contains an
-             * illegal move, @c ERROR_Corrupt is returned and the returned book is
-             * empty.
+             * standard chess starting position.  If the file cannot be opened, the
+             * result contains @c ERROR_FileOpen.  If a line is malformed or contains
+             * an illegal move, the result contains @c ERROR_Corrupt.
              *
-             * @returns an error code plus the loaded book.
+             * @returns the loaded book, or the load error.
              */
-            static std::pair<Error, Book>
+            static LoadResult
             load(const std::filesystem::path& path);
 
             /**

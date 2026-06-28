@@ -73,10 +73,10 @@ TEST_F(
     EcoBookTest,
     MissingFileReturnsOpenError)
 {
-    auto [err, book] = scid::eco::Book::load(path_);
+    auto book = scid::eco::Book::load(path_);
 
-    EXPECT_EQ(scid::eco::ERROR_FileOpen, err);
-    EXPECT_EQ(0u, book.size());
+    ASSERT_FALSE(book);
+    EXPECT_EQ(scid::eco::ERROR_FileOpen, book.error());
 }
 
 TEST_F(
@@ -85,19 +85,19 @@ TEST_F(
 {
     writeFile(path_, kEcoFile);
 
-    auto [err, book] = scid::eco::Book::load(path_);
-    ASSERT_EQ(scid::eco::OK, err);
-    EXPECT_EQ(3u, book.size());
+    auto book = scid::eco::Book::load(path_);
+    ASSERT_TRUE(book) << book.error();
+    EXPECT_EQ(3u, book->size());
 
     scid::core::Position position;
     position.StdStart();
-    EXPECT_EQ("A00a [Start position]", book.findEcoString(position));
-    EXPECT_EQ(scid::eco::fromString("A00a"), book.findEco(position));
+    EXPECT_EQ("A00a [Start position]", book->findEcoString(position));
+    EXPECT_EQ(scid::eco::fromString("A00a"), book->findEco(position));
 
     play(position, "e4");
     play(position, "c5");
-    EXPECT_EQ("B20 [Sicilian Defence]", book.findEcoString(position));
-    EXPECT_EQ(scid::eco::fromString("B20"), book.findEco(position));
+    EXPECT_EQ("B20 [Sicilian Defence]", book->findEcoString(position));
+    EXPECT_EQ(scid::eco::fromString("B20"), book->findEco(position));
 }
 
 TEST_F(
@@ -106,10 +106,10 @@ TEST_F(
 {
     writeFile(path_, kEcoFile);
 
-    auto [err, book] = scid::eco::Book::load(path_);
-    ASSERT_EQ(scid::eco::OK, err);
+    auto book = scid::eco::Book::load(path_);
+    ASSERT_TRUE(book) << book.error();
 
-    auto lines = book.linesWithPrefix("C50");
+    auto lines = book->linesWithPrefix("C50");
     ASSERT_EQ(1u, lines.size());
     EXPECT_EQ("C50a", lines[0].code);
     EXPECT_EQ("Italian Game", lines[0].name);
@@ -122,8 +122,8 @@ TEST_F(
 {
     writeFile(path_, "A00 \"Broken\" 1.NotAMove *\n");
 
-    auto [err, book] = scid::eco::Book::load(path_);
+    auto book = scid::eco::Book::load(path_);
 
-    EXPECT_EQ(scid::eco::ERROR_Corrupt, err);
-    EXPECT_EQ(0u, book.size());
+    ASSERT_FALSE(book);
+    EXPECT_EQ(scid::eco::ERROR_Corrupt, book.error());
 }

@@ -185,13 +185,13 @@ namespace scid::eco
         return res;
     }
 
-    std::pair<Error, Book>
+    Book::LoadResult
     Book::load(
         const std::filesystem::path& path)
     {
         std::filebuf fp;
         if (!fp.open(path, std::ios::in | std::ios::binary))
-            return std::make_pair(ERROR_FileOpen, Book{});
+            return std::unexpected(ERROR_FileOpen);
 
         Book book;
         book.lineCount_ = 1;
@@ -336,10 +336,10 @@ namespace scid::eco
             book.comments_.push_back(it->second.comment.get());
             book.leastMaterial_ = std::min(book.leastMaterial_, pos.TotalMaterial());
         }
-        return std::pair<Error, Book>(OK, std::move(book));
+        return std::move(book);
 
     corrupt:
-        return std::make_pair(ERROR_Corrupt, Book{});
+        return std::unexpected(ERROR_Corrupt);
     }
 
 } // namespace scid::eco

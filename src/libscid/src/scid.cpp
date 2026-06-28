@@ -2749,14 +2749,14 @@ scid_eco_book_load(
 
     try
     {
-        auto [error, book] = scid::eco::Book::load(path);
-        if (error != scid::eco::OK)
+        auto book = scid::eco::Book::load(path);
+        if (!book)
         {
             *out_book = nullptr;
-            return error;
+            return book.error();
         }
 
-        *out_book = new scid_eco_book{std::move(book)};
+        *out_book = new scid_eco_book{std::move(*book)};
         return SCID_OK;
     }
     catch (...)
