@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.23 )
+cmake_minimum_required( VERSION 3.28 )
 
 project(
     libscid
@@ -33,7 +33,11 @@ target_sources(
 
 target_compile_features(
     scid
-    PRIVATE cxx_std_20 )
+    PRIVATE cxx_std_23 )
+
+set_target_properties(
+    scid
+    PROPERTIES CXX_EXTENSIONS OFF )
 
 get_target_property( SCID_TARGET_TYPE scid TYPE )
 if( SCID_TARGET_TYPE STREQUAL "SHARED_LIBRARY" )

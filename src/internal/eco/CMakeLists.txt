@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.23 )
+cmake_minimum_required( VERSION 3.28 )
 
 project(
     libscid-eco
@@ -32,11 +32,13 @@ target_sources(
         FILES ${SCID_ECO_PUBLIC_HEADERS} )
 target_compile_features(
     scid_eco
-    PUBLIC cxx_std_20 )
+    PUBLIC cxx_std_23 )
 
 set_target_properties(
     scid_eco
-    PROPERTIES POSITION_INDEPENDENT_CODE ON )
+    PROPERTIES
+        CXX_EXTENSIONS OFF
+        POSITION_INDEPENDENT_CODE ON )
 
 target_include_directories(
     scid_eco
