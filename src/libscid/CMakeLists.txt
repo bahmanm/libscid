@@ -52,9 +52,9 @@ target_include_directories(
 target_link_libraries(
     scid
     PRIVATE
-        LibScidCpp::Core
-        LibScidCpp::Database
-        LibScidCpp::Eco )
+        LibScidInternal::Core
+        LibScidInternal::Database
+        LibScidInternal::Eco )
 
 if( PROJECT_IS_TOP_LEVEL )
     include( CTest )
