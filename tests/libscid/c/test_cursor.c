@@ -19,6 +19,7 @@ test_cursor(
     scid_game* other_game = NULL;
     scid_movetext_cursor* cursor = NULL;
     scid_movetext_cursor* clone = NULL;
+    scid_movetext_cursor* next_cursor = NULL;
     scid_position* position = NULL;
     char fen[128];
     char text[128];
@@ -98,8 +99,10 @@ test_cursor(
     assert(nag == 1);
     assert(scid_movetext_cursor_next_move_nag_at_get(cursor, 1, &nag) == SCID_ERROR_BAD_ARG);
 
-    assert(scid_movetext_cursor_next(cursor, &truth) == SCID_OK);
+    assert(scid_movetext_cursor_next(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
+    test_cursor_take(&cursor, next_cursor);
+    next_cursor = NULL;
     assert(scid_movetext_cursor_ply_get(cursor, &value) == SCID_OK);
     assert(value == 1);
     assert(scid_movetext_cursor_clone(game, cursor, &clone) == SCID_OK);
@@ -131,7 +134,7 @@ test_cursor(
     assert(nag == 1);
     assert(scid_movetext_cursor_previous_move_nag_at_get(cursor, 1, &nag) == SCID_ERROR_BAD_ARG);
 
-    assert(scid_movetext_cursor_comment_set(cursor, "Changed e4") == SCID_OK);
+    assert(scid_movetext_cursor_comment_set(game, cursor, "Changed e4") == SCID_OK);
     assert(scid_movetext_cursor_comment_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Changed e4") == 0);
     assert(text_size == 10);
@@ -141,10 +144,13 @@ test_cursor(
     assert(strcmp(text, "Changed e4") == 0);
     assert(text_size == 10);
 
-    assert(scid_movetext_cursor_next(cursor, &truth) == SCID_OK);
+    assert(scid_movetext_cursor_next(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
-    assert(scid_movetext_cursor_next(cursor, &truth) == SCID_OK);
+    test_cursor_take(&cursor, next_cursor);
+    next_cursor = NULL;
+    assert(scid_movetext_cursor_next(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 0);
+    assert(next_cursor == NULL);
     assert(scid_movetext_cursor_is_game_end(cursor, &truth) == SCID_OK);
     assert(truth == 1);
     assert(scid_movetext_cursor_ply_get(clone, &value) == SCID_OK);
@@ -153,20 +159,28 @@ test_cursor(
         scid_movetext_cursor_previous_move_san_get(clone, text, sizeof(text), &text_size) ==
         SCID_OK);
     assert(strcmp(text, "e4") == 0);
-    assert(scid_movetext_cursor_next(clone, &truth) == SCID_OK);
+    assert(scid_movetext_cursor_next(clone, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
+    test_cursor_take(&clone, next_cursor);
+    next_cursor = NULL;
     assert(
         scid_movetext_cursor_previous_move_san_get(clone, text, sizeof(text), &text_size) ==
         SCID_OK);
     assert(strcmp(text, "e5") == 0);
 
-    assert(scid_movetext_cursor_previous(cursor, &truth) == SCID_OK);
+    assert(scid_movetext_cursor_previous(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
-    assert(scid_movetext_cursor_to_ply(cursor, 0, &truth) == SCID_OK);
+    test_cursor_take(&cursor, next_cursor);
+    next_cursor = NULL;
+    assert(scid_movetext_cursor_to_ply(cursor, 0, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
+    test_cursor_take(&cursor, next_cursor);
+    next_cursor = NULL;
 
-    assert(scid_movetext_cursor_variation_enter(cursor, 0, &truth) == SCID_OK);
+    assert(scid_movetext_cursor_variation_enter(cursor, 0, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
+    test_cursor_take(&cursor, next_cursor);
+    next_cursor = NULL;
     assert(scid_movetext_cursor_variation_depth_get(cursor, &value) == SCID_OK);
     assert(value == 1);
     assert(scid_movetext_cursor_is_variation_empty(cursor, &truth) == SCID_OK);
@@ -178,28 +192,39 @@ test_cursor(
     assert(scid_position_to_fen(position, fen, sizeof(fen), &value) == SCID_OK);
     assert(strcmp(fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") == 0);
 
-    assert(scid_movetext_cursor_next(cursor, &truth) == SCID_OK);
+    assert(scid_movetext_cursor_next(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
+    test_cursor_take(&cursor, next_cursor);
+    next_cursor = NULL;
     assert(scid_movetext_cursor_position_get(cursor, position) == SCID_OK);
     assert(scid_position_to_fen(position, fen, sizeof(fen), &value) == SCID_OK);
     assert(strcmp(fen, "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1") == 0);
 
-    assert(scid_movetext_cursor_variation_exit(cursor, &truth) == SCID_OK);
+    assert(scid_movetext_cursor_variation_exit(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
+    test_cursor_take(&cursor, next_cursor);
+    next_cursor = NULL;
     assert(scid_movetext_cursor_variation_depth_get(cursor, &value) == SCID_OK);
     assert(value == 0);
 
-    assert(scid_movetext_cursor_to_ply(cursor, 99, &truth) == SCID_OK);
+    assert(scid_movetext_cursor_to_ply(cursor, 99, &truth, &next_cursor) == SCID_OK);
     assert(truth == 0);
-    assert(scid_movetext_cursor_variation_enter(cursor, 99, &truth) == SCID_OK);
+    assert(next_cursor == NULL);
+    assert(scid_movetext_cursor_variation_enter(cursor, 99, &truth, &next_cursor) == SCID_OK);
     assert(truth == 0);
-    assert(scid_movetext_cursor_variation_exit(cursor, &truth) == SCID_OK);
+    assert(next_cursor == NULL);
+    assert(scid_movetext_cursor_variation_exit(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 0);
+    assert(next_cursor == NULL);
 
-    assert(scid_movetext_cursor_to_start(cursor) == SCID_OK);
+    assert(scid_movetext_cursor_to_start(cursor, &next_cursor) == SCID_OK);
+    test_cursor_take(&cursor, next_cursor);
+    next_cursor = NULL;
     assert(scid_movetext_cursor_is_game_start(cursor, &truth) == SCID_OK);
     assert(truth == 1);
-    assert(scid_movetext_cursor_to_end(cursor) == SCID_OK);
+    assert(scid_movetext_cursor_to_end(cursor, &next_cursor) == SCID_OK);
+    test_cursor_take(&cursor, next_cursor);
+    next_cursor = NULL;
     assert(scid_movetext_cursor_is_game_end(cursor, &truth) == SCID_OK);
     assert(truth == 1);
     assert(scid_movetext_cursor_next_movespec_get(cursor, &move) == SCID_ERROR_INVALID_MOVE);
@@ -223,25 +248,33 @@ test_cursor(
     assert(scid_movetext_cursor_position_get(cursor, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_ply_get(NULL, &value) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_ply_get(cursor, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_next(NULL, &truth) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_next(cursor, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_previous(NULL, &truth) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_previous(cursor, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_to_ply(NULL, 0, &truth) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_to_ply(cursor, 0, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_variation_enter(NULL, 0, &truth) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_variation_enter(cursor, 0, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_variation_exit(NULL, &truth) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_variation_exit(cursor, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_to_start(NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_to_end(NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_next(NULL, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_next(cursor, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_next(cursor, &truth, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_previous(NULL, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_previous(cursor, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_previous(cursor, &truth, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_to_ply(NULL, 0, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_to_ply(cursor, 0, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_to_ply(cursor, 0, &truth, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_enter(NULL, 0, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_enter(cursor, 0, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_enter(cursor, 0, &truth, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_exit(NULL, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_exit(cursor, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_variation_exit(cursor, &truth, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_to_start(NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_to_start(cursor, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_to_end(NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_to_end(cursor, NULL) == SCID_ERROR_BAD_ARG);
     assert(
         scid_movetext_cursor_comment_get(NULL, text, sizeof(text), &text_size) ==
         SCID_ERROR_BAD_ARG);
     assert(
         scid_movetext_cursor_comment_get(cursor, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_comment_set(NULL, "comment") == SCID_ERROR_BAD_ARG);
-    assert(scid_movetext_cursor_comment_set(cursor, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_comment_set(NULL, cursor, "comment") == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_comment_set(game, NULL, "comment") == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_comment_set(game, cursor, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_previous_movespec_get(NULL, &move) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_previous_movespec_get(cursor, NULL) == SCID_ERROR_BAD_ARG);
     assert(
@@ -278,6 +311,7 @@ test_cursor(
     assert(scid_movetext_cursor_next_move_nag_at_get(cursor, 0, NULL) == SCID_ERROR_BAD_ARG);
 
     scid_position_free(position);
+    scid_movetext_cursor_free(next_cursor);
     scid_movetext_cursor_free(clone);
     scid_movetext_cursor_free(cursor);
     scid_movetext_cursor_free(NULL);

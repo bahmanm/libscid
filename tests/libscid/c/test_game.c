@@ -131,7 +131,7 @@ test_game(
     assert(text_size == 0);
 
     assert(scid_movetext_cursor_create(game, &cursor) == SCID_OK);
-    assert(scid_movetext_cursor_comment_set(cursor, "Before start") == SCID_OK);
+    assert(scid_movetext_cursor_comment_set(game, cursor, "Before start") == SCID_OK);
     scid_movetext_cursor_free(cursor);
     cursor = NULL;
     assert(scid_game_initial_comment_get(game, text, sizeof(text), &text_size) == SCID_OK);

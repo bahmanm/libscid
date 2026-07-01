@@ -1,6 +1,21 @@
 #ifndef SCID_TEST_LIBSCID_H
 #define SCID_TEST_LIBSCID_H
 
+#include "scid/scid.h"
+
+#include <assert.h>
+
+static void
+test_cursor_take(
+    scid_movetext_cursor** cursor,
+    scid_movetext_cursor* next_cursor)
+{
+    assert(cursor != 0);
+    assert(next_cursor != 0);
+    scid_movetext_cursor_free(*cursor);
+    *cursor = next_cursor;
+}
+
 void
 test_cursor(void);
 void

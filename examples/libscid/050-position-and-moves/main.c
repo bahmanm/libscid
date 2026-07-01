@@ -33,6 +33,7 @@ main(
     const char* expected_fen = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/"
                                "RNBQKBNR w KQkq - 0 2";
     scid_position* position = NULL;
+    scid_position* next_position = NULL;
     scid_movespec move;
     scid_colour side_to_move = SCID_BLACK;
     scid_piece piece = SCID_PIECE_NONE;
@@ -47,11 +48,35 @@ main(
         !check(
             scid_movespec_to_uci(move, text, sizeof(text), &text_size), "scid_movespec_to_uci") ||
         !text_equals(text, text_size, "e2e4") ||
-        !check(scid_position_apply_san(position, "e4"), "scid_position_apply_san") ||
-        !check(scid_position_apply_uci(position, "c7c5"), "scid_position_apply_uci") ||
+        !check(
+            scid_position_create_with_san(position, "e4", &next_position),
+            "scid_position_create_with_san"))
+    {
+        scid_position_free(next_position);
+        scid_position_free(position);
+        return 1;
+    }
+    scid_position_free(position);
+    position = next_position;
+    next_position = NULL;
+
+    if (!check(
+            scid_position_create_with_uci(position, "c7c5", &next_position),
+            "scid_position_create_with_uci"))
+    {
+        scid_position_free(next_position);
+        scid_position_free(position);
+        return 1;
+    }
+    scid_position_free(position);
+    position = next_position;
+    next_position = NULL;
+
+    if (
         !check(
             scid_position_to_fen(position, text, sizeof(text), &text_size), "scid_position_to_fen"))
     {
+        scid_position_free(next_position);
         scid_position_free(position);
         return 1;
     }
@@ -83,6 +108,7 @@ main(
             "scid_square_to_string") ||
         !text_equals(text, text_size, "e4"))
     {
+        scid_position_free(next_position);
         scid_position_free(position);
         return 1;
     }
@@ -90,6 +116,7 @@ main(
     printf("side to move: white\n");
     printf("piece on %.*s: white pawn\n", (int)text_size, text);
 
+    scid_position_free(next_position);
     scid_position_free(position);
     return 0;
 }

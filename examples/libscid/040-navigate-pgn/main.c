@@ -18,6 +18,22 @@ check(
 }
 
 static int
+take_cursor(
+    scid_movetext_cursor** cursor,
+    scid_movetext_cursor** next_cursor)
+{
+    if (next_cursor == NULL || *next_cursor == NULL)
+    {
+        return 0;
+    }
+
+    scid_movetext_cursor_free(*cursor);
+    *cursor = *next_cursor;
+    *next_cursor = NULL;
+    return 1;
+}
+
+static int
 read_text(
     scid_error error,
     const char* call,
@@ -120,6 +136,7 @@ main(
                       "({Queen pawn line} 1. d4 {Queen pawn} d5) e5 2. Nf3 Nc6 *\n";
     scid_game* game = NULL;
     scid_movetext_cursor* cursor = NULL;
+    scid_movetext_cursor* next_cursor = NULL;
     char diagnostic[1024];
     char text[256];
     scid_movespec move;
@@ -148,11 +165,17 @@ main(
         !check(
             scid_movetext_cursor_variation_count_get(cursor, &variation_count),
             "scid_movetext_cursor_variation_count_get") ||
-        variation_count != 1 ||
-        !check(
-            scid_movetext_cursor_variation_enter(cursor, 0, &moved),
+        variation_count != 1)
+    {
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+
+    if (!check(
+            scid_movetext_cursor_variation_enter(cursor, 0, &moved, &next_cursor),
             "scid_movetext_cursor_variation_enter") ||
-        !moved ||
+        !moved || !take_cursor(&cursor, &next_cursor) ||
         !check(
             scid_movetext_cursor_variation_depth_get(cursor, &depth),
             "scid_movetext_cursor_variation_depth_get") ||
@@ -164,12 +187,29 @@ main(
         !read_text(
             scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size),
             "scid_movetext_cursor_next_move_san_get", "variation first move: ", text, text_size) ||
-        !text_equals(text, text_size, "d4") ||
-        !check(
-            scid_movetext_cursor_variation_exit(cursor, &moved),
+        !text_equals(text, text_size, "d4"))
+    {
+        scid_movetext_cursor_free(next_cursor);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+    next_cursor = NULL;
+
+    if (!check(
+            scid_movetext_cursor_variation_exit(cursor, &moved, &next_cursor),
             "scid_movetext_cursor_variation_exit") ||
-        !moved || !check(scid_movetext_cursor_next(cursor, &moved), "scid_movetext_cursor_next") ||
-        !moved ||
+        !moved || !take_cursor(&cursor, &next_cursor))
+    {
+        scid_movetext_cursor_free(next_cursor);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+    next_cursor = NULL;
+
+    if (!check(scid_movetext_cursor_next(cursor, &moved, &next_cursor), "scid_movetext_cursor_next") ||
+        !moved || !take_cursor(&cursor, &next_cursor) ||
         !read_text(
             scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size),
             "scid_movetext_cursor_previous_move_san_get", "previous san: ", text, text_size) ||
@@ -193,10 +233,12 @@ main(
             "next uci after e4: ", text, text_size) ||
         !text_equals(text, text_size, "e7e5"))
     {
+        scid_movetext_cursor_free(next_cursor);
         scid_movetext_cursor_free(cursor);
         scid_game_free(game);
         return 1;
     }
+    next_cursor = NULL;
 
     scid_movetext_cursor_free(cursor);
     scid_game_free(game);

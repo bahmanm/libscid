@@ -172,6 +172,18 @@ extern "C"
     SCID_API scid_error
     scid_position_create_from_fen(const char* fen, scid_position** out_position);
 
+    SCID_API scid_error
+    scid_position_create_with_san(
+        const scid_position* position,
+        const char* san,
+        scid_position** out_position);
+
+    SCID_API scid_error
+    scid_position_create_with_uci(
+        const scid_position* position,
+        const char* uci,
+        scid_position** out_position);
+
     SCID_API void
     scid_position_free(scid_position* position);
 
@@ -351,7 +363,10 @@ extern "C"
         size_t* out_text_size);
 
     SCID_API scid_error
-    scid_movetext_cursor_comment_set(scid_movetext_cursor* cursor, const char* comment);
+    scid_movetext_cursor_comment_set(
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
+        const char* comment);
 
     SCID_API scid_error
     scid_movetext_cursor_previous_movespec_get(
@@ -414,68 +429,111 @@ extern "C"
         scid_nag* out_nag);
 
     SCID_API scid_error
-    scid_movetext_cursor_to_start(scid_movetext_cursor* cursor);
+    scid_movetext_cursor_to_start(
+        const scid_movetext_cursor* cursor,
+        scid_movetext_cursor** out_start_cursor);
 
     SCID_API scid_error
-    scid_movetext_cursor_to_end(scid_movetext_cursor* cursor);
+    scid_movetext_cursor_to_end(
+        const scid_movetext_cursor* cursor,
+        scid_movetext_cursor** out_end_cursor);
 
     SCID_API scid_error
-    scid_movetext_cursor_to_ply(scid_movetext_cursor* cursor, size_t ply, int* out_moved);
+    scid_movetext_cursor_to_ply(
+        const scid_movetext_cursor* cursor,
+        size_t ply,
+        int* out_moved,
+        scid_movetext_cursor** out_ply_cursor);
 
     SCID_API scid_error
-    scid_movetext_cursor_next(scid_movetext_cursor* cursor, int* out_moved);
+    scid_movetext_cursor_next(
+        const scid_movetext_cursor* cursor,
+        int* out_moved,
+        scid_movetext_cursor** out_next_cursor);
 
     SCID_API scid_error
-    scid_movetext_cursor_previous(scid_movetext_cursor* cursor, int* out_moved);
+    scid_movetext_cursor_previous(
+        const scid_movetext_cursor* cursor,
+        int* out_moved,
+        scid_movetext_cursor** out_previous_cursor);
 
     SCID_API scid_error
     scid_movetext_cursor_variation_enter(
-        scid_movetext_cursor* cursor,
+        const scid_movetext_cursor* cursor,
         size_t index,
-        int* out_entered);
+        int* out_entered,
+        scid_movetext_cursor** out_variation_cursor);
 
     SCID_API scid_error
-    scid_movetext_cursor_variation_exit(scid_movetext_cursor* cursor, int* out_exited);
+    scid_movetext_cursor_variation_exit(
+        const scid_movetext_cursor* cursor,
+        int* out_exited,
+        scid_movetext_cursor** out_parent_cursor);
 
     SCID_API scid_error
-    scid_movetext_cursor_move_add(scid_movetext_cursor* cursor, scid_movespec move);
+    scid_movetext_cursor_move_add(
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
+        scid_movespec move,
+        scid_movetext_cursor** out_next_cursor);
 
     SCID_API scid_error
     scid_movetext_cursor_variation_add(
-        scid_movetext_cursor* cursor,
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
         const char* initial_comment,
+        int* out_added,
+        scid_movetext_cursor** out_variation_cursor);
+
+    SCID_API scid_error
+    scid_movetext_cursor_nag_add(
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
+        scid_nag nag,
         int* out_added);
 
     SCID_API scid_error
-    scid_movetext_cursor_nag_add(scid_movetext_cursor* cursor, scid_nag nag, int* out_added);
-
-    SCID_API scid_error
     scid_movetext_cursor_nag_remove(
-        scid_movetext_cursor* cursor,
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
         int is_move_nag,
         int* out_removed);
 
     SCID_API scid_error
-    scid_movetext_cursor_nag_clear(scid_movetext_cursor* cursor);
+    scid_movetext_cursor_nag_clear(scid_game* game, const scid_movetext_cursor* cursor);
 
     SCID_API scid_error
     scid_movetext_cursor_variation_promote_to_first(
-        scid_movetext_cursor* cursor,
-        int* out_promoted);
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
+        int* out_promoted,
+        scid_movetext_cursor** out_promoted_cursor);
 
     SCID_API scid_error
     scid_movetext_cursor_variation_promote_to_mainline(
-        scid_movetext_cursor* cursor,
-        int* out_promoted);
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
+        int* out_promoted,
+        scid_movetext_cursor** out_mainline_cursor);
 
     SCID_API scid_error
-    scid_movetext_cursor_variation_delete(scid_movetext_cursor* cursor, int* out_deleted);
+    scid_movetext_cursor_variation_delete(
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
+        int* out_deleted,
+        scid_movetext_cursor** out_parent_cursor);
 
     SCID_API scid_error
-    scid_movetext_cursor_truncate(scid_movetext_cursor* cursor);
+    scid_movetext_cursor_truncate(
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
+        scid_movetext_cursor** out_cursor);
 
     SCID_API scid_error
-    scid_movetext_cursor_truncate_before_cursor(scid_movetext_cursor* cursor);
+    scid_movetext_cursor_truncate_before_cursor(
+        scid_game* game,
+        const scid_movetext_cursor* cursor,
+        scid_movetext_cursor** out_cursor);
 
     SCID_API scid_error
     scid_eco_code_from_string(const char* text, scid_eco_code* out_code);

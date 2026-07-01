@@ -18,6 +18,22 @@ check(
 }
 
 static int
+take_cursor(
+    scid_movetext_cursor** cursor,
+    scid_movetext_cursor** next_cursor)
+{
+    if (next_cursor == NULL || *next_cursor == NULL)
+    {
+        return 0;
+    }
+
+    scid_movetext_cursor_free(*cursor);
+    *cursor = *next_cursor;
+    *next_cursor = NULL;
+    return 1;
+}
+
+static int
 contains(
     const char* text,
     const char* needle)
@@ -35,6 +51,7 @@ main(
                       "1. e4 e5 (1... c5) *\n";
     scid_game* game = NULL;
     scid_movetext_cursor* cursor = NULL;
+    scid_movetext_cursor* next_cursor = NULL;
     scid_position* position = NULL;
     scid_movespec move;
     char output[4096];
@@ -55,42 +72,95 @@ main(
         return 1;
     }
 
-    if (!check(scid_movetext_cursor_next(cursor, &moved), "scid_movetext_cursor_next") || !moved ||
-        !check(
-            scid_movetext_cursor_comment_set(cursor, "King pawn"),
+    if (!check(scid_movetext_cursor_next(cursor, &moved, &next_cursor), "scid_movetext_cursor_next") ||
+        !moved || !take_cursor(&cursor, &next_cursor))
+    {
+        scid_movetext_cursor_free(next_cursor);
+        scid_position_free(position);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+    next_cursor = NULL;
+
+    if (!check(
+            scid_movetext_cursor_comment_set(game, cursor, "King pawn"),
             "scid_movetext_cursor_comment_set") ||
-        !check(scid_movetext_cursor_nag_add(cursor, 1, &changed), "scid_movetext_cursor_nag_add") ||
+        !check(
+            scid_movetext_cursor_nag_add(game, cursor, 1, &changed),
+            "scid_movetext_cursor_nag_add") ||
         !changed ||
         !check(
             scid_movetext_cursor_variation_count_get(cursor, &variation_count),
             "scid_movetext_cursor_variation_count_get") ||
-        variation_count != 1 ||
-        !check(
-            scid_movetext_cursor_variation_add(cursor, "French branch", &changed),
-            "scid_movetext_cursor_variation_add") ||
-        !changed ||
-        !check(
-            scid_movetext_cursor_position_get(cursor, position),
-            "scid_movetext_cursor_position_get") ||
-        !check(
-            scid_movespec_create_from_san(position, "e6", &move),
-            "scid_movespec_create_from_san") ||
-        !check(scid_movetext_cursor_move_add(cursor, move), "scid_movetext_cursor_move_add") ||
-        !check(
-            scid_movetext_cursor_variation_promote_to_first(cursor, &changed),
-            "scid_movetext_cursor_variation_promote_to_first") ||
-        !changed ||
-        !check(
-            scid_movetext_cursor_variation_exit(cursor, &moved),
-            "scid_movetext_cursor_variation_exit") ||
-        !moved ||
-        !check(scid_game_to_pgn(game, output, sizeof(output), &output_size), "scid_game_to_pgn"))
+        variation_count != 1)
     {
         scid_position_free(position);
         scid_movetext_cursor_free(cursor);
         scid_game_free(game);
         return 1;
     }
+
+    if (!check(
+            scid_movetext_cursor_variation_add(
+                game, cursor, "French branch", &changed, &next_cursor),
+            "scid_movetext_cursor_variation_add") ||
+        !changed || !take_cursor(&cursor, &next_cursor))
+    {
+        scid_movetext_cursor_free(next_cursor);
+        scid_position_free(position);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+    next_cursor = NULL;
+
+    if (!check(
+            scid_movetext_cursor_position_get(cursor, position),
+            "scid_movetext_cursor_position_get") ||
+        !check(
+            scid_movespec_create_from_san(position, "e6", &move),
+            "scid_movespec_create_from_san") ||
+        !check(
+            scid_movetext_cursor_move_add(game, cursor, move, &next_cursor),
+            "scid_movetext_cursor_move_add") ||
+        !take_cursor(&cursor, &next_cursor))
+    {
+        scid_movetext_cursor_free(next_cursor);
+        scid_position_free(position);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+    next_cursor = NULL;
+
+    if (!check(
+            scid_movetext_cursor_variation_promote_to_first(
+                game, cursor, &changed, &next_cursor),
+            "scid_movetext_cursor_variation_promote_to_first") ||
+        !changed || !take_cursor(&cursor, &next_cursor))
+    {
+        scid_movetext_cursor_free(next_cursor);
+        scid_position_free(position);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+    next_cursor = NULL;
+
+    if (!check(
+            scid_movetext_cursor_variation_exit(cursor, &moved, &next_cursor),
+            "scid_movetext_cursor_variation_exit") ||
+        !moved || !take_cursor(&cursor, &next_cursor) ||
+        !check(scid_game_to_pgn(game, output, sizeof(output), &output_size), "scid_game_to_pgn"))
+    {
+        scid_movetext_cursor_free(next_cursor);
+        scid_position_free(position);
+        scid_movetext_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+    next_cursor = NULL;
 
     printf("%.*s", (int)output_size, output);
 
