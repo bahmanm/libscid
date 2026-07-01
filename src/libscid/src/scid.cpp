@@ -1720,57 +1720,6 @@ scid_game_create_from_position(
 }
 
 scid_error
-scid_game_create_from_moves(
-    const scid_position* position,
-    const scid_movespec* moves,
-    size_t move_count,
-    scid_game** out_game)
-{
-    if (position == nullptr || (moves == nullptr && move_count != 0) || out_game == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        auto* game = new scid_game;
-        if (!position->value.IsStdStart())
-        {
-            game->value.setStartPosition(position->value);
-        }
-
-        auto current_position = position->value;
-        for (size_t i = 0; i < move_count; ++i)
-        {
-            scid::core::MoveSpec core_move;
-            if (const scid_error error = movespec_to_core(moves[i], &core_move); error != SCID_OK)
-            {
-                delete game;
-                *out_game = nullptr;
-                return error;
-            }
-
-            if (const scid_error error = current_position.applyMove(core_move); error != SCID_OK)
-            {
-                delete game;
-                *out_game = nullptr;
-                return error;
-            }
-
-            game->value.appendMainlineMove(core_move);
-        }
-
-        *out_game = game;
-        return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_game = nullptr;
-        return SCID_ERROR;
-    }
-}
-
-scid_error
 scid_game_create_from_pgn(
     const char* pgn,
     size_t pgn_size,

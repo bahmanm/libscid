@@ -55,6 +55,7 @@ main(
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
     scid_game_cursor* source_cursor = NULL;
+    scid_game_cursor* source_next_cursor = NULL;
     scid_position* position = NULL;
     scid_movespec move;
     char output[4096];
@@ -113,12 +114,16 @@ main(
             scid_movespec_create_from_san(position, "e6", &move),
             "scid_movespec_create_from_san") ||
         !check(
-            scid_game_create_from_moves(position, &move, 1, &source_game),
-            "scid_game_create_from_moves") ||
+            scid_game_create_from_position(position, &source_game),
+            "scid_game_create_from_position") ||
         !check(scid_game_cursor_create(source_game, &source_cursor), "scid_game_cursor_create") ||
         !check(
             scid_game_cursor_comment_set(source_game, source_cursor, "French branch"),
             "scid_game_cursor_comment_set") ||
+        !check(
+            scid_game_cursor_move_add(source_game, source_cursor, move, &source_next_cursor),
+            "scid_game_cursor_move_add") ||
+        !take_cursor(&source_cursor, &source_next_cursor) ||
         !check(
             scid_game_merge_moves(
                 game, cursor, source_game, SCID_GAME_MERGE_MOVES_INSERT_VARIATION,
@@ -127,6 +132,7 @@ main(
         !take_cursor(&cursor, &next_cursor))
     {
         scid_game_cursor_free(next_cursor);
+        scid_game_cursor_free(source_next_cursor);
         scid_game_cursor_free(source_cursor);
         scid_game_free(source_game);
         scid_position_free(position);
@@ -136,6 +142,8 @@ main(
     }
     scid_game_cursor_free(source_cursor);
     source_cursor = NULL;
+    scid_game_cursor_free(source_next_cursor);
+    source_next_cursor = NULL;
     scid_game_free(source_game);
     source_game = NULL;
     next_cursor = NULL;
@@ -147,6 +155,7 @@ main(
         !changed || !take_cursor(&cursor, &next_cursor))
     {
         scid_game_cursor_free(next_cursor);
+        scid_game_cursor_free(source_next_cursor);
         scid_game_cursor_free(source_cursor);
         scid_game_free(source_game);
         scid_position_free(position);
@@ -163,6 +172,7 @@ main(
         !check(scid_game_to_pgn(game, output, sizeof(output), &output_size), "scid_game_to_pgn"))
     {
         scid_game_cursor_free(next_cursor);
+        scid_game_cursor_free(source_next_cursor);
         scid_game_cursor_free(source_cursor);
         scid_game_free(source_game);
         scid_position_free(position);
@@ -184,6 +194,7 @@ main(
     }
 
     scid_position_free(position);
+    scid_game_cursor_free(source_next_cursor);
     scid_game_cursor_free(source_cursor);
     scid_game_free(source_game);
     scid_game_cursor_free(cursor);

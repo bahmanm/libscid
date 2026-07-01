@@ -232,13 +232,6 @@ extern "C"
     scid_game_create_from_position(const scid_position* position, scid_game** out_game);
 
     SCID_API scid_error
-    scid_game_create_from_moves(
-        const scid_position* position,
-        const scid_movespec* moves,
-        size_t move_count,
-        scid_game** out_game);
-
-    SCID_API scid_error
     scid_game_create_from_pgn(
         const char* pgn,
         size_t pgn_size,

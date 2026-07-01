@@ -7,6 +7,30 @@
 #include <string.h>
 
 static scid_game*
+create_source_game_from_moves(
+    const scid_position* position,
+    const scid_movespec* moves,
+    size_t move_count)
+{
+    scid_game* game = NULL;
+    scid_game_cursor* cursor = NULL;
+    scid_game_cursor* next_cursor = NULL;
+
+    assert(scid_game_create_from_position(position, &game) == SCID_OK);
+    assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
+
+    for (size_t i = 0; i < move_count; ++i)
+    {
+        assert(scid_game_cursor_move_add(game, cursor, moves[i], &next_cursor) == SCID_OK);
+        test_cursor_take(&cursor, next_cursor);
+        next_cursor = NULL;
+    }
+
+    scid_game_cursor_free(cursor);
+    return game;
+}
+
+static scid_game*
 create_source_game_from_cursor_san(
     const scid_game_cursor* cursor,
     const char* san)
@@ -18,7 +42,7 @@ create_source_game_from_cursor_san(
     assert(test_position_create_empty(&position) == SCID_OK);
     assert(scid_game_cursor_position_get(cursor, position) == SCID_OK);
     assert(scid_movespec_create_from_san(position, san, &move) == SCID_OK);
-    assert(scid_game_create_from_moves(position, &move, 1, &game) == SCID_OK);
+    game = create_source_game_from_moves(position, &move, 1);
 
     scid_position_free(position);
     return game;
@@ -284,7 +308,7 @@ test_game_merge_moves(
 
     assert(test_position_create_standard(&position) == SCID_OK);
     assert(scid_movespec_create_from_san(position, "e4", &moves[0]) == SCID_OK);
-    assert(scid_game_create_from_moves(position, moves, 1, &source) == SCID_OK);
+    source = create_source_game_from_moves(position, moves, 1);
     assert(
         scid_game_merge_moves(
             game, cursor, source, SCID_GAME_MERGE_MOVES_APPEND, &next_cursor) ==
@@ -296,17 +320,15 @@ test_game_merge_moves(
     source = NULL;
 
     assert(test_position_create_standard(&position) == SCID_OK);
-    assert(scid_game_create_from_moves(position, NULL, 0, &source) == SCID_OK);
+    source = create_source_game_from_moves(position, NULL, 0);
     scid_game_free(source);
     source = NULL;
-    assert(scid_game_create_from_moves(position, NULL, 1, &source) == SCID_ERROR_BAD_ARG);
-    assert(source == NULL);
     assert(scid_movespec_create_from_san(position, "e4", &moves[0]) == SCID_OK);
     assert(scid_position_create_with_san(position, "e4", &next_position) == SCID_OK);
     assert(scid_movespec_create_from_san(next_position, "e5", &moves[1]) == SCID_OK);
     scid_position_free(next_position);
     next_position = NULL;
-    assert(scid_game_create_from_moves(position, moves, 2, &source) == SCID_OK);
+    source = create_source_game_from_moves(position, moves, 2);
     assert(scid_game_mainline_halfmove_count_get(source, &count) == SCID_OK);
     assert(count == 2);
     scid_game_free(source);
