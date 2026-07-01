@@ -5,6 +5,41 @@
 
 #include <assert.h>
 
+static const char* TEST_STANDARD_FEN =
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+static const char* TEST_SCRATCH_FEN = "8/K7/8/8/7k/8/8/8 w - - 0 1";
+
+static scid_error
+test_position_create_standard(
+    scid_position** out_position)
+{
+    return scid_position_create_from_fen(TEST_STANDARD_FEN, out_position);
+}
+
+static scid_error
+test_position_create_empty(
+    scid_position** out_position)
+{
+    return scid_position_create_from_fen(TEST_SCRATCH_FEN, out_position);
+}
+
+static scid_error
+test_game_create_empty(
+    scid_game** out_game)
+{
+    scid_position* position = 0;
+    scid_error error = test_position_create_standard(&position);
+    if (error != SCID_OK)
+    {
+        return error;
+    }
+
+    error = scid_game_create_from_position(position, out_game);
+    scid_position_free(position);
+    return error;
+}
+
 static void
 test_cursor_take(
     scid_game_cursor** cursor,

@@ -71,7 +71,7 @@ test_eco(
     assert(scid_eco_book_load(path, &book) == SCID_OK);
     assert(book != NULL);
 
-    assert(scid_position_create_standard(&position) == SCID_OK);
+    assert(test_position_create_standard(&position) == SCID_OK);
     assert(scid_eco_book_code_find(book, position, &code) == SCID_OK);
     assert(
         scid_eco_code_to_string(code, SCID_ECO_FORMAT_EXTENDED, text, sizeof(text), &text_size) ==

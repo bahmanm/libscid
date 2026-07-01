@@ -90,6 +90,7 @@ int
 main(
     void)
 {
+    const char* standard_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     scid_game* game = NULL;
     scid_position* position = NULL;
     scid_game_cursor* cursor = NULL;
@@ -98,8 +99,10 @@ main(
     int moved = 0;
     int changed = 0;
 
-    if (!check(scid_game_create_empty(&game), "scid_game_create_empty") ||
-        !check(scid_position_create_standard(&position), "scid_position_create_standard") ||
+    if (!check(
+            scid_position_create_from_fen(standard_fen, &position),
+            "scid_position_create_from_fen") ||
+        !check(scid_game_create_from_position(position, &game), "scid_game_create_from_position") ||
         !check(scid_game_cursor_create(game, &cursor), "scid_game_cursor_create"))
     {
         scid_game_cursor_free(cursor);

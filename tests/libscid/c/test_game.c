@@ -32,7 +32,7 @@ test_game(
     size_t tag_count = 0;
     int removed = 0;
 
-    assert(scid_game_create_empty(&game) == SCID_OK);
+    assert(test_game_create_empty(&game) == SCID_OK);
     assert(game != NULL);
 
     assert(scid_game_tag_set(game, "Event", "Manual") == SCID_OK);
@@ -66,7 +66,7 @@ test_game(
     scid_game_free(game);
 
     game = NULL;
-    assert(scid_position_create_standard(&position) == SCID_OK);
+    assert(test_position_create_standard(&position) == SCID_OK);
     assert(scid_game_create_from_position(position, &game) == SCID_OK);
     assert(game != NULL);
     assert(scid_game_tag_get(game, "FEN", text, sizeof(text), &text_size) == SCID_OK);
@@ -232,7 +232,7 @@ test_game(
     assert(scid_game_mainline_halfmove_count_get(game, &tag_count) == SCID_OK);
     assert(tag_count == 2);
 
-    assert(scid_position_create_empty(&position) == SCID_OK);
+    assert(test_position_create_empty(&position) == SCID_OK);
     assert(scid_game_start_position_get(game, position) == SCID_OK);
     assert(scid_position_to_fen(position, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, start_fen) == 0);
@@ -259,7 +259,7 @@ test_game(
     game = NULL;
     assert(scid_game_create_from_pgn(NULL, 0, &game, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_create_from_pgn(pgn, strlen(pgn), NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_game_create_empty(NULL) == SCID_ERROR_BAD_ARG);
+    assert(test_game_create_empty(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_create_from_position(NULL, &game) == SCID_ERROR_BAD_ARG);
     assert(scid_game_create_from_position(position, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_to_pgn(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
@@ -278,7 +278,7 @@ test_game(
     assert(scid_game_start_position_get(NULL, position) == SCID_ERROR_BAD_ARG);
     assert(scid_game_final_position_get(NULL, position) == SCID_ERROR_BAD_ARG);
 
-    assert(scid_game_create_empty(&game) == SCID_OK);
+    assert(test_game_create_empty(&game) == SCID_OK);
     assert(scid_game_start_position_get(game, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_final_position_get(game, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_mainline_halfmove_count_get(game, NULL) == SCID_ERROR_BAD_ARG);

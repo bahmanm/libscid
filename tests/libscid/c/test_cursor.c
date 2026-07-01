@@ -33,7 +33,7 @@ test_cursor(
     assert(scid_game_create_from_pgn(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
     assert(cursor != NULL);
-    assert(scid_position_create_empty(&position) == SCID_OK);
+    assert(test_position_create_empty(&position) == SCID_OK);
 
     assert(scid_game_cursor_ply_get(cursor, &value) == SCID_OK);
     assert(value == 0);
@@ -242,7 +242,7 @@ test_cursor(
     assert(scid_game_cursor_clone(NULL, cursor, &clone) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_clone(game, NULL, &clone) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_clone(game, cursor, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_game_create_empty(&other_game) == SCID_OK);
+    assert(test_game_create_empty(&other_game) == SCID_OK);
     assert(scid_game_cursor_clone(other_game, cursor, &clone) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_position_get(NULL, position) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_position_get(cursor, NULL) == SCID_ERROR_BAD_ARG);

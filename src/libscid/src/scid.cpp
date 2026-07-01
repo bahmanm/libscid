@@ -1356,52 +1356,6 @@ scid_nag_to_string(
 }
 
 scid_error
-scid_position_create_standard(
-    scid_position** out_position)
-{
-    if (out_position == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        auto* position = new scid_position;
-        position->value.StdStart();
-        *out_position = position;
-        return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_position = nullptr;
-        return SCID_ERROR;
-    }
-}
-
-scid_error
-scid_position_create_empty(
-    scid_position** out_position)
-{
-    if (out_position == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        auto* position = new scid_position;
-        position->value.Clear();
-        *out_position = position;
-        return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_position = nullptr;
-        return SCID_ERROR;
-    }
-}
-
-scid_error
 scid_position_create_from_fen(
     const char* fen,
     scid_position** out_position)
@@ -1735,27 +1689,6 @@ scid_position_piece_at_get(
 
     *out_piece = piece_to_c(position->value.GetPiece(square));
     return SCID_OK;
-}
-
-scid_error
-scid_game_create_empty(
-    scid_game** out_game)
-{
-    if (out_game == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        *out_game = new scid_game;
-        return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_game = nullptr;
-        return SCID_ERROR;
-    }
 }
 
 scid_error

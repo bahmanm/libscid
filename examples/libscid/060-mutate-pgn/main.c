@@ -45,6 +45,7 @@ int
 main(
     void)
 {
+    const char* scratch_fen = "8/K7/8/8/7k/8/8/8 w - - 0 1";
     const char* pgn = "[Event \"Mutation\"]\n"
                       "[Result \"*\"]\n"
                       "\n"
@@ -66,7 +67,9 @@ main(
             scid_game_create_from_pgn(pgn, strlen(pgn), &game, NULL, 0, NULL),
             "scid_game_create_from_pgn") ||
         !check(scid_game_cursor_create(game, &cursor), "scid_game_cursor_create") ||
-        !check(scid_position_create_empty(&position), "scid_position_create_empty"))
+        !check(
+            scid_position_create_from_fen(scratch_fen, &position),
+            "scid_position_create_from_fen"))
     {
         scid_position_free(position);
         scid_game_cursor_free(cursor);

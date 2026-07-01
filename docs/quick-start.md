@@ -18,10 +18,12 @@ Create `main.c`:
 int
 main(void)
 {
+    const char* standard_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/"
+                               "RNBQKBNR w KQkq - 0 1";
     scid_position* position = NULL;
     int is_start = 0;
 
-    if (scid_position_create_standard(&position) != SCID_OK)
+    if (scid_position_create_from_fen(standard_fen, &position) != SCID_OK)
     {
         return 1;
     }

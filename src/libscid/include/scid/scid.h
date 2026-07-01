@@ -171,12 +171,6 @@ extern "C"
         size_t* out_text_size);
 
     SCID_API scid_error
-    scid_position_create_standard(scid_position** out_position);
-
-    SCID_API scid_error
-    scid_position_create_empty(scid_position** out_position);
-
-    SCID_API scid_error
     scid_position_create_from_fen(const char* fen, scid_position** out_position);
 
     SCID_API scid_error
@@ -233,9 +227,6 @@ extern "C"
         const scid_position* position,
         scid_square square,
         scid_piece* out_piece);
-
-    SCID_API scid_error
-    scid_game_create_empty(scid_game** out_game);
 
     SCID_API scid_error
     scid_game_create_from_position(const scid_position* position, scid_game** out_game);

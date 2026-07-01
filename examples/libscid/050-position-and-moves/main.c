@@ -30,6 +30,7 @@ int
 main(
     void)
 {
+    const char* standard_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const char* expected_fen = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/"
                                "RNBQKBNR w KQkq - 0 2";
     scid_position* position = NULL;
@@ -41,7 +42,9 @@ main(
     size_t text_size = 0;
     unsigned number = 0;
 
-    if (!check(scid_position_create_standard(&position), "scid_position_create_standard") ||
+    if (!check(
+            scid_position_create_from_fen(standard_fen, &position),
+            "scid_position_create_from_fen") ||
         !check(
             scid_movespec_create_from_san(position, "e4", &move),
             "scid_movespec_create_from_san") ||

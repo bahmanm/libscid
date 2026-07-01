@@ -15,7 +15,7 @@ create_source_game_from_cursor_san(
     scid_movespec move = {0, 0, 0, 0};
     scid_game* game = NULL;
 
-    assert(scid_position_create_empty(&position) == SCID_OK);
+    assert(test_position_create_empty(&position) == SCID_OK);
     assert(scid_game_cursor_position_get(cursor, position) == SCID_OK);
     assert(scid_movespec_create_from_san(position, san, &move) == SCID_OK);
     assert(scid_game_create_from_moves(position, &move, 1, &game) == SCID_OK);
@@ -36,7 +36,7 @@ test_cursor_move_and_nag_mutation(
     int truth = 0;
     size_t count = 0;
 
-    assert(scid_game_create_empty(&game) == SCID_OK);
+    assert(test_game_create_empty(&game) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
 
     assert(scid_movespec_create_from_uci("e2e4", &move) == SCID_OK);
@@ -282,7 +282,7 @@ test_game_merge_moves(
     scid_game_free(source);
     source = NULL;
 
-    assert(scid_position_create_standard(&position) == SCID_OK);
+    assert(test_position_create_standard(&position) == SCID_OK);
     assert(scid_movespec_create_from_san(position, "e4", &moves[0]) == SCID_OK);
     assert(scid_game_create_from_moves(position, moves, 1, &source) == SCID_OK);
     assert(
@@ -295,7 +295,7 @@ test_game_merge_moves(
     scid_game_free(source);
     source = NULL;
 
-    assert(scid_position_create_standard(&position) == SCID_OK);
+    assert(test_position_create_standard(&position) == SCID_OK);
     assert(scid_game_create_from_moves(position, NULL, 0, &source) == SCID_OK);
     scid_game_free(source);
     source = NULL;

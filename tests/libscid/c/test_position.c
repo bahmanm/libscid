@@ -23,7 +23,7 @@ test_position(
     unsigned number = 0;
     size_t fen_size = 0;
 
-    assert(scid_position_create_standard(&position) == SCID_OK);
+    assert(test_position_create_standard(&position) == SCID_OK);
     assert(position != NULL);
     assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
     assert(strcmp(fen, start_fen) == 0);
@@ -62,7 +62,7 @@ test_position(
     scid_position_free(position);
 
     position = NULL;
-    assert(scid_position_create_standard(&position) == SCID_OK);
+    assert(test_position_create_standard(&position) == SCID_OK);
     assert(scid_position_create_with_uci(position, "e2e4", &next_position) == SCID_OK);
     assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
     assert(strcmp(fen, start_fen) == 0);
@@ -96,13 +96,6 @@ test_position(
     assert(scid_position_apply_uci(position, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_apply_san(NULL, "e4") == SCID_ERROR_BAD_ARG);
     assert(scid_position_apply_san(position, NULL) == SCID_ERROR_BAD_ARG);
-    scid_position_free(position);
-
-    position = NULL;
-    assert(scid_position_create_empty(&position) == SCID_OK);
-    assert(position != NULL);
-    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
-    assert(strcmp(fen, "8/8/8/8/8/8/8/8 w - - 0 1") == 0);
     scid_position_free(position);
 
     position = NULL;
@@ -159,8 +152,8 @@ test_position(
         SCID_ERROR_INVALID_FEN);
     assert(position == NULL);
 
-    assert(scid_position_create_standard(NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_create_empty(NULL) == SCID_ERROR_BAD_ARG);
+    assert(test_position_create_standard(NULL) == SCID_ERROR_BAD_ARG);
+    assert(test_position_create_empty(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_create_from_fen(NULL, &position) == SCID_ERROR_BAD_ARG);
     assert(scid_position_create_from_fen(custom_fen, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_to_fen(NULL, fen, sizeof(fen), &fen_size) == SCID_ERROR_BAD_ARG);
