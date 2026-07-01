@@ -16,7 +16,9 @@ test_cursor(
                       "{Before game} 1. e4 $1 {Best by test} ({Queen pawn alternative} "
                       "1. d4 {Queen pawn} d5) e5 *\n";
     scid_game* game = NULL;
+    scid_game* other_game = NULL;
     scid_movetext_cursor* cursor = NULL;
+    scid_movetext_cursor* clone = NULL;
     scid_position* position = NULL;
     char fen[128];
     char text[128];
@@ -100,6 +102,10 @@ test_cursor(
     assert(truth == 1);
     assert(scid_movetext_cursor_ply_get(cursor, &value) == SCID_OK);
     assert(value == 1);
+    assert(scid_movetext_cursor_clone(game, cursor, &clone) == SCID_OK);
+    assert(clone != NULL);
+    assert(scid_movetext_cursor_ply_get(clone, &value) == SCID_OK);
+    assert(value == 1);
     assert(scid_movetext_cursor_position_get(cursor, position) == SCID_OK);
     assert(scid_position_to_fen(position, fen, sizeof(fen), &value) == SCID_OK);
     assert(strcmp(fen, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1") == 0);
@@ -141,6 +147,18 @@ test_cursor(
     assert(truth == 0);
     assert(scid_movetext_cursor_is_game_end(cursor, &truth) == SCID_OK);
     assert(truth == 1);
+    assert(scid_movetext_cursor_ply_get(clone, &value) == SCID_OK);
+    assert(value == 1);
+    assert(
+        scid_movetext_cursor_previous_move_san_get(clone, text, sizeof(text), &text_size) ==
+        SCID_OK);
+    assert(strcmp(text, "e4") == 0);
+    assert(scid_movetext_cursor_next(clone, &truth) == SCID_OK);
+    assert(truth == 1);
+    assert(
+        scid_movetext_cursor_previous_move_san_get(clone, text, sizeof(text), &text_size) ==
+        SCID_OK);
+    assert(strcmp(text, "e5") == 0);
 
     assert(scid_movetext_cursor_previous(cursor, &truth) == SCID_OK);
     assert(truth == 1);
@@ -196,6 +214,11 @@ test_cursor(
 
     assert(scid_movetext_cursor_create(NULL, &cursor) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_create(game, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_clone(NULL, cursor, &clone) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_clone(game, NULL, &clone) == SCID_ERROR_BAD_ARG);
+    assert(scid_movetext_cursor_clone(game, cursor, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_create_empty(&other_game) == SCID_OK);
+    assert(scid_movetext_cursor_clone(other_game, cursor, &clone) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_position_get(NULL, position) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_position_get(cursor, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_movetext_cursor_ply_get(NULL, &value) == SCID_ERROR_BAD_ARG);
@@ -255,7 +278,9 @@ test_cursor(
     assert(scid_movetext_cursor_next_move_nag_at_get(cursor, 0, NULL) == SCID_ERROR_BAD_ARG);
 
     scid_position_free(position);
+    scid_movetext_cursor_free(clone);
     scid_movetext_cursor_free(cursor);
     scid_movetext_cursor_free(NULL);
+    scid_game_free(other_game);
     scid_game_free(game);
 }

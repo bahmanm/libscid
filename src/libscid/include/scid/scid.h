@@ -290,6 +290,12 @@ extern "C"
     SCID_API scid_error
     scid_movetext_cursor_create(scid_game* game, scid_movetext_cursor** out_cursor);
 
+    SCID_API scid_error
+    scid_movetext_cursor_clone(
+        scid_game* game,
+        const scid_movetext_cursor* source_cursor,
+        scid_movetext_cursor** out_cursor);
+
     SCID_API void
     scid_movetext_cursor_free(scid_movetext_cursor* cursor);
 

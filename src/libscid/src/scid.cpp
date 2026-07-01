@@ -1945,6 +1945,38 @@ scid_movetext_cursor_create(
     }
 }
 
+scid_error
+scid_movetext_cursor_clone(
+    scid_game* game,
+    const scid_movetext_cursor* source_cursor,
+    scid_movetext_cursor** out_cursor)
+{
+    if (game == nullptr || source_cursor == nullptr || out_cursor == nullptr ||
+        source_cursor->game != game)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        auto* cursor = new scid_movetext_cursor(game);
+        if (!cursor->value.restore(source_cursor->value.location()))
+        {
+            delete cursor;
+            *out_cursor = nullptr;
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        *out_cursor = cursor;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_cursor = nullptr;
+        return SCID_ERROR;
+    }
+}
+
 void
 scid_movetext_cursor_free(
     scid_movetext_cursor* cursor)
