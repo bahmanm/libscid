@@ -29,11 +29,11 @@ The same examples are included in release archives under
 - `examples/libscid/030-nonstandard-start`: create a game from a FEN start
   position and export it.
 - `examples/libscid/040-navigate-pgn`: navigate mainline moves and variations
-  with a movetext cursor.
+  with a game cursor.
 - `examples/libscid/050-position-and-moves`: apply moves to a position and
   inspect the resulting state.
-- `examples/libscid/060-mutate-pgn`: edit move metadata and variations in an
-  existing PGN game.
+- `examples/libscid/060-mutate-pgn`: edit move metadata and merge a source
+  game's moves as a variation in an existing PGN game.
 
 ## Databases
 

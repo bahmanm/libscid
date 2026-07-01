@@ -1,8 +1,8 @@
 # 060 Mutate PGN
 
 This example parses an existing PGN game through the C ABI, navigates to a
-move with a movetext cursor, edits its comment and NAGs, adds a new variation,
-promotes that variation, and writes the changed PGN.
+move with a game cursor, edits its comment and NAGs, merges a source game's
+moves as a new variation, promotes that variation, and writes the changed PGN.
 
 Install libscid first; see the installation guide:
 

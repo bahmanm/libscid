@@ -7,12 +7,12 @@
 
 static void
 test_cursor_take(
-    scid_movetext_cursor** cursor,
-    scid_movetext_cursor* next_cursor)
+    scid_game_cursor** cursor,
+    scid_game_cursor* next_cursor)
 {
     assert(cursor != 0);
     assert(next_cursor != 0);
-    scid_movetext_cursor_free(*cursor);
+    scid_game_cursor_free(*cursor);
     *cursor = next_cursor;
 }
 

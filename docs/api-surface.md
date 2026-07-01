@@ -6,7 +6,7 @@ libscid uses opaque handles for owned objects:
 
 - `scid_position`
 - `scid_game`
-- `scid_movetext_cursor`
+- `scid_game_cursor`
 - `scid_eco_book`
 - `scid_database`
 

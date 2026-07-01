@@ -22,7 +22,7 @@ database and ECO functionality without depending on a desktop application.
 
 ## What It Provides
 
-- Opaque handles for positions, games, movetext cursors, ECO books and databases.
+- Opaque handles for positions, games, game cursors, ECO books and databases.
 - PGN import, editing, traversal and export workflows.
 - Board state, legal move handling, FEN, UCI and SAN helpers.
 - Scid database creation, opening, listing, editing, import and export.

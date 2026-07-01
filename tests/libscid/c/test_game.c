@@ -23,7 +23,7 @@ test_game(
     const char* custom_fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
     const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     scid_game* game = NULL;
-    scid_movetext_cursor* cursor = NULL;
+    scid_game_cursor* cursor = NULL;
     scid_position* position = NULL;
     char name[64];
     char text[1024];
@@ -130,9 +130,9 @@ test_game(
     assert(strcmp(text, "") == 0);
     assert(text_size == 0);
 
-    assert(scid_movetext_cursor_create(game, &cursor) == SCID_OK);
-    assert(scid_movetext_cursor_comment_set(game, cursor, "Before start") == SCID_OK);
-    scid_movetext_cursor_free(cursor);
+    assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
+    assert(scid_game_cursor_comment_set(game, cursor, "Before start") == SCID_OK);
+    scid_game_cursor_free(cursor);
     cursor = NULL;
     assert(scid_game_initial_comment_get(game, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Before start") == 0);
