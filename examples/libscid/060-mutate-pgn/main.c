@@ -169,7 +169,7 @@ main(
             scid_game_cursor_variation_exit(cursor, &moved, &next_cursor),
             "scid_game_cursor_variation_exit") ||
         !moved || !take_cursor(&cursor, &next_cursor) ||
-        !check(scid_game_to_pgn(game, output, sizeof(output), &output_size), "scid_game_to_pgn"))
+        !check(scid_game_to_pgn(game, NULL, output, sizeof(output), &output_size), "scid_game_to_pgn"))
     {
         scid_game_cursor_free(next_cursor);
         scid_game_cursor_free(source_next_cursor);

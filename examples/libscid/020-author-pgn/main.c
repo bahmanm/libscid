@@ -94,6 +94,7 @@ main(
     scid_game* game = NULL;
     scid_position* position = NULL;
     scid_game_cursor* cursor = NULL;
+    scid_game_pgn_options* pgn_options = NULL;
     char pgn[4096];
     size_t pgn_size = 0;
     int moved = 0;
@@ -210,7 +211,7 @@ main(
     }
 
     if (
-        !check(scid_game_to_pgn(game, pgn, sizeof(pgn), &pgn_size), "scid_game_to_pgn"))
+        !check(scid_game_to_pgn(game, NULL, pgn, sizeof(pgn), &pgn_size), "scid_game_to_pgn"))
     {
         scid_game_cursor_free(cursor);
         scid_position_free(position);
@@ -229,6 +230,37 @@ main(
         return 1;
     }
 
+    if (!check(scid_game_pgn_options_create(&pgn_options), "scid_game_pgn_options_create") ||
+        !check(
+            scid_game_pgn_options_symbolic_nags_set(pgn_options, 1),
+            "scid_game_pgn_options_symbolic_nags_set") ||
+        !check(
+            scid_game_pgn_options_variations_set(pgn_options, 0),
+            "scid_game_pgn_options_variations_set") ||
+        !check(
+            scid_game_to_pgn(game, pgn_options, pgn, sizeof(pgn), &pgn_size),
+            "scid_game_to_pgn"))
+    {
+        scid_game_pgn_options_free(pgn_options);
+        scid_game_cursor_free(cursor);
+        scid_position_free(position);
+        scid_game_free(game);
+        return 1;
+    }
+
+    printf("\nMainline with symbolic NAGs:\n%.*s", (int)pgn_size, pgn);
+
+    if (!contains(pgn, "e4 ! {King pawn}") || contains(pgn, "{Sicilian branch}") ||
+        contains(pgn, "c5"))
+    {
+        scid_game_pgn_options_free(pgn_options);
+        scid_game_cursor_free(cursor);
+        scid_position_free(position);
+        scid_game_free(game);
+        return 1;
+    }
+
+    scid_game_pgn_options_free(pgn_options);
     scid_game_cursor_free(cursor);
     scid_position_free(position);
     scid_game_free(game);

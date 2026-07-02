@@ -101,6 +101,8 @@ extern "C"
 
     typedef struct scid_game scid_game;
 
+    typedef struct scid_game_pgn_options scid_game_pgn_options;
+
     typedef struct scid_game_cursor scid_game_cursor;
 
     typedef struct scid_eco_book scid_eco_book;
@@ -245,8 +247,30 @@ extern "C"
     scid_game_free(scid_game* game);
 
     SCID_API scid_error
+    scid_game_pgn_options_create(scid_game_pgn_options** out_options);
+
+    SCID_API void
+    scid_game_pgn_options_free(scid_game_pgn_options* options);
+
+    SCID_API scid_error
+    scid_game_pgn_options_symbolic_nags_set(scid_game_pgn_options* options, int enabled);
+
+    SCID_API scid_error
+    scid_game_pgn_options_supplemental_tags_set(scid_game_pgn_options* options, int enabled);
+
+    SCID_API scid_error
+    scid_game_pgn_options_comments_set(scid_game_pgn_options* options, int enabled);
+
+    SCID_API scid_error
+    scid_game_pgn_options_variations_set(scid_game_pgn_options* options, int enabled);
+
+    SCID_API scid_error
+    scid_game_pgn_options_line_width_set(scid_game_pgn_options* options, unsigned line_width);
+
+    SCID_API scid_error
     scid_game_to_pgn(
         const scid_game* game,
+        const scid_game_pgn_options* options,
         char* out_text,
         size_t out_text_capacity,
         size_t* out_text_size);
@@ -260,9 +284,6 @@ extern "C"
         char* out_text,
         size_t out_text_capacity,
         size_t* out_text_size);
-
-    SCID_API scid_error
-    scid_game_movetext_clear(scid_game* game);
 
     SCID_API scid_error
     scid_game_tag_get(

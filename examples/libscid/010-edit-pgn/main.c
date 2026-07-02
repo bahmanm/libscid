@@ -93,7 +93,7 @@ main(
 
     if (!check(scid_game_tag_set(game, "Annotator", "C ABI example"), "scid_game_tag_set") ||
         !check(scid_game_tag_remove(game, "EventDate", &removed), "scid_game_tag_remove") ||
-        !check(scid_game_to_pgn(game, encoded, sizeof(encoded), &encoded_size), "scid_game_to_pgn"))
+        !check(scid_game_to_pgn(game, NULL, encoded, sizeof(encoded), &encoded_size), "scid_game_to_pgn"))
     {
         scid_position_free(position);
         scid_game_free(game);

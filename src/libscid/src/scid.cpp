@@ -19,6 +19,7 @@
 #include <cctype>
 #include <cstring>
 #include <limits>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -32,6 +33,11 @@ struct scid_position
 struct scid_game
 {
         scid::core::Game value;
+};
+
+struct scid_game_pgn_options
+{
+        scid::core::pgn::EncodeOptions value;
 };
 
 struct scid_game_cursor
@@ -1779,8 +1785,114 @@ scid_game_free(
 }
 
 scid_error
+scid_game_pgn_options_create(
+    scid_game_pgn_options** out_options)
+{
+    if (out_options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        *out_options = new scid_game_pgn_options;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_options = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+void
+scid_game_pgn_options_free(
+    scid_game_pgn_options* options)
+{
+    delete options;
+}
+
+scid_error
+scid_game_pgn_options_symbolic_nags_set(
+    scid_game_pgn_options* options,
+    int enabled)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    options->value.symbolicNags = enabled != 0;
+    return SCID_OK;
+}
+
+scid_error
+scid_game_pgn_options_supplemental_tags_set(
+    scid_game_pgn_options* options,
+    int enabled)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    options->value.includeSupplementalTags = enabled != 0;
+    return SCID_OK;
+}
+
+scid_error
+scid_game_pgn_options_comments_set(
+    scid_game_pgn_options* options,
+    int enabled)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    options->value.includeComments = enabled != 0;
+    return SCID_OK;
+}
+
+scid_error
+scid_game_pgn_options_variations_set(
+    scid_game_pgn_options* options,
+    int enabled)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    options->value.includeVariations = enabled != 0;
+    return SCID_OK;
+}
+
+scid_error
+scid_game_pgn_options_line_width_set(
+    scid_game_pgn_options* options,
+    unsigned line_width)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (line_width == 0)
+    {
+        options->value.lineWidth = std::nullopt;
+    }
+    else
+    {
+        options->value.lineWidth = line_width;
+    }
+    return SCID_OK;
+}
+
+scid_error
 scid_game_to_pgn(
     const scid_game* game,
+    const scid_game_pgn_options* options,
     char* out_text,
     size_t out_text_capacity,
     size_t* out_text_size)
@@ -1793,7 +1905,9 @@ scid_game_to_pgn(
     try
     {
         std::string pgn;
-        scid::core::pgn::encode(game->value, pgn);
+        const auto encode_options =
+            options == nullptr ? scid::core::pgn::EncodeOptions{} : options->value;
+        scid::core::pgn::encode(game->value, pgn, encode_options);
         return write_text(pgn, out_text, out_text_capacity, out_text_size);
     }
     catch (...)
@@ -1837,26 +1951,6 @@ scid_game_initial_comment_get(
     try
     {
         return write_text(game->value.initialComment(), out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
-}
-
-scid_error
-scid_game_movetext_clear(
-    scid_game* game)
-{
-    if (game == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        game->value.clearMovetext();
-        return SCID_OK;
     }
     catch (...)
     {

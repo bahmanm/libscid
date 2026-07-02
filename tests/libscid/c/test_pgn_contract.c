@@ -23,6 +23,7 @@ test_pgn_contract(
     scid_game* reparsed = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
+    scid_game_pgn_options* pgn_options = NULL;
     scid_movespec move = {0, 0, 0, 0};
     scid_nag nag = 0;
     char pgn[4096];
@@ -70,7 +71,7 @@ test_pgn_contract(
     next_cursor = NULL;
     assert(scid_game_cursor_comment_set(game, cursor, "Developed") == SCID_OK);
 
-    assert(scid_game_to_pgn(game, pgn, sizeof(pgn), &text_size) == SCID_OK);
+    assert(scid_game_to_pgn(game, NULL, pgn, sizeof(pgn), &text_size) == SCID_OK);
     assert(strstr(pgn, "[Event \"Edited\"]") != NULL);
     assert(strstr(pgn, "[Annotator \"C ABI\"]") != NULL);
     assert(strstr(pgn, "{Contract start}") != NULL);
@@ -79,6 +80,30 @@ test_pgn_contract(
     assert(strstr(pgn, "c5") != NULL);
     assert(strstr(pgn, "Nc3 {Developed}") != NULL);
 
+    assert(scid_game_pgn_options_create(&pgn_options) == SCID_OK);
+    assert(pgn_options != NULL);
+    assert(scid_game_pgn_options_symbolic_nags_set(pgn_options, 1) == SCID_OK);
+    assert(scid_game_to_pgn(game, pgn_options, pgn, sizeof(pgn), &text_size) == SCID_OK);
+    assert(strstr(pgn, "e4 ! {King pawn}") != NULL);
+    assert(strstr(pgn, "$1") == NULL);
+
+    assert(scid_game_pgn_options_variations_set(pgn_options, 0) == SCID_OK);
+    assert(scid_game_to_pgn(game, pgn_options, pgn, sizeof(pgn), &text_size) == SCID_OK);
+    assert(strstr(pgn, "{Sicilian branch}") == NULL);
+    assert(strstr(pgn, "c5") == NULL);
+    assert(strstr(pgn, "Nc3 {Developed}") != NULL);
+
+    assert(scid_game_pgn_options_comments_set(pgn_options, 0) == SCID_OK);
+    assert(scid_game_to_pgn(game, pgn_options, pgn, sizeof(pgn), &text_size) == SCID_OK);
+    assert(strstr(pgn, "{King pawn}") == NULL);
+    assert(strstr(pgn, "{Developed}") == NULL);
+    assert(strstr(pgn, "$1") == NULL);
+    assert(strstr(pgn, " ! ") == NULL);
+    assert(strstr(pgn, "Nc3") != NULL);
+    scid_game_pgn_options_free(pgn_options);
+    pgn_options = NULL;
+
+    assert(scid_game_to_pgn(game, NULL, pgn, sizeof(pgn), &text_size) == SCID_OK);
     scid_game_cursor_free(cursor);
     cursor = NULL;
     scid_game_free(game);

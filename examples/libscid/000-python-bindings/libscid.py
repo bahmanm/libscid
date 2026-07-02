@@ -108,6 +108,7 @@ class LibScid:
 
         self._lib.scid_game_to_pgn.argtypes = [
             ctypes.c_void_p,
+            ctypes.c_void_p,
             ctypes.c_char_p,
             ctypes.c_size_t,
             c_size_t_p,
@@ -168,7 +169,7 @@ class Game:
 
     def to_pgn(self) -> str:
         self._require_open()
-        return self._libscid._string_result("scid_game_to_pgn", self._handle)
+        return self._libscid._string_result("scid_game_to_pgn", self._handle, None)
 
     def _require_open(self) -> None:
         if not self._handle:

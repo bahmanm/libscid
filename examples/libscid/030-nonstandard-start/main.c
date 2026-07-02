@@ -56,7 +56,7 @@ main(
 
     if (!check(scid_game_tag_count_get(game, &tag_count), "scid_game_tag_count_get") ||
         tag_count != 8 ||
-        !check(scid_game_to_pgn(game, text, sizeof(text), &text_size), "scid_game_to_pgn"))
+        !check(scid_game_to_pgn(game, NULL, text, sizeof(text), &text_size), "scid_game_to_pgn"))
     {
         scid_game_free(game);
         scid_position_free(position);

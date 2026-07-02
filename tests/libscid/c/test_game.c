@@ -24,6 +24,7 @@ test_game(
     const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     scid_game* game = NULL;
     scid_game_cursor* cursor = NULL;
+    scid_game_pgn_options* pgn_options = NULL;
     scid_position* position = NULL;
     char name[64];
     char text[1024];
@@ -54,7 +55,7 @@ test_game(
     assert(scid_game_tag_get(game, "Annotator", text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Example") == 0);
 
-    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(scid_game_to_pgn(game, NULL, text, sizeof(text), &text_size) == SCID_OK);
     assert(strstr(text, "[Event \"Manual\"]") != NULL);
     assert(strstr(text, "[Result \"1-0\"]") != NULL);
     assert(strstr(text, "[Annotator \"Example\"]") != NULL);
@@ -73,7 +74,7 @@ test_game(
     assert(strcmp(text, "") == 0);
     assert(scid_game_tag_count_get(game, &tag_count) == SCID_OK);
     assert(tag_count == 7);
-    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(scid_game_to_pgn(game, NULL, text, sizeof(text), &text_size) == SCID_OK);
     assert(strstr(text, "[FEN ") == NULL);
     scid_game_free(game);
     scid_position_free(position);
@@ -96,7 +97,7 @@ test_game(
     assert(scid_game_start_position_get(game, position) == SCID_OK);
     assert(scid_position_to_fen(position, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, custom_fen) == 0);
-    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(scid_game_to_pgn(game, NULL, text, sizeof(text), &text_size) == SCID_OK);
     assert(strstr(text, "[FEN \"8/K7/8/8/7k/8/8/8 w - - 45 25\"]") != NULL);
     assert(scid_game_tag_remove(game, "FEN", &removed) == SCID_OK);
     assert(removed == 0);
@@ -148,9 +149,27 @@ test_game(
     assert(scid_game_tag_get(game, "EventDate", text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "2024.04.30") == 0);
 
-    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(scid_game_to_pgn(game, NULL, text, sizeof(text), &text_size) == SCID_OK);
     assert(strstr(text, "[ECO \"C20\"]") != NULL);
     assert(strstr(text, "[EventDate \"2024.04.30\"]") != NULL);
+
+    assert(scid_game_pgn_options_create(&pgn_options) == SCID_OK);
+    assert(pgn_options != NULL);
+    assert(scid_game_pgn_options_supplemental_tags_set(pgn_options, 0) == SCID_OK);
+    assert(scid_game_pgn_options_comments_set(pgn_options, 0) == SCID_OK);
+    assert(scid_game_to_pgn(game, pgn_options, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strstr(text, "[Event \"Friendly\"]") != NULL);
+    assert(strstr(text, "[ECO \"C20\"]") == NULL);
+    assert(strstr(text, "[EventDate \"2024.04.30\"]") == NULL);
+    assert(strstr(text, "[Annotator \"Example\"]") == NULL);
+    assert(strstr(text, "{Before start}") == NULL);
+    assert(strstr(text, "1.e4 e5") != NULL);
+    assert(scid_game_pgn_options_line_width_set(pgn_options, 5) == SCID_OK);
+    assert(scid_game_to_pgn(game, pgn_options, text, sizeof(text), &text_size) == SCID_OK);
+    assert(strstr(text, "1.e4\ne5") != NULL);
+    assert(scid_game_pgn_options_line_width_set(pgn_options, 0) == SCID_OK);
+    scid_game_pgn_options_free(pgn_options);
+    pgn_options = NULL;
 
     assert(scid_game_tag_count_get(game, &tag_count) == SCID_OK);
     assert(tag_count == 10);
@@ -223,10 +242,10 @@ test_game(
     assert(scid_game_tag_get(game, "Event", NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
     assert(text_size == strlen("Friendly"));
 
-    assert(scid_game_to_pgn(game, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
+    assert(scid_game_to_pgn(game, NULL, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
     assert(text_size > 0);
 
-    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
+    assert(scid_game_to_pgn(game, NULL, text, sizeof(text), &text_size) == SCID_OK);
     assert(strstr(text, "[Event \"Friendly\"]") != NULL);
     assert(strstr(text, "1.e4 e5") != NULL);
     assert(scid_game_mainline_halfmove_count_get(game, &tag_count) == SCID_OK);
@@ -242,17 +261,6 @@ test_game(
     assert(strcmp(text, "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2") == 0);
     scid_position_free(position);
     position = NULL;
-
-    assert(scid_game_movetext_clear(game) == SCID_OK);
-    assert(scid_game_mainline_halfmove_count_get(game, &tag_count) == SCID_OK);
-    assert(tag_count == 0);
-    assert(scid_game_tag_get(game, "Event", text, sizeof(text), &text_size) == SCID_OK);
-    assert(strcmp(text, "Friendly") == 0);
-    assert(scid_game_initial_comment_get(game, text, sizeof(text), &text_size) == SCID_OK);
-    assert(strcmp(text, "") == 0);
-    assert(scid_game_to_pgn(game, text, sizeof(text), &text_size) == SCID_OK);
-    assert(strstr(text, "[Event \"Friendly\"]") != NULL);
-    assert(strstr(text, "1.e4 e5") == NULL);
 
     scid_game_free(game);
 
@@ -287,11 +295,16 @@ test_game(
     assert(test_game_create_blank(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_create_blank(NULL, &game) == SCID_ERROR_BAD_ARG);
     assert(scid_game_create_blank(position, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_game_to_pgn(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_to_pgn(NULL, NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_pgn_options_create(NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_pgn_options_symbolic_nags_set(NULL, 1) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_pgn_options_supplemental_tags_set(NULL, 1) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_pgn_options_comments_set(NULL, 1) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_pgn_options_variations_set(NULL, 1) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_pgn_options_line_width_set(NULL, 80) == SCID_ERROR_BAD_ARG);
     assert(scid_game_mainline_halfmove_count_get(NULL, &tag_count) == SCID_ERROR_BAD_ARG);
     assert(
         scid_game_initial_comment_get(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    assert(scid_game_movetext_clear(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_tag_get(NULL, "Event", text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
     assert(scid_game_tag_set(NULL, "Event", "x") == SCID_ERROR_BAD_ARG);
     assert(scid_game_tag_count_get(NULL, &tag_count) == SCID_ERROR_BAD_ARG);
