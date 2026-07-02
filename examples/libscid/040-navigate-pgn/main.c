@@ -129,6 +129,7 @@ int
 main(
     void)
 {
+    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const char* pgn = "[Event \"Navigation\"]\n"
                       "[Result \"*\"]\n"
                       "\n"
@@ -137,6 +138,7 @@ main(
     scid_game* game = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
+    scid_position* position = NULL;
     char diagnostic[1024];
     char text[256];
     scid_movespec move;
@@ -147,12 +149,17 @@ main(
     size_t variation_count = 0;
 
     if (!check(
-            scid_game_create_from_pgn(
-                pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic), &diagnostic_size),
-            "scid_game_create_from_pgn") ||
+            scid_position_create_from_fen(start_fen, &position),
+            "scid_position_create_from_fen") ||
+        !check(
+            scid_game_create(
+                position, pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic),
+                &diagnostic_size),
+            "scid_game_create") ||
         !check(scid_game_cursor_create(game, &cursor), "scid_game_cursor_create"))
     {
         fprintf(stderr, "%.*s\n", (int)diagnostic_size, diagnostic);
+        scid_position_free(position);
         scid_game_cursor_free(cursor);
         scid_game_free(game);
         return 1;
@@ -167,6 +174,7 @@ main(
             "scid_game_cursor_variation_count_get") ||
         variation_count != 1)
     {
+        scid_position_free(position);
         scid_game_cursor_free(cursor);
         scid_game_free(game);
         return 1;
@@ -190,6 +198,7 @@ main(
         !text_equals(text, text_size, "d4"))
     {
         scid_game_cursor_free(next_cursor);
+        scid_position_free(position);
         scid_game_cursor_free(cursor);
         scid_game_free(game);
         return 1;
@@ -202,6 +211,7 @@ main(
         !moved || !take_cursor(&cursor, &next_cursor))
     {
         scid_game_cursor_free(next_cursor);
+        scid_position_free(position);
         scid_game_cursor_free(cursor);
         scid_game_free(game);
         return 1;
@@ -234,12 +244,14 @@ main(
         !text_equals(text, text_size, "e7e5"))
     {
         scid_game_cursor_free(next_cursor);
+        scid_position_free(position);
         scid_game_cursor_free(cursor);
         scid_game_free(game);
         return 1;
     }
     next_cursor = NULL;
 
+    scid_position_free(position);
     scid_game_cursor_free(cursor);
     scid_game_free(game);
     return 0;

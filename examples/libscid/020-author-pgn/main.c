@@ -102,7 +102,7 @@ main(
     if (!check(
             scid_position_create_from_fen(standard_fen, &position),
             "scid_position_create_from_fen") ||
-        !check(scid_game_create_from_position(position, &game), "scid_game_create_from_position") ||
+        !check(scid_game_create_blank(position, &game), "scid_game_create_blank") ||
         !check(scid_game_cursor_create(game, &cursor), "scid_game_cursor_create"))
     {
         scid_game_cursor_free(cursor);

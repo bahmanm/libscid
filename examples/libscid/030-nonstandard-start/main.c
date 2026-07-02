@@ -37,7 +37,7 @@ main(
     size_t tag_count = 0;
 
     if (!check(scid_position_create_from_fen(fen, &position), "scid_position_create_from_fen") ||
-        !check(scid_game_create_from_position(position, &game), "scid_game_create_from_position") ||
+        !check(scid_game_create_blank(position, &game), "scid_game_create_blank") ||
         !check(scid_game_tag_set(game, "Event", "Study position"), "scid_game_tag_set") ||
         !check(scid_game_tag_get(game, "FEN", text, sizeof(text), &text_size), "scid_game_tag_get"))
     {

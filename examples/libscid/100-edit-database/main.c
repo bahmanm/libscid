@@ -31,18 +31,26 @@ parse_pgn(
     const char* pgn,
     scid_game** out_game)
 {
+    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    scid_position* position = NULL;
     char diagnostic[1024];
     size_t diagnostic_size = 0;
 
     if (!check(
-            scid_game_create_from_pgn(
-                pgn, strlen(pgn), out_game, diagnostic, sizeof(diagnostic), &diagnostic_size),
-            "scid_game_create_from_pgn"))
+            scid_position_create_from_fen(start_fen, &position),
+            "scid_position_create_from_fen") ||
+        !check(
+            scid_game_create(
+                position, pgn, strlen(pgn), out_game, diagnostic, sizeof(diagnostic),
+                &diagnostic_size),
+            "scid_game_create"))
     {
         fprintf(stderr, "%.*s\n", (int)diagnostic_size, diagnostic);
+        scid_position_free(position);
         return 0;
     }
 
+    scid_position_free(position);
     return 1;
 }
 

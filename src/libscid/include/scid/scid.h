@@ -229,10 +229,11 @@ extern "C"
         scid_piece* out_piece);
 
     SCID_API scid_error
-    scid_game_create_from_position(const scid_position* position, scid_game** out_game);
+    scid_game_create_blank(const scid_position* position, scid_game** out_game);
 
     SCID_API scid_error
-    scid_game_create_from_pgn(
+    scid_game_create(
+        const scid_position* position,
         const char* pgn,
         size_t pgn_size,
         scid_game** out_game,

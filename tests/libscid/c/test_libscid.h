@@ -25,7 +25,7 @@ test_position_create_empty(
 }
 
 static scid_error
-test_game_create_empty(
+test_game_create_blank(
     scid_game** out_game)
 {
     scid_position* position = 0;
@@ -35,7 +35,30 @@ test_game_create_empty(
         return error;
     }
 
-    error = scid_game_create_from_position(position, out_game);
+    error = scid_game_create_blank(position, out_game);
+    scid_position_free(position);
+    return error;
+}
+
+static scid_error
+test_game_create(
+    const char* pgn,
+    size_t pgn_size,
+    scid_game** out_game,
+    char* out_diagnostic,
+    size_t out_diagnostic_capacity,
+    size_t* out_diagnostic_size)
+{
+    scid_position* position = 0;
+    scid_error error = test_position_create_standard(&position);
+    if (error != SCID_OK)
+    {
+        return error;
+    }
+
+    error = scid_game_create(
+        position, pgn, pgn_size, out_game, out_diagnostic, out_diagnostic_capacity,
+        out_diagnostic_size);
     scid_position_free(position);
     return error;
 }

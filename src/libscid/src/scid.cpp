@@ -1692,7 +1692,7 @@ scid_position_piece_at_get(
 }
 
 scid_error
-scid_game_create_from_position(
+scid_game_create_blank(
     const scid_position* position,
     scid_game** out_game)
 {
@@ -1720,7 +1720,8 @@ scid_game_create_from_position(
 }
 
 scid_error
-scid_game_create_from_pgn(
+scid_game_create(
+    const scid_position* position,
     const char* pgn,
     size_t pgn_size,
     scid_game** out_game,
@@ -1728,7 +1729,7 @@ scid_game_create_from_pgn(
     size_t out_diagnostic_capacity,
     size_t* out_diagnostic_size)
 {
-    if (pgn == nullptr || out_game == nullptr)
+    if (position == nullptr || pgn == nullptr || out_game == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1736,6 +1737,11 @@ scid_game_create_from_pgn(
     try
     {
         auto* game = new scid_game;
+        if (!position->value.IsStdStart())
+        {
+            game->value.setStartPosition(position->value);
+        }
+
         scid::core::pgn::ParseLog log;
         const bool ok = scid::core::pgn::parseGame(pgn, pgn_size, game->value, log);
 

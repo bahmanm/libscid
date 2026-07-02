@@ -16,7 +16,7 @@ create_source_game_from_moves(
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
 
-    assert(scid_game_create_from_position(position, &game) == SCID_OK);
+    assert(scid_game_create_blank(position, &game) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
 
     for (size_t i = 0; i < move_count; ++i)
@@ -60,7 +60,7 @@ test_cursor_move_and_nag_mutation(
     int truth = 0;
     size_t count = 0;
 
-    assert(test_game_create_empty(&game) == SCID_OK);
+    assert(test_game_create_blank(&game) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
 
     assert(scid_movespec_create_from_uci("e2e4", &move) == SCID_OK);
@@ -206,7 +206,7 @@ test_game_merge_moves(
     size_t text_size = 0;
     size_t count = 0;
 
-    assert(scid_game_create_from_pgn(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
+    assert(test_game_create(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
     assert(scid_game_cursor_to_end(cursor, &next_cursor) == SCID_OK);
     test_cursor_take(&cursor, next_cursor);
@@ -230,7 +230,7 @@ test_game_merge_moves(
     game = NULL;
     cursor = NULL;
 
-    assert(scid_game_create_from_pgn(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
+    assert(test_game_create(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
     assert(scid_game_cursor_to_ply(cursor, 1, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
@@ -282,7 +282,7 @@ test_game_merge_moves(
     game = NULL;
     cursor = NULL;
 
-    assert(scid_game_create_from_pgn(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
+    assert(test_game_create(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_tag_set(game, "Event", "Target Event") == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
     assert(scid_game_cursor_to_ply(cursor, 1, &truth, &next_cursor) == SCID_OK);
@@ -355,7 +355,7 @@ test_cursor_variation_promotion(
     int truth = 0;
     size_t count = 0;
 
-    assert(scid_game_create_from_pgn(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
+    assert(test_game_create(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
     assert(scid_game_cursor_next(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);

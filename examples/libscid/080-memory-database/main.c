@@ -30,6 +30,7 @@ int
 main(
     void)
 {
+    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const char* pgn = "[Event \"Memory\"]\n"
                       "[White \"Alpha\"]\n"
                       "[Black \"Beta\"]\n"
@@ -39,6 +40,7 @@ main(
     scid_database* database = NULL;
     scid_game* game = NULL;
     scid_game* loaded = NULL;
+    scid_position* position = NULL;
     char diagnostic[1024];
     char filter_id[16] = {0};
     char flags[22];
@@ -58,11 +60,16 @@ main(
         !check(scid_database_game_count_get(database, &count), "scid_database_game_count_get") ||
         count != 0 ||
         !check(
-            scid_game_create_from_pgn(
-                pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic), &diagnostic_size),
-            "scid_game_create_from_pgn"))
+            scid_position_create_from_fen(start_fen, &position),
+            "scid_position_create_from_fen") ||
+        !check(
+            scid_game_create(
+                position, pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic),
+                &diagnostic_size),
+            "scid_game_create"))
     {
         fprintf(stderr, "%.*s\n", (int)diagnostic_size, diagnostic);
+        scid_position_free(position);
         scid_game_free(game);
         scid_database_free(database);
         return 1;
@@ -75,6 +82,7 @@ main(
         !check(scid_database_game_count_get(database, &count), "scid_database_game_count_get") ||
         count != 1)
     {
+        scid_position_free(position);
         scid_game_free(game);
         scid_database_free(database);
         return 1;
@@ -86,6 +94,7 @@ main(
         !check(scid_database_game_count_get(database, &count), "scid_database_game_count_get") ||
         count != 2)
     {
+        scid_position_free(position);
         scid_game_free(game);
         scid_database_free(database);
         return 1;
@@ -130,6 +139,7 @@ main(
     {
         scid_database_filter_delete(database, filter_id);
         scid_game_free(loaded);
+        scid_position_free(position);
         scid_game_free(game);
         scid_database_free(database);
         return 1;
@@ -141,6 +151,7 @@ main(
 
     scid_database_filter_delete(database, filter_id);
     scid_game_free(loaded);
+    scid_position_free(position);
     scid_game_free(game);
     scid_database_free(database);
     return 0;

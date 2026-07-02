@@ -31,7 +31,7 @@ test_pgn_contract(
     size_t count = 0;
     size_t text_size = 0;
 
-    assert(scid_game_create_from_pgn(input, strlen(input), &game, NULL, 0, NULL) == SCID_OK);
+    assert(test_game_create(input, strlen(input), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_tag_set(game, "Event", "Edited") == SCID_OK);
     assert(scid_game_tag_set(game, "Annotator", "C ABI") == SCID_OK);
 
@@ -84,7 +84,7 @@ test_pgn_contract(
     scid_game_free(game);
     game = NULL;
 
-    assert(scid_game_create_from_pgn(pgn, strlen(pgn), &reparsed, NULL, 0, NULL) == SCID_OK);
+    assert(test_game_create(pgn, strlen(pgn), &reparsed, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_tag_get(reparsed, "Event", text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Edited") == 0);
     assert(scid_game_tag_get(reparsed, "Annotator", text, sizeof(text), &text_size) == SCID_OK);

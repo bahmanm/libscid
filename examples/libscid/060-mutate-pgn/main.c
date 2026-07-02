@@ -45,7 +45,7 @@ int
 main(
     void)
 {
-    const char* scratch_fen = "8/K7/8/8/7k/8/8/8 w - - 0 1";
+    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const char* pgn = "[Event \"Mutation\"]\n"
                       "[Result \"*\"]\n"
                       "\n"
@@ -65,12 +65,12 @@ main(
     size_t variation_count = 0;
 
     if (!check(
-            scid_game_create_from_pgn(pgn, strlen(pgn), &game, NULL, 0, NULL),
-            "scid_game_create_from_pgn") ||
-        !check(scid_game_cursor_create(game, &cursor), "scid_game_cursor_create") ||
+            scid_position_create_from_fen(start_fen, &position),
+            "scid_position_create_from_fen") ||
         !check(
-            scid_position_create_from_fen(scratch_fen, &position),
-            "scid_position_create_from_fen"))
+            scid_game_create(position, pgn, strlen(pgn), &game, NULL, 0, NULL),
+            "scid_game_create") ||
+        !check(scid_game_cursor_create(game, &cursor), "scid_game_cursor_create"))
     {
         scid_position_free(position);
         scid_game_cursor_free(cursor);
@@ -114,8 +114,8 @@ main(
             scid_movespec_create_from_san(position, "e6", &move),
             "scid_movespec_create_from_san") ||
         !check(
-            scid_game_create_from_position(position, &source_game),
-            "scid_game_create_from_position") ||
+            scid_game_create_blank(position, &source_game),
+            "scid_game_create_blank") ||
         !check(scid_game_cursor_create(source_game, &source_cursor), "scid_game_cursor_create") ||
         !check(
             scid_game_cursor_comment_set(source_game, source_cursor, "French branch"),
