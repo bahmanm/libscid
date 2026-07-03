@@ -139,7 +139,7 @@ test_database(
     assert(scid_database_stats_result_count_get(database, "1-0", &count) == SCID_OK);
     assert(count == 0);
 
-    assert(scid_game_create_from_pgn(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
+    assert(test_game_create(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
     assert(game != NULL);
 
     assert(scid_database_game_add(database, game, "D") == SCID_OK);
@@ -236,8 +236,8 @@ test_database(
     assert(loaded == NULL);
 
     assert(
-        scid_game_create_from_pgn(
-            replacement_pgn, strlen(replacement_pgn), &replacement, NULL, 0, NULL) == SCID_OK);
+        test_game_create(replacement_pgn, strlen(replacement_pgn), &replacement, NULL, 0, NULL) ==
+        SCID_OK);
     assert(replacement != NULL);
     assert(scid_database_game_replace(database, 1, replacement, "Q") == SCID_OK);
     assert(scid_database_game_count_get(database, &count) == SCID_OK);

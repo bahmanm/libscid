@@ -37,7 +37,7 @@ main(
     size_t tag_count = 0;
 
     if (!check(scid_position_create_from_fen(fen, &position), "scid_position_create_from_fen") ||
-        !check(scid_game_create_from_position(position, &game), "scid_game_create_from_position") ||
+        !check(scid_game_create_blank(position, &game), "scid_game_create_blank") ||
         !check(scid_game_tag_set(game, "Event", "Study position"), "scid_game_tag_set") ||
         !check(scid_game_tag_get(game, "FEN", text, sizeof(text), &text_size), "scid_game_tag_get"))
     {
@@ -56,7 +56,7 @@ main(
 
     if (!check(scid_game_tag_count_get(game, &tag_count), "scid_game_tag_count_get") ||
         tag_count != 8 ||
-        !check(scid_game_to_pgn(game, text, sizeof(text), &text_size), "scid_game_to_pgn"))
+        !check(scid_game_to_pgn(game, NULL, text, sizeof(text), &text_size), "scid_game_to_pgn"))
     {
         scid_game_free(game);
         scid_position_free(position);

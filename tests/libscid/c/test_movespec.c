@@ -108,7 +108,7 @@ test_movespec(
     move.is_castling = 0;
     assert(scid_movespec_to_uci(move, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
 
-    assert(scid_position_create_standard(&position) == SCID_OK);
+    assert(test_position_create_standard(&position) == SCID_OK);
     assert(position != NULL);
 
     assert(scid_movespec_create_from_san(position, "e4", &move) == SCID_OK);

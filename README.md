@@ -22,8 +22,9 @@ database and ECO functionality without depending on a desktop application.
 
 ## What It Provides
 
-- Opaque handles for positions, games, movetext cursors, ECO books and databases.
-- PGN import, editing, traversal and export workflows.
+- Opaque handles for positions, games, game cursors, PGN export options, ECO
+  books and databases.
+- PGN import, authoring, immutable cursor traversal, merge and export workflows.
 - Board state, legal move handling, FEN, UCI and SAN helpers.
 - Scid database creation, opening, listing, editing, import and export.
 - ECO code parsing and opening-position lookup.
@@ -36,6 +37,8 @@ database and ECO functionality without depending on a desktop application.
   release archive or build and install from source.
 - [Examples and Recipes](https://libscid.bahmanm.com/examples_recipes.html):
   choose a C ABI example by task.
+- [API Surface](https://libscid.bahmanm.com/api_surface.html): understand the
+  opaque handles, ownership rules and PGN game workflow.
 - [API Documentation](https://libscid.bahmanm.com/): browse the generated public
   header reference.
 

@@ -1,7 +1,8 @@
 # 100 Edit Database
 
-This example creates an in-memory database, replaces an existing game, marks
-the game deleted, and then clears the deleted marker through the C ABI.
+This example creates an in-memory database, parses PGN games, replaces an
+existing stored game, marks the game deleted, and then clears the deleted
+marker through the C ABI.
 
 Install libscid first; see the installation guide:
 

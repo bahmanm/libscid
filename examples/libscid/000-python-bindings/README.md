@@ -1,7 +1,9 @@
 # Python ctypes Example
 
 This directory contains a small Python wrapper over the `libscid` C ABI and a
-PGN roundtrip script.
+PGN roundtrip script. The wrapper keeps the example deliberately small: it
+parses with `scid_game_create()` and exports through `scid_game_to_pgn()` using
+the default PGN options.
 
 Build the shared library first:
 

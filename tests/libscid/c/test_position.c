@@ -15,6 +15,7 @@ test_position(
     const char* check_fen = "4k3/8/8/8/8/8/4q3/4K3 w - - 0 1";
     const char* mate_fen = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
     scid_position* position = NULL;
+    scid_position* next_position = NULL;
     scid_colour side_to_move = SCID_WHITE;
     char fen[128];
     int truth = 0;
@@ -22,7 +23,7 @@ test_position(
     unsigned number = 0;
     size_t fen_size = 0;
 
-    assert(scid_position_create_standard(&position) == SCID_OK);
+    assert(test_position_create_standard(&position) == SCID_OK);
     assert(position != NULL);
     assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
     assert(strcmp(fen, start_fen) == 0);
@@ -61,26 +62,44 @@ test_position(
     scid_position_free(position);
 
     position = NULL;
-    assert(scid_position_create_standard(&position) == SCID_OK);
-    assert(scid_position_apply_uci(position, "e2e4") == SCID_OK);
+    assert(test_position_create_standard(&position) == SCID_OK);
+    assert(scid_position_create_with_uci(position, "e2e4", &next_position) == SCID_OK);
+    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
+    assert(strcmp(fen, start_fen) == 0);
+    scid_position_free(position);
+    position = next_position;
+    next_position = NULL;
     assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
     assert(strcmp(fen, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1") == 0);
-    assert(scid_position_apply_san(position, "c5") == SCID_OK);
+    assert(scid_position_create_with_san(position, "c5", &next_position) == SCID_OK);
+    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
+    assert(strcmp(fen, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1") == 0);
+    scid_position_free(position);
+    position = next_position;
+    next_position = NULL;
     assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
     assert(strcmp(fen, "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2") == 0);
+    assert(scid_position_apply_uci(position, "g1f3") == SCID_OK);
     assert(scid_position_apply_uci(position, "not-a-move") == SCID_ERROR_INVALID_MOVE);
     assert(scid_position_apply_san(position, "not-a-move") == SCID_ERROR_INVALID_MOVE);
+    assert(scid_position_create_with_uci(NULL, "e2e4", &next_position) == SCID_ERROR_BAD_ARG);
+    assert(scid_position_create_with_uci(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
+    assert(
+        scid_position_create_with_uci(position, "not-a-move", &next_position) ==
+        SCID_ERROR_INVALID_MOVE);
+    assert(next_position == NULL);
+    assert(scid_position_create_with_uci(position, "g1f3", NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_position_create_with_san(NULL, "e4", &next_position) == SCID_ERROR_BAD_ARG);
+    assert(scid_position_create_with_san(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
+    assert(
+        scid_position_create_with_san(position, "not-a-move", &next_position) ==
+        SCID_ERROR_INVALID_MOVE);
+    assert(next_position == NULL);
+    assert(scid_position_create_with_san(position, "Nf3", NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_apply_uci(NULL, "e2e4") == SCID_ERROR_BAD_ARG);
     assert(scid_position_apply_uci(position, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_apply_san(NULL, "e4") == SCID_ERROR_BAD_ARG);
     assert(scid_position_apply_san(position, NULL) == SCID_ERROR_BAD_ARG);
-    scid_position_free(position);
-
-    position = NULL;
-    assert(scid_position_create_empty(&position) == SCID_OK);
-    assert(position != NULL);
-    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
-    assert(strcmp(fen, "8/8/8/8/8/8/8/8 w - - 0 1") == 0);
     scid_position_free(position);
 
     position = NULL;
@@ -137,8 +156,8 @@ test_position(
         SCID_ERROR_INVALID_FEN);
     assert(position == NULL);
 
-    assert(scid_position_create_standard(NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_create_empty(NULL) == SCID_ERROR_BAD_ARG);
+    assert(test_position_create_standard(NULL) == SCID_ERROR_BAD_ARG);
+    assert(test_position_create_empty(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_create_from_fen(NULL, &position) == SCID_ERROR_BAD_ARG);
     assert(scid_position_create_from_fen(custom_fen, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_to_fen(NULL, fen, sizeof(fen), &fen_size) == SCID_ERROR_BAD_ARG);
@@ -160,5 +179,6 @@ test_position(
     assert(scid_position_piece_at_get(position, 4, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_piece_at_get(position, 64, &piece) == SCID_ERROR_BAD_ARG);
 
+    scid_position_free(next_position);
     scid_position_free(NULL);
 }

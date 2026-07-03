@@ -1,7 +1,8 @@
 # 010 Edit PGN
 
-This example parses a PGN game through the C ABI, inspects its header tags,
-edits metadata, removes a supplemental tag, and writes the game back to PGN.
+This example parses a PGN game with `scid_game_create()`, inspects its header
+tags, edits metadata, removes a supplemental tag, and writes the game back to
+PGN with `scid_game_to_pgn(..., NULL, ...)`.
 
 Install libscid first; see the installation guide:
 

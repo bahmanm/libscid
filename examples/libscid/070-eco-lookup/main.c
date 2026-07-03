@@ -19,10 +19,21 @@ check(
 
 static int
 play(
-    scid_position* position,
+    scid_position** position,
     const char* san)
 {
-    return check(scid_position_apply_san(position, san), "scid_position_apply_san");
+    scid_position* next_position = NULL;
+    if (!check(
+            scid_position_create_with_san(*position, san, &next_position),
+            "scid_position_create_with_san"))
+    {
+        scid_position_free(next_position);
+        return 0;
+    }
+
+    scid_position_free(*position);
+    *position = next_position;
+    return 1;
 }
 
 static int
@@ -38,6 +49,7 @@ int
 main(
     void)
 {
+    const char* standard_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     scid_eco_book* book = NULL;
     scid_position* position = NULL;
     scid_eco_code code = SCID_ECO_NONE;
@@ -49,9 +61,11 @@ main(
     size_t fen_size = 0;
 
     if (!check(scid_eco_book_load(LIBSCID_EXAMPLE_ECO_FILE, &book), "scid_eco_book_load") ||
-        !check(scid_position_create_standard(&position), "scid_position_create_standard") ||
-        !play(position, "d4") || !play(position, "d5") || !play(position, "c4") ||
-        !play(position, "e6") ||
+        !check(
+            scid_position_create_from_fen(standard_fen, &position),
+            "scid_position_create_from_fen") ||
+        !play(&position, "d4") || !play(&position, "d5") || !play(&position, "c4") ||
+        !play(&position, "e6") ||
         !check(
             scid_position_to_fen(position, fen, sizeof(fen), &fen_size), "scid_position_to_fen") ||
         !check(scid_eco_book_code_find(book, position, &code), "scid_eco_book_code_find") ||

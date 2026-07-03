@@ -19,6 +19,7 @@
 #include <cctype>
 #include <cstring>
 #include <limits>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -34,12 +35,17 @@ struct scid_game
         scid::core::Game value;
 };
 
-struct scid_movetext_cursor
+struct scid_game_pgn_options
+{
+        scid::core::pgn::EncodeOptions value;
+};
+
+struct scid_game_cursor
 {
         scid_game* game = nullptr;
         scid::core::MovetextCursor value;
 
-        explicit scid_movetext_cursor(
+        explicit scid_game_cursor(
             scid_game* source_game)
             : game(source_game), value(source_game->value)
         {}
@@ -392,7 +398,7 @@ namespace
 
     scid_error
     validate_move_at_cursor(
-        const scid_movetext_cursor* cursor,
+        const scid_game_cursor* cursor,
         const scid::core::MoveSpec& move)
     {
         scid::core::GameCursor read_cursor(cursor->game->value);
@@ -408,6 +414,63 @@ namespace
         }
 
         return position->applyMove(move);
+    }
+
+    scid_error
+    validate_cursor_game(
+        scid_game* game,
+        const scid_game_cursor* cursor)
+    {
+        if (game == nullptr || cursor == nullptr || cursor->game != game)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return SCID_OK;
+    }
+
+    scid_error
+    create_cursor_at(
+        scid_game* game,
+        const scid::core::MovetextLocation& location,
+        scid_game_cursor** out_cursor)
+    {
+        if (game == nullptr || out_cursor == nullptr)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        try
+        {
+            auto* cursor = new scid_game_cursor(game);
+            if (!cursor->value.restore(location))
+            {
+                delete cursor;
+                *out_cursor = nullptr;
+                return SCID_ERROR_BAD_ARG;
+            }
+
+            *out_cursor = cursor;
+            return SCID_OK;
+        }
+        catch (...)
+        {
+            *out_cursor = nullptr;
+            return SCID_ERROR;
+        }
+    }
+
+    scid_error
+    create_cursor_copy(
+        const scid_game_cursor* source_cursor,
+        scid_game_cursor** out_cursor)
+    {
+        if (source_cursor == nullptr)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return create_cursor_at(source_cursor->game, source_cursor->value.location(), out_cursor);
     }
 
     std::string_view
@@ -943,6 +1006,76 @@ namespace
         return SCID_OK;
     }
 
+    scid::core::Position
+    game_start_position(
+        const scid::core::Game& game)
+    {
+        return game.startPosition() ? *game.startPosition() : scid::core::Position::getStdStart();
+    }
+
+    bool
+    positions_match(
+        const scid::core::Position& lhs,
+        const scid::core::Position& rhs)
+    {
+        return position_fen(lhs) == position_fen(rhs);
+    }
+
+    scid_error
+    validate_move_sequence(
+        const scid::core::MoveSequence& sequence,
+        const scid::core::Position& start_position)
+    {
+        auto position = start_position;
+        for (const auto& move : sequence.moves)
+        {
+            for (const auto& variation : move.childVariations)
+            {
+                if (const scid_error error = validate_move_sequence(variation.line, position);
+                    error != SCID_OK)
+                {
+                    return error;
+                }
+            }
+
+            if (const scid_error error = position.applyMove(move.spec); error != SCID_OK)
+            {
+                return error;
+            }
+        }
+
+        return SCID_OK;
+    }
+
+    scid_error
+    append_move_sequence(
+        scid::core::MovetextCursor& cursor,
+        const scid::core::MoveSequence& sequence)
+    {
+        for (const auto& source_move : sequence.moves)
+        {
+            auto& target_move = cursor.addMove(source_move.spec);
+            target_move.san = source_move.san;
+            target_move.metadata = source_move.metadata;
+            target_move.childVariations = source_move.childVariations;
+        }
+
+        return SCID_OK;
+    }
+
+    scid_error
+    maybe_set_line_start_comment(
+        scid::core::MovetextCursor& cursor,
+        std::string_view comment)
+    {
+        if (comment.empty() || !cursor.isAtLineStart())
+        {
+            return SCID_OK;
+        }
+
+        return cursor.setComment(comment) ? SCID_OK : SCID_ERROR;
+    }
+
 }
 
 scid_error
@@ -1229,52 +1362,6 @@ scid_nag_to_string(
 }
 
 scid_error
-scid_position_create_standard(
-    scid_position** out_position)
-{
-    if (out_position == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        auto* position = new scid_position;
-        position->value.StdStart();
-        *out_position = position;
-        return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_position = nullptr;
-        return SCID_ERROR;
-    }
-}
-
-scid_error
-scid_position_create_empty(
-    scid_position** out_position)
-{
-    if (out_position == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        auto* position = new scid_position;
-        position->value.Clear();
-        *out_position = position;
-        return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_position = nullptr;
-        return SCID_ERROR;
-    }
-}
-
-scid_error
 scid_position_create_from_fen(
     const char* fen,
     scid_position** out_position)
@@ -1296,6 +1383,90 @@ scid_position_create_from_fen(
         }
 
         *out_position = position;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_position = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_position_create_with_san(
+    const scid_position* position,
+    const char* san,
+    scid_position** out_position)
+{
+    if (position == nullptr || san == nullptr || out_position == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        auto* next_position = new scid_position;
+        next_position->value = position->value;
+
+        scid::core::MoveSpec move;
+        if (const scid_error error = next_position->value.parseMoveSpec(move, san);
+            error != SCID_OK)
+        {
+            delete next_position;
+            *out_position = nullptr;
+            return error;
+        }
+
+        if (const scid_error error = next_position->value.applyMove(move); error != SCID_OK)
+        {
+            delete next_position;
+            *out_position = nullptr;
+            return error;
+        }
+
+        *out_position = next_position;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_position = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_position_create_with_uci(
+    const scid_position* position,
+    const char* uci,
+    scid_position** out_position)
+{
+    if (position == nullptr || uci == nullptr || out_position == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        auto* next_position = new scid_position;
+        next_position->value = position->value;
+
+        scid::core::MoveSpec move;
+        if (const scid_error error = next_position->value.readCoordinateMoveSpec(move, uci, false);
+            error != SCID_OK)
+        {
+            delete next_position;
+            *out_position = nullptr;
+            return error;
+        }
+
+        if (const scid_error error = next_position->value.applyMove(move); error != SCID_OK)
+        {
+            delete next_position;
+            *out_position = nullptr;
+            return error;
+        }
+
+        *out_position = next_position;
         return SCID_OK;
     }
     catch (...)
@@ -1528,28 +1699,7 @@ scid_position_piece_at_get(
 }
 
 scid_error
-scid_game_create_empty(
-    scid_game** out_game)
-{
-    if (out_game == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        *out_game = new scid_game;
-        return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_game = nullptr;
-        return SCID_ERROR;
-    }
-}
-
-scid_error
-scid_game_create_from_position(
+scid_game_create_blank(
     const scid_position* position,
     scid_game** out_game)
 {
@@ -1577,7 +1727,8 @@ scid_game_create_from_position(
 }
 
 scid_error
-scid_game_create_from_pgn(
+scid_game_create(
+    const scid_position* position,
     const char* pgn,
     size_t pgn_size,
     scid_game** out_game,
@@ -1585,7 +1736,7 @@ scid_game_create_from_pgn(
     size_t out_diagnostic_capacity,
     size_t* out_diagnostic_size)
 {
-    if (pgn == nullptr || out_game == nullptr)
+    if (position == nullptr || pgn == nullptr || out_game == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1593,6 +1744,11 @@ scid_game_create_from_pgn(
     try
     {
         auto* game = new scid_game;
+        if (!position->value.IsStdStart())
+        {
+            game->value.setStartPosition(position->value);
+        }
+
         scid::core::pgn::ParseLog log;
         const bool ok = scid::core::pgn::parseGame(pgn, pgn_size, game->value, log);
 
@@ -1630,8 +1786,114 @@ scid_game_free(
 }
 
 scid_error
+scid_game_pgn_options_create(
+    scid_game_pgn_options** out_options)
+{
+    if (out_options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        *out_options = new scid_game_pgn_options;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_options = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+void
+scid_game_pgn_options_free(
+    scid_game_pgn_options* options)
+{
+    delete options;
+}
+
+scid_error
+scid_game_pgn_options_symbolic_nags_set(
+    scid_game_pgn_options* options,
+    int enabled)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    options->value.symbolicNags = enabled != 0;
+    return SCID_OK;
+}
+
+scid_error
+scid_game_pgn_options_supplemental_tags_set(
+    scid_game_pgn_options* options,
+    int enabled)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    options->value.includeSupplementalTags = enabled != 0;
+    return SCID_OK;
+}
+
+scid_error
+scid_game_pgn_options_comments_set(
+    scid_game_pgn_options* options,
+    int enabled)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    options->value.includeComments = enabled != 0;
+    return SCID_OK;
+}
+
+scid_error
+scid_game_pgn_options_variations_set(
+    scid_game_pgn_options* options,
+    int enabled)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    options->value.includeVariations = enabled != 0;
+    return SCID_OK;
+}
+
+scid_error
+scid_game_pgn_options_line_width_set(
+    scid_game_pgn_options* options,
+    unsigned line_width)
+{
+    if (options == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (line_width == 0)
+    {
+        options->value.lineWidth = std::nullopt;
+    }
+    else
+    {
+        options->value.lineWidth = line_width;
+    }
+    return SCID_OK;
+}
+
+scid_error
 scid_game_to_pgn(
     const scid_game* game,
+    const scid_game_pgn_options* options,
     char* out_text,
     size_t out_text_capacity,
     size_t* out_text_size)
@@ -1644,7 +1906,9 @@ scid_game_to_pgn(
     try
     {
         std::string pgn;
-        scid::core::pgn::encode(game->value, pgn);
+        const auto encode_options =
+            options == nullptr ? scid::core::pgn::EncodeOptions{} : options->value;
+        scid::core::pgn::encode(game->value, pgn, encode_options);
         return write_text(pgn, out_text, out_text_capacity, out_text_size);
     }
     catch (...)
@@ -1688,26 +1952,6 @@ scid_game_initial_comment_get(
     try
     {
         return write_text(game->value.initialComment(), out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
-}
-
-scid_error
-scid_game_movetext_clear(
-    scid_game* game)
-{
-    if (game == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        game->value.clearMovetext();
-        return SCID_OK;
     }
     catch (...)
     {
@@ -1924,9 +2168,148 @@ scid_game_final_position_get(
 }
 
 scid_error
-scid_movetext_cursor_create(
+scid_game_merge_moves(
+    scid_game* target_game,
+    const scid_game_cursor* target_cursor,
+    const scid_game* source_game,
+    scid_game_merge_moves_mode mode,
+    scid_game_cursor** out_cursor)
+{
+    if (out_cursor == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+    *out_cursor = nullptr;
+
+    if (source_game == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (mode != SCID_GAME_MERGE_MOVES_APPEND && mode != SCID_GAME_MERGE_MOVES_INSERT_VARIATION &&
+        mode != SCID_GAME_MERGE_MOVES_REPLACE)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    scid::core::Game backup;
+    bool has_backup = false;
+
+    try
+    {
+        if (const scid_error error = validate_cursor_game(target_game, target_cursor);
+            error != SCID_OK)
+        {
+            return error;
+        }
+
+        scid::core::GameCursor read_cursor(target_game->value);
+        if (!read_cursor.restore(target_cursor->value.location()))
+        {
+            return SCID_ERROR;
+        }
+
+        const auto target_position = read_cursor.currentPosition();
+        if (!target_position)
+        {
+            return SCID_ERROR_INVALID_MOVE;
+        }
+
+        const auto source_start_position = game_start_position(source_game->value);
+        if (!positions_match(*target_position, source_start_position))
+        {
+            return SCID_ERROR_INVALID_MOVE;
+        }
+
+        const auto& source_movetext = source_game->value.movetext();
+        if (const scid_error error =
+                validate_move_sequence(source_movetext.mainline, *target_position);
+            error != SCID_OK)
+        {
+            return error;
+        }
+
+        backup = target_game->value;
+        has_backup = true;
+        auto restore_and_return = [&](scid_error error) {
+            target_game->value = backup;
+            *out_cursor = nullptr;
+            return error;
+        };
+
+        scid::core::MovetextCursor edit_cursor(target_game->value);
+        if (!edit_cursor.restore(target_cursor->value.location()))
+        {
+            return restore_and_return(SCID_ERROR);
+        }
+
+        switch (mode)
+        {
+            case SCID_GAME_MERGE_MOVES_APPEND:
+                if (edit_cursor.nextMove() != nullptr)
+                {
+                    return restore_and_return(SCID_ERROR_BAD_ARG);
+                }
+                if (const scid_error error = maybe_set_line_start_comment(
+                        edit_cursor, source_game->value.initialComment());
+                    error != SCID_OK)
+                {
+                    return restore_and_return(error);
+                }
+                break;
+
+            case SCID_GAME_MERGE_MOVES_INSERT_VARIATION:
+                if (edit_cursor.nextMove() == nullptr)
+                {
+                    return restore_and_return(SCID_ERROR_BAD_ARG);
+                }
+                if (edit_cursor.addVariation(source_game->value.initialComment()) == nullptr)
+                {
+                    return restore_and_return(SCID_ERROR_BAD_ARG);
+                }
+                break;
+
+            case SCID_GAME_MERGE_MOVES_REPLACE:
+                edit_cursor.truncate();
+                if (const scid_error error = maybe_set_line_start_comment(
+                        edit_cursor, source_game->value.initialComment());
+                    error != SCID_OK)
+                {
+                    return restore_and_return(error);
+                }
+                break;
+        }
+
+        if (const scid_error error = append_move_sequence(edit_cursor, source_movetext.mainline);
+            error != SCID_OK)
+        {
+            return restore_and_return(error);
+        }
+
+        const auto location = edit_cursor.location();
+        if (const scid_error error = create_cursor_at(target_game, location, out_cursor);
+            error != SCID_OK)
+        {
+            return restore_and_return(error);
+        }
+
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        if (has_backup && target_game != nullptr)
+        {
+            target_game->value = backup;
+        }
+        *out_cursor = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_game_cursor_create(
     scid_game* game,
-    scid_movetext_cursor** out_cursor)
+    scid_game_cursor** out_cursor)
 {
     if (game == nullptr || out_cursor == nullptr)
     {
@@ -1935,7 +2318,7 @@ scid_movetext_cursor_create(
 
     try
     {
-        *out_cursor = new scid_movetext_cursor(game);
+        *out_cursor = new scid_game_cursor(game);
         return SCID_OK;
     }
     catch (...)
@@ -1945,16 +2328,35 @@ scid_movetext_cursor_create(
     }
 }
 
+scid_error
+scid_game_cursor_clone(
+    scid_game* game,
+    const scid_game_cursor* source_cursor,
+    scid_game_cursor** out_cursor)
+{
+    if (out_cursor == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (const scid_error error = validate_cursor_game(game, source_cursor); error != SCID_OK)
+    {
+        return error;
+    }
+
+    return create_cursor_copy(source_cursor, out_cursor);
+}
+
 void
-scid_movetext_cursor_free(
-    scid_movetext_cursor* cursor)
+scid_game_cursor_free(
+    scid_game_cursor* cursor)
 {
     delete cursor;
 }
 
 scid_error
-scid_movetext_cursor_position_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_position_get(
+    const scid_game_cursor* cursor,
     scid_position* out_position)
 {
     if (cursor == nullptr)
@@ -1985,8 +2387,8 @@ scid_movetext_cursor_position_get(
 }
 
 scid_error
-scid_movetext_cursor_ply_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_ply_get(
+    const scid_game_cursor* cursor,
     size_t* out_ply)
 {
     if (cursor == nullptr)
@@ -1998,8 +2400,8 @@ scid_movetext_cursor_ply_get(
 }
 
 scid_error
-scid_movetext_cursor_variation_count_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_variation_count_get(
+    const scid_game_cursor* cursor,
     size_t* out_count)
 {
     if (cursor == nullptr)
@@ -2011,8 +2413,8 @@ scid_movetext_cursor_variation_count_get(
 }
 
 scid_error
-scid_movetext_cursor_variation_depth_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_variation_depth_get(
+    const scid_game_cursor* cursor,
     size_t* out_depth)
 {
     if (cursor == nullptr)
@@ -2024,8 +2426,8 @@ scid_movetext_cursor_variation_depth_get(
 }
 
 scid_error
-scid_movetext_cursor_variation_index_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_variation_index_get(
+    const scid_game_cursor* cursor,
     size_t* out_index)
 {
     if (cursor == nullptr)
@@ -2037,8 +2439,8 @@ scid_movetext_cursor_variation_index_get(
 }
 
 scid_error
-scid_movetext_cursor_is_line_start(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_is_line_start(
+    const scid_game_cursor* cursor,
     int* out_is_line_start)
 {
     if (cursor == nullptr)
@@ -2050,8 +2452,8 @@ scid_movetext_cursor_is_line_start(
 }
 
 scid_error
-scid_movetext_cursor_is_line_end(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_is_line_end(
+    const scid_game_cursor* cursor,
     int* out_is_line_end)
 {
     if (cursor == nullptr)
@@ -2063,8 +2465,8 @@ scid_movetext_cursor_is_line_end(
 }
 
 scid_error
-scid_movetext_cursor_is_game_start(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_is_game_start(
+    const scid_game_cursor* cursor,
     int* out_is_game_start)
 {
     if (cursor == nullptr)
@@ -2076,8 +2478,8 @@ scid_movetext_cursor_is_game_start(
 }
 
 scid_error
-scid_movetext_cursor_is_game_end(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_is_game_end(
+    const scid_game_cursor* cursor,
     int* out_is_game_end)
 {
     if (cursor == nullptr)
@@ -2089,8 +2491,8 @@ scid_movetext_cursor_is_game_end(
 }
 
 scid_error
-scid_movetext_cursor_is_variation_start(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_is_variation_start(
+    const scid_game_cursor* cursor,
     int* out_is_variation_start)
 {
     if (cursor == nullptr)
@@ -2102,8 +2504,8 @@ scid_movetext_cursor_is_variation_start(
 }
 
 scid_error
-scid_movetext_cursor_is_variation_end(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_is_variation_end(
+    const scid_game_cursor* cursor,
     int* out_is_variation_end)
 {
     if (cursor == nullptr)
@@ -2115,8 +2517,8 @@ scid_movetext_cursor_is_variation_end(
 }
 
 scid_error
-scid_movetext_cursor_is_variation_empty(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_is_variation_empty(
+    const scid_game_cursor* cursor,
     int* out_is_variation_empty)
 {
     if (cursor == nullptr)
@@ -2128,8 +2530,8 @@ scid_movetext_cursor_is_variation_empty(
 }
 
 scid_error
-scid_movetext_cursor_comment_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_comment_get(
+    const scid_game_cursor* cursor,
     char* out_text,
     size_t out_text_capacity,
     size_t* out_text_size)
@@ -2170,18 +2572,30 @@ scid_movetext_cursor_comment_get(
 }
 
 scid_error
-scid_movetext_cursor_comment_set(
-    scid_movetext_cursor* cursor,
+scid_game_cursor_comment_set(
+    scid_game* game,
+    const scid_game_cursor* cursor,
     const char* comment)
 {
-    if (cursor == nullptr || comment == nullptr)
+    if (comment == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
-        return cursor->value.setComment(comment) ? SCID_OK : SCID_ERROR;
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        scid::core::MovetextCursor edit_cursor(game->value);
+        if (!edit_cursor.restore(cursor->value.location()))
+        {
+            return SCID_ERROR;
+        }
+
+        return edit_cursor.setComment(comment) ? SCID_OK : SCID_ERROR;
     }
     catch (...)
     {
@@ -2190,8 +2604,8 @@ scid_movetext_cursor_comment_set(
 }
 
 scid_error
-scid_movetext_cursor_previous_movespec_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_previous_movespec_get(
+    const scid_game_cursor* cursor,
     scid_movespec* out_move)
 {
     if (cursor == nullptr)
@@ -2203,8 +2617,8 @@ scid_movetext_cursor_previous_movespec_get(
 }
 
 scid_error
-scid_movetext_cursor_previous_move_san_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_previous_move_san_get(
+    const scid_game_cursor* cursor,
     char* out_text,
     size_t out_text_capacity,
     size_t* out_text_size)
@@ -2232,8 +2646,8 @@ scid_movetext_cursor_previous_move_san_get(
 }
 
 scid_error
-scid_movetext_cursor_previous_move_comment_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_previous_move_comment_get(
+    const scid_game_cursor* cursor,
     char* out_text,
     size_t out_text_capacity,
     size_t* out_text_size)
@@ -2248,8 +2662,8 @@ scid_movetext_cursor_previous_move_comment_get(
 }
 
 scid_error
-scid_movetext_cursor_previous_move_nag_count_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_previous_move_nag_count_get(
+    const scid_game_cursor* cursor,
     size_t* out_count)
 {
     if (cursor == nullptr)
@@ -2261,8 +2675,8 @@ scid_movetext_cursor_previous_move_nag_count_get(
 }
 
 scid_error
-scid_movetext_cursor_previous_move_nag_at_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_previous_move_nag_at_get(
+    const scid_game_cursor* cursor,
     size_t index,
     scid_nag* out_nag)
 {
@@ -2275,8 +2689,8 @@ scid_movetext_cursor_previous_move_nag_at_get(
 }
 
 scid_error
-scid_movetext_cursor_next_movespec_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_next_movespec_get(
+    const scid_game_cursor* cursor,
     scid_movespec* out_move)
 {
     if (cursor == nullptr)
@@ -2288,8 +2702,8 @@ scid_movetext_cursor_next_movespec_get(
 }
 
 scid_error
-scid_movetext_cursor_next_move_san_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_next_move_san_get(
+    const scid_game_cursor* cursor,
     char* out_text,
     size_t out_text_capacity,
     size_t* out_text_size)
@@ -2317,8 +2731,8 @@ scid_movetext_cursor_next_move_san_get(
 }
 
 scid_error
-scid_movetext_cursor_next_move_comment_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_next_move_comment_get(
+    const scid_game_cursor* cursor,
     char* out_text,
     size_t out_text_capacity,
     size_t* out_text_size)
@@ -2332,8 +2746,8 @@ scid_movetext_cursor_next_move_comment_get(
 }
 
 scid_error
-scid_movetext_cursor_next_move_nag_count_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_next_move_nag_count_get(
+    const scid_game_cursor* cursor,
     size_t* out_count)
 {
     if (cursor == nullptr)
@@ -2345,8 +2759,8 @@ scid_movetext_cursor_next_move_nag_count_get(
 }
 
 scid_error
-scid_movetext_cursor_next_move_nag_at_get(
-    const scid_movetext_cursor* cursor,
+scid_game_cursor_next_move_nag_at_get(
+    const scid_game_cursor* cursor,
     size_t index,
     scid_nag* out_nag)
 {
@@ -2359,110 +2773,258 @@ scid_movetext_cursor_next_move_nag_at_get(
 }
 
 scid_error
-scid_movetext_cursor_to_start(
-    scid_movetext_cursor* cursor)
+scid_game_cursor_to_start(
+    const scid_game_cursor* cursor,
+    scid_game_cursor** out_start_cursor)
 {
-    if (cursor == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    cursor->value.toStart();
-    return SCID_OK;
-}
-
-scid_error
-scid_movetext_cursor_to_end(
-    scid_movetext_cursor* cursor)
-{
-    if (cursor == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    cursor->value.toEnd();
-    return SCID_OK;
-}
-
-scid_error
-scid_movetext_cursor_to_ply(
-    scid_movetext_cursor* cursor,
-    size_t ply,
-    int* out_moved)
-{
-    if (cursor == nullptr || out_moved == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    return write_bool(cursor->value.toPly(ply), out_moved);
-}
-
-scid_error
-scid_movetext_cursor_next(
-    scid_movetext_cursor* cursor,
-    int* out_moved)
-{
-    if (cursor == nullptr || out_moved == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    return write_bool(cursor->value.next(), out_moved);
-}
-
-scid_error
-scid_movetext_cursor_previous(
-    scid_movetext_cursor* cursor,
-    int* out_moved)
-{
-    if (cursor == nullptr || out_moved == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    return write_bool(cursor->value.previous(), out_moved);
-}
-
-scid_error
-scid_movetext_cursor_variation_enter(
-    scid_movetext_cursor* cursor,
-    size_t index,
-    int* out_entered)
-{
-    if (cursor == nullptr || out_entered == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    return write_bool(cursor->value.enterVariation(index), out_entered);
-}
-
-scid_error
-scid_movetext_cursor_variation_exit(
-    scid_movetext_cursor* cursor,
-    int* out_exited)
-{
-    if (cursor == nullptr || out_exited == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    return write_bool(cursor->value.exitVariation(), out_exited);
-}
-
-scid_error
-scid_movetext_cursor_move_add(
-    scid_movetext_cursor* cursor,
-    scid_movespec move)
-{
-    if (cursor == nullptr)
+    if (cursor == nullptr || out_start_cursor == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
+        auto* start_cursor = new scid_game_cursor(cursor->game);
+        start_cursor->value.toStart();
+        *out_start_cursor = start_cursor;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_start_cursor = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_game_cursor_to_end(
+    const scid_game_cursor* cursor,
+    scid_game_cursor** out_end_cursor)
+{
+    if (cursor == nullptr || out_end_cursor == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        auto* end_cursor = new scid_game_cursor(cursor->game);
+        end_cursor->value.toEnd();
+        *out_end_cursor = end_cursor;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_end_cursor = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_game_cursor_to_ply(
+    const scid_game_cursor* cursor,
+    size_t ply,
+    int* out_moved,
+    scid_game_cursor** out_ply_cursor)
+{
+    if (cursor == nullptr || out_moved == nullptr || out_ply_cursor == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        auto* ply_cursor = new scid_game_cursor(cursor->game);
+        const bool moved = ply_cursor->value.toPly(ply);
+        if (!moved)
+        {
+            delete ply_cursor;
+            *out_ply_cursor = nullptr;
+            return write_bool(false, out_moved);
+        }
+
+        *out_ply_cursor = ply_cursor;
+        return write_bool(true, out_moved);
+    }
+    catch (...)
+    {
+        *out_ply_cursor = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_game_cursor_next(
+    const scid_game_cursor* cursor,
+    int* out_moved,
+    scid_game_cursor** out_next_cursor)
+{
+    if (cursor == nullptr || out_moved == nullptr || out_next_cursor == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        auto* next_cursor = new scid_game_cursor(cursor->game);
+        if (!next_cursor->value.restore(cursor->value.location()))
+        {
+            delete next_cursor;
+            *out_next_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        if (!next_cursor->value.next())
+        {
+            delete next_cursor;
+            *out_next_cursor = nullptr;
+            return write_bool(false, out_moved);
+        }
+
+        *out_next_cursor = next_cursor;
+        return write_bool(true, out_moved);
+    }
+    catch (...)
+    {
+        *out_next_cursor = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_game_cursor_previous(
+    const scid_game_cursor* cursor,
+    int* out_moved,
+    scid_game_cursor** out_previous_cursor)
+{
+    if (cursor == nullptr || out_moved == nullptr || out_previous_cursor == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        auto* previous_cursor = new scid_game_cursor(cursor->game);
+        if (!previous_cursor->value.restore(cursor->value.location()))
+        {
+            delete previous_cursor;
+            *out_previous_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        if (!previous_cursor->value.previous())
+        {
+            delete previous_cursor;
+            *out_previous_cursor = nullptr;
+            return write_bool(false, out_moved);
+        }
+
+        *out_previous_cursor = previous_cursor;
+        return write_bool(true, out_moved);
+    }
+    catch (...)
+    {
+        *out_previous_cursor = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_game_cursor_variation_enter(
+    const scid_game_cursor* cursor,
+    size_t index,
+    int* out_entered,
+    scid_game_cursor** out_variation_cursor)
+{
+    if (cursor == nullptr || out_entered == nullptr || out_variation_cursor == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        auto* variation_cursor = new scid_game_cursor(cursor->game);
+        if (!variation_cursor->value.restore(cursor->value.location()))
+        {
+            delete variation_cursor;
+            *out_variation_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        if (!variation_cursor->value.enterVariation(index))
+        {
+            delete variation_cursor;
+            *out_variation_cursor = nullptr;
+            return write_bool(false, out_entered);
+        }
+
+        *out_variation_cursor = variation_cursor;
+        return write_bool(true, out_entered);
+    }
+    catch (...)
+    {
+        *out_variation_cursor = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_game_cursor_variation_exit(
+    const scid_game_cursor* cursor,
+    int* out_exited,
+    scid_game_cursor** out_parent_cursor)
+{
+    if (cursor == nullptr || out_exited == nullptr || out_parent_cursor == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        auto* parent_cursor = new scid_game_cursor(cursor->game);
+        if (!parent_cursor->value.restore(cursor->value.location()))
+        {
+            delete parent_cursor;
+            *out_parent_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        if (!parent_cursor->value.exitVariation())
+        {
+            delete parent_cursor;
+            *out_parent_cursor = nullptr;
+            return write_bool(false, out_exited);
+        }
+
+        *out_parent_cursor = parent_cursor;
+        return write_bool(true, out_exited);
+    }
+    catch (...)
+    {
+        *out_parent_cursor = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+scid_error
+scid_game_cursor_move_add(
+    scid_game* game,
+    const scid_game_cursor* cursor,
+    scid_movespec move,
+    scid_game_cursor** out_next_cursor)
+{
+    if (out_next_cursor == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         scid::core::MoveSpec core_move;
         if (const scid_error error = movespec_to_core(move, &core_move); error != SCID_OK)
         {
@@ -2474,57 +3036,102 @@ scid_movetext_cursor_move_add(
             return error;
         }
 
-        cursor->value.addMove(core_move);
+        auto* next_cursor = new scid_game_cursor(game);
+        if (!next_cursor->value.restore(cursor->value.location()))
+        {
+            delete next_cursor;
+            *out_next_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        next_cursor->value.addMove(core_move);
+        *out_next_cursor = next_cursor;
         return SCID_OK;
     }
     catch (...)
     {
+        *out_next_cursor = nullptr;
         return SCID_ERROR;
     }
 }
 
 scid_error
-scid_movetext_cursor_variation_add(
-    scid_movetext_cursor* cursor,
+scid_game_cursor_variation_add(
+    scid_game* game,
+    const scid_game_cursor* cursor,
     const char* initial_comment,
-    int* out_added)
+    int* out_added,
+    scid_game_cursor** out_variation_cursor)
 {
-    if (cursor == nullptr || out_added == nullptr)
+    if (out_added == nullptr || out_variation_cursor == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        auto* variation_cursor = new scid_game_cursor(game);
+        if (!variation_cursor->value.restore(cursor->value.location()))
+        {
+            delete variation_cursor;
+            *out_variation_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
         const auto* comment = initial_comment == nullptr ? "" : initial_comment;
-        return write_bool(cursor->value.addVariation(comment) != nullptr, out_added);
+        if (variation_cursor->value.addVariation(comment) == nullptr)
+        {
+            delete variation_cursor;
+            *out_variation_cursor = nullptr;
+            return write_bool(false, out_added);
+        }
+
+        *out_variation_cursor = variation_cursor;
+        return write_bool(true, out_added);
     }
     catch (...)
     {
+        *out_variation_cursor = nullptr;
         return SCID_ERROR;
     }
 }
 
 scid_error
-scid_movetext_cursor_nag_add(
-    scid_movetext_cursor* cursor,
+scid_game_cursor_nag_add(
+    scid_game* game,
+    const scid_game_cursor* cursor,
     scid_nag nag,
     int* out_added)
 {
-    if (cursor == nullptr || out_added == nullptr)
+    if (out_added == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
-        if (cursor->value.previousMove() == nullptr || nag == 0)
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        scid::core::MovetextCursor edit_cursor(game->value);
+        if (!edit_cursor.restore(cursor->value.location()))
+        {
+            return SCID_ERROR;
+        }
+
+        if (edit_cursor.previousMove() == nullptr || nag == 0)
         {
             return write_bool(false, out_added);
         }
 
-        return write_bool(
-            cursor->value.addPreviousMoveNag(scid::core::nagFromCode(nag)), out_added);
+        return write_bool(edit_cursor.addPreviousMoveNag(scid::core::nagFromCode(nag)), out_added);
     }
     catch (...)
     {
@@ -2533,19 +3140,31 @@ scid_movetext_cursor_nag_add(
 }
 
 scid_error
-scid_movetext_cursor_nag_remove(
-    scid_movetext_cursor* cursor,
+scid_game_cursor_nag_remove(
+    scid_game* game,
+    const scid_game_cursor* cursor,
     int is_move_nag,
     int* out_removed)
 {
-    if (cursor == nullptr || out_removed == nullptr)
+    if (out_removed == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
-        auto* move = cursor->value.previousMove();
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        scid::core::MovetextCursor edit_cursor(game->value);
+        if (!edit_cursor.restore(cursor->value.location()))
+        {
+            return SCID_ERROR;
+        }
+
+        auto* move = edit_cursor.previousMove();
         if (move == nullptr)
         {
             return write_bool(false, out_removed);
@@ -2572,17 +3191,24 @@ scid_movetext_cursor_nag_remove(
 }
 
 scid_error
-scid_movetext_cursor_nag_clear(
-    scid_movetext_cursor* cursor)
+scid_game_cursor_nag_clear(
+    scid_game* game,
+    const scid_game_cursor* cursor)
 {
-    if (cursor == nullptr)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
     try
     {
-        cursor->value.clearPreviousMoveNags();
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        scid::core::MovetextCursor edit_cursor(game->value);
+        if (!edit_cursor.restore(cursor->value.location()))
+        {
+            return SCID_ERROR;
+        }
+
+        edit_cursor.clearPreviousMoveNags();
         return SCID_OK;
     }
     catch (...)
@@ -2592,101 +3218,207 @@ scid_movetext_cursor_nag_clear(
 }
 
 scid_error
-scid_movetext_cursor_variation_promote_to_first(
-    scid_movetext_cursor* cursor,
-    int* out_promoted)
+scid_game_cursor_variation_promote_to_first(
+    scid_game* game,
+    const scid_game_cursor* cursor,
+    int* out_promoted,
+    scid_game_cursor** out_promoted_cursor)
 {
-    if (cursor == nullptr || out_promoted == nullptr)
+    if (out_promoted == nullptr || out_promoted_cursor == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
-        return write_bool(cursor->value.promoteVariationToFirst(), out_promoted);
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        auto* promoted_cursor = new scid_game_cursor(game);
+        if (!promoted_cursor->value.restore(cursor->value.location()))
+        {
+            delete promoted_cursor;
+            *out_promoted_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        if (!promoted_cursor->value.promoteVariationToFirst())
+        {
+            delete promoted_cursor;
+            *out_promoted_cursor = nullptr;
+            return write_bool(false, out_promoted);
+        }
+
+        *out_promoted_cursor = promoted_cursor;
+        return write_bool(true, out_promoted);
     }
     catch (...)
     {
+        *out_promoted_cursor = nullptr;
         return SCID_ERROR;
     }
 }
 
 scid_error
-scid_movetext_cursor_variation_promote_to_mainline(
-    scid_movetext_cursor* cursor,
-    int* out_promoted)
+scid_game_cursor_variation_promote_to_mainline(
+    scid_game* game,
+    const scid_game_cursor* cursor,
+    int* out_promoted,
+    scid_game_cursor** out_mainline_cursor)
 {
-    if (cursor == nullptr || out_promoted == nullptr)
+    if (out_promoted == nullptr || out_mainline_cursor == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
-        return write_bool(cursor->value.promoteVariationToMainline(), out_promoted);
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        auto* mainline_cursor = new scid_game_cursor(game);
+        if (!mainline_cursor->value.restore(cursor->value.location()))
+        {
+            delete mainline_cursor;
+            *out_mainline_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        if (!mainline_cursor->value.promoteVariationToMainline())
+        {
+            delete mainline_cursor;
+            *out_mainline_cursor = nullptr;
+            return write_bool(false, out_promoted);
+        }
+
+        *out_mainline_cursor = mainline_cursor;
+        return write_bool(true, out_promoted);
     }
     catch (...)
     {
+        *out_mainline_cursor = nullptr;
         return SCID_ERROR;
     }
 }
 
 scid_error
-scid_movetext_cursor_variation_delete(
-    scid_movetext_cursor* cursor,
-    int* out_deleted)
+scid_game_cursor_variation_delete(
+    scid_game* game,
+    const scid_game_cursor* cursor,
+    int* out_deleted,
+    scid_game_cursor** out_parent_cursor)
 {
-    if (cursor == nullptr || out_deleted == nullptr)
+    if (out_deleted == nullptr || out_parent_cursor == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
-        return write_bool(cursor->value.deleteVariation(), out_deleted);
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        auto* parent_cursor = new scid_game_cursor(game);
+        if (!parent_cursor->value.restore(cursor->value.location()))
+        {
+            delete parent_cursor;
+            *out_parent_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        if (!parent_cursor->value.deleteVariation())
+        {
+            delete parent_cursor;
+            *out_parent_cursor = nullptr;
+            return write_bool(false, out_deleted);
+        }
+
+        *out_parent_cursor = parent_cursor;
+        return write_bool(true, out_deleted);
     }
     catch (...)
     {
+        *out_parent_cursor = nullptr;
         return SCID_ERROR;
     }
 }
 
 scid_error
-scid_movetext_cursor_truncate(
-    scid_movetext_cursor* cursor)
+scid_game_cursor_truncate(
+    scid_game* game,
+    const scid_game_cursor* cursor,
+    scid_game_cursor** out_cursor)
 {
-    if (cursor == nullptr)
+    if (out_cursor == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
-        cursor->value.truncate();
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        auto* result_cursor = new scid_game_cursor(game);
+        if (!result_cursor->value.restore(cursor->value.location()))
+        {
+            delete result_cursor;
+            *out_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        result_cursor->value.truncate();
+        *out_cursor = result_cursor;
         return SCID_OK;
     }
     catch (...)
     {
+        *out_cursor = nullptr;
         return SCID_ERROR;
     }
 }
 
 scid_error
-scid_movetext_cursor_truncate_before_cursor(
-    scid_movetext_cursor* cursor)
+scid_game_cursor_truncate_before_cursor(
+    scid_game* game,
+    const scid_game_cursor* cursor,
+    scid_game_cursor** out_cursor)
 {
-    if (cursor == nullptr)
+    if (out_cursor == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     try
     {
-        cursor->value.truncateBeforeCursor();
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        auto* result_cursor = new scid_game_cursor(game);
+        if (!result_cursor->value.restore(cursor->value.location()))
+        {
+            delete result_cursor;
+            *out_cursor = nullptr;
+            return SCID_ERROR;
+        }
+
+        result_cursor->value.truncateBeforeCursor();
+        *out_cursor = result_cursor;
         return SCID_OK;
     }
     catch (...)
     {
+        *out_cursor = nullptr;
         return SCID_ERROR;
     }
 }

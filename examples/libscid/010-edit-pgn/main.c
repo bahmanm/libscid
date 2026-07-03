@@ -29,6 +29,7 @@ int
 main(
     void)
 {
+    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const char* pgn = "[Event \"St Petersburg final\"]\n"
                       "[Site \"St Petersburg\"]\n"
                       "[Date \"1914.05.18\"]\n"
@@ -42,6 +43,7 @@ main(
                       "\n"
                       "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0\n";
     scid_game* game = NULL;
+    scid_position* position = NULL;
     char diagnostic[1024];
     char name[64];
     char value[256];
@@ -54,16 +56,21 @@ main(
     int removed = 0;
 
     if (!check(
-            scid_game_create_from_pgn(
-                pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic), &diagnostic_size),
-            "scid_game_create_from_pgn"))
+            scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
+        !check(
+            scid_game_create(
+                position, pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic),
+                &diagnostic_size),
+            "scid_game_create"))
     {
         fprintf(stderr, "%.*s\n", (int)diagnostic_size, diagnostic);
+        scid_position_free(position);
         return 1;
     }
 
     if (!check(scid_game_tag_count_get(game, &tag_count), "scid_game_tag_count_get"))
     {
+        scid_position_free(position);
         scid_game_free(game);
         return 1;
     }
@@ -75,6 +82,7 @@ main(
                     game, i, name, sizeof(name), &name_size, value, sizeof(value), &value_size),
                 "scid_game_tag_at_get"))
         {
+            scid_position_free(position);
             scid_game_free(game);
             return 1;
         }
@@ -84,8 +92,11 @@ main(
 
     if (!check(scid_game_tag_set(game, "Annotator", "C ABI example"), "scid_game_tag_set") ||
         !check(scid_game_tag_remove(game, "EventDate", &removed), "scid_game_tag_remove") ||
-        !check(scid_game_to_pgn(game, encoded, sizeof(encoded), &encoded_size), "scid_game_to_pgn"))
+        !check(
+            scid_game_to_pgn(game, NULL, encoded, sizeof(encoded), &encoded_size),
+            "scid_game_to_pgn"))
     {
+        scid_position_free(position);
         scid_game_free(game);
         return 1;
     }
@@ -95,10 +106,12 @@ main(
     if (!removed || !contains(encoded, "[Annotator \"C ABI example\"]") ||
         contains(encoded, "[EventDate "))
     {
+        scid_position_free(position);
         scid_game_free(game);
         return 1;
     }
 
+    scid_position_free(position);
     scid_game_free(game);
     return 0;
 }

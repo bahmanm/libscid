@@ -1,7 +1,10 @@
 # 020 Author PGN
 
-This example authors a PGN game through the C ABI, using a movetext cursor to
-add moves, comments, NAGs, and a variation before writing the result as PGN.
+This example authors a PGN game through the C ABI. It creates a blank game
+with `scid_game_create_blank()`, uses immutable game cursors to add moves,
+comments, NAGs and a variation, then writes PGN twice: once with default export
+options and once with `scid_game_pgn_options` for symbolic NAGs and
+mainline-only output.
 
 Install libscid first; see the installation guide:
 

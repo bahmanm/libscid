@@ -1,8 +1,8 @@
 # 090 List Database
 
-This example creates an in-memory database, adds PGN games, and lists each
-game using lightweight database metadata functions instead of loading every
-full game.
+This example creates an in-memory database, parses and adds PGN games, and
+lists each game using lightweight database metadata functions instead of
+loading every full game.
 
 Install libscid first; see the installation guide:
 

@@ -1,8 +1,8 @@
 # 080 Memory Database
 
-This example creates an in-memory database, parses a PGN game, adds it to the
-database, builds a filter-backed sorted game list, and loads the listed game
-back through the C ABI.
+This example creates an in-memory database, parses a PGN game with
+`scid_game_create()`, adds it to the database, builds a filter-backed sorted
+game list, and loads the listed game back through the C ABI.
 
 Install libscid first; see the installation guide:
 

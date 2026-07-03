@@ -18,6 +18,22 @@ check(
 }
 
 static int
+take_cursor(
+    scid_game_cursor** cursor,
+    scid_game_cursor** next_cursor)
+{
+    if (next_cursor == NULL || *next_cursor == NULL)
+    {
+        return 0;
+    }
+
+    scid_game_cursor_free(*cursor);
+    *cursor = *next_cursor;
+    *next_cursor = NULL;
+    return 1;
+}
+
+static int
 read_text(
     scid_error error,
     const char* call,
@@ -45,7 +61,7 @@ text_equals(
 
 static int
 print_next_move(
-    scid_movetext_cursor* cursor)
+    scid_game_cursor* cursor)
 {
     char san[64];
     char uci[16];
@@ -59,27 +75,25 @@ print_next_move(
     size_t variation_count = 0;
     size_t ply = 0;
 
-    if (!check(scid_movetext_cursor_ply_get(cursor, &ply), "scid_movetext_cursor_ply_get") ||
+    if (!check(scid_game_cursor_ply_get(cursor, &ply), "scid_game_cursor_ply_get") ||
         !check(
-            scid_movetext_cursor_next_movespec_get(cursor, &move),
-            "scid_movetext_cursor_next_movespec_get") ||
+            scid_game_cursor_next_movespec_get(cursor, &move),
+            "scid_game_cursor_next_movespec_get") ||
         !read_text(
             scid_movespec_to_uci(move, uci, sizeof(uci), &uci_size), "scid_movespec_to_uci",
             "next uci: ", uci, uci_size) ||
         !read_text(
-            scid_movetext_cursor_next_move_san_get(cursor, san, sizeof(san), &san_size),
-            "scid_movetext_cursor_next_move_san_get", "next san: ", san, san_size) ||
+            scid_game_cursor_next_move_san_get(cursor, san, sizeof(san), &san_size),
+            "scid_game_cursor_next_move_san_get", "next san: ", san, san_size) ||
         !read_text(
-            scid_movetext_cursor_next_move_comment_get(
-                cursor, comment, sizeof(comment), &comment_size),
-            "scid_movetext_cursor_next_move_comment_get", "next comment: ", comment,
-            comment_size) ||
+            scid_game_cursor_next_move_comment_get(cursor, comment, sizeof(comment), &comment_size),
+            "scid_game_cursor_next_move_comment_get", "next comment: ", comment, comment_size) ||
         !check(
-            scid_movetext_cursor_next_move_nag_count_get(cursor, &nag_count),
-            "scid_movetext_cursor_next_move_nag_count_get") ||
+            scid_game_cursor_next_move_nag_count_get(cursor, &nag_count),
+            "scid_game_cursor_next_move_nag_count_get") ||
         !check(
-            scid_movetext_cursor_variation_count_get(cursor, &variation_count),
-            "scid_movetext_cursor_variation_count_get"))
+            scid_game_cursor_variation_count_get(cursor, &variation_count),
+            "scid_game_cursor_variation_count_get"))
     {
         return 0;
     }
@@ -98,8 +112,8 @@ print_next_move(
     if (nag_count > 0)
     {
         if (!check(
-                scid_movetext_cursor_next_move_nag_at_get(cursor, 0, &nag),
-                "scid_movetext_cursor_next_move_nag_at_get"))
+                scid_game_cursor_next_move_nag_at_get(cursor, 0, &nag),
+                "scid_game_cursor_next_move_nag_at_get"))
         {
             return 0;
         }
@@ -113,13 +127,16 @@ int
 main(
     void)
 {
+    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const char* pgn = "[Event \"Navigation\"]\n"
                       "[Result \"*\"]\n"
                       "\n"
                       "{Before game} 1. e4 $1 {King pawn} "
                       "({Queen pawn line} 1. d4 {Queen pawn} d5) e5 2. Nf3 Nc6 *\n";
     scid_game* game = NULL;
-    scid_movetext_cursor* cursor = NULL;
+    scid_game_cursor* cursor = NULL;
+    scid_game_cursor* next_cursor = NULL;
+    scid_position* position = NULL;
     char diagnostic[1024];
     char text[256];
     scid_movespec move;
@@ -130,75 +147,109 @@ main(
     size_t variation_count = 0;
 
     if (!check(
-            scid_game_create_from_pgn(
-                pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic), &diagnostic_size),
-            "scid_game_create_from_pgn") ||
-        !check(scid_movetext_cursor_create(game, &cursor), "scid_movetext_cursor_create"))
+            scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
+        !check(
+            scid_game_create(
+                position, pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic),
+                &diagnostic_size),
+            "scid_game_create") ||
+        !check(scid_game_cursor_create(game, &cursor), "scid_game_cursor_create"))
     {
         fprintf(stderr, "%.*s\n", (int)diagnostic_size, diagnostic);
-        scid_movetext_cursor_free(cursor);
+        scid_position_free(position);
+        scid_game_cursor_free(cursor);
         scid_game_free(game);
         return 1;
     }
 
     if (!read_text(
-            scid_movetext_cursor_comment_get(cursor, text, sizeof(text), &text_size),
-            "scid_movetext_cursor_comment_get", "initial comment: ", text, text_size) ||
+            scid_game_cursor_comment_get(cursor, text, sizeof(text), &text_size),
+            "scid_game_cursor_comment_get", "initial comment: ", text, text_size) ||
         !text_equals(text, text_size, "Before game") || !print_next_move(cursor) ||
         !check(
-            scid_movetext_cursor_variation_count_get(cursor, &variation_count),
-            "scid_movetext_cursor_variation_count_get") ||
-        variation_count != 1 ||
+            scid_game_cursor_variation_count_get(cursor, &variation_count),
+            "scid_game_cursor_variation_count_get") ||
+        variation_count != 1)
+    {
+        scid_position_free(position);
+        scid_game_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+
+    if (!check(
+            scid_game_cursor_variation_enter(cursor, 0, &moved, &next_cursor),
+            "scid_game_cursor_variation_enter") ||
+        !moved || !take_cursor(&cursor, &next_cursor) ||
         !check(
-            scid_movetext_cursor_variation_enter(cursor, 0, &moved),
-            "scid_movetext_cursor_variation_enter") ||
-        !moved ||
-        !check(
-            scid_movetext_cursor_variation_depth_get(cursor, &depth),
-            "scid_movetext_cursor_variation_depth_get") ||
+            scid_game_cursor_variation_depth_get(cursor, &depth),
+            "scid_game_cursor_variation_depth_get") ||
         depth != 1 ||
         !read_text(
-            scid_movetext_cursor_comment_get(cursor, text, sizeof(text), &text_size),
-            "scid_movetext_cursor_comment_get", "variation comment: ", text, text_size) ||
+            scid_game_cursor_comment_get(cursor, text, sizeof(text), &text_size),
+            "scid_game_cursor_comment_get", "variation comment: ", text, text_size) ||
         !text_equals(text, text_size, "Queen pawn line") ||
         !read_text(
-            scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size),
-            "scid_movetext_cursor_next_move_san_get", "variation first move: ", text, text_size) ||
-        !text_equals(text, text_size, "d4") ||
-        !check(
-            scid_movetext_cursor_variation_exit(cursor, &moved),
-            "scid_movetext_cursor_variation_exit") ||
-        !moved || !check(scid_movetext_cursor_next(cursor, &moved), "scid_movetext_cursor_next") ||
-        !moved ||
+            scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size),
+            "scid_game_cursor_next_move_san_get", "variation first move: ", text, text_size) ||
+        !text_equals(text, text_size, "d4"))
+    {
+        scid_game_cursor_free(next_cursor);
+        scid_position_free(position);
+        scid_game_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+    next_cursor = NULL;
+
+    if (!check(
+            scid_game_cursor_variation_exit(cursor, &moved, &next_cursor),
+            "scid_game_cursor_variation_exit") ||
+        !moved || !take_cursor(&cursor, &next_cursor))
+    {
+        scid_game_cursor_free(next_cursor);
+        scid_position_free(position);
+        scid_game_cursor_free(cursor);
+        scid_game_free(game);
+        return 1;
+    }
+    next_cursor = NULL;
+
+    if (!check(scid_game_cursor_next(cursor, &moved, &next_cursor), "scid_game_cursor_next") ||
+        !moved || !take_cursor(&cursor, &next_cursor) ||
         !read_text(
-            scid_movetext_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size),
-            "scid_movetext_cursor_previous_move_san_get", "previous san: ", text, text_size) ||
+            scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size),
+            "scid_game_cursor_previous_move_san_get", "previous san: ", text, text_size) ||
         !text_equals(text, text_size, "e4") ||
         !check(
-            scid_movetext_cursor_previous_movespec_get(cursor, &move),
-            "scid_movetext_cursor_previous_movespec_get") ||
+            scid_game_cursor_previous_movespec_get(cursor, &move),
+            "scid_game_cursor_previous_movespec_get") ||
         !read_text(
             scid_movespec_to_uci(move, text, sizeof(text), &text_size), "scid_movespec_to_uci",
             "previous uci: ", text, text_size) ||
         !text_equals(text, text_size, "e2e4") ||
         !read_text(
-            scid_movetext_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size),
-            "scid_movetext_cursor_next_move_san_get", "next san after e4: ", text, text_size) ||
+            scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size),
+            "scid_game_cursor_next_move_san_get", "next san after e4: ", text, text_size) ||
         !text_equals(text, text_size, "e5") ||
         !check(
-            scid_movetext_cursor_next_movespec_get(cursor, &move),
-            "scid_movetext_cursor_next_movespec_get") ||
+            scid_game_cursor_next_movespec_get(cursor, &move),
+            "scid_game_cursor_next_movespec_get") ||
         !read_text(
             scid_movespec_to_uci(move, text, sizeof(text), &text_size), "scid_movespec_to_uci",
             "next uci after e4: ", text, text_size) ||
         !text_equals(text, text_size, "e7e5"))
     {
-        scid_movetext_cursor_free(cursor);
+        scid_game_cursor_free(next_cursor);
+        scid_position_free(position);
+        scid_game_cursor_free(cursor);
         scid_game_free(game);
         return 1;
     }
+    next_cursor = NULL;
 
-    scid_movetext_cursor_free(cursor);
+    scid_position_free(position);
+    scid_game_cursor_free(cursor);
     scid_game_free(game);
     return 0;
 }

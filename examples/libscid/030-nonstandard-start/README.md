@@ -1,7 +1,8 @@
 # 030 Nonstandard Start
 
-This example creates a position from FEN, creates a game from that start
-position through the C ABI, inspects the generated `FEN` tag, and exports PGN.
+This example creates a position from FEN, creates a blank game from that start
+position with `scid_game_create_blank()`, inspects the generated `FEN` tag, and
+exports PGN.
 
 Install libscid first; see the installation guide:
 

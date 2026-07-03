@@ -8,6 +8,7 @@ from pathlib import Path
 
 SCID_OK = 0
 SCID_ERROR_BUFFER_FULL = 601
+STANDARD_FEN = b"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 
 class LibScidError(RuntimeError):
@@ -36,24 +37,33 @@ class LibScid:
 
     def game_from_pgn(self, pgn: str | bytes) -> "Game":
         pgn_bytes = _encode(pgn)
+        position = ctypes.c_void_p()
         game = ctypes.c_void_p()
         diagnostic = ctypes.create_string_buffer(4096)
         diagnostic_size = ctypes.c_size_t()
-        error = self._lib.scid_game_create_from_pgn(
-            pgn_bytes,
-            len(pgn_bytes),
-            ctypes.byref(game),
-            diagnostic,
-            len(diagnostic),
-            ctypes.byref(diagnostic_size),
+        self._check(
+            "scid_position_create_from_fen",
+            self._lib.scid_position_create_from_fen(STANDARD_FEN, ctypes.byref(position)),
         )
-        if error != SCID_OK:
-            raise LibScidError(
-                "scid_game_create_from_pgn",
-                error,
-                _decode_buffer(diagnostic, diagnostic_size.value),
+        try:
+            error = self._lib.scid_game_create(
+                position,
+                pgn_bytes,
+                len(pgn_bytes),
+                ctypes.byref(game),
+                diagnostic,
+                len(diagnostic),
+                ctypes.byref(diagnostic_size),
             )
-        return Game(self, game)
+            if error != SCID_OK:
+                raise LibScidError(
+                    "scid_game_create",
+                    error,
+                    _decode_buffer(diagnostic, diagnostic_size.value),
+                )
+            return Game(self, game)
+        finally:
+            self._lib.scid_position_free(position)
 
     def _check(self, function: str, error: int) -> None:
         if error != SCID_OK:
@@ -76,7 +86,8 @@ class LibScid:
         c_size_t_p = ctypes.POINTER(ctypes.c_size_t)
         c_void_p_p = ctypes.POINTER(ctypes.c_void_p)
 
-        self._lib.scid_game_create_from_pgn.argtypes = [
+        self._lib.scid_game_create.argtypes = [
+            ctypes.c_void_p,
             ctypes.c_char_p,
             ctypes.c_size_t,
             c_void_p_p,
@@ -84,12 +95,19 @@ class LibScid:
             ctypes.c_size_t,
             c_size_t_p,
         ]
-        self._lib.scid_game_create_from_pgn.restype = ctypes.c_ushort
+        self._lib.scid_game_create.restype = ctypes.c_ushort
+
+        self._lib.scid_position_create_from_fen.argtypes = [ctypes.c_char_p, c_void_p_p]
+        self._lib.scid_position_create_from_fen.restype = ctypes.c_ushort
+
+        self._lib.scid_position_free.argtypes = [ctypes.c_void_p]
+        self._lib.scid_position_free.restype = None
 
         self._lib.scid_game_free.argtypes = [ctypes.c_void_p]
         self._lib.scid_game_free.restype = None
 
         self._lib.scid_game_to_pgn.argtypes = [
+            ctypes.c_void_p,
             ctypes.c_void_p,
             ctypes.c_char_p,
             ctypes.c_size_t,
@@ -151,7 +169,7 @@ class Game:
 
     def to_pgn(self) -> str:
         self._require_open()
-        return self._libscid._string_result("scid_game_to_pgn", self._handle)
+        return self._libscid._string_result("scid_game_to_pgn", self._handle, None)
 
     def _require_open(self) -> None:
         if not self._handle:
