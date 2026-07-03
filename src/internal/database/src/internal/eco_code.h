@@ -10,7 +10,10 @@ namespace scid::database::eco_code
     EcoCode
     fromString(const char* ecoStr);
     void
-    toString(EcoCode ecoCode, char* ecoStr, bool extensions = true);
+    toString(
+        EcoCode ecoCode,
+        char*   ecoStr,
+        bool    extensions = true);
     EcoCode
     basicCode(EcoCode ecoCode);
     EcoCode
@@ -21,15 +24,16 @@ namespace scid::database::eco_code
     inline void
     toBasicString(
         EcoCode ecoCode,
-        char* ecoStr)
+        char*   ecoStr)
     {
         toString(ecoCode, ecoStr, false);
     }
 
+
     inline void
     toExtendedString(
         EcoCode ecoCode,
-        char* ecoStr)
+        char*   ecoStr)
     {
         toString(ecoCode, ecoStr, true);
     }

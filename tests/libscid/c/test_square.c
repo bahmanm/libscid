@@ -7,12 +7,11 @@
 #include <string.h>
 
 void
-test_square(
-    void)
+test_square(void)
 {
     scid_square square = 0;
-    char text[8];
-    size_t text_size = 0;
+    char        text[8];
+    size_t      text_size = 0;
 
     assert(scid_square_from_string("a1", &square) == SCID_OK);
     assert(square == 0);

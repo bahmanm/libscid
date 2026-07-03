@@ -7,17 +7,16 @@ namespace
 {
 
     std::string
-    toExtended(
-        scid::eco::Code code)
+    toExtended(scid::eco::Code code)
     {
         scid::eco::String str;
         scid::eco::toExtendedString(code, str);
         return str;
     }
 
+
     std::string
-    toBasic(
-        scid::eco::Code code)
+    toBasic(scid::eco::Code code)
     {
         scid::eco::String str;
         scid::eco::toBasicString(code, str);

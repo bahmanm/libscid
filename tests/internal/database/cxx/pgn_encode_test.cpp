@@ -35,7 +35,7 @@ namespace
 
     std::optional<scid::core::Position>
     currentPosition(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         scid::core::GameCursor cursor(game);
@@ -45,34 +45,37 @@ namespace
         return position;
     }
 
+
     scid::core::MoveSpec
     makeCurrentMove(
-        scid::core::Game& game,
+        scid::core::Game&            game,
         scid::core::MovetextLocation location,
-        scid::core::squareT from,
-        scid::core::squareT to)
+        scid::core::squareT          from,
+        scid::core::squareT          to)
     {
         (void)game;
         (void)location;
         return {from, to, scid::core::EMPTY, false};
     }
 
+
     void
     setCurrentComment(
-        scid::core::Game& game,
+        scid::core::Game&            game,
         scid::core::MovetextLocation location,
-        std::string_view comment)
+        std::string_view             comment)
     {
         scid::core::MovetextCursor cursor(game);
         ASSERT_TRUE(cursor.restore(location));
         ASSERT_TRUE(cursor.setComment(comment));
     }
 
+
     void
     addMove(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location,
-        scid::core::MoveSpec const& move)
+        scid::core::MoveSpec const&   move)
     {
         scid::core::MovetextCursor cursor(game);
         ASSERT_TRUE(cursor.restore(location));
@@ -245,38 +248,38 @@ TEST(
     using namespace std::literals;
     {
         scid::core::Game empty;
-        auto expected = "[Event\0\"\"]\n"sv
-                        "[Site\0\"\"]\n"sv
-                        "[Date\0\"????.??.??\"]\n"sv
-                        "[Round\0\"\"]\n"sv
-                        "[White\0\"\"]\n"sv
-                        "[Black\0\"\"]\n"sv
-                        "[Result\0\"*\"]\n"sv
-                        "\n*\n"sv;
-        std::string pgn;
+        auto             expected = "[Event\0\"\"]\n"sv
+                                    "[Site\0\"\"]\n"sv
+                                    "[Date\0\"????.??.??\"]\n"sv
+                                    "[Round\0\"\"]\n"sv
+                                    "[White\0\"\"]\n"sv
+                                    "[Black\0\"\"]\n"sv
+                                    "[Result\0\"*\"]\n"sv
+                                    "\n*\n"sv;
+        std::string      pgn;
         scid::core::pgn::encode_game(empty, pgn);
         EXPECT_EQ(pgn, expected);
     }
     {
-        scid::core::Game game;
+        scid::core::Game             game;
         scid::core::MovetextLocation location;
         game.setEco("A01");
         setCurrentComment(game, location, "before the move");
         auto sm = makeCurrentMove(game, location, scid::core::E2, scid::core::E4);
         addMove(game, location, sm);
         setCurrentComment(game, location, "after the move");
-        auto expected = "[Event\0\"\"]\n"sv
-                        "[Site\0\"\"]\n"sv
-                        "[Date\0\"????.??.??\"]\n"sv
-                        "[Round\0\"\"]\n"sv
-                        "[White\0\"\"]\n"sv
-                        "[Black\0\"\"]\n"sv
-                        "[Result\0\"*\"]\n"sv
-                        "[ECO\0\"A01\"]\n"sv
-                        "\n"sv
-                        "{before the move}\0"sv
-                        "1.e4\0{after the move}\n"sv
-                        "*\n"sv;
+        auto        expected = "[Event\0\"\"]\n"sv
+                               "[Site\0\"\"]\n"sv
+                               "[Date\0\"????.??.??\"]\n"sv
+                               "[Round\0\"\"]\n"sv
+                               "[White\0\"\"]\n"sv
+                               "[Black\0\"\"]\n"sv
+                               "[Result\0\"*\"]\n"sv
+                               "[ECO\0\"A01\"]\n"sv
+                               "\n"sv
+                               "{before the move}\0"sv
+                               "1.e4\0{after the move}\n"sv
+                               "*\n"sv;
         std::string pgn;
         scid::core::pgn::encode_game(game, pgn);
         EXPECT_EQ(pgn, expected);
@@ -289,58 +292,58 @@ TEST(
 {
     {
         scid::core::Game empty;
-        auto expected = "[Event \"\"]\n"
-                        "[Site \"\"]\n"
-                        "[Date \"????.??.??\"]\n"
-                        "[Round \"\"]\n"
-                        "[White \"\"]\n"
-                        "[Black \"\"]\n"
-                        "[Result \"*\"]\n"
-                        "\n*\n";
-        std::string pgn;
+        auto             expected = "[Event \"\"]\n"
+                                    "[Site \"\"]\n"
+                                    "[Date \"????.??.??\"]\n"
+                                    "[Round \"\"]\n"
+                                    "[White \"\"]\n"
+                                    "[Black \"\"]\n"
+                                    "[Result \"*\"]\n"
+                                    "\n*\n";
+        std::string      pgn;
         scid::core::pgn::encode(empty, pgn);
         EXPECT_STREQ(pgn.c_str(), expected);
     }
     {
-        scid::core::Game game;
+        scid::core::Game             game;
         scid::core::MovetextLocation location;
         setCurrentComment(game, location, "before the move");
         auto sm = makeCurrentMove(game, location, scid::core::E2, scid::core::E4);
         addMove(game, location, sm);
         setCurrentComment(game, location, "after the move");
-        auto expected = "[Event \"\"]\n"
-                        "[Site \"\"]\n"
-                        "[Date \"????.??.??\"]\n"
-                        "[Round \"\"]\n"
-                        "[White \"\"]\n"
-                        "[Black \"\"]\n"
-                        "[Result \"*\"]\n"
-                        "\n"
-                        "{before the move} 1.e4 {after the move}\n"
-                        "*\n";
+        auto        expected = "[Event \"\"]\n"
+                               "[Site \"\"]\n"
+                               "[Date \"????.??.??\"]\n"
+                               "[Round \"\"]\n"
+                               "[White \"\"]\n"
+                               "[Black \"\"]\n"
+                               "[Result \"*\"]\n"
+                               "\n"
+                               "{before the move} 1.e4 {after the move}\n"
+                               "*\n";
         std::string pgn;
         scid::core::pgn::encode(game, pgn);
         EXPECT_STREQ(pgn.c_str(), expected);
     }
     {
-        std::string_view src = "[ECO \"B01\"]\n"
-                               "{pre} 1. e4 {comm} ({pre var} 1. d4 d5 {end var with comm}) 1... "
-                               "e5 $1 {nag} (1... c5 $2) 2. Nf3 {last}";
-        scid::core::Game game;
+        std::string_view          src = "[ECO \"B01\"]\n"
+                                        "{pre} 1. e4 {comm} ({pre var} 1. d4 d5 {end var with comm}) 1... "
+                                        "e5 $1 {nag} (1... c5 $2) 2. Nf3 {last}";
+        scid::core::Game          game;
         scid::core::pgn::ParseLog log;
         ASSERT_TRUE(scid::core::pgn::parseGame(src.data(), src.size(), game, log));
-        auto expected = "[Event \"\"]\n"
-                        "[Site \"\"]\n"
-                        "[Date \"????.??.??\"]\n"
-                        "[Round \"\"]\n"
-                        "[White \"\"]\n"
-                        "[Black \"\"]\n"
-                        "[Result \"*\"]\n"
-                        "[ECO \"B01\"]\n"
-                        "\n"
-                        "{pre} 1.e4 {comm} ({pre var} 1.d4 d5 {end var with comm}) 1...e5 "
-                        "$1 {nag}\n(1...c5 $2) 2.Nf3 {last}\n"
-                        "*\n";
+        auto        expected = "[Event \"\"]\n"
+                               "[Site \"\"]\n"
+                               "[Date \"????.??.??\"]\n"
+                               "[Round \"\"]\n"
+                               "[White \"\"]\n"
+                               "[Black \"\"]\n"
+                               "[Result \"*\"]\n"
+                               "[ECO \"B01\"]\n"
+                               "\n"
+                               "{pre} 1.e4 {comm} ({pre var} 1.d4 d5 {end var with comm}) 1...e5 "
+                               "$1 {nag}\n(1...c5 $2) 2.Nf3 {last}\n"
+                               "*\n";
         std::string pgn;
         scid::core::pgn::encode(game, pgn);
         EXPECT_STREQ(pgn.c_str(), expected);

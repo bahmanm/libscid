@@ -156,18 +156,18 @@ namespace scid::database
 
     class CodecSCID5 final : public ICodecDatabase
     {
-            Index* idx_ = nullptr;
-            NameBase* nb_ = nullptr;
-            std::vector<std::string> filenames_;
+            Index*                                           idx_ = nullptr;
+            NameBase*                                        nb_ = nullptr;
+            std::vector<std::string>                         filenames_;
             std::vector<std::pair<const char*, std::string>> db_info_ = {
                 {"type", {}},  {"description", {}}, {"autoload", {}}, {"flag1", {}}, {"flag2", {}},
                 {"flag3", {}}, {"flag4", {}},       {"flag5", {}},    {"flag6", {}},
             };
             FilebufAppend gfile_;
             FilebufAppend nbfile_;
-            Filebuf idxfile_;
-            gamenumT idx_seqwrite_ = 0;
-            char gcache_[1ULL << 17];
+            Filebuf       idxfile_;
+            gamenumT      idx_seqwrite_ = 0;
+            char          gcache_[1ULL << 17];
 
             enum : unsigned long long
             {
@@ -179,7 +179,7 @@ namespace scid::database
                 LIMIT_UNIQUENAMES_SITE = 1ULL << 32
             };
 
-            static constexpr auto INDEX_ENTRY_SIZE = 56;
+            static constexpr auto     INDEX_ENTRY_SIZE = 56;
             static constexpr unsigned NAME_INFO = 4;
 
         public: // ICodecDatabase interface
@@ -197,11 +197,14 @@ namespace scid::database
                 return filenames_;
             };
 
-            std::vector<std::pair<const char*, std::string>>
+            std::vector<std::pair<
+                const char*,
+                std::string>>
             getExtraInfo() const final
             {
                 return db_info_;
             }
+
 
             scid::core::errorT
             setExtraInfo(
@@ -229,9 +232,9 @@ namespace scid::database
                 return {reinterpret_cast<const scid::core::byte*>(gcache_), length};
             }
 
+
             ByteBuffer
-            getGameMoves(
-                IndexEntry const& ie) final
+            getGameMoves(IndexEntry const& ie) final
             {
                 auto data = getGameData(ie.GetOffset(), ie.GetLength());
                 if (data && scid::core::OK == data.decodeTags([](auto, auto) {}))
@@ -240,10 +243,11 @@ namespace scid::database
                 return {nullptr, 0};
             }
 
+
             scid::core::errorT
             addGame(
                 IndexEntry const& ie_src,
-                TagRoster const& tags,
+                TagRoster const&  tags,
                 ByteBuffer const& data) final
             {
                 const auto nGames = idx_->GetNumGames();
@@ -261,12 +265,13 @@ namespace scid::database
                 return scid::core::OK;
             }
 
+
             scid::core::errorT
             saveGame(
                 IndexEntry const& ie_src,
-                TagRoster const& tags,
+                TagRoster const&  tags,
                 ByteBuffer const& data,
-                gamenumT replaced) final
+                gamenumT          replaced) final
             {
                 IndexEntry ie = ie_src;
                 if (auto err = add_names_and_data(ie, tags, data))
@@ -275,10 +280,11 @@ namespace scid::database
                 return saveIndexEntry(ie, replaced);
             }
 
+
             scid::core::errorT
             saveIndexEntry(
                 const IndexEntry& ie,
-                gamenumT replaced) final
+                gamenumT          replaced) final
             {
                 if (auto err = write_IndexEntry(ie, replaced))
                     return err;
@@ -287,9 +293,11 @@ namespace scid::database
                 return scid::core::OK;
             }
 
-            std::pair<scid::core::errorT, idNumberT>
+            std::pair<
+                scid::core::errorT,
+                idNumberT>
             addName(
-                nameT nt,
+                nameT       nt,
                 const char* name) final
             {
                 idNumberT id;
@@ -313,6 +321,7 @@ namespace scid::database
                 return {scid::core::OK, nb_->namebase_add(nt, name)};
             }
 
+
             scid::core::errorT
             flush() final
             {
@@ -326,13 +335,14 @@ namespace scid::database
                 return errIndex ? errIndex : errGfile ? errGfile : errNBfile;
             }
 
+
             scid::core::errorT
             dyn_open(
-                fileModeT fmode,
-                const char* dbname,
+                fileModeT       fmode,
+                const char*     dbname,
                 const Progress& progress,
-                Index* idx,
-                NameBase* nb) final
+                Index*          idx,
+                NameBase*       nb) final
             {
                 if (fmode == FMODE_WriteOnly || !dbname || !idx || !nb)
                     return scid::core::ERROR;
@@ -390,8 +400,8 @@ namespace scid::database
             /// Set the references to the new data in @e ie.
             scid::core::errorT
             add_names_and_data(
-                IndexEntry& ie,
-                TagRoster const& tags,
+                IndexEntry&       ie,
+                TagRoster const&  tags,
                 ByteBuffer const& data)
             {
                 const auto data_sz = data.size();
@@ -405,7 +415,7 @@ namespace scid::database
                 // If the current block does not have enough space, we fill it with
                 // random data and use the next one.
                 const char* gdata = reinterpret_cast<const char*>(data.data());
-                uint64_t blockSpace = LIMIT_GAMELEN - (gfile_.size() % LIMIT_GAMELEN);
+                uint64_t    blockSpace = LIMIT_GAMELEN - (gfile_.size() % LIMIT_GAMELEN);
                 if (blockSpace < data_sz)
                 {
                     if (auto err = gfile_.append(gdata, blockSpace))
@@ -424,8 +434,8 @@ namespace scid::database
             // Read all the IndexEntry contained in the Index file.
             scid::core::errorT
             read_index(
-                fileModeT fmode,
-                const char* fname,
+                fileModeT       fmode,
+                const char*     fname,
                 Progress const& progress)
             {
                 if (auto err = idxfile_.Open(fname, fmode))
@@ -438,7 +448,7 @@ namespace scid::database
                     return scid::core::ERROR_Corrupt;
                 }
 
-                const size_t n_games = file_size / INDEX_ENTRY_SIZE;
+                const size_t   n_games = file_size / INDEX_ENTRY_SIZE;
                 constexpr auto eof = Filebuf::traits_type::eof();
                 for (size_t gnum = 0; idxfile_.sgetc() != eof; ++gnum)
                 {
@@ -463,7 +473,7 @@ namespace scid::database
             scid::core::errorT
             write_IndexEntry(
                 IndexEntry const& ie,
-                gamenumT gnum)
+                gamenumT          gnum)
             {
                 if (idx_seqwrite_ == 0 || (gnum != idx_seqwrite_ + 1))
                 {
@@ -485,10 +495,11 @@ namespace scid::database
                 return res;
             }
 
+
             void
             encode_IndexEntry(
                 IndexEntry const& ie,
-                char* buf)
+                char*             buf)
             {
                 auto pack = [](uint32_t a, auto a_sz, uint32_t b) {
                     assert(a < (uint32_t(1) << a_sz));
@@ -501,10 +512,10 @@ namespace scid::database
                 const auto nComments = (counts >> 4) & 0x0F;
                 const auto nNags = (counts >> 8) & 0x0F;
 
-                const auto chess960 = ie.isChessStd() ? 0 : 1;
-                const auto rtypes_result = (ie.GetWhiteRatingType() << 5) |
-                                           (ie.GetBlackRatingType() << 2) | ie.GetResult();
-                auto home_pawn = ie.GetHomePawnData();
+                const auto     chess960 = ie.isChessStd() ? 0 : 1;
+                const auto     rtypes_result = (ie.GetWhiteRatingType() << 5) |
+                                               (ie.GetBlackRatingType() << 2) | ie.GetResult();
+                auto           home_pawn = ie.GetHomePawnData();
                 const uint32_t home_pawn_count = *home_pawn++;
                 encode_uint32(buf + 0, pack(nComments, 4, ie.GetWhite()));
                 encode_uint32(buf + 4, pack(nVariations, 4, ie.GetBlack()));
@@ -522,9 +533,9 @@ namespace scid::database
                 std::copy_n(home_pawn, 8, buf + 48);
             }
 
+
             IndexEntry
-            decode_IndexEntry(
-                const char* data)
+            decode_IndexEntry(const char* data)
             {
                 auto unpack = [](uint32_t val, auto sz) {
                     const auto clear_high = val << sz;
@@ -588,7 +599,7 @@ namespace scid::database
             // The last 3 bits of the varint store the name type.
             scid::core::errorT
             read_nbfile(
-                fileModeT fMode,
+                fileModeT          fMode,
                 std::string const& filename)
             {
                 if (auto err = nbfile_.open(filename, fMode))
@@ -627,9 +638,10 @@ namespace scid::database
             }
 
             // Read a varint from the NameBase file and split the type from the length.
-            std::pair<uint8_t, uint64_t>
-            read_nbvarint(
-                Filebuf::traits_type::int_type ch)
+            std::pair<
+                uint8_t,
+                uint64_t>
+            read_nbvarint(Filebuf::traits_type::int_type ch)
             {
                 ASSERT(ch >= 0);
 
@@ -654,7 +666,7 @@ namespace scid::database
             // (length + type in the least significant 3 bits) followed by the data.
             scid::core::errorT
             append_nbfile(
-                unsigned nt,
+                unsigned         nt,
                 std::string_view name)
             {
                 ASSERT(nt <= NAME_INFO);
@@ -662,7 +674,7 @@ namespace scid::database
                 uint64_t val = name.size();
                 val = (val << 3) | (nt & 0b111);
                 uint8_t buf[10];
-                auto n = encode_varint(buf, val);
+                auto    n = encode_varint(buf, val);
 
                 if (auto err = nbfile_.append(reinterpret_cast<char const*>(buf), n))
                     return err;
@@ -673,10 +685,11 @@ namespace scid::database
                 return scid::core::OK;
             }
 
+
             scid::core::errorT
             set_db_info(
                 std::string_view new_value,
-                bool write = true)
+                bool             write = true)
             {
                 auto it = std::find_if(db_info_.begin(), db_info_.end(), [&](auto const& elem) {
                     return new_value.starts_with(elem.first);
@@ -695,7 +708,7 @@ namespace scid::database
 
             static inline void
             encode_uint32(
-                char* dst,
+                char*    dst,
                 uint32_t value)
             {
                 uint8_t* const buf = reinterpret_cast<uint8_t*>(dst);
@@ -705,15 +718,16 @@ namespace scid::database
                 buf[3] = static_cast<uint8_t>(value >> 24);
             }
 
+
             static inline uint32_t
-            decode_uint32(
-                const char* src)
+            decode_uint32(const char* src)
             {
                 const uint8_t* const buf = reinterpret_cast<const uint8_t*>(src);
                 return (static_cast<uint32_t>(buf[0])) | (static_cast<uint32_t>(buf[1]) << 8) |
                        (static_cast<uint32_t>(buf[2]) << 16) |
                        (static_cast<uint32_t>(buf[3]) << 24);
             }
+
 
             static inline int
             encode_varint(

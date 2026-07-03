@@ -104,13 +104,13 @@ TEST(
 class Test_HFilter : public ::testing::TestWithParam<testParam>
 {
     protected:
-        const std::vector<scid::core::byte>* main_;
-        const std::vector<scid::core::byte>* mask_;
-        size_t mainSz_;
-        size_t maskSz_;
-        size_t numGames_;
+        const std::vector<scid::core::byte>*        main_;
+        const std::vector<scid::core::byte>*        mask_;
+        size_t                                      mainSz_;
+        size_t                                      maskSz_;
+        size_t                                      numGames_;
         std::map<scid::database::gamenumT, uint8_t> equivMap_;
-        std::set<scid::database::gamenumT> equivInv_;
+        std::set<scid::database::gamenumT>          equivInv_;
 
         virtual void
         SetUp()
@@ -126,12 +126,12 @@ class Test_HFilter : public ::testing::TestWithParam<testParam>
             else
                 maskSz_ = numGames_ - std::count(mask_->begin(), mask_->end(), 0);
 
-            auto mask = (mask_ != nullptr) ? mask_ : main_;
+            auto                     mask = (mask_ != nullptr) ? mask_ : main_;
             scid::database::gamenumT i = 0;
             std::transform(
                 main_->begin(), main_->end(), mask->begin(),
                 std::inserter(equivMap_, equivMap_.end()), [&i](auto& main, auto& mask) {
-                    auto key = i++;
+                    auto    key = i++;
                     uint8_t val = (main == 0) ? 0 : mask;
                     if (val-- == 0)
                         key = std::numeric_limits<scid::database::gamenumT>::max();
@@ -148,8 +148,7 @@ class Test_HFilter : public ::testing::TestWithParam<testParam>
 
         template <typename T>
         std::unique_ptr<scid::database::Filter>
-        makeFilter(
-            const T* data)
+        makeFilter(const T* data)
         {
             std::unique_ptr<scid::database::Filter> res = nullptr;
             if (data != nullptr)
@@ -167,7 +166,7 @@ class Test_HFilter : public ::testing::TestWithParam<testParam>
         template <typename T>
         bool
         equal(
-            const T& map,
+            const T&                       map,
             const scid::database::HFilter& filter)
         {
             return std::equal(
@@ -182,8 +181,8 @@ TEST_P(
     Test_HFilter,
     hfilter_constFunc)
 {
-    auto f1 = makeFilter(main_);
-    auto f2 = makeFilter(mask_);
+    auto                    f1 = makeFilter(main_);
+    auto                    f2 = makeFilter(mask_);
     scid::database::HFilter filter(f1.get(), f2.get());
     ASSERT_TRUE(filter != 0);
     ASSERT_FALSE(filter == 0);
@@ -261,7 +260,7 @@ TEST_P(
     std::vector<scid::database::gamenumT> included;
     std::copy(filter->begin(), filter->end(), std::back_inserter(included));
     std::vector<scid::database::gamenumT> excluded;
-    scid::database::HFilterInverted inverted(filter);
+    scid::database::HFilterInverted       inverted(filter);
     std::copy(inverted.begin(), inverted.end(), std::back_inserter(excluded));
     auto itIn = included.begin();
     auto itOut = excluded.begin();
@@ -281,8 +280,8 @@ TEST_P(
     hfilter_nonconstFunc)
 {
     { // Test scid::database::HFilter::clear()
-        auto f1 = makeFilter(main_);
-        auto f2 = makeFilter(mask_);
+        auto                    f1 = makeFilter(main_);
+        auto                    f2 = makeFilter(mask_);
         scid::database::HFilter filter(f1.get(), f2.get());
         ASSERT_TRUE(filter != 0);
         ASSERT_FALSE(filter == 0);
@@ -300,8 +299,8 @@ TEST_P(
         }
     }
     { // Test scid::database::HFilter::erase()
-        auto f1 = makeFilter(main_);
-        auto f2 = makeFilter(mask_);
+        auto                    f1 = makeFilter(main_);
+        auto                    f2 = makeFilter(mask_);
         scid::database::HFilter filter(f1.get(), f2.get());
         ASSERT_TRUE(filter != 0);
         ASSERT_FALSE(filter == 0);
@@ -317,8 +316,8 @@ TEST_P(
         }
     }
     { // Test scid::database::HFilter::includeAll()
-        auto f1 = makeFilter(main_);
-        auto f2 = makeFilter(mask_);
+        auto                    f1 = makeFilter(main_);
+        auto                    f2 = makeFilter(mask_);
         scid::database::HFilter filter(f1.get(), f2.get());
         ASSERT_TRUE(filter != 0);
         ASSERT_FALSE(filter == 0);
@@ -335,8 +334,8 @@ TEST_P(
             EXPECT_EQ(maskSz_, filter->size());
     }
     { // Test scid::database::HFilter::insert_or_assign(gnum, 0)
-        auto f1 = makeFilter(main_);
-        auto f2 = makeFilter(mask_);
+        auto                    f1 = makeFilter(main_);
+        auto                    f2 = makeFilter(mask_);
         scid::database::HFilter filter(f1.get(), f2.get());
         ASSERT_TRUE(filter != 0);
         ASSERT_FALSE(filter == 0);
@@ -356,8 +355,8 @@ TEST_P(
         }
     }
     { // Test scid::database::HFilter::insert_or_assign()
-        auto tmp = makeFilter(&dataEmpty);
-        auto f2 = makeFilter(mask_);
+        auto                    tmp = makeFilter(&dataEmpty);
+        auto                    f2 = makeFilter(mask_);
         scid::database::HFilter filter(tmp.get(), f2.get());
         ASSERT_TRUE(filter != 0);
         ASSERT_FALSE(filter == 0);
@@ -374,7 +373,7 @@ TEST_P(
         EXPECT_TRUE(equal(equivMap_, filter));
     }
     { // Test scid::database::HFilter::insert_or_assign() with mask == nullptr
-        auto tmp = makeFilter(&dataEmpty);
+        auto                    tmp = makeFilter(&dataEmpty);
         scid::database::HFilter filter(tmp.get());
         ASSERT_TRUE(filter != 0);
         ASSERT_FALSE(filter == 0);
@@ -393,8 +392,8 @@ TEST_P(
         EXPECT_TRUE(equal(equivMap_, filter));
     }
     { // Test scid::database::HFilter::set(gnum, 0)
-        auto f1 = makeFilter(main_);
-        auto f2 = makeFilter(mask_);
+        auto                    f1 = makeFilter(main_);
+        auto                    f2 = makeFilter(mask_);
         scid::database::HFilter filter(f1.get(), f2.get());
         ASSERT_TRUE(filter != 0);
         ASSERT_FALSE(filter == 0);
@@ -410,8 +409,8 @@ TEST_P(
         }
     }
     { // Test scid::database::HFilter::set(gnum, 1)
-        auto f1 = makeFilter(main_);
-        auto f2 = makeFilter(mask_);
+        auto                    f1 = makeFilter(main_);
+        auto                    f2 = makeFilter(mask_);
         scid::database::HFilter filter(f1.get(), f2.get());
         ASSERT_TRUE(filter != 0);
         ASSERT_FALSE(filter == 0);
@@ -433,4 +432,7 @@ TEST_P(
     }
 }
 
-INSTANTIATE_TEST_SUITE_P(HFilter, Test_HFilter, ::testing::ValuesIn(test_cases));
+INSTANTIATE_TEST_SUITE_P(
+    HFilter,
+    Test_HFilter,
+    ::testing::ValuesIn(test_cases));

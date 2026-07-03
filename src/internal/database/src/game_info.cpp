@@ -6,8 +6,7 @@ namespace scid::database
 {
 
     std::uint32_t
-    gameFlagMaskFromChar(
-        char flag)
+    gameFlagMaskFromChar(char flag)
     {
         switch (std::toupper(static_cast<unsigned char>(flag)))
         {
@@ -60,9 +59,9 @@ namespace scid::database
         }
     }
 
+
     scid::core::uint
-    gameFlagIndexFromChar(
-        char flag)
+    gameFlagIndexFromChar(char flag)
     {
         switch (std::toupper(static_cast<unsigned char>(flag)))
         {
@@ -109,9 +108,9 @@ namespace scid::database
         }
     }
 
+
     std::uint32_t
-    gameFlagMaskFromString(
-        const char* flags)
+    gameFlagMaskFromString(const char* flags)
     {
         std::uint32_t res = 0;
         while (flags && *flags != '\0')
@@ -120,6 +119,7 @@ namespace scid::database
         }
         return res;
     }
+
 
     scid::core::byte
     GameInfo::rating() const
@@ -157,9 +157,10 @@ namespace scid::database
         return (value < 0) ? 0 : static_cast<scid::core::byte>(value);
     }
 
+
     scid::core::uint
     GameInfo::flagString(
-        char* dest,
+        char*       dest,
         const char* flagChars) const
     {
         if (!flagChars)

@@ -45,9 +45,10 @@ namespace scid::database
     namespace
     {
 
-        std::pair<CodecType, scid::core::errorT>
-        parseCodec(
-            std::string_view dbType)
+        std::pair<
+            CodecType,
+            scid::core::errorT>
+        parseCodec(std::string_view dbType)
         {
             if (dbType == "PGN")
             {
@@ -68,9 +69,9 @@ namespace scid::database
             return {CodecType::Scid5, scid::core::ERROR_BadArg};
         }
 
+
         std::string_view
-        codecName(
-            CodecType codec)
+        codecName(CodecType codec)
         {
             switch (codec)
             {
@@ -90,8 +91,7 @@ namespace scid::database
     } // namespace
 
     GameInfo
-    scidBaseT::makeGameInfo_(
-        const IndexEntry& ie)
+    scidBaseT::makeGameInfo_(const IndexEntry& ie)
     {
         GameInfo info;
         info.offset = ie.GetOffset();
@@ -121,14 +121,16 @@ namespace scid::database
         return info;
     }
 
-    std::pair<ICodecDatabase*, scid::core::errorT>
+    std::pair<
+        ICodecDatabase*,
+        scid::core::errorT>
     openCodec(
-        CodecType codec,
-        fileModeT fMode,
-        const char* filename,
+        CodecType       codec,
+        fileModeT       fMode,
+        const char*     filename,
         const Progress& progress,
-        Index* idx,
-        NameBase* nb)
+        Index*          idx,
+        NameBase*       nb)
     {
         auto createCodec = [](auto codec) -> ICodecDatabase* {
             switch (codec)
@@ -178,22 +180,24 @@ namespace scid::database
         delete dbFilter;
     }
 
+
     scid::core::errorT
     scidBaseT::open(
         std::string_view dbType,
-        fileModeT fMode,
-        const char* filename,
-        const Progress& progress)
+        fileModeT        fMode,
+        const char*      filename,
+        const Progress&  progress)
     {
         return openHelper(dbType, fMode, filename, progress);
     }
 
+
     scid::core::errorT
     scidBaseT::openHelper(
         std::string_view dbType,
-        fileModeT fMode,
-        const char* filename,
-        const Progress& progress)
+        fileModeT        fMode,
+        const char*      filename,
+        const Progress&  progress)
     {
         assert(filename);
 
@@ -226,11 +230,14 @@ namespace scid::database
         return err;
     }
 
-    std::vector<std::pair<const char*, std::string>>
+    std::vector<std::pair<
+        const char*,
+        std::string>>
     scidBaseT::getExtraInfo() const
     {
         return storage_->codec->getExtraInfo();
     }
+
 
     scid::core::errorT
     scidBaseT::setExtraInfo(
@@ -244,6 +251,7 @@ namespace scid::database
         return (res != scid::core::OK) ? res : storage_->codec->flush();
     }
 
+
     scid::core::errorT
     scidBaseT::flush()
     {
@@ -255,6 +263,7 @@ namespace scid::database
 
         return storage_->codec->flush();
     }
+
 
     void
     scidBaseT::Close()
@@ -281,6 +290,7 @@ namespace scid::database
         inUse = false;
     }
 
+
     void
     scidBaseT::clear()
     {
@@ -298,6 +308,7 @@ namespace scid::database
         ++cacheInvalidationToken_;
     }
 
+
     std::string
     scidBaseT::getFileName() const
     {
@@ -308,6 +319,7 @@ namespace scid::database
         const auto filenames = storage_->codec->getFilenames();
         return filenames.empty() ? "<clipbase>" : filenames[0];
     }
+
 
     scid::core::errorT
     scidBaseT::beginTransaction()
@@ -325,9 +337,9 @@ namespace scid::database
         return scid::core::OK;
     }
 
+
     scid::core::errorT
-    scidBaseT::endTransaction(
-        gamenumT gNum)
+    scidBaseT::endTransaction(gamenumT gNum)
     {
         clear();
         scid::core::errorT res = storage_->codec->flush();
@@ -351,12 +363,13 @@ namespace scid::database
         return res;
     }
 
+
     scid::core::errorT
     scidBaseT::loadGame(
-        gamenumT gNum,
+        gamenumT          gNum,
         scid::core::Game& dest,
-        char* scidFlags,
-        std::size_t scidFlagsLen) const
+        char*             scidFlags,
+        std::size_t       scidFlagsLen) const
     {
         const auto* ie = getIndexEntry_bounds(gNum);
         if (!ie)
@@ -364,17 +377,18 @@ namespace scid::database
         return loadGame(*ie, dest, scidFlags, scidFlagsLen);
     }
 
+
     GameInfo
-    scidBaseT::gameInfo(
-        gamenumT g) const
+    scidBaseT::gameInfo(gamenumT g) const
     {
         assert(g < numGames());
         return makeGameInfo_(*getIndexEntry(g));
     }
 
+
     scid::core::errorT
     scidBaseT::updateGameInfo(
-        gamenumT g,
+        gamenumT              g,
         const GameInfoUpdate& update)
     {
         const auto* current = getIndexEntry_bounds(g);
@@ -397,19 +411,19 @@ namespace scid::database
         if (update.ecoCode)
             ie.SetEcoCode(*update.ecoCode);
 
-        auto duplicates = extractDuplicates();
-        scid::core::Game game;
+        auto                 duplicates = extractDuplicates();
+        scid::core::Game     game;
         std::array<char, 22> scidFlags{};
-        auto err = loadGame(ie, game, scidFlags.data(), scidFlags.size());
+        auto                 err = loadGame(ie, game, scidFlags.data(), scidFlags.size());
         if (err == scid::core::OK)
             err = saveGame(game, scidFlags.data(), g);
         setDuplicates(std::move(duplicates));
         return err;
     }
 
+
     GameView
-    scidBaseT::gameView(
-        const IndexEntry* ie) const
+    scidBaseT::gameView(const IndexEntry* ie) const
     {
         auto data = storage_->codec->getGameMoves(*ie);
         if (data)
@@ -434,24 +448,26 @@ namespace scid::database
         return GameView({nullptr, 0});
     }
 
+
     ByteBuffer
-    scidBaseT::gameData(
-        const IndexEntry& ie) const
+    scidBaseT::gameData(const IndexEntry& ie) const
     {
         return storage_->codec->getGameData(ie.GetOffset(), ie.GetLength());
     }
+
 
     scid::core::errorT
     scidBaseT::loadGame(
         const IndexEntry& ie,
         scid::core::Game& dest,
-        char* scidFlags,
-        std::size_t scidFlagsLen) const
+        char*             scidFlags,
+        std::size_t       scidFlagsLen) const
     {
         auto err =
             game_storage::decode(dest, scidFlags, scidFlagsLen, ie, tagRoster(ie), gameData(ie));
         return err;
     }
+
 
     scid::core::errorT
     scidBaseT::loadGameMovesOnly(
@@ -464,9 +480,10 @@ namespace scid::database
         return game_storage::decodeMovesOnly(dest, data);
     }
 
+
     scid::core::errorT
     scidBaseT::loadGameMovesOnly(
-        gamenumT gNum,
+        gamenumT          gNum,
         scid::core::Game& dest) const
     {
         const auto* ie = getIndexEntry_bounds(gNum);
@@ -475,20 +492,26 @@ namespace scid::database
         return loadGameMovesOnly(*ie, dest);
     }
 
+
     scid::core::errorT
     scidBaseT::gameTags(
-        const IndexEntry& ie,
-        std::vector<std::pair<std::string, std::string>>& dest) const
+        const IndexEntry&  ie,
+        std::vector<std::pair<
+            std::string,
+            std::string>>& dest) const
     {
         auto data = gameData(ie);
         return data.decodeTags(
             [&](auto const& tag, auto const& value) { dest.emplace_back(tag, value); });
     }
 
+
     scid::core::errorT
     scidBaseT::gameTags(
-        gamenumT gNum,
-        std::vector<std::pair<std::string, std::string>>& dest) const
+        gamenumT           gNum,
+        std::vector<std::pair<
+            std::string,
+            std::string>>& dest) const
     {
         const auto* ie = getIndexEntry_bounds(gNum);
         if (!ie)
@@ -496,12 +519,13 @@ namespace scid::database
         return gameTags(*ie, dest);
     }
 
+
     scid::core::errorT
     scidBaseT::loadStandardTags(
-        gamenumT gNum,
+        gamenumT          gNum,
         scid::core::Game& dest,
-        char* scidFlags,
-        std::size_t scidFlagsLen) const
+        char*             scidFlags,
+        std::size_t       scidFlagsLen) const
     {
         const auto* ie = getIndexEntry_bounds(gNum);
         if (!ie)
@@ -510,10 +534,11 @@ namespace scid::database
         return scid::core::OK;
     }
 
+
     std::vector<scid::core::FullMove>
     scidBaseT::mainlineMoves(
         const IndexEntry* ie,
-        std::size_t maxPly) const
+        std::size_t       maxPly) const
     {
         std::vector<scid::core::FullMove> moves;
         moves.reserve(std::min<std::size_t>(maxPly, ie->GetNumHalfMoves()));
@@ -526,9 +551,10 @@ namespace scid::database
         return moves;
     }
 
+
     std::vector<scid::core::FullMove>
     scidBaseT::mainlineMoves(
-        gamenumT gNum,
+        gamenumT    gNum,
         std::size_t maxPly) const
     {
         const auto* ie = getIndexEntry_bounds(gNum);
@@ -537,20 +563,22 @@ namespace scid::database
         return mainlineMoves(ie, maxPly);
     }
 
+
     std::string
     scidBaseT::moveSAN(
         const IndexEntry* ie,
-        int plyToSkip,
-        int count) const
+        int               plyToSkip,
+        int               count) const
     {
         return gameView(ie).getMoveSAN(plyToSkip, count);
     }
 
+
     std::string
     scidBaseT::moveSAN(
         gamenumT gNum,
-        int plyToSkip,
-        int count) const
+        int      plyToSkip,
+        int      count) const
     {
         const auto* ie = getIndexEntry_bounds(gNum);
         if (!ie)
@@ -558,10 +586,12 @@ namespace scid::database
         return moveSAN(ie, plyToSkip, count);
     }
 
-    std::pair<scid::core::errorT, size_t>
+    std::pair<
+        scid::core::errorT,
+        size_t>
     scidBaseT::replaceGameDates(
-        HFilter filter,
-        const Progress& progress,
+        HFilter           filter,
+        const Progress&   progress,
         scid::core::dateT oldDate,
         scid::core::dateT newDate)
     {
@@ -573,10 +603,12 @@ namespace scid::database
         });
     }
 
-    std::pair<scid::core::errorT, size_t>
+    std::pair<
+        scid::core::errorT,
+        size_t>
     scidBaseT::replaceGameEventDates(
-        HFilter filter,
-        const Progress& progress,
+        HFilter           filter,
+        const Progress&   progress,
         scid::core::dateT oldDate,
         scid::core::dateT newDate)
     {
@@ -588,12 +620,14 @@ namespace scid::database
         });
     }
 
-    std::pair<scid::core::errorT, size_t>
+    std::pair<
+        scid::core::errorT,
+        size_t>
     scidBaseT::setPlayerRatings(
-        HFilter filter,
-        const Progress& progress,
-        idNumberT player,
-        scid::core::ratingT rating,
+        HFilter                 filter,
+        const Progress&         progress,
+        idNumberT               player,
+        scid::core::ratingT     rating,
         scid::core::ratingTypeT ratingType)
     {
         return transformIndex(filter, progress, [&](IndexEntry& ie) {
@@ -616,17 +650,18 @@ namespace scid::database
         });
     }
 
+
     scid::core::errorT
     scidBaseT::searchBoard(
-        const IndexEntry& ie,
-        scid::core::Game& game,
+        const IndexEntry&     ie,
+        scid::core::Game&     game,
         scid::core::Position* pos,
         scid::core::Position* posFlip,
-        bool useVariations,
-        bool possibleMatch,
-        bool possibleFlippedMatch,
-        gameExactMatchT searchType,
-        scid::core::uint& ply) const
+        bool                  useVariations,
+        bool                  possibleMatch,
+        bool                  possibleFlippedMatch,
+        gameExactMatchT       searchType,
+        scid::core::uint&     ply) const
     {
         auto data = gameData(ie);
         if (!data)
@@ -676,17 +711,18 @@ namespace scid::database
         return scid::core::OK;
     }
 
+
     scid::core::errorT
     scidBaseT::searchBoard(
-        gamenumT gNum,
-        scid::core::Game& game,
+        gamenumT              gNum,
+        scid::core::Game&     game,
         scid::core::Position* pos,
         scid::core::Position* posFlip,
-        bool useVariations,
-        bool possibleMatch,
-        bool possibleFlippedMatch,
-        gameExactMatchT searchType,
-        scid::core::uint& ply) const
+        bool                  useVariations,
+        bool                  possibleMatch,
+        bool                  possibleFlippedMatch,
+        gameExactMatchT       searchType,
+        scid::core::uint&     ply) const
     {
         const auto* ie = getIndexEntry_bounds(gNum);
         if (!ie)
@@ -696,33 +732,34 @@ namespace scid::database
             ply);
     }
 
+
     bool
     scidBaseT::materialSearchMatch(
         const IndexEntry& ie,
-        bool possibleMatch,
-        bool possibleFlippedMatch,
+        bool              possibleMatch,
+        bool              possibleFlippedMatch,
         scid::core::byte* min,
         scid::core::byte* max,
         scid::core::byte* minFlipped,
         scid::core::byte* maxFlipped,
-        patternT* patterns,
-        std::size_t patternCount,
-        patternT* flippedPatterns,
-        std::size_t flippedPatternCount,
-        int minPly,
-        int maxPly,
-        int matchLength,
-        bool oppBishops,
-        bool sameBishops,
-        int minDiff,
-        int maxDiff) const
+        patternT*         patterns,
+        std::size_t       patternCount,
+        patternT*         flippedPatterns,
+        std::size_t       flippedPatternCount,
+        int               minPly,
+        int               maxPly,
+        int               matchLength,
+        bool              oppBishops,
+        bool              sameBishops,
+        int               minDiff,
+        int               maxDiff) const
     {
         auto data = gameData(ie);
         if (!data)
             return false;
 
         const bool hasPromotion = ie.GetPromotionsFlag() || ie.GetUnderPromoFlag();
-        bool result = false;
+        bool       result = false;
         if (possibleMatch)
         {
             auto dataClone = data;
@@ -739,26 +776,27 @@ namespace scid::database
         return result;
     }
 
+
     bool
     scidBaseT::materialSearchMatch(
-        gamenumT gNum,
-        bool possibleMatch,
-        bool possibleFlippedMatch,
+        gamenumT          gNum,
+        bool              possibleMatch,
+        bool              possibleFlippedMatch,
         scid::core::byte* min,
         scid::core::byte* max,
         scid::core::byte* minFlipped,
         scid::core::byte* maxFlipped,
-        patternT* patterns,
-        std::size_t patternCount,
-        patternT* flippedPatterns,
-        std::size_t flippedPatternCount,
-        int minPly,
-        int maxPly,
-        int matchLength,
-        bool oppBishops,
-        bool sameBishops,
-        int minDiff,
-        int maxDiff) const
+        patternT*         patterns,
+        std::size_t       patternCount,
+        patternT*         flippedPatterns,
+        std::size_t       flippedPatternCount,
+        int               minPly,
+        int               maxPly,
+        int               matchLength,
+        bool              oppBishops,
+        bool              sameBishops,
+        int               minDiff,
+        int               maxDiff) const
     {
         const auto* ie = getIndexEntry_bounds(gNum);
         if (!ie)
@@ -769,20 +807,22 @@ namespace scid::database
             oppBishops, sameBishops, minDiff, maxDiff);
     }
 
+
     bool
     scidBaseT::setPositionSearchFilter(
         const scid::core::Position& pos,
-        HFilter& filter,
-        const Progress& progress) const
+        HFilter&                    filter,
+        const Progress&             progress) const
     {
         return SearchPos(pos).setFilter(*this, filter, progress);
     }
 
+
     scid::core::errorT
     scidBaseT::saveGame(
         scid::core::Game const& game,
-        const char* scidFlags,
-        gamenumT replacedGameId)
+        const char*             scidFlags,
+        gamenumT                replacedGameId)
     {
         if (auto errModify = beginTransaction())
             return errModify;
@@ -798,21 +838,23 @@ namespace scid::database
         return (err != scid::core::OK) ? err : errClear;
     }
 
-    std::pair<scid::core::errorT, size_t>
+    std::pair<
+        scid::core::errorT,
+        size_t>
     scidBaseT::stripGames(
-        HFilter hfilter,
-        const Progress& progress,
+        HFilter                              hfilter,
+        const Progress&                      progress,
         std::vector<std::string_view> const& removeTags)
     {
         if (auto errModify = beginTransaction())
             return {errModify, 0};
 
         std::vector<std::pair<std::string_view, std::string_view>> tagsBuf;
-        std::vector<scid::core::byte> encodeBuf;
-        size_t nCorrections = 0;
-        size_t iProg = 0;
-        const size_t totProg = hfilter->size();
-        scid::core::errorT err = scid::core::OK;
+        std::vector<scid::core::byte>                              encodeBuf;
+        size_t                                                     nCorrections = 0;
+        size_t                                                     iProg = 0;
+        const size_t                                               totProg = hfilter->size();
+        scid::core::errorT                                         err = scid::core::OK;
         for (const auto gnum : hfilter)
         {
             if ((++iProg % 1024 == 0) && !progress.report(iProg, totProg))
@@ -824,8 +866,8 @@ namespace scid::database
             bool changed = false;
             tagsBuf.clear();
             IndexEntry const& ie = *getIndexEntry(gnum);
-            auto gamedata = gameData(ie);
-            auto err = gamedata.decodeTags([&](auto const& tag, auto const& value) {
+            auto              gamedata = gameData(ie);
+            auto              err = gamedata.decodeTags([&](auto const& tag, auto const& value) {
                 if (std::find(removeTags.begin(), removeTags.end(), tag) != removeTags.end())
                     changed = true;
                 else
@@ -852,11 +894,12 @@ namespace scid::database
         return {err, nCorrections};
     }
 
+
     scid::core::errorT
     scidBaseT::importGames(
         const scidBaseT* srcBase,
-        const HFilter& filter,
-        const Progress& progress)
+        const HFilter&   filter,
+        const Progress&  progress)
     {
         ASSERT(srcBase != 0);
         ASSERT(filter != 0);
@@ -867,8 +910,8 @@ namespace scid::database
             return errModify;
 
         scid::core::errorT err = scid::core::OK;
-        size_t iProgress = 0;
-        size_t totGames = filter->size();
+        size_t             iProgress = 0;
+        size_t             totGames = filter->size();
         for (const auto gNum : filter)
         {
             err = importGameHelper(srcBase, gNum);
@@ -885,10 +928,11 @@ namespace scid::database
         return (err == scid::core::OK) ? errClear : err;
     }
 
+
     scid::core::errorT
     scidBaseT::importGameHelper(
         const scidBaseT* srcBase,
-        gamenumT gNum)
+        gamenumT         gNum)
     {
         const auto ie = srcBase->getIndexEntry(gNum);
         if (const auto data =
@@ -898,38 +942,43 @@ namespace scid::database
         return scid::core::ERROR_FileRead;
     }
 
+
     scid::core::errorT
     scidBaseT::saveGameData(
         IndexEntry const& ie,
-        TagRoster const& tags,
+        TagRoster const&  tags,
         ByteBuffer const& data,
-        gamenumT replaced)
+        gamenumT          replaced)
     {
         return storage_->codec->saveGame(ie, tags, data, replaced);
     }
 
+
     scid::core::errorT
     scidBaseT::saveIndexEntry(
         IndexEntry const& ie,
-        gamenumT replaced)
+        gamenumT          replaced)
     {
         return storage_->codec->saveIndexEntry(ie, replaced);
     }
 
-    std::pair<scid::core::errorT, idNumberT>
+    std::pair<
+        scid::core::errorT,
+        idNumberT>
     scidBaseT::addName(
-        nameT nt,
+        nameT       nt,
         const char* name)
     {
         return storage_->codec->addName(nt, name);
     }
 
+
     scid::core::errorT
     scidBaseT::importGames(
         std::string_view dbType,
-        const char* filename,
-        const Progress& progress,
-        std::string& errorMsg)
+        const char*      filename,
+        const Progress&  progress,
+        std::string&     errorMsg)
     {
         auto [dbtype, parseErr] = parseCodec(dbType);
         if (parseErr != scid::core::OK)
@@ -941,10 +990,10 @@ namespace scid::database
             return errModify;
 
         CodecPgn pgn;
-        auto res = pgn.open(filename, FMODE_ReadOnly);
+        auto     res = pgn.open(filename, FMODE_ReadOnly);
         if (res == scid::core::OK)
         {
-            uint64_t nChess960Errors = 0;
+            uint64_t                      nChess960Errors = 0;
             std::vector<scid::core::byte> buf;
             res = CodecPgn::parseGames(
                 progress, pgn, [&](scid::core::Game& game, const char* scidFlags) {
@@ -971,6 +1020,7 @@ namespace scid::database
         return (res != scid::core::OK) ? res : res_endTrans;
     }
 
+
     scid::core::errorT
     scidBaseT::invertFlag(
         scid::core::uint flag,
@@ -979,10 +1029,11 @@ namespace scid::database
         return setFlag(!getFlag(flag, gNum), flag, gNum);
     }
 
+
     scid::core::errorT
     scidBaseT::invertFlags(
         scid::core::uint flag,
-        const HFilter& filter)
+        const HFilter&   filter)
     {
         return transformIndex(
                    filter, Progress(),
@@ -994,9 +1045,10 @@ namespace scid::database
             .first;
     }
 
+
     scid::core::errorT
     scidBaseT::setFlag(
-        bool value,
+        bool             value,
         scid::core::uint flag,
         scid::core::uint gNum)
     {
@@ -1018,11 +1070,12 @@ namespace scid::database
         return res != scid::core::OK ? res : err;
     }
 
+
     scid::core::errorT
     scidBaseT::setFlags(
-        bool value,
+        bool             value,
         scid::core::uint flag,
-        const HFilter& filter)
+        const HFilter&   filter)
     {
         return transformIndex(
                    filter, Progress(),
@@ -1051,6 +1104,7 @@ namespace scid::database
         filters_.push_back(std::make_pair(newname, new Filter(numGames())));
         return newname;
     }
+
 
     std::string
     scidBaseT::composeFilter(
@@ -1083,9 +1137,9 @@ namespace scid::database
         return res;
     }
 
+
     void
-    scidBaseT::deleteFilter(
-        const char* filterId)
+    scidBaseT::deleteFilter(const char* filterId)
     {
         for (size_t i = 0, n = filters_.size(); i < n; i++)
         {
@@ -1098,9 +1152,9 @@ namespace scid::database
         }
     }
 
+
     HFilter
-    scidBaseT::getFilter(
-        std::string_view filterId) const
+    scidBaseT::getFilter(std::string_view filterId) const
     {
         const auto findFilter = [&](auto const& id) -> Filter* {
             if (id == "dbfilter")
@@ -1116,7 +1170,7 @@ namespace scid::database
             return nullptr;
         };
 
-        Filter* main = nullptr;
+        Filter*       main = nullptr;
         const Filter* mask = nullptr;
         if (filterId.empty() || filterId[0] != '+')
         {
@@ -1134,9 +1188,10 @@ namespace scid::database
         return HFilter(main, mask);
     }
 
-    std::pair<std::string, std::string>
-    scidBaseT::getFilterComponents(
-        std::string_view filterID) const
+    std::pair<
+        std::string,
+        std::string>
+    scidBaseT::getFilterComponents(std::string_view filterID) const
     {
         if (filterID.empty())
             return {};
@@ -1170,8 +1225,7 @@ namespace scid::database
         std::fill_n(results, scid::core::NUM_RESULT_TYPES, 0);
     }
 
-    scidBaseT::Stats::Stats(
-        const scidBaseT* dbase)
+    scidBaseT::Stats::Stats(const scidBaseT* dbase)
     {
         std::fill(flagCount, flagCount + IndexEntry::IDX_NUM_FLAGS, 0);
         minDate = scid::core::ZERO_DATE;
@@ -1254,7 +1308,7 @@ namespace scid::database
             }
 
             scid::core::resultT result = ie->GetResult();
-            EcoCode eco = ie->GetEcoCode();
+            EcoCode             eco = ie->GetEcoCode();
             if (eco == 0)
             {
                 ecoEmpty_.count++;
@@ -1280,9 +1334,9 @@ namespace scid::database
         }
     }
 
+
     const scidBaseT::Stats::Eco*
-    scidBaseT::Stats::getEcoStats(
-        const char* ecoStr) const
+    scidBaseT::Stats::getEcoStats(const char* ecoStr) const
     {
         ASSERT(ecoStr != 0);
 
@@ -1312,9 +1366,9 @@ namespace scid::database
         return 0;
     }
 
+
     std::vector<TreeNode>
-    scidBaseT::getTreeStat(
-        const HFilter& filter) const
+    scidBaseT::getTreeStat(const HFilter& filter) const
     {
         std::vector<TreeNode> res;
         for (gamenumT gnum = 0, n = numGames(); gnum < n; gnum++)
@@ -1325,7 +1379,7 @@ namespace scid::database
             else
                 ply--;
 
-            const IndexEntry* ie = getIndexEntry(gnum);
+            const IndexEntry*    ie = getIndexEntry(gnum);
             scid::core::FullMove move = StoredLine::getMove(ie->GetStoredLineCode(), ply);
             if (!move)
                 move = gameView(ie).getMove(ply);
@@ -1340,6 +1394,7 @@ namespace scid::database
         std::sort(res.begin(), res.end(), TreeNode::cmp_ngames_desc());
         return res;
     }
+
 
     scid::core::errorT
     scidBaseT::getCompactStat(
@@ -1388,9 +1443,9 @@ namespace scid::database
         return scid::core::OK;
     }
 
+
     scid::core::errorT
-    scidBaseT::compact(
-        const Progress& progress)
+    scidBaseT::compact(const Progress& progress)
     {
         std::vector<std::string> filenames = storage_->codec->getFilenames();
         if (filenames.empty())
@@ -1399,7 +1454,7 @@ namespace scid::database
         // 1) Create a new temporary database
         CodecType dbtype = storage_->codec->getType();
         scidBaseT tmp;
-        auto tmp_filename = std::filesystem::path(filenames[0]);
+        auto      tmp_filename = std::filesystem::path(filenames[0]);
         tmp_filename.replace_filename(
             tmp_filename.stem().u8string() + u8"__COMPACT__" + tmp_filename.extension().u8string());
         if (auto err_Create =
@@ -1415,7 +1470,7 @@ namespace scid::database
             {
                 continue;
             }
-            uint64_t order = static_cast<uint64_t>(ie->GetStoredLineCode()) << 56;
+            uint64_t                order = static_cast<uint64_t>(ie->GetStoredLineCode()) << 56;
             const scid::core::byte* hp = ie->GetHomePawnData();
             order |= static_cast<uint64_t>(hp[0]) << 48;
             order |= static_cast<uint64_t>(hp[1]) << 40;
@@ -1429,7 +1484,7 @@ namespace scid::database
             std::stable_sort(sort.begin(), sort.end());
 
         // 3) Copy the Index Header
-        auto extraInfo = getExtraInfo();
+        auto               extraInfo = getExtraInfo();
         scid::core::errorT err_Header = tmp.beginTransaction();
         for (auto& pair : extraInfo)
         {
@@ -1439,7 +1494,7 @@ namespace scid::database
             if (std::strcmp(pair.first, "autoload") == 0)
             {
                 gamenumT autoloadOld = strGetUnsigned(pair.second.c_str());
-                size_t autoloadNew = 1;
+                size_t   autoloadNew = 1;
                 for (size_t i = 0, n = sort.size(); i < n; ++i)
                 {
                     if (sort[i].second + 1 == autoloadOld)
@@ -1454,8 +1509,8 @@ namespace scid::database
         }
 
         // 4) Copy the games
-        scid::core::uint iProgress = 0;
-        bool err_UserCancel = false;
+        scid::core::uint   iProgress = 0;
+        bool               err_UserCancel = false;
         scid::core::errorT err_AddGame = scid::core::OK;
         for (auto it = sort.cbegin(); it != sort.cend(); ++it)
         {
@@ -1479,7 +1534,7 @@ namespace scid::database
 
         // 5) Finalize the new database
         std::vector<std::string> tmp_filenames = tmp.storage_->codec->getFilenames();
-        scid::core::errorT err_NbWrite = tmp.endTransaction();
+        scid::core::errorT       err_NbWrite = tmp.endTransaction();
         tmp.Close();
         auto err_Close =
             (filenames.size() == tmp_filenames.size()) ? scid::core::OK : scid::core::ERROR;
@@ -1545,7 +1600,7 @@ namespace scid::database
             for (size_t i = 0, n = oldSC.size(); i < n; i++)
             {
                 const std::string& criteria = oldSC[i].first;
-                SortCache* sc = SortCache::create(idx, nb_, criteria.c_str());
+                SortCache*         sc = SortCache::create(idx, nb_, criteria.c_str());
                 if (sc != NULL)
                 {
                     sc->incrRef(oldSC[i].second);
@@ -1569,8 +1624,7 @@ namespace scid::database
      * @returns a pointer to a SortCache object in case of success, NULL otherwise.
      */
     SortCache*
-    scidBaseT::getSortCache(
-        const char* criteria)
+    scidBaseT::getSortCache(const char* criteria)
     {
         ASSERT(criteria != NULL);
 
@@ -1587,15 +1641,15 @@ namespace scid::database
         return sc;
     }
 
+
     void
-    scidBaseT::releaseSortCache(
-        const char* criteria)
+    scidBaseT::releaseSortCache(const char* criteria)
     {
         size_t i = 0;
         while (i < sortCaches_.size())
         {
             const char* tmp = sortCaches_[i].first.c_str();
-            int decr = std::strcmp(criteria, tmp) ? 0 : -1;
+            int         decr = std::strcmp(criteria, tmp) ? 0 : -1;
             if (sortCaches_[i].second->incrRef(decr) <= 0)
             {
                 delete sortCaches_[i].second;
@@ -1606,9 +1660,9 @@ namespace scid::database
         }
     }
 
+
     bool
-    scidBaseT::createSortCache(
-        const char* criteria)
+    scidBaseT::createSortCache(const char* criteria)
     {
         if (auto sc = getSortCache(criteria))
         {
@@ -1618,13 +1672,14 @@ namespace scid::database
         return false;
     }
 
+
     size_t
     scidBaseT::listGames(
-        const char* criteria,
-        size_t start,
-        size_t count,
+        const char*    criteria,
+        size_t         start,
+        size_t         count,
         const HFilter& filter,
-        gamenumT* destCont)
+        gamenumT*      destCont)
     {
         const SortCache* sc = getSortCache(criteria);
         if (sc == NULL)
@@ -1633,11 +1688,12 @@ namespace scid::database
         return sc->select(start, count, filter, destCont);
     }
 
+
     size_t
     scidBaseT::sortedPosition(
-        const char* criteria,
+        const char*    criteria,
         const HFilter& filter,
-        gamenumT gameId)
+        gamenumT       gameId)
     {
         ASSERT(filter != NULL && filter->size() <= numGames());
 

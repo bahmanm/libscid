@@ -231,8 +231,7 @@ namespace scid::database
             }
             /** Returns true when every bit in @p mask is set. */
             bool
-            GetFlag(
-                uint32_t mask) const
+            GetFlag(uint32_t mask) const
             {
                 return (flags_ & mask) == mask;
             }
@@ -285,7 +284,7 @@ namespace scid::database
              */
             void
             SetHomePawnData(
-                scid::core::byte hpCount,
+                scid::core::byte       hpCount,
                 const scid::core::byte hpVal[8])
             {
                 HomePawnData[0] = hpCount; // First scid::core::byte stores the count
@@ -294,189 +293,165 @@ namespace scid::database
 
             /** Sets the encoded game-record offset and asserts if it is truncated. */
             void
-            SetOffset(
-                uint64_t offset)
+            SetOffset(uint64_t offset)
             {
                 offset_ = offset;
                 ASSERT(GetOffset() == offset);
             }
             /** Sets the encoded game-record length and asserts if it is truncated. */
             void
-            SetLength(
-                size_t length)
+            SetLength(size_t length)
             {
                 gameDataSize_ = length;
                 ASSERT(GetLength() == length);
             }
             /** Sets the White player NameBase identifier and asserts if it is truncated. */
             void
-            SetWhite(
-                idNumberT id)
+            SetWhite(idNumberT id)
             {
                 whiteID_ = id;
                 ASSERT(GetWhite() == id);
             }
             /** Sets White's rating value and asserts if it is truncated. */
             void
-            SetWhiteElo(
-                scid::core::ratingT elo)
+            SetWhiteElo(scid::core::ratingT elo)
             {
                 whiteElo_ = elo;
                 ASSERT(GetWhiteElo() == elo);
             }
             /** Sets White's rating-system code and asserts if it is truncated. */
             void
-            SetWhiteRatingType(
-                scid::core::ratingTypeT b)
+            SetWhiteRatingType(scid::core::ratingTypeT b)
             {
                 whiteEloType_ = b;
                 ASSERT(GetWhiteRatingType() == b);
             }
             /** Sets the Black player NameBase identifier and asserts if it is truncated. */
             void
-            SetBlack(
-                idNumberT id)
+            SetBlack(idNumberT id)
             {
                 blackID_ = id;
                 ASSERT(GetBlack() == id);
             }
             /** Sets Black's rating value and asserts if it is truncated. */
             void
-            SetBlackElo(
-                scid::core::ratingT elo)
+            SetBlackElo(scid::core::ratingT elo)
             {
                 blackElo_ = elo;
                 ASSERT(GetBlackElo() == elo);
             }
             /** Sets Black's rating-system code and asserts if it is truncated. */
             void
-            SetBlackRatingType(
-                scid::core::ratingTypeT b)
+            SetBlackRatingType(scid::core::ratingTypeT b)
             {
                 blackEloType_ = b;
                 ASSERT(GetBlackRatingType() == b);
             }
             /** Sets the event NameBase identifier and asserts if it is truncated. */
             void
-            SetEvent(
-                idNumberT id)
+            SetEvent(idNumberT id)
             {
                 eventID_ = id;
                 ASSERT(GetEvent() == id);
             }
             /** Sets the site NameBase identifier and asserts if it is truncated. */
             void
-            SetSite(
-                idNumberT id)
+            SetSite(idNumberT id)
             {
                 siteID_ = id;
                 ASSERT(GetSite() == id);
             }
             /** Sets the round NameBase identifier and asserts if it is truncated. */
             void
-            SetRound(
-                idNumberT id)
+            SetRound(idNumberT id)
             {
                 roundID_ = id;
                 ASSERT(GetRound() == id);
             }
             /** Sets the game date and asserts if it is truncated. */
             void
-            SetDate(
-                scid::core::dateT date)
+            SetDate(scid::core::dateT date)
             {
                 date_ = date;
                 ASSERT(GetDate() == date);
             }
             /** Sets the event date and asserts if it is truncated. */
             void
-            SetEventDate(
-                scid::core::dateT edate)
+            SetEventDate(scid::core::dateT edate)
             {
                 eventDate_ = edate;
                 ASSERT(GetEventDate() == edate);
             }
             /** Sets the game result and asserts if it is truncated. */
             void
-            SetResult(
-                scid::core::resultT res)
+            SetResult(scid::core::resultT res)
             {
                 result_ = res;
                 ASSERT(GetResult() == res);
             }
             /** Stores the approximate variation count using Scid's four-bit buckets. */
             void
-            SetVariationCount(
-                unsigned x)
+            SetVariationCount(unsigned x)
             {
                 nVariations_ = EncodeCount(x);
             }
             /** Stores the approximate comment count using Scid's four-bit buckets. */
             void
-            SetCommentCount(
-                unsigned x)
+            SetCommentCount(unsigned x)
             {
                 nComments_ = EncodeCount(x);
             }
             /** Stores the approximate NAG count using Scid's four-bit buckets. */
             void
-            SetNagCount(
-                unsigned x)
+            SetNagCount(unsigned x)
             {
                 nNags_ = EncodeCount(x);
             }
             /** Sets the raw four-bit variation count code and asserts if it is truncated. */
             void
-            SetRawVariationCount(
-                unsigned x)
+            SetRawVariationCount(unsigned x)
             {
                 nVariations_ = x;
                 ASSERT(x == nVariations_);
             }
             /** Sets the raw four-bit comment count code and asserts if it is truncated. */
             void
-            SetRawCommentCount(
-                unsigned x)
+            SetRawCommentCount(unsigned x)
             {
                 nComments_ = x;
                 ASSERT(x == nComments_);
             }
             /** Sets the raw four-bit NAG count code and asserts if it is truncated. */
             void
-            SetRawNagCount(
-                unsigned x)
+            SetRawNagCount(unsigned x)
             {
                 nNags_ = x;
                 ASSERT(x == nNags_);
             }
             /** Sets the mainline half-move count and asserts if it is truncated. */
             void
-            SetNumHalfMoves(
-                scid::core::ushort b)
+            SetNumHalfMoves(scid::core::ushort b)
             {
                 numHalfMoves_ = b;
                 ASSERT(GetNumHalfMoves() == b);
             }
             /** Sets the final-position material signature and asserts if it is truncated. */
             void
-            SetFinalMatSig(
-                matSigT ms)
+            SetFinalMatSig(matSigT ms)
             {
                 finalMatSig_ = ms;
                 ASSERT(GetFinalMatSig() == ms);
             }
             /** Sets the stored-line classification code. */
             void
-            SetStoredLineCode(
-                scid::core::byte b)
+            SetStoredLineCode(scid::core::byte b)
             {
                 storedLineCode_ = b;
                 ASSERT(GetStoredLineCode() == b);
             }
             /** Sets the packed ECO classification. */
             void
-            SetEcoCode(
-                EcoCode eco)
+            SetEcoCode(EcoCode eco)
             {
                 ECOcode_ = eco;
                 ASSERT(GetEcoCode() == eco);
@@ -490,7 +465,7 @@ namespace scid::database
             void
             SetFlag(
                 uint32_t flagMask,
-                bool set)
+                bool     set)
             {
                 if (set)
                     flags_ |= flagMask;
@@ -521,7 +496,7 @@ namespace scid::database
             void
             SetPlayer(
                 scid::core::colorT col,
-                idNumberT id)
+                idNumberT          id)
             {
                 return (col == scid::core::BLACK) ? SetBlack(id) : SetWhite(id);
             }
@@ -610,33 +585,31 @@ namespace scid::database
              * @returns the number of flag characters written, excluding the terminator.
              */
             scid::core::uint
-            GetFlagStr(char* dest, const char* flags) const;
+            GetFlagStr(
+                char*       dest,
+                const char* flags) const;
 
             /** Sets or clears the non-standard-start flag. */
             void
-            SetStartFlag(
-                bool b)
+            SetStartFlag(bool b)
             {
                 SetFlag(1 << IDX_FLAG_START, b);
             }
             /** Sets or clears the promotion flag. */
             void
-            SetPromotionsFlag(
-                bool b)
+            SetPromotionsFlag(bool b)
             {
                 SetFlag(1 << IDX_FLAG_PROMO, b);
             }
             /** Sets or clears the under-promotion flag. */
             void
-            SetUnderPromoFlag(
-                bool b)
+            SetUnderPromoFlag(bool b)
             {
                 SetFlag(1 << IDX_FLAG_UPROMO, b);
             }
             /** Sets or clears the delete marker. */
             void
-            SetDeleteFlag(
-                bool b)
+            SetDeleteFlag(bool b)
             {
                 SetFlag(1 << IDX_FLAG_DELETE, b);
             }
@@ -653,8 +626,7 @@ namespace scid::database
              * differently from full metadata rewrites.
              */
             bool
-            equalExceptFlags(
-                IndexEntry ie) const
+            equalExceptFlags(IndexEntry ie) const
             {
                 ie.flags_ = flags_;
                 static_assert(std::has_unique_object_representations_v<IndexEntry>);
@@ -723,8 +695,7 @@ namespace scid::database
 
         private:
             static scid::core::uint
-            EncodeCount(
-                scid::core::uint x)
+            EncodeCount(scid::core::uint x)
             {
                 if (x <= 10)
                 {
@@ -753,8 +724,7 @@ namespace scid::database
                 return 15; // 15 indicates 50 or more
             }
             static scid::core::uint
-            DecodeCount(
-                scid::core::uint x)
+            DecodeCount(scid::core::uint x)
             {
                 static scid::core::uint countCodes[16] = {
                     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50};
@@ -767,7 +737,7 @@ namespace scid::database
     {
         scid::core::ratingT welo = GetWhiteElo();
         scid::core::ratingT belo = GetBlackElo();
-        auto rating = (welo != 0 && belo != 0) ? (welo + belo) / 140 : 0;
+        auto                rating = (welo != 0 && belo != 0) ? (welo + belo) / 140 : 0;
         static_assert(std::is_signed_v<decltype(rating)>);
 
         // Bonus for comments or Nags
@@ -809,8 +779,7 @@ namespace scid::database
     // IndexEntry::CharToFlag():
     //    Returns the flag number corresponding to the given character.
     inline scid::core::uint
-    IndexEntry::CharToFlag(
-        char ch)
+    IndexEntry::CharToFlag(char ch)
     {
         scid::core::uint flag = 0;
         switch (toupper(ch))
@@ -880,8 +849,7 @@ namespace scid::database
     // IndexEntry::CharToFlagMask():
     //    Transform a char in a mask that can be used with GetFlag() and SetFlag()
     inline uint32_t
-    IndexEntry::CharToFlagMask(
-        char flag)
+    IndexEntry::CharToFlagMask(char flag)
     {
         switch (toupper(flag))
         {
@@ -939,8 +907,7 @@ namespace scid::database
     // IndexEntry::StrToFlagMask():
     //    Transform a string in a mask that can be used with GetFlag() and SetFlag()
     inline uint32_t
-    IndexEntry::StrToFlagMask(
-        const char* flags)
+    IndexEntry::StrToFlagMask(const char* flags)
     {
         if (flags == 0)
             return 0;
@@ -960,7 +927,7 @@ namespace scid::database
     //    Returns the number of specified flags that are turned on.
     inline scid::core::uint
     IndexEntry::GetFlagStr(
-        char* dest,
+        char*       dest,
         const char* flags) const
     {
         if (flags == NULL)

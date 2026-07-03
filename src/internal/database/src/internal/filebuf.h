@@ -47,7 +47,7 @@ namespace scid::database
             scid::core::errorT
             Open(
                 const char* filename,
-                fileModeT fmode)
+                fileModeT   fmode)
             {
                 std::ios::openmode mode = std::ios::binary;
                 switch (fmode)
@@ -94,7 +94,7 @@ namespace scid::database
              */
             size_t
             getline(
-                char* str,
+                char*  str,
                 size_t count)
             {
                 ASSERT(str != 0);
@@ -165,8 +165,7 @@ namespace scid::database
              * @returns the number of characters successfully written.
              */
             int
-            WriteOneByte(
-                scid::core::byte value)
+            WriteOneByte(scid::core::byte value)
             {
                 int_type ch = sputc(static_cast<char_type>(value));
                 return (ch != traits_type::eof()) ? 1 : 0;
@@ -177,8 +176,7 @@ namespace scid::database
              * @returns the number of characters successfully written.
              */
             int
-            WriteTwoBytes(
-                uint32_t value)
+            WriteTwoBytes(uint32_t value)
             {
                 return WriteOneByte(static_cast<scid::core::byte>(value >> 8)) +
                        WriteOneByte(static_cast<scid::core::byte>(value));
@@ -188,8 +186,7 @@ namespace scid::database
              * @returns the number of characters successfully written.
              */
             int
-            WriteThreeBytes(
-                uint32_t value)
+            WriteThreeBytes(uint32_t value)
             {
                 return WriteOneByte(static_cast<scid::core::byte>(value >> 16)) +
                        WriteOneByte(static_cast<scid::core::byte>(value >> 8)) +
@@ -200,8 +197,7 @@ namespace scid::database
              * @returns the number of characters successfully written.
              */
             int
-            WriteFourBytes(
-                uint32_t value)
+            WriteFourBytes(uint32_t value)
             {
                 return WriteOneByte(static_cast<scid::core::byte>(value >> 24)) +
                        WriteOneByte(static_cast<scid::core::byte>(value >> 16)) +
@@ -234,7 +230,9 @@ namespace scid::database
             std::streamoff filePos_;
 
         public:
-            FilebufAppend() : fileSz_(0), filePos_(-1)
+            FilebufAppend()
+                : fileSz_(0),
+                  filePos_(-1)
             {}
 
             /**
@@ -246,7 +244,7 @@ namespace scid::database
             scid::core::errorT
             open(
                 const std::string& filename,
-                fileModeT fmode)
+                fileModeT          fmode)
             {
                 scid::core::errorT res = Open(filename.c_str(), fmode);
                 if (res != scid::core::OK)
@@ -284,7 +282,7 @@ namespace scid::database
             scid::core::errorT
             append(
                 const char_type* s,
-                std::streamsize count)
+                std::streamsize  count)
             {
                 assert(s != 0);
 
@@ -319,7 +317,7 @@ namespace scid::database
              */
             std::streamsize
             sgetn(
-                char_type* s,
+                char_type*      s,
                 std::streamsize count)
             {
                 std::streamsize res = xsgetn(s, count);
@@ -333,8 +331,7 @@ namespace scid::database
              * consistency when transitioning from reading to writing.
              */
             std::streamoff
-            pubseekpos(
-                std::streamoff pos)
+            pubseekpos(std::streamoff pos)
             {
                 if (filePos_ < 0 || pos < filePos_)
                     return filePos_ = seekpos(pos);

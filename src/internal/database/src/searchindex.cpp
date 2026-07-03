@@ -43,17 +43,19 @@ namespace scid::database
             public:
                 SearchName(
                     const scidBaseT* base,
-                    std::string pattern,
-                    nameT name_type,
+                    std::string      pattern,
+                    nameT            name_type,
                     idNumberT (IndexEntry::*f1)() const,
                     idNumberT (IndexEntry::*f2)() const = 0)
-                    : base_(base), f1_(f1), f2_(f2)
+                    : base_(base),
+                      f1_(f1),
+                      f2_(f2)
                 {
                     idNumberT n = base->getNameBase()->GetNumNames(name_type);
                     mask_.resize(n);
 
                     size_t l = pattern.length();
-                    bool exact = (l > 2 && pattern[l - 1] == '"' && pattern[0] == '"');
+                    bool   exact = (l > 2 && pattern[l - 1] == '"' && pattern[0] == '"');
                     if (exact)
                     {
                         Init_exact(n, name_type, pattern.substr(1, l - 2));
@@ -64,10 +66,11 @@ namespace scid::database
                     }
                 }
 
+
                 void
                 Init_exact(
-                    idNumberT n,
-                    nameT name_type,
+                    idNumberT          n,
+                    nameT              name_type,
                     std::string const& pattern)
                 {
                     const NameBase* nb = base_->getNameBase();
@@ -78,10 +81,11 @@ namespace scid::database
                     }
                 }
 
+
                 void
                 Init_icase_ignoreSpaces(
-                    idNumberT n,
-                    nameT name_type,
+                    idNumberT   n,
+                    nameT       name_type,
                     const char* pattern)
                 {
                     const NameBase* nb = base_->getNameBase();
@@ -92,9 +96,9 @@ namespace scid::database
                     }
                 }
 
+
                 bool
-                operator()(
-                    gamenumT gnum) const
+                operator()(gamenumT gnum) const
                 {
                     bool res = mask_[(base_->getIndexEntry(gnum)->*f1_)()];
                     if (!res && f2_ != 0)
@@ -107,13 +111,13 @@ namespace scid::database
 
         class SearchSiteCountry
         {
-                const scidBaseT* base_;
+                const scidBaseT*  base_;
                 std::vector<bool> mask_;
 
             public:
                 SearchSiteCountry(
                     const scidBaseT* base,
-                    std::string country)
+                    std::string      country)
                     : base_(base)
                 {
                     idNumberT n = base->getNameBase()->GetNumNames(NAME_SITE);
@@ -135,9 +139,9 @@ namespace scid::database
                     }
                 }
 
+
                 bool
-                operator()(
-                    gamenumT gnum) const
+                operator()(gamenumT gnum) const
                 {
                     return mask_[base_->getIndexEntry(gnum)->GetSite()];
                 }
@@ -146,21 +150,21 @@ namespace scid::database
         class SearchFlag
         {
                 const scidBaseT* base_;
-                uint32_t flagMask_;
+                uint32_t         flagMask_;
 
             public:
                 SearchFlag(
                     const scidBaseT* base,
-                    const char* flags)
+                    const char*      flags)
                     : base_(base)
                 {
                     flagMask_ = IndexEntry::StrToFlagMask(flags);
                     ASSERT(flagMask_ != 0);
                 }
 
+
                 bool
-                operator()(
-                    gamenumT gnum) const
+                operator()(gamenumT gnum) const
                 {
                     return base_->getIndexEntry(gnum)->GetFlag(flagMask_);
                 }
@@ -169,12 +173,12 @@ namespace scid::database
         class SearchResult
         {
                 const scidBaseT* base_;
-                bool result_[scid::core::NUM_RESULT_TYPES];
+                bool             result_[scid::core::NUM_RESULT_TYPES];
 
             public:
                 SearchResult(
                     const scidBaseT* base,
-                    const char* results)
+                    const char*      results)
                     : base_(base)
                 {
                     std::fill_n(result_, scid::core::NUM_RESULT_TYPES, false);
@@ -188,9 +192,9 @@ namespace scid::database
                     }
                 }
 
+
                 bool
-                operator()(
-                    gamenumT gnum) const
+                operator()(gamenumT gnum) const
                 {
                     scid::core::resultT r = base_->getIndexEntry(gnum)->GetResult();
                     return result_[r];
@@ -200,18 +204,19 @@ namespace scid::database
         class SearchVariant
         {
                 const scidBaseT* base_;
-                bool std_;
+                bool             std_;
 
             public:
                 SearchVariant(
                     const scidBaseT* base,
                     std::string_view variant)
-                    : base_(base), std_(variant == "std")
+                    : base_(base),
+                      std_(variant == "std")
                 {}
 
+
                 bool
-                operator()(
-                    gamenumT gnum) const
+                operator()(gamenumT gnum) const
                 {
                     return base_->getIndexEntry(gnum)->isChessStd() == std_;
                 }
@@ -227,20 +232,24 @@ namespace scid::database
                 SearchRange(
                     const scidBaseT* base,
                     T (IndexEntry::*f)() const)
-                    : base_(base), f_(f)
+                    : base_(base),
+                      f_(f)
                 {}
+
 
             public:
                 SearchRange(
                     const scidBaseT* base,
-                    const char* range,
+                    const char*      range,
                     T (IndexEntry::*f)() const)
-                    : StrRange(range), base_(base), f_(f)
+                    : StrRange(range),
+                      base_(base),
+                      f_(f)
                 {}
 
+
                 bool
-                operator()(
-                    gamenumT gnum) const
+                operator()(gamenumT gnum) const
                 {
                     long v = (base_->getIndexEntry(gnum)->*f_)();
                     return inRange(v);
@@ -252,9 +261,11 @@ namespace scid::database
             public:
                 SearchRangeDate(
                     const scidBaseT* base,
-                    const char* range,
+                    const char*      range,
                     scid::core::dateT (IndexEntry::*f)() const)
-                    : SearchRange<scid::core::dateT>(base, f)
+                    : SearchRange<scid::core::dateT>(
+                          base,
+                          f)
                 {
                     // Extract two whitespace-separated dates:
                     const char* v = strFirstWord(range);
@@ -285,9 +296,11 @@ namespace scid::database
             public:
                 SearchRangeEco(
                     const scidBaseT* base,
-                    const char* range,
+                    const char*      range,
                     EcoCode (IndexEntry::*f)() const)
-                    : SearchRange<EcoCode>(base, f)
+                    : SearchRange<EcoCode>(
+                          base,
+                          f)
                 {
                     // Extract two whitespace-separated ECO codes:
                     const char* v = strFirstWord(range);
@@ -307,8 +320,11 @@ namespace scid::database
             public:
                 SearchRangeGamenum(
                     const scidBaseT* base,
-                    const char* range)
-                    : SearchRange<gamenumT>(base, range, 0)
+                    const char*      range)
+                    : SearchRange<gamenumT>(
+                          base,
+                          range,
+                          0)
                 {
                     // Set up game number range:
                     // Note that a negative number means a count from the end,
@@ -325,9 +341,9 @@ namespace scid::database
                         std::swap(min_, max_);
                 }
 
+
                 bool
-                operator()(
-                    gamenumT gnum) const
+                operator()(gamenumT gnum) const
                 {
                     if (static_cast<long>(gnum) < min_ || static_cast<long>(gnum) > max_)
                         return false;
@@ -344,15 +360,20 @@ namespace scid::database
             public:
                 SearchRangeElo(
                     const scidBaseT* base,
-                    const char* range,
+                    const char*      range,
                     scid::core::ratingT (IndexEntry::*f1)() const,
                     scid::core::ratingT (IndexEntry::*f2)() const = 0)
-                    : SearchRange<scid::core::ratingT>(base, range, 0), fElo1_(f1), fElo2_(f2)
+                    : SearchRange<scid::core::ratingT>(
+                          base,
+                          range,
+                          0),
+                      fElo1_(f1),
+                      fElo2_(f2)
                 {}
 
+
                 bool
-                operator()(
-                    gamenumT gnum) const
+                operator()(gamenumT gnum) const
                 {
                     long v1 = (base_->getIndexEntry(gnum)->*fElo1_)();
                     long v2 = min_;
@@ -369,15 +390,19 @@ namespace scid::database
             public:
                 SearchRangeEloDiff(
                     const scidBaseT* base,
-                    const char* range,
+                    const char*      range,
                     scid::core::ratingT (IndexEntry::*f1)() const,
                     scid::core::ratingT (IndexEntry::*f2)() const)
-                    : SearchRangeElo(base, range, f1, f2)
+                    : SearchRangeElo(
+                          base,
+                          range,
+                          f1,
+                          f2)
                 {}
 
+
                 bool
-                operator()(
-                    gamenumT gnum) const
+                operator()(gamenumT gnum) const
                 {
                     long v1 = (base_->getIndexEntry(gnum)->*fElo1_)();
                     long v2 = (base_->getIndexEntry(gnum)->*fElo2_)();
@@ -403,14 +428,16 @@ namespace scid::database
         {
                 std::string op_;
                 const char* value_;
-                bool opNot_;
-                bool opOr_;
+                bool        opNot_;
+                bool        opOr_;
 
             public:
                 SearchParam(
                     const char* op,
                     const char* value)
-                    : value_(value), opNot_(false), opOr_(false)
+                    : value_(value),
+                      opNot_(false),
+                      opOr_(false)
                 {
                     if (op != 0 && value_ != 0 && value_[0] != 0)
                     {
@@ -437,6 +464,7 @@ namespace scid::database
                     }
                 }
 
+
                 void
                 invalidate()
                 {
@@ -445,19 +473,20 @@ namespace scid::database
                     opOr_ = false;
                 }
 
+
                 bool
                 operator!() const
                 {
                     return op_.empty();
                 }
                 bool
-                operator==(
-                    const char* s) const
+                operator==(const char* s) const
                 {
                     // Compares @s with op_ (op_ do not contain the starting '-' char
                     // and the optional trailing '!' and '|' chars.
                     return op_ == s;
                 }
+
 
                 const char*
                 getValue() const
@@ -484,9 +513,9 @@ namespace scid::database
          */
         std::vector<SearchParam>
         parseParams(
-            int argc,
+            int          argc,
             const char** argv,
-            filterOpT& filterOp)
+            filterOpT&   filterOp)
         {
             std::vector<SearchParam> res;
 
@@ -520,7 +549,7 @@ namespace scid::database
          */
         std::vector<gamenumT>
         collectGames(
-            HFilter& filter,
+            HFilter&   filter,
             filterOpT& filterOp)
         {
             ASSERT(filter != 0);
@@ -560,11 +589,11 @@ namespace scid::database
         template <typename I>
         I
         doSearch(
-            I itB,
-            I itR,
-            I itE,
+            I                itB,
+            I                itR,
+            I                itE,
             const scidBaseT* base,
-            SearchParam& param)
+            SearchParam&     param)
         {
             if (param == "player")
                 return std::stable_partition(
@@ -700,24 +729,24 @@ namespace scid::database
     scid::core::errorT
     search_index(
         const scidBaseT* base,
-        HFilter& filter,
-        int argc,
-        const char** argv,
-        const Progress& progress)
+        HFilter&         filter,
+        int              argc,
+        const char**     argv,
+        const Progress&  progress)
     {
         ASSERT(base != 0);
         ASSERT(filter != 0);
 
-        filterOpT filterOp = FILTEROP_RESET;
+        filterOpT                filterOp = FILTEROP_RESET;
         std::vector<SearchParam> params = parseParams(argc, argv, filterOp);
-        std::vector<gamenumT> glist = collectGames(filter, filterOp);
+        std::vector<gamenumT>    glist = collectGames(filter, filterOp);
 
         // Partition glist so that the range [glist.begin(), it_res)
         // contains the matching games
         typedef std::vector<gamenumT>::iterator iter;
-        iter it_begin = glist.begin();
-        iter it_end = glist.end();
-        iter it_res = glist.end();
+        iter                                    it_begin = glist.begin();
+        iter                                    it_end = glist.end();
+        iter                                    it_res = glist.end();
         for (size_t i = 0, n = params.size(); i < n; i++)
         {
             if (!progress.report(i, n))

@@ -28,7 +28,9 @@ namespace scid::core::pgn
      * @returns false when @p location is beyond the traversal range.
      */
     bool
-    seekLocation(GameCursor& cursor, unsigned location);
+    seekLocation(
+        GameCursor& cursor,
+        unsigned    location);
 
     /**
      * Returns the one-based PGN traversal location of a cursor.

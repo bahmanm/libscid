@@ -5,7 +5,7 @@
 
 static int
 check(
-    scid_error error,
+    scid_error  error,
     const char* call)
 {
     if (error == SCID_OK)
@@ -17,6 +17,7 @@ check(
     return 0;
 }
 
+
 static int
 contains(
     const char* text,
@@ -25,16 +26,16 @@ contains(
     return strstr(text, needle) != NULL;
 }
 
+
 int
-main(
-    void)
+main(void)
 {
-    const char* fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
+    const char*    fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
     scid_position* position = NULL;
-    scid_game* game = NULL;
-    char text[4096];
-    size_t text_size = 0;
-    size_t tag_count = 0;
+    scid_game*     game = NULL;
+    char           text[4096];
+    size_t         text_size = 0;
+    size_t         tag_count = 0;
 
     if (!check(scid_position_create_from_fen(fen, &position), "scid_position_create_from_fen") ||
         !check(scid_game_create_blank(position, &game), "scid_game_create_blank") ||

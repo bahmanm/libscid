@@ -37,7 +37,7 @@ namespace
 
     std::optional<scid::core::Position>
     currentPosition(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         scid::core::GameCursor cursor(game);
@@ -47,22 +47,24 @@ namespace
         return position;
     }
 
+
     void
     setCurrentComment(
-        scid::core::Game& game,
+        scid::core::Game&            game,
         scid::core::MovetextLocation location,
-        std::string_view comment)
+        std::string_view             comment)
     {
         scid::core::MovetextCursor cursor(game);
         ASSERT_TRUE(cursor.restore(location));
         ASSERT_TRUE(cursor.setComment(comment));
     }
 
+
     void
     addMove(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location,
-        scid::core::MoveSpec const& move)
+        scid::core::MoveSpec const&   move)
     {
         scid::core::MovetextCursor cursor(game);
         ASSERT_TRUE(cursor.restore(location));
@@ -70,9 +72,10 @@ namespace
         location = cursor.location();
     }
 
+
     void
     addVariation(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location)
     {
         scid::core::MovetextCursor cursor(game);
@@ -118,14 +121,12 @@ namespace
             scid::database::CodecType dbtype_;
 
         public:
-            Supports(
-                scid::database::CodecType dbtype)
-                : dbtype_(dbtype)
+            Supports(scid::database::CodecType dbtype) : dbtype_(dbtype)
             {}
 
+
             bool
-            operator()(
-                const std::string& feature) const
+            operator()(const std::string& feature) const
             {
                 auto it = std::find(
                     unsupportedVec.begin(), unsupportedVec.end(), std::make_pair(dbtype_, feature));
@@ -136,9 +137,9 @@ namespace
     template <int nGames, int maxMoves, int maxCommentLen> class GameGenerator
     {
             typedef std::vector<std::unique_ptr<scid::core::Game>> Vec;
-            Vec v_;
-            std::vector<std::vector<scid::core::byte>> encoded_;
-            std::mt19937 mt_;
+            Vec                                                    v_;
+            std::vector<std::vector<scid::core::byte>>             encoded_;
+            std::mt19937                                           mt_;
 
         public:
             const Vec&
@@ -155,6 +156,7 @@ namespace
                 return v_;
             }
 
+
             const std::vector<std::vector<scid::core::byte>>&
             getNative()
             {
@@ -164,10 +166,10 @@ namespace
                 return encoded_;
             }
 
+
             void
-            cmp(
-                scid::database::ICodecDatabase* codec,
-                const scid::database::Index& idx)
+            cmp(scid::database::ICodecDatabase* codec,
+                const scid::database::Index&    idx)
             {
                 auto encoded = getNative();
                 ASSERT_EQ(encoded.size(), size_t(idx.GetNumGames()));
@@ -193,12 +195,13 @@ namespace
                 }
             }
 
+
             std::unique_ptr<scid::core::Game>
             genGame()
             {
                 auto res = std::unique_ptr<scid::core::Game>(new scid::core::Game);
                 scid::core::MovetextLocation location;
-                scid::core::MoveList mlist;
+                scid::core::MoveList         mlist;
                 for (auto i = rand(0, maxMoves); i > 0; --i)
                 {
                     auto position = currentPosition(*res, location);
@@ -216,7 +219,7 @@ namespace
                     if (rand(0, 6) == 0)
                         setCurrentComment(*res, location, rand_comment());
 
-                    scid::core::GameCursor cursor(*res);
+                    scid::core::GameCursor      cursor(*res);
                     [[maybe_unused]] const bool restored = cursor.restore(location);
                     ASSERT(restored);
                     int varOp = rand(0, 80 + int(cursor.variationDepth()) * 20);
@@ -229,7 +232,7 @@ namespace
                         if (cursor.exitVariation())
                         {
                             location = cursor.location();
-                            scid::core::GameCursor nextCursor(*res);
+                            scid::core::GameCursor      nextCursor(*res);
                             [[maybe_unused]] const bool nextRestored = nextCursor.restore(location);
                             ASSERT(nextRestored);
                             if (nextCursor.next())
@@ -240,6 +243,7 @@ namespace
                 return res;
             }
 
+
             int
             rand(
                 int low,
@@ -248,11 +252,12 @@ namespace
                 return std::uniform_int_distribution<int>(low, up)(mt_);
             }
 
+
             std::string
             rand_comment()
             {
-                size_t len = rand(0, maxCommentLen);
-                std::string res(len, ' ');
+                size_t                             len = rand(0, maxCommentLen);
+                std::string                        res(len, ' ');
                 std::uniform_int_distribution<int> dist{33, 122};
                 std::generate_n(
                     res.begin(), res.size(), [&]() { return static_cast<char>(dist(mt_)); });
@@ -265,8 +270,8 @@ namespace
     void
     makeDatabase(
         scid::database::CodecType dbtype,
-        const char* test,
-        Oper op)
+        const char*               test,
+        Oper                      op)
     {
         Supports supports(dbtype);
         if (!supports(test))
@@ -288,9 +293,9 @@ namespace
         } cleanup;
 
         {
-            scid::database::Index idx;
+            scid::database::Index    idx;
             scid::database::NameBase nb;
-            auto err = scid::database::openCodec(
+            auto                     err = scid::database::openCodec(
                 dbtype, fMode, filename, scid::database::Progress(), &idx, &nb);
             auto codec = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
             ASSERT_NE(nullptr, codec);
@@ -306,9 +311,9 @@ namespace
 
         if (supports("FMODE" + std::to_string(scid::database::FMODE_ReadOnly)))
         {
-            scid::database::Index idx;
+            scid::database::Index    idx;
             scid::database::NameBase nb;
-            auto err = scid::database::openCodec(
+            auto                     err = scid::database::openCodec(
                 dbtype, scid::database::FMODE_ReadOnly, filename, scid::database::Progress(), &idx,
                 &nb);
             auto codec = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
@@ -332,7 +337,7 @@ TEST_P(
     fileModeT)
 {
     scid::database::CodecType dbtype = GetParam();
-    Supports supports(dbtype);
+    Supports                  supports(dbtype);
 
     struct Cleanup
     {
@@ -349,9 +354,9 @@ TEST_P(
 
     for (auto& fmode : fmodes)
     {
-        scid::database::Index idx;
+        scid::database::Index    idx;
         scid::database::NameBase nb;
-        auto err = scid::database::openCodec(
+        auto                     err = scid::database::openCodec(
             dbtype, fmode, filename, scid::database::Progress(), &idx, &nb);
         auto codec = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
 
@@ -377,16 +382,16 @@ TEST_P(
     create_emptyfilename)
 {
     scid::database::CodecType dbtype = GetParam();
-    Supports supports(dbtype);
+    Supports                  supports(dbtype);
 
     if (!supports("FMODE" + std::to_string(scid::database::FMODE_Create)))
     {
         return;
     }
 
-    scid::database::Index idx;
+    scid::database::Index    idx;
     scid::database::NameBase nb;
-    auto err = scid::database::openCodec(
+    auto                     err = scid::database::openCodec(
         dbtype, scid::database::FMODE_Create, "", scid::database::Progress(), &idx, &nb);
     auto codec = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
 
@@ -412,7 +417,7 @@ TEST_P(
     rename)
 {
     scid::database::CodecType dbtype = GetParam();
-    Supports supports(dbtype);
+    Supports                  supports(dbtype);
 
     if (!supports("FMODE" + std::to_string(scid::database::FMODE_Create)))
     {
@@ -436,9 +441,9 @@ TEST_P(
     } cleanup;
 
     {
-        scid::database::Index idx1, idx2;
+        scid::database::Index    idx1, idx2;
         scid::database::NameBase nb1, nb2;
-        auto err = scid::database::openCodec(
+        auto                     err = scid::database::openCodec(
             dbtype, scid::database::FMODE_Create, filename, scid::database::Progress(), &idx1,
             &nb1);
         auto codec1 = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
@@ -473,9 +478,9 @@ TEST_P(
 
     if (supports("FMODE" + std::to_string(scid::database::FMODE_ReadOnly)))
     {
-        scid::database::Index idx_reopen;
+        scid::database::Index    idx_reopen;
         scid::database::NameBase nb_reopen;
-        auto err = scid::database::openCodec(
+        auto                     err = scid::database::openCodec(
             dbtype, scid::database::FMODE_ReadOnly, filename, scid::database::Progress(),
             &idx_reopen, &nb_reopen);
         auto codec3 = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
@@ -487,4 +492,7 @@ TEST_P(
     }
 }
 
-INSTANTIATE_TEST_SUITE_P(CodecDatabase, Test_Codec, ::testing::ValuesIn(codecs));
+INSTANTIATE_TEST_SUITE_P(
+    CodecDatabase,
+    Test_Codec,
+    ::testing::ValuesIn(codecs));

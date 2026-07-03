@@ -95,7 +95,7 @@ namespace
         PrefersStoredSanWhenPresent)
     {
         scid::core::Game game;
-        auto& move = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
+        auto&            move = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
         move.san = "SAN";
         scid::core::GameCursor cursor(game);
 
@@ -143,7 +143,7 @@ namespace
         WritesCurrentPositionUciFromVariationCursor)
     {
         scid::core::Game game;
-        auto& first = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
+        auto&            first = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
         first.childVariations.emplace_back().line.moves.push_back(
             {quiet(scid::core::E2, scid::core::E4), "e4", {}, {}});
         first.childVariations[0].line.moves.push_back(

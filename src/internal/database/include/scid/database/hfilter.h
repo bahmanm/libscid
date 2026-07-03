@@ -47,22 +47,22 @@ namespace scid::database
      */
     class Filter
     {
-            std::unique_ptr<scid::core::byte[]> data_; // The actual filter data.
-            gamenumT size_;                            // Number of values in filter.
-            gamenumT nonzero_;                         // Number of nonzero values in filter.
-            size_t capacity_;                          // Number of values allocated for data_.
+            std::unique_ptr<scid::core::byte[]> data_;     // The actual filter data.
+            gamenumT                            size_;     // Number of values in filter.
+            gamenumT                            nonzero_;  // Number of nonzero values in filter.
+            size_t                              capacity_; // Number of values allocated for data_.
 
         public:
             /** Creates a filter of @p size games, all included at value 1. */
-            explicit Filter(
-                gamenumT size)
-                : size_(size), nonzero_(size), capacity_(0)
+            explicit Filter(gamenumT size)
+                : size_(size),
+                  nonzero_(size),
+                  capacity_(0)
             {}
 
             /** Resets the filter to @p size games, all included at value 1. */
             void
-            Init(
-                gamenumT size)
+            Init(gamenumT size)
             {
                 data_ = nullptr;
                 nonzero_ = size_ = size;
@@ -100,8 +100,7 @@ namespace scid::database
              * game, in which case the new games are also included.
              */
             void
-            Resize(
-                gamenumT size)
+            Resize(gamenumT size)
             {
                 if (!data_)
                 {
@@ -137,8 +136,7 @@ namespace scid::database
              * A null backing array is interpreted as value 1 for every game.
              */
             scid::core::byte
-            Get(
-                gamenumT index) const
+            Get(gamenumT index) const
             {
                 ASSERT(index < Size());
                 return data_ ? data_[index] : 1;
@@ -151,8 +149,7 @@ namespace scid::database
              * filter is currently in the lazy all-included state.
              */
             void
-            Set(
-                gamenumT index,
+            Set(gamenumT         index,
                 scid::core::byte value)
             {
                 ASSERT(index < Size());
@@ -186,8 +183,7 @@ namespace scid::database
              * representation.
              */
             void
-            Fill(
-                scid::core::byte value)
+            Fill(scid::core::byte value)
             {
                 if (value == 1)
                 {
@@ -207,8 +203,7 @@ namespace scid::database
 
         private:
             void
-            allocate(
-                size_t size)
+            allocate(size_t size)
             {
                 auto capacity = (size | 63) + 1;
                 data_ = std::make_unique<scid::core::byte[]>(capacity);
@@ -240,7 +235,7 @@ namespace scid::database
      */
     class HFilter
     {
-            Filter* main_;
+            Filter*       main_;
             const Filter* mask_;
 
         public:
@@ -252,25 +247,28 @@ namespace scid::database
              */
             class const_iterator
             {
-                    gamenumT gnum_;
-                    gamenumT end_;
+                    gamenumT       gnum_;
+                    gamenumT       end_;
                     const HFilter* hfilter_;
-                    bool inFilter_;
+                    bool           inFilter_;
 
                 public:
                     typedef std::forward_iterator_tag iterator_category;
-                    typedef std::ptrdiff_t difference_type;
-                    typedef gamenumT value_type;
-                    typedef const gamenumT* pointer;
-                    typedef const gamenumT& reference;
+                    typedef std::ptrdiff_t            difference_type;
+                    typedef gamenumT                  value_type;
+                    typedef const gamenumT*           pointer;
+                    typedef const gamenumT&           reference;
 
                     /** Creates an iterator positioned at the first matching game. */
                     const_iterator(
-                        gamenumT gnum,
-                        gamenumT end,
+                        gamenumT       gnum,
+                        gamenumT       end,
                         const HFilter* hfilter,
-                        bool inFilter = true)
-                        : gnum_(gnum), end_(end), hfilter_(hfilter), inFilter_(inFilter)
+                        bool           inFilter = true)
+                        : gnum_(gnum),
+                          end_(end),
+                          hfilter_(hfilter),
+                          inFilter_(inFilter)
                     {
                         ASSERT(hfilter != 0);
                         if (gnum_ != end_)
@@ -303,15 +301,13 @@ namespace scid::database
 
                     /** Returns true when the iterators point to different positions. */
                     bool
-                    operator!=(
-                        const const_iterator& b) const
+                    operator!=(const const_iterator& b) const
                     {
                         return gnum_ != b.gnum_ || hfilter_ != b.hfilter_;
                     }
                     /** Returns true when the iterators point to the same position. */
                     bool
-                    operator==(
-                        const const_iterator& b) const
+                    operator==(const const_iterator& b) const
                     {
                         return !operator!=(b);
                     }
@@ -351,15 +347,13 @@ namespace scid::database
         public: // Pointer interface
             /** Compares the main filter pointer with @p b. */
             bool
-            operator==(
-                const Filter* b) const
+            operator==(const Filter* b) const
             {
                 return main_ == b;
             }
             /** Compares the main filter pointer with @p b. */
             bool
-            operator!=(
-                const Filter* b) const
+            operator!=(const Filter* b) const
             {
                 return main_ != b;
             }
@@ -396,9 +390,10 @@ namespace scid::database
              * supplied, must remain alive too and is treated as read-only.
              */
             explicit HFilter(
-                Filter* main,
+                Filter*       main,
                 const Filter* mask = 0)
-                : main_(main), mask_(mask)
+                : main_(main),
+                  mask_(mask)
             {}
 
             /** Returns the mutable main filter. */
@@ -422,8 +417,7 @@ namespace scid::database
             }
             /** Excludes @p gnum from the main filter. */
             void
-            erase(
-                gamenumT gnum)
+            erase(gamenumT gnum)
             {
                 return main_->Set(gnum, 0);
             }
@@ -435,7 +429,7 @@ namespace scid::database
             void
             insert_or_assign(
                 gamenumT gnum,
-                uint8_t ply)
+                uint8_t  ply)
             {
                 return main_->Set(gnum, ply + 1);
             }
@@ -474,8 +468,7 @@ namespace scid::database
              * the mask's value is returned.
              */
             scid::core::byte
-            get(
-                gamenumT gnum) const
+            get(gamenumT gnum) const
             {
                 scid::core::byte res = main_->Get(gnum);
                 if (res != 0 && mask_ != 0)
@@ -490,8 +483,7 @@ namespace scid::database
              * Prefer @c insert_or_assign() when working with a zero-based ply hint.
              */
             void
-            set(
-                gamenumT gnum,
+            set(gamenumT         gnum,
                 scid::core::byte value)
             {
                 return main_->Set(gnum, value);
@@ -510,9 +502,7 @@ namespace scid::database
 
         public:
             /** Creates an inverted range over @p hfilter. */
-            explicit HFilterInverted(
-                const HFilter& hfilter)
-                : hfilter_(hfilter)
+            explicit HFilterInverted(const HFilter& hfilter) : hfilter_(hfilter)
             {
                 ASSERT(hfilter != 0);
             }

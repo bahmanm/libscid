@@ -42,12 +42,12 @@ struct scid_game_pgn_options
 
 struct scid_game_cursor
 {
-        scid_game* game = nullptr;
+        scid_game*                 game = nullptr;
         scid::core::MovetextCursor value;
 
-        explicit scid_game_cursor(
-            scid_game* source_game)
-            : game(source_game), value(source_game->value)
+        explicit scid_game_cursor(scid_game* source_game)
+            : game(source_game),
+              value(source_game->value)
         {}
 };
 
@@ -59,7 +59,7 @@ struct scid_eco_book
 struct scid_database
 {
         scid::database::scidBaseT value;
-        std::string type;
+        std::string               type;
 };
 
 namespace
@@ -77,16 +77,16 @@ namespace
     };
 
     bool
-    square_is_valid(
-        scid_square square)
+    square_is_valid(scid_square square)
     {
         return square <= scid::core::H8;
     }
 
+
     scid_error
     parse_square_chars(
-        char file,
-        char rank_text,
+        char         file,
+        char         rank_text,
         scid_square* out_square)
     {
         if (out_square == nullptr)
@@ -110,9 +110,10 @@ namespace
         return SCID_OK;
     }
 
+
     scid_error
     parse_square(
-        const char* text,
+        const char*  text,
         scid_square* out_square)
     {
         if (text == nullptr || out_square == nullptr)
@@ -128,18 +129,18 @@ namespace
         return parse_square_chars(text[0], text[1], out_square);
     }
 
+
     bool
-    promotion_is_valid(
-        scid_piece promotion)
+    promotion_is_valid(scid_piece promotion)
     {
         return promotion == SCID_PIECE_NONE || promotion == SCID_PIECE_QUEEN ||
                promotion == SCID_PIECE_ROOK || promotion == SCID_PIECE_BISHOP ||
                promotion == SCID_PIECE_KNIGHT;
     }
 
+
     char
-    promotion_to_char(
-        scid_piece promotion)
+    promotion_to_char(scid_piece promotion)
     {
         switch (promotion)
         {
@@ -156,9 +157,10 @@ namespace
         }
     }
 
+
     scid_error
     promotion_from_char(
-        char text,
+        char        text,
         scid_piece* out_piece)
     {
         if (out_piece == nullptr)
@@ -189,12 +191,13 @@ namespace
         }
     }
 
+
     scid_error
     write_text(
         std::string_view text,
-        char* out_text,
-        size_t out_text_capacity,
-        size_t* out_text_size)
+        char*            out_text,
+        size_t           out_text_capacity,
+        size_t*          out_text_size)
     {
         if (out_text_size == nullptr)
         {
@@ -223,6 +226,7 @@ namespace
         return SCID_OK;
     }
 
+
     scid_error
     write_bool(
         bool value,
@@ -237,9 +241,10 @@ namespace
         return SCID_OK;
     }
 
+
     scid_error
     write_size(
-        size_t value,
+        size_t  value,
         size_t* out_value)
     {
         if (out_value == nullptr)
@@ -251,16 +256,17 @@ namespace
         return SCID_OK;
     }
 
+
     scid_piece
-    piece_to_c(
-        scid::core::pieceT piece)
+    piece_to_c(scid::core::pieceT piece)
     {
         return piece == scid::core::EMPTY ? SCID_PIECE_NONE : piece;
     }
 
+
     scid_error
     movespec_to_core(
-        scid_movespec move,
+        scid_movespec         move,
         scid::core::MoveSpec* out_move)
     {
         if (out_move == nullptr)
@@ -287,9 +293,9 @@ namespace
         return SCID_OK;
     }
 
+
     scid_movespec
-    movespec_from_core(
-        const scid::core::MoveSpec& move)
+    movespec_from_core(const scid::core::MoveSpec& move)
     {
         return {
             move.from, move.to,
@@ -298,10 +304,11 @@ namespace
             move.castling ? 1 : 0};
     }
 
+
     scid_error
     write_move_spec(
         const scid::core::Move* move,
-        scid_movespec* out_move)
+        scid_movespec*          out_move)
     {
         if (out_move == nullptr)
         {
@@ -317,12 +324,13 @@ namespace
         return SCID_OK;
     }
 
+
     scid_error
     write_move_comment(
         const scid::core::Move* move,
-        char* out_text,
-        size_t out_text_capacity,
-        size_t* out_text_size)
+        char*                   out_text,
+        size_t                  out_text_capacity,
+        size_t*                 out_text_size)
     {
         if (out_text_size == nullptr)
         {
@@ -337,10 +345,11 @@ namespace
         return write_text(move->metadata.comment, out_text, out_text_capacity, out_text_size);
     }
 
+
     scid_error
     write_move_nag_count(
         const scid::core::Move* move,
-        size_t* out_count)
+        size_t*                 out_count)
     {
         if (out_count == nullptr)
         {
@@ -355,11 +364,12 @@ namespace
         return write_size(move->metadata.nags.size(), out_count);
     }
 
+
     scid_error
     write_move_nag_at(
         const scid::core::Move* move,
-        size_t index,
-        scid_nag* out_nag)
+        size_t                  index,
+        scid_nag*               out_nag)
     {
         if (out_nag == nullptr)
         {
@@ -380,25 +390,26 @@ namespace
         return SCID_OK;
     }
 
+
     bool
-    nag_is_move_annotation(
-        scid::core::Nag nag)
+    nag_is_move_annotation(scid::core::Nag nag)
     {
         const auto value = scid::core::nagCode(nag);
         return value >= 1 && value <= 6;
     }
 
+
     bool
-    nag_is_position_annotation(
-        scid::core::Nag nag)
+    nag_is_position_annotation(scid::core::Nag nag)
     {
         const auto value = scid::core::nagCode(nag);
         return value >= 10 && value <= 21;
     }
 
+
     scid_error
     validate_move_at_cursor(
-        const scid_game_cursor* cursor,
+        const scid_game_cursor*     cursor,
         const scid::core::MoveSpec& move)
     {
         scid::core::GameCursor read_cursor(cursor->game->value);
@@ -416,9 +427,10 @@ namespace
         return position->applyMove(move);
     }
 
+
     scid_error
     validate_cursor_game(
-        scid_game* game,
+        scid_game*              game,
         const scid_game_cursor* cursor)
     {
         if (game == nullptr || cursor == nullptr || cursor->game != game)
@@ -429,11 +441,12 @@ namespace
         return SCID_OK;
     }
 
+
     scid_error
     create_cursor_at(
-        scid_game* game,
+        scid_game*                          game,
         const scid::core::MovetextLocation& location,
-        scid_game_cursor** out_cursor)
+        scid_game_cursor**                  out_cursor)
     {
         if (game == nullptr || out_cursor == nullptr)
         {
@@ -460,10 +473,11 @@ namespace
         }
     }
 
+
     scid_error
     create_cursor_copy(
         const scid_game_cursor* source_cursor,
-        scid_game_cursor** out_cursor)
+        scid_game_cursor**      out_cursor)
     {
         if (source_cursor == nullptr)
         {
@@ -473,9 +487,9 @@ namespace
         return create_cursor_at(source_cursor->game, source_cursor->value.location(), out_cursor);
     }
 
+
     std::string_view
-    eco_name_from_line(
-        std::string_view line)
+    eco_name_from_line(std::string_view line)
     {
         const auto name_start = line.find('[');
         const auto name_end = line.rfind(']');
@@ -488,18 +502,19 @@ namespace
         return line.substr(name_start + 1, name_end - name_start - 1);
     }
 
+
     std::string
-    date_to_string(
-        scid::core::dateT date)
+    date_to_string(scid::core::dateT date)
     {
         char text[16] = {};
         scid::core::date_DecodeToString(date, text);
         return text;
     }
 
+
     bool
     database_game_index_to_core(
-        size_t index,
+        size_t                    index,
         scid::database::gamenumT* out_index)
     {
         if (out_index == nullptr || index > std::numeric_limits<scid::database::gamenumT>::max())
@@ -511,11 +526,12 @@ namespace
         return true;
     }
 
+
     bool
     database_game_info_get(
         const scid::database::scidBaseT& database,
-        size_t index,
-        scid::database::GameInfo* out_info)
+        size_t                           index,
+        scid::database::GameInfo*        out_info)
     {
         if (out_info == nullptr)
         {
@@ -538,11 +554,12 @@ namespace
         return true;
     }
 
+
     bool
     database_game_index_is_valid(
         const scid::database::scidBaseT& database,
-        size_t index,
-        scid::database::gamenumT* out_index)
+        size_t                           index,
+        scid::database::gamenumT*        out_index)
     {
         scid::database::gamenumT game_index = 0;
         if (!database_game_index_to_core(index, &game_index) ||
@@ -559,9 +576,9 @@ namespace
         return true;
     }
 
+
     scid_error
-    database_error_to_c(
-        scid::core::errorT error)
+    database_error_to_c(scid::core::errorT error)
     {
         switch (error)
         {
@@ -580,31 +597,32 @@ namespace
         }
     }
 
+
     bool
-    filter_value_is_valid(
-        unsigned value)
+    filter_value_is_valid(unsigned value)
     {
         return value <= std::numeric_limits<scid::core::byte>::max();
     }
 
+
     bool
-    database_filter_id_is_builtin(
-        std::string_view filter_id)
+    database_filter_id_is_builtin(std::string_view filter_id)
     {
         return filter_id == "all" || filter_id == "dbfilter";
     }
 
+
     bool
-    database_filter_id_is_mutable(
-        std::string_view filter_id)
+    database_filter_id_is_mutable(std::string_view filter_id)
     {
         return filter_id != "all";
     }
 
+
     bool
     database_filter_get(
-        const scid_database* database,
-        const char* filter_id,
+        const scid_database*     database,
+        const char*              filter_id,
         scid::database::HFilter* out_filter)
     {
         if (database == nullptr || filter_id == nullptr || out_filter == nullptr ||
@@ -623,12 +641,13 @@ namespace
         return true;
     }
 
+
     scid_error
     database_open(
-        std::string_view db_type,
+        std::string_view          db_type,
         scid::database::fileModeT mode,
-        const char* path,
-        scid_database** out_database)
+        const char*               path,
+        scid_database**           out_database)
     {
         if (path == nullptr || out_database == nullptr)
         {
@@ -637,7 +656,7 @@ namespace
 
         try
         {
-            auto* database = new scid_database;
+            auto*      database = new scid_database;
             const auto error = database->value.open(db_type, mode, path);
             if (error != scid::core::OK)
             {
@@ -669,9 +688,10 @@ namespace
         }
     }
 
+
     scid_error
     result_from_string(
-        std::string_view text,
+        std::string_view     text,
         scid::core::resultT* out_result)
     {
         if (out_result == nullptr)
@@ -706,19 +726,20 @@ namespace
         return SCID_ERROR_BAD_ARG;
     }
 
+
     std::string
-    position_fen(
-        const scid::core::Position& position)
+    position_fen(const scid::core::Position& position)
     {
         char fen[256];
         position.PrintFEN(fen, sizeof(fen));
         return fen;
     }
 
+
     std::string
     game_tag_value(
         const scid::core::Game& game,
-        std::string_view name)
+        std::string_view        name)
     {
         if (name == "Event")
         {
@@ -777,10 +798,11 @@ namespace
         return {};
     }
 
+
     bool
     game_has_special_tag(
         const scid::core::Game& game,
-        std::string_view name)
+        std::string_view        name)
     {
         if (name == "ECO")
         {
@@ -798,9 +820,9 @@ namespace
         return false;
     }
 
+
     size_t
-    game_tag_count(
-        const scid::core::Game& game)
+    game_tag_count(const scid::core::Game& game)
     {
         size_t count = pgn_roster_tag_count + game.extraTags().size();
         for (const auto tag : pgn_special_tags)
@@ -818,12 +840,13 @@ namespace
         return count;
     }
 
+
     bool
     game_tag_at(
         const scid::core::Game& game,
-        size_t index,
-        std::string_view* out_name,
-        std::string* out_value)
+        size_t                  index,
+        std::string_view*       out_name,
+        std::string*            out_value)
     {
         if (out_name == nullptr || out_value == nullptr)
         {
@@ -875,11 +898,12 @@ namespace
         return false;
     }
 
+
     std::string
     database_game_tag_value(
         const scid::database::scidBaseT& database,
-        scid::database::gamenumT index,
-        std::string_view name)
+        scid::database::gamenumT         index,
+        std::string_view                 name)
     {
         const auto info = database.gameInfo(index);
         const auto tags = database.tagRoster(index);
@@ -926,11 +950,12 @@ namespace
         return {};
     }
 
+
     scid_error
     game_set_tag(
         scid::core::Game& game,
-        std::string_view name,
-        std::string_view value)
+        std::string_view  name,
+        std::string_view  value)
     {
         if (name == "Date")
         {
@@ -962,12 +987,13 @@ namespace
         return SCID_OK;
     }
 
+
     scid_error
     write_optional_diagnostic(
         std::string_view text,
-        char* out_text,
-        size_t out_text_capacity,
-        size_t* out_text_size)
+        char*            out_text,
+        size_t           out_text_capacity,
+        size_t*          out_text_size)
     {
         if (out_text == nullptr && out_text_capacity == 0 && out_text_size == nullptr)
         {
@@ -976,13 +1002,14 @@ namespace
 
         return write_text(text, out_text, out_text_capacity, out_text_size);
     }
+
 
     scid_error
     write_optional_text(
         std::string_view text,
-        char* out_text,
-        size_t out_text_capacity,
-        size_t* out_text_size)
+        char*            out_text,
+        size_t           out_text_capacity,
+        size_t*          out_text_size)
     {
         if (out_text == nullptr && out_text_capacity == 0 && out_text_size == nullptr)
         {
@@ -992,10 +1019,11 @@ namespace
         return write_text(text, out_text, out_text_capacity, out_text_size);
     }
 
+
     scid_error
     write_position(
         const scid::core::Position& source,
-        scid_position* out_position)
+        scid_position*              out_position)
     {
         if (out_position == nullptr)
         {
@@ -1006,12 +1034,13 @@ namespace
         return SCID_OK;
     }
 
+
     scid::core::Position
-    game_start_position(
-        const scid::core::Game& game)
+    game_start_position(const scid::core::Game& game)
     {
         return game.startPosition() ? *game.startPosition() : scid::core::Position::getStdStart();
     }
+
 
     bool
     positions_match(
@@ -1021,10 +1050,11 @@ namespace
         return position_fen(lhs) == position_fen(rhs);
     }
 
+
     scid_error
     validate_move_sequence(
         const scid::core::MoveSequence& sequence,
-        const scid::core::Position& start_position)
+        const scid::core::Position&     start_position)
     {
         auto position = start_position;
         for (const auto& move : sequence.moves)
@@ -1047,9 +1077,10 @@ namespace
         return SCID_OK;
     }
 
+
     scid_error
     append_move_sequence(
-        scid::core::MovetextCursor& cursor,
+        scid::core::MovetextCursor&     cursor,
         const scid::core::MoveSequence& sequence)
     {
         for (const auto& source_move : sequence.moves)
@@ -1063,10 +1094,11 @@ namespace
         return SCID_OK;
     }
 
+
     scid_error
     maybe_set_line_start_comment(
         scid::core::MovetextCursor& cursor,
-        std::string_view comment)
+        std::string_view            comment)
     {
         if (comment.empty() || !cursor.isAtLineStart())
         {
@@ -1078,20 +1110,22 @@ namespace
 
 }
 
+
 scid_error
 scid_square_from_string(
-    const char* text,
+    const char*  text,
     scid_square* out_square)
 {
     return parse_square(text, out_square);
 }
 
+
 scid_error
 scid_square_to_string(
     scid_square square,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*       out_text,
+    size_t      out_text_capacity,
+    size_t*     out_text_size)
 {
     if (!square_is_valid(square))
     {
@@ -1104,6 +1138,7 @@ scid_square_to_string(
 
     return write_text(text, out_text, out_text_capacity, out_text_size);
 }
+
 
 scid_error
 scid_piece_type_from_string(
@@ -1151,12 +1186,13 @@ scid_piece_type_from_string(
     }
 }
 
+
 scid_error
 scid_movespec_create(
-    scid_square from,
-    scid_square to,
-    scid_piece promotion,
-    int is_castling,
+    scid_square    from,
+    scid_square    to,
+    scid_piece     promotion,
+    int            is_castling,
     scid_movespec* out_move)
 {
     if (out_move == nullptr)
@@ -1169,9 +1205,10 @@ scid_movespec_create(
     return SCID_OK;
 }
 
+
 scid_error
 scid_movespec_create_from_uci(
-    const char* text,
+    const char*    text,
     scid_movespec* out_move)
 {
     if (text == nullptr || out_move == nullptr)
@@ -1198,7 +1235,7 @@ scid_movespec_create_from_uci(
 
     scid_square from = 0;
     scid_square to = 0;
-    scid_piece promotion = SCID_PIECE_NONE;
+    scid_piece  promotion = SCID_PIECE_NONE;
 
     if (parse_square_chars(text[0], text[1], &from) != SCID_OK ||
         parse_square_chars(text[2], text[3], &to) != SCID_OK)
@@ -1215,12 +1252,13 @@ scid_movespec_create_from_uci(
     return SCID_OK;
 }
 
+
 scid_error
 scid_movespec_to_uci(
     scid_movespec move,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*         out_text,
+    size_t        out_text_capacity,
+    size_t*       out_text_size)
 {
     if (!promotion_is_valid(move.promotion))
     {
@@ -1253,11 +1291,12 @@ scid_movespec_to_uci(
     return write_text(text, out_text, out_text_capacity, out_text_size);
 }
 
+
 scid_error
 scid_movespec_create_from_san(
     const scid_position* position,
-    const char* text,
-    scid_movespec* out_move)
+    const char*          text,
+    scid_movespec*       out_move)
 {
     if (position == nullptr || text == nullptr || out_move == nullptr)
     {
@@ -1267,7 +1306,7 @@ scid_movespec_create_from_san(
     try
     {
         scid::core::MoveSpec move;
-        const scid_error error =
+        const scid_error     error =
             const_cast<scid::core::Position&>(position->value).parseMoveSpec(move, text);
         if (error != SCID_OK)
         {
@@ -1283,13 +1322,14 @@ scid_movespec_create_from_san(
     }
 }
 
+
 scid_error
 scid_movespec_to_san(
     const scid_position* position,
-    scid_movespec move,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    scid_movespec        move,
+    char*                out_text,
+    size_t               out_text_capacity,
+    size_t*              out_text_size)
 {
     if (position == nullptr)
     {
@@ -1319,10 +1359,11 @@ scid_movespec_to_san(
     }
 }
 
+
 scid_error
 scid_nag_create_from_string(
     const char* text,
-    scid_nag* out_nag)
+    scid_nag*   out_nag)
 {
     if (text == nullptr || out_nag == nullptr)
     {
@@ -1340,13 +1381,14 @@ scid_nag_create_from_string(
     }
 }
 
+
 scid_error
 scid_nag_to_string(
     scid_nag nag,
-    int as_symbol,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    int      as_symbol,
+    char*    out_text,
+    size_t   out_text_capacity,
+    size_t*  out_text_size)
 {
     try
     {
@@ -1361,9 +1403,10 @@ scid_nag_to_string(
     }
 }
 
+
 scid_error
 scid_position_create_from_fen(
-    const char* fen,
+    const char*     fen,
     scid_position** out_position)
 {
     if (fen == nullptr || out_position == nullptr)
@@ -1373,7 +1416,7 @@ scid_position_create_from_fen(
 
     try
     {
-        auto* position = new scid_position;
+        auto*            position = new scid_position;
         const scid_error error = position->value.ReadFromFEN(fen);
         if (error != SCID_OK)
         {
@@ -1392,11 +1435,12 @@ scid_position_create_from_fen(
     }
 }
 
+
 scid_error
 scid_position_create_with_san(
     const scid_position* position,
-    const char* san,
-    scid_position** out_position)
+    const char*          san,
+    scid_position**      out_position)
 {
     if (position == nullptr || san == nullptr || out_position == nullptr)
     {
@@ -1434,11 +1478,12 @@ scid_position_create_with_san(
     }
 }
 
+
 scid_error
 scid_position_create_with_uci(
     const scid_position* position,
-    const char* uci,
-    scid_position** out_position)
+    const char*          uci,
+    scid_position**      out_position)
 {
     if (position == nullptr || uci == nullptr || out_position == nullptr)
     {
@@ -1476,19 +1521,20 @@ scid_position_create_with_uci(
     }
 }
 
+
 void
-scid_position_free(
-    scid_position* position)
+scid_position_free(scid_position* position)
 {
     delete position;
 }
 
+
 scid_error
 scid_position_to_fen(
     const scid_position* position,
-    char* out_fen,
-    size_t out_fen_capacity,
-    size_t* out_fen_size)
+    char*                out_fen,
+    size_t               out_fen_capacity,
+    size_t*              out_fen_size)
 {
     if (position == nullptr)
     {
@@ -1507,10 +1553,11 @@ scid_position_to_fen(
     }
 }
 
+
 scid_error
 scid_position_apply_san(
     scid_position* position,
-    const char* san)
+    const char*    san)
 {
     if (position == nullptr || san == nullptr)
     {
@@ -1533,10 +1580,11 @@ scid_position_apply_san(
     }
 }
 
+
 scid_error
 scid_position_apply_uci(
     scid_position* position,
-    const char* uci)
+    const char*    uci)
 {
     if (position == nullptr || uci == nullptr)
     {
@@ -1560,10 +1608,11 @@ scid_position_apply_uci(
     }
 }
 
+
 scid_error
 scid_position_is_start(
     const scid_position* position,
-    int* out_is_start)
+    int*                 out_is_start)
 {
     if (position == nullptr)
     {
@@ -1573,10 +1622,11 @@ scid_position_is_start(
     return write_bool(position->value.IsStdStart(), out_is_start);
 }
 
+
 scid_error
 scid_position_is_check(
     const scid_position* position,
-    int* out_is_check)
+    int*                 out_is_check)
 {
     if (position == nullptr)
     {
@@ -1594,10 +1644,11 @@ scid_position_is_check(
     }
 }
 
+
 scid_error
 scid_position_is_checkmate(
     const scid_position* position,
-    int* out_is_checkmate)
+    int*                 out_is_checkmate)
 {
     if (position == nullptr)
     {
@@ -1615,10 +1666,11 @@ scid_position_is_checkmate(
     }
 }
 
+
 scid_error
 scid_position_is_legal(
     const scid_position* position,
-    int* out_is_legal)
+    int*                 out_is_legal)
 {
     if (position == nullptr)
     {
@@ -1636,10 +1688,11 @@ scid_position_is_legal(
     }
 }
 
+
 scid_error
 scid_position_side_to_move_get(
     const scid_position* position,
-    scid_colour* out_side_to_move)
+    scid_colour*         out_side_to_move)
 {
     if (position == nullptr || out_side_to_move == nullptr)
     {
@@ -1650,10 +1703,11 @@ scid_position_side_to_move_get(
     return SCID_OK;
 }
 
+
 scid_error
 scid_position_fullmove_number_get(
     const scid_position* position,
-    unsigned* out_fullmove_number)
+    unsigned*            out_fullmove_number)
 {
     if (position == nullptr || out_fullmove_number == nullptr)
     {
@@ -1664,10 +1718,11 @@ scid_position_fullmove_number_get(
     return SCID_OK;
 }
 
+
 scid_error
 scid_position_halfmove_clock_get(
     const scid_position* position,
-    unsigned* out_halfmove_clock)
+    unsigned*            out_halfmove_clock)
 {
     if (position == nullptr || out_halfmove_clock == nullptr)
     {
@@ -1678,11 +1733,12 @@ scid_position_halfmove_clock_get(
     return SCID_OK;
 }
 
+
 scid_error
 scid_position_piece_at_get(
     const scid_position* position,
-    scid_square square,
-    scid_piece* out_piece)
+    scid_square          square,
+    scid_piece*          out_piece)
 {
     if (position == nullptr || out_piece == nullptr)
     {
@@ -1698,10 +1754,11 @@ scid_position_piece_at_get(
     return SCID_OK;
 }
 
+
 scid_error
 scid_game_create_blank(
     const scid_position* position,
-    scid_game** out_game)
+    scid_game**          out_game)
 {
     if (position == nullptr || out_game == nullptr)
     {
@@ -1726,15 +1783,16 @@ scid_game_create_blank(
     }
 }
 
+
 scid_error
 scid_game_create(
     const scid_position* position,
-    const char* pgn,
-    size_t pgn_size,
-    scid_game** out_game,
-    char* out_diagnostic,
-    size_t out_diagnostic_capacity,
-    size_t* out_diagnostic_size)
+    const char*          pgn,
+    size_t               pgn_size,
+    scid_game**          out_game,
+    char*                out_diagnostic,
+    size_t               out_diagnostic_capacity,
+    size_t*              out_diagnostic_size)
 {
     if (position == nullptr || pgn == nullptr || out_game == nullptr)
     {
@@ -1750,7 +1808,7 @@ scid_game_create(
         }
 
         scid::core::pgn::ParseLog log;
-        const bool ok = scid::core::pgn::parseGame(pgn, pgn_size, game->value, log);
+        const bool                ok = scid::core::pgn::parseGame(pgn, pgn_size, game->value, log);
 
         const scid_error diagnostic_error = write_optional_diagnostic(
             log.log, out_diagnostic, out_diagnostic_capacity, out_diagnostic_size);
@@ -1778,16 +1836,16 @@ scid_game_create(
     }
 }
 
+
 void
-scid_game_free(
-    scid_game* game)
+scid_game_free(scid_game* game)
 {
     delete game;
 }
 
+
 scid_error
-scid_game_pgn_options_create(
-    scid_game_pgn_options** out_options)
+scid_game_pgn_options_create(scid_game_pgn_options** out_options)
 {
     if (out_options == nullptr)
     {
@@ -1806,17 +1864,18 @@ scid_game_pgn_options_create(
     }
 }
 
+
 void
-scid_game_pgn_options_free(
-    scid_game_pgn_options* options)
+scid_game_pgn_options_free(scid_game_pgn_options* options)
 {
     delete options;
 }
 
+
 scid_error
 scid_game_pgn_options_symbolic_nags_set(
     scid_game_pgn_options* options,
-    int enabled)
+    int                    enabled)
 {
     if (options == nullptr)
     {
@@ -1827,10 +1886,11 @@ scid_game_pgn_options_symbolic_nags_set(
     return SCID_OK;
 }
 
+
 scid_error
 scid_game_pgn_options_supplemental_tags_set(
     scid_game_pgn_options* options,
-    int enabled)
+    int                    enabled)
 {
     if (options == nullptr)
     {
@@ -1841,10 +1901,11 @@ scid_game_pgn_options_supplemental_tags_set(
     return SCID_OK;
 }
 
+
 scid_error
 scid_game_pgn_options_comments_set(
     scid_game_pgn_options* options,
-    int enabled)
+    int                    enabled)
 {
     if (options == nullptr)
     {
@@ -1855,10 +1916,11 @@ scid_game_pgn_options_comments_set(
     return SCID_OK;
 }
 
+
 scid_error
 scid_game_pgn_options_variations_set(
     scid_game_pgn_options* options,
-    int enabled)
+    int                    enabled)
 {
     if (options == nullptr)
     {
@@ -1869,10 +1931,11 @@ scid_game_pgn_options_variations_set(
     return SCID_OK;
 }
 
+
 scid_error
 scid_game_pgn_options_line_width_set(
     scid_game_pgn_options* options,
-    unsigned line_width)
+    unsigned               line_width)
 {
     if (options == nullptr)
     {
@@ -1890,13 +1953,14 @@ scid_game_pgn_options_line_width_set(
     return SCID_OK;
 }
 
+
 scid_error
 scid_game_to_pgn(
-    const scid_game* game,
+    const scid_game*             game,
     const scid_game_pgn_options* options,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*                        out_text,
+    size_t                       out_text_capacity,
+    size_t*                      out_text_size)
 {
     if (game == nullptr)
     {
@@ -1906,7 +1970,7 @@ scid_game_to_pgn(
     try
     {
         std::string pgn;
-        const auto encode_options =
+        const auto  encode_options =
             options == nullptr ? scid::core::pgn::EncodeOptions{} : options->value;
         scid::core::pgn::encode(game->value, pgn, encode_options);
         return write_text(pgn, out_text, out_text_capacity, out_text_size);
@@ -1917,10 +1981,11 @@ scid_game_to_pgn(
     }
 }
 
+
 scid_error
 scid_game_mainline_halfmove_count_get(
     const scid_game* game,
-    size_t* out_count)
+    size_t*          out_count)
 {
     if (game == nullptr || out_count == nullptr)
     {
@@ -1937,12 +2002,13 @@ scid_game_mainline_halfmove_count_get(
     }
 }
 
+
 scid_error
 scid_game_initial_comment_get(
     const scid_game* game,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*            out_text,
+    size_t           out_text_capacity,
+    size_t*          out_text_size)
 {
     if (game == nullptr)
     {
@@ -1959,13 +2025,14 @@ scid_game_initial_comment_get(
     }
 }
 
+
 scid_error
 scid_game_tag_get(
     const scid_game* game,
-    const char* name,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    const char*      name,
+    char*            out_text,
+    size_t           out_text_capacity,
+    size_t*          out_text_size)
 {
     if (game == nullptr || name == nullptr)
     {
@@ -1983,9 +2050,10 @@ scid_game_tag_get(
     }
 }
 
+
 scid_error
 scid_game_tag_set(
-    scid_game* game,
+    scid_game*  game,
     const char* name,
     const char* value)
 {
@@ -2004,10 +2072,11 @@ scid_game_tag_set(
     }
 }
 
+
 scid_error
 scid_game_tag_count_get(
     const scid_game* game,
-    size_t* out_count)
+    size_t*          out_count)
 {
     if (game == nullptr || out_count == nullptr)
     {
@@ -2024,16 +2093,17 @@ scid_game_tag_count_get(
     }
 }
 
+
 scid_error
 scid_game_tag_at_get(
     const scid_game* game,
-    size_t index,
-    char* out_name,
-    size_t out_name_capacity,
-    size_t* out_name_size,
-    char* out_value,
-    size_t out_value_capacity,
-    size_t* out_value_size)
+    size_t           index,
+    char*            out_name,
+    size_t           out_name_capacity,
+    size_t*          out_name_size,
+    char*            out_value,
+    size_t           out_value_capacity,
+    size_t*          out_value_size)
 {
     if (game == nullptr)
     {
@@ -2043,7 +2113,7 @@ scid_game_tag_at_get(
     try
     {
         std::string_view name;
-        std::string value;
+        std::string      value;
         if (!game_tag_at(game->value, index, &name, &value))
         {
             return SCID_ERROR_BAD_ARG;
@@ -2063,11 +2133,12 @@ scid_game_tag_at_get(
     }
 }
 
+
 scid_error
 scid_game_tag_remove(
-    scid_game* game,
+    scid_game*  game,
     const char* name,
-    int* out_removed)
+    int*        out_removed)
 {
     if (game == nullptr || name == nullptr || out_removed == nullptr)
     {
@@ -2114,10 +2185,11 @@ scid_game_tag_remove(
     }
 }
 
+
 scid_error
 scid_game_start_position_get(
     const scid_game* game,
-    scid_position* out_position)
+    scid_position*   out_position)
 {
     if (game == nullptr)
     {
@@ -2139,10 +2211,11 @@ scid_game_start_position_get(
     }
 }
 
+
 scid_error
 scid_game_final_position_get(
     const scid_game* game,
-    scid_position* out_position)
+    scid_position*   out_position)
 {
     if (game == nullptr)
     {
@@ -2167,13 +2240,14 @@ scid_game_final_position_get(
     }
 }
 
+
 scid_error
 scid_game_merge_moves(
-    scid_game* target_game,
-    const scid_game_cursor* target_cursor,
-    const scid_game* source_game,
+    scid_game*                 target_game,
+    const scid_game_cursor*    target_cursor,
+    const scid_game*           source_game,
     scid_game_merge_moves_mode mode,
-    scid_game_cursor** out_cursor)
+    scid_game_cursor**         out_cursor)
 {
     if (out_cursor == nullptr)
     {
@@ -2193,7 +2267,7 @@ scid_game_merge_moves(
     }
 
     scid::core::Game backup;
-    bool has_backup = false;
+    bool             has_backup = false;
 
     try
     {
@@ -2306,9 +2380,10 @@ scid_game_merge_moves(
     }
 }
 
+
 scid_error
 scid_game_cursor_create(
-    scid_game* game,
+    scid_game*         game,
     scid_game_cursor** out_cursor)
 {
     if (game == nullptr || out_cursor == nullptr)
@@ -2328,11 +2403,12 @@ scid_game_cursor_create(
     }
 }
 
+
 scid_error
 scid_game_cursor_clone(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* source_cursor,
-    scid_game_cursor** out_cursor)
+    scid_game_cursor**      out_cursor)
 {
     if (out_cursor == nullptr)
     {
@@ -2347,17 +2423,18 @@ scid_game_cursor_clone(
     return create_cursor_copy(source_cursor, out_cursor);
 }
 
+
 void
-scid_game_cursor_free(
-    scid_game_cursor* cursor)
+scid_game_cursor_free(scid_game_cursor* cursor)
 {
     delete cursor;
 }
 
+
 scid_error
 scid_game_cursor_position_get(
     const scid_game_cursor* cursor,
-    scid_position* out_position)
+    scid_position*          out_position)
 {
     if (cursor == nullptr)
     {
@@ -2386,10 +2463,11 @@ scid_game_cursor_position_get(
     }
 }
 
+
 scid_error
 scid_game_cursor_ply_get(
     const scid_game_cursor* cursor,
-    size_t* out_ply)
+    size_t*                 out_ply)
 {
     if (cursor == nullptr)
     {
@@ -2399,10 +2477,11 @@ scid_game_cursor_ply_get(
     return write_size(cursor->value.ply(), out_ply);
 }
 
+
 scid_error
 scid_game_cursor_variation_count_get(
     const scid_game_cursor* cursor,
-    size_t* out_count)
+    size_t*                 out_count)
 {
     if (cursor == nullptr)
     {
@@ -2412,10 +2491,11 @@ scid_game_cursor_variation_count_get(
     return write_size(cursor->value.variationCount(), out_count);
 }
 
+
 scid_error
 scid_game_cursor_variation_depth_get(
     const scid_game_cursor* cursor,
-    size_t* out_depth)
+    size_t*                 out_depth)
 {
     if (cursor == nullptr)
     {
@@ -2425,10 +2505,11 @@ scid_game_cursor_variation_depth_get(
     return write_size(cursor->value.variationDepth(), out_depth);
 }
 
+
 scid_error
 scid_game_cursor_variation_index_get(
     const scid_game_cursor* cursor,
-    size_t* out_index)
+    size_t*                 out_index)
 {
     if (cursor == nullptr)
     {
@@ -2438,10 +2519,11 @@ scid_game_cursor_variation_index_get(
     return write_size(cursor->value.variationIndex(), out_index);
 }
 
+
 scid_error
 scid_game_cursor_is_line_start(
     const scid_game_cursor* cursor,
-    int* out_is_line_start)
+    int*                    out_is_line_start)
 {
     if (cursor == nullptr)
     {
@@ -2451,10 +2533,11 @@ scid_game_cursor_is_line_start(
     return write_bool(cursor->value.isAtLineStart(), out_is_line_start);
 }
 
+
 scid_error
 scid_game_cursor_is_line_end(
     const scid_game_cursor* cursor,
-    int* out_is_line_end)
+    int*                    out_is_line_end)
 {
     if (cursor == nullptr)
     {
@@ -2464,10 +2547,11 @@ scid_game_cursor_is_line_end(
     return write_bool(cursor->value.isAtLineEnd(), out_is_line_end);
 }
 
+
 scid_error
 scid_game_cursor_is_game_start(
     const scid_game_cursor* cursor,
-    int* out_is_game_start)
+    int*                    out_is_game_start)
 {
     if (cursor == nullptr)
     {
@@ -2477,10 +2561,11 @@ scid_game_cursor_is_game_start(
     return write_bool(cursor->value.isAtGameStart(), out_is_game_start);
 }
 
+
 scid_error
 scid_game_cursor_is_game_end(
     const scid_game_cursor* cursor,
-    int* out_is_game_end)
+    int*                    out_is_game_end)
 {
     if (cursor == nullptr)
     {
@@ -2490,10 +2575,11 @@ scid_game_cursor_is_game_end(
     return write_bool(cursor->value.isAtGameEnd(), out_is_game_end);
 }
 
+
 scid_error
 scid_game_cursor_is_variation_start(
     const scid_game_cursor* cursor,
-    int* out_is_variation_start)
+    int*                    out_is_variation_start)
 {
     if (cursor == nullptr)
     {
@@ -2503,10 +2589,11 @@ scid_game_cursor_is_variation_start(
     return write_bool(cursor->value.isAtVariationStart(), out_is_variation_start);
 }
 
+
 scid_error
 scid_game_cursor_is_variation_end(
     const scid_game_cursor* cursor,
-    int* out_is_variation_end)
+    int*                    out_is_variation_end)
 {
     if (cursor == nullptr)
     {
@@ -2516,10 +2603,11 @@ scid_game_cursor_is_variation_end(
     return write_bool(cursor->value.isAtVariationEnd(), out_is_variation_end);
 }
 
+
 scid_error
 scid_game_cursor_is_variation_empty(
     const scid_game_cursor* cursor,
-    int* out_is_variation_empty)
+    int*                    out_is_variation_empty)
 {
     if (cursor == nullptr)
     {
@@ -2529,12 +2617,13 @@ scid_game_cursor_is_variation_empty(
     return write_bool(cursor->value.isAtEmptyVariation(), out_is_variation_empty);
 }
 
+
 scid_error
 scid_game_cursor_comment_get(
     const scid_game_cursor* cursor,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*                   out_text,
+    size_t                  out_text_capacity,
+    size_t*                 out_text_size)
 {
     if (cursor == nullptr)
     {
@@ -2562,6 +2651,7 @@ scid_game_cursor_comment_get(
                 variation->initialComment, out_text, out_text_capacity, out_text_size);
         }
 
+
         return write_move_comment(
             cursor->value.previousMove(), out_text, out_text_capacity, out_text_size);
     }
@@ -2571,11 +2661,12 @@ scid_game_cursor_comment_get(
     }
 }
 
+
 scid_error
 scid_game_cursor_comment_set(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    const char* comment)
+    const char*             comment)
 {
     if (comment == nullptr)
     {
@@ -2603,10 +2694,11 @@ scid_game_cursor_comment_set(
     }
 }
 
+
 scid_error
 scid_game_cursor_previous_movespec_get(
     const scid_game_cursor* cursor,
-    scid_movespec* out_move)
+    scid_movespec*          out_move)
 {
     if (cursor == nullptr)
     {
@@ -2616,12 +2708,13 @@ scid_game_cursor_previous_movespec_get(
     return write_move_spec(cursor->value.previousMove(), out_move);
 }
 
+
 scid_error
 scid_game_cursor_previous_move_san_get(
     const scid_game_cursor* cursor,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*                   out_text,
+    size_t                  out_text_capacity,
+    size_t*                 out_text_size)
 {
     if (cursor == nullptr || out_text_size == nullptr)
     {
@@ -2645,26 +2738,29 @@ scid_game_cursor_previous_move_san_get(
     }
 }
 
+
 scid_error
 scid_game_cursor_previous_move_comment_get(
     const scid_game_cursor* cursor,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*                   out_text,
+    size_t                  out_text_capacity,
+    size_t*                 out_text_size)
 {
     if (cursor == nullptr)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
+
     return write_move_comment(
         cursor->value.previousMove(), out_text, out_text_capacity, out_text_size);
 }
 
+
 scid_error
 scid_game_cursor_previous_move_nag_count_get(
     const scid_game_cursor* cursor,
-    size_t* out_count)
+    size_t*                 out_count)
 {
     if (cursor == nullptr)
     {
@@ -2674,11 +2770,12 @@ scid_game_cursor_previous_move_nag_count_get(
     return write_move_nag_count(cursor->value.previousMove(), out_count);
 }
 
+
 scid_error
 scid_game_cursor_previous_move_nag_at_get(
     const scid_game_cursor* cursor,
-    size_t index,
-    scid_nag* out_nag)
+    size_t                  index,
+    scid_nag*               out_nag)
 {
     if (cursor == nullptr)
     {
@@ -2688,10 +2785,11 @@ scid_game_cursor_previous_move_nag_at_get(
     return write_move_nag_at(cursor->value.previousMove(), index, out_nag);
 }
 
+
 scid_error
 scid_game_cursor_next_movespec_get(
     const scid_game_cursor* cursor,
-    scid_movespec* out_move)
+    scid_movespec*          out_move)
 {
     if (cursor == nullptr)
     {
@@ -2701,12 +2799,13 @@ scid_game_cursor_next_movespec_get(
     return write_move_spec(cursor->value.nextMove(), out_move);
 }
 
+
 scid_error
 scid_game_cursor_next_move_san_get(
     const scid_game_cursor* cursor,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*                   out_text,
+    size_t                  out_text_capacity,
+    size_t*                 out_text_size)
 {
     if (cursor == nullptr || out_text_size == nullptr)
     {
@@ -2730,12 +2829,13 @@ scid_game_cursor_next_move_san_get(
     }
 }
 
+
 scid_error
 scid_game_cursor_next_move_comment_get(
     const scid_game_cursor* cursor,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*                   out_text,
+    size_t                  out_text_capacity,
+    size_t*                 out_text_size)
 {
     if (cursor == nullptr)
     {
@@ -2745,10 +2845,11 @@ scid_game_cursor_next_move_comment_get(
     return write_move_comment(cursor->value.nextMove(), out_text, out_text_capacity, out_text_size);
 }
 
+
 scid_error
 scid_game_cursor_next_move_nag_count_get(
     const scid_game_cursor* cursor,
-    size_t* out_count)
+    size_t*                 out_count)
 {
     if (cursor == nullptr)
     {
@@ -2758,11 +2859,12 @@ scid_game_cursor_next_move_nag_count_get(
     return write_move_nag_count(cursor->value.nextMove(), out_count);
 }
 
+
 scid_error
 scid_game_cursor_next_move_nag_at_get(
     const scid_game_cursor* cursor,
-    size_t index,
-    scid_nag* out_nag)
+    size_t                  index,
+    scid_nag*               out_nag)
 {
     if (cursor == nullptr)
     {
@@ -2772,10 +2874,11 @@ scid_game_cursor_next_move_nag_at_get(
     return write_move_nag_at(cursor->value.nextMove(), index, out_nag);
 }
 
+
 scid_error
 scid_game_cursor_to_start(
     const scid_game_cursor* cursor,
-    scid_game_cursor** out_start_cursor)
+    scid_game_cursor**      out_start_cursor)
 {
     if (cursor == nullptr || out_start_cursor == nullptr)
     {
@@ -2796,10 +2899,11 @@ scid_game_cursor_to_start(
     }
 }
 
+
 scid_error
 scid_game_cursor_to_end(
     const scid_game_cursor* cursor,
-    scid_game_cursor** out_end_cursor)
+    scid_game_cursor**      out_end_cursor)
 {
     if (cursor == nullptr || out_end_cursor == nullptr)
     {
@@ -2820,12 +2924,13 @@ scid_game_cursor_to_end(
     }
 }
 
+
 scid_error
 scid_game_cursor_to_ply(
     const scid_game_cursor* cursor,
-    size_t ply,
-    int* out_moved,
-    scid_game_cursor** out_ply_cursor)
+    size_t                  ply,
+    int*                    out_moved,
+    scid_game_cursor**      out_ply_cursor)
 {
     if (cursor == nullptr || out_moved == nullptr || out_ply_cursor == nullptr)
     {
@@ -2834,7 +2939,7 @@ scid_game_cursor_to_ply(
 
     try
     {
-        auto* ply_cursor = new scid_game_cursor(cursor->game);
+        auto*      ply_cursor = new scid_game_cursor(cursor->game);
         const bool moved = ply_cursor->value.toPly(ply);
         if (!moved)
         {
@@ -2853,11 +2958,12 @@ scid_game_cursor_to_ply(
     }
 }
 
+
 scid_error
 scid_game_cursor_next(
     const scid_game_cursor* cursor,
-    int* out_moved,
-    scid_game_cursor** out_next_cursor)
+    int*                    out_moved,
+    scid_game_cursor**      out_next_cursor)
 {
     if (cursor == nullptr || out_moved == nullptr || out_next_cursor == nullptr)
     {
@@ -2891,11 +2997,12 @@ scid_game_cursor_next(
     }
 }
 
+
 scid_error
 scid_game_cursor_previous(
     const scid_game_cursor* cursor,
-    int* out_moved,
-    scid_game_cursor** out_previous_cursor)
+    int*                    out_moved,
+    scid_game_cursor**      out_previous_cursor)
 {
     if (cursor == nullptr || out_moved == nullptr || out_previous_cursor == nullptr)
     {
@@ -2929,12 +3036,13 @@ scid_game_cursor_previous(
     }
 }
 
+
 scid_error
 scid_game_cursor_variation_enter(
     const scid_game_cursor* cursor,
-    size_t index,
-    int* out_entered,
-    scid_game_cursor** out_variation_cursor)
+    size_t                  index,
+    int*                    out_entered,
+    scid_game_cursor**      out_variation_cursor)
 {
     if (cursor == nullptr || out_entered == nullptr || out_variation_cursor == nullptr)
     {
@@ -2968,11 +3076,12 @@ scid_game_cursor_variation_enter(
     }
 }
 
+
 scid_error
 scid_game_cursor_variation_exit(
     const scid_game_cursor* cursor,
-    int* out_exited,
-    scid_game_cursor** out_parent_cursor)
+    int*                    out_exited,
+    scid_game_cursor**      out_parent_cursor)
 {
     if (cursor == nullptr || out_exited == nullptr || out_parent_cursor == nullptr)
     {
@@ -3006,12 +3115,13 @@ scid_game_cursor_variation_exit(
     }
 }
 
+
 scid_error
 scid_game_cursor_move_add(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    scid_movespec move,
-    scid_game_cursor** out_next_cursor)
+    scid_movespec           move,
+    scid_game_cursor**      out_next_cursor)
 {
     if (out_next_cursor == nullptr)
     {
@@ -3055,13 +3165,14 @@ scid_game_cursor_move_add(
     }
 }
 
+
 scid_error
 scid_game_cursor_variation_add(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    const char* initial_comment,
-    int* out_added,
-    scid_game_cursor** out_variation_cursor)
+    const char*             initial_comment,
+    int*                    out_added,
+    scid_game_cursor**      out_variation_cursor)
 {
     if (out_added == nullptr || out_variation_cursor == nullptr)
     {
@@ -3101,12 +3212,13 @@ scid_game_cursor_variation_add(
     }
 }
 
+
 scid_error
 scid_game_cursor_nag_add(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    scid_nag nag,
-    int* out_added)
+    scid_nag                nag,
+    int*                    out_added)
 {
     if (out_added == nullptr)
     {
@@ -3139,12 +3251,13 @@ scid_game_cursor_nag_add(
     }
 }
 
+
 scid_error
 scid_game_cursor_nag_remove(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    int is_move_nag,
-    int* out_removed)
+    int                     is_move_nag,
+    int*                    out_removed)
 {
     if (out_removed == nullptr)
     {
@@ -3190,9 +3303,10 @@ scid_game_cursor_nag_remove(
     }
 }
 
+
 scid_error
 scid_game_cursor_nag_clear(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor)
 {
     try
@@ -3217,12 +3331,13 @@ scid_game_cursor_nag_clear(
     }
 }
 
+
 scid_error
 scid_game_cursor_variation_promote_to_first(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    int* out_promoted,
-    scid_game_cursor** out_promoted_cursor)
+    int*                    out_promoted,
+    scid_game_cursor**      out_promoted_cursor)
 {
     if (out_promoted == nullptr || out_promoted_cursor == nullptr)
     {
@@ -3261,12 +3376,13 @@ scid_game_cursor_variation_promote_to_first(
     }
 }
 
+
 scid_error
 scid_game_cursor_variation_promote_to_mainline(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    int* out_promoted,
-    scid_game_cursor** out_mainline_cursor)
+    int*                    out_promoted,
+    scid_game_cursor**      out_mainline_cursor)
 {
     if (out_promoted == nullptr || out_mainline_cursor == nullptr)
     {
@@ -3305,12 +3421,13 @@ scid_game_cursor_variation_promote_to_mainline(
     }
 }
 
+
 scid_error
 scid_game_cursor_variation_delete(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    int* out_deleted,
-    scid_game_cursor** out_parent_cursor)
+    int*                    out_deleted,
+    scid_game_cursor**      out_parent_cursor)
 {
     if (out_deleted == nullptr || out_parent_cursor == nullptr)
     {
@@ -3349,11 +3466,12 @@ scid_game_cursor_variation_delete(
     }
 }
 
+
 scid_error
 scid_game_cursor_truncate(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    scid_game_cursor** out_cursor)
+    scid_game_cursor**      out_cursor)
 {
     if (out_cursor == nullptr)
     {
@@ -3386,11 +3504,12 @@ scid_game_cursor_truncate(
     }
 }
 
+
 scid_error
 scid_game_cursor_truncate_before_cursor(
-    scid_game* game,
+    scid_game*              game,
     const scid_game_cursor* cursor,
-    scid_game_cursor** out_cursor)
+    scid_game_cursor**      out_cursor)
 {
     if (out_cursor == nullptr)
     {
@@ -3423,9 +3542,10 @@ scid_game_cursor_truncate_before_cursor(
     }
 }
 
+
 scid_error
 scid_eco_code_from_string(
-    const char* text,
+    const char*    text,
     scid_eco_code* out_code)
 {
     if (text == nullptr || out_code == nullptr)
@@ -3444,13 +3564,14 @@ scid_eco_code_from_string(
     }
 }
 
+
 scid_error
 scid_eco_code_to_string(
-    scid_eco_code code,
+    scid_eco_code   code,
     scid_eco_format format,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*           out_text,
+    size_t          out_text_capacity,
+    size_t*         out_text_size)
 {
     if (format != SCID_ECO_FORMAT_BASIC && format != SCID_ECO_FORMAT_EXTENDED)
     {
@@ -3469,9 +3590,10 @@ scid_eco_code_to_string(
     }
 }
 
+
 scid_error
 scid_eco_book_load(
-    const char* path,
+    const char*     path,
     scid_eco_book** out_book)
 {
     if (path == nullptr || out_book == nullptr)
@@ -3498,18 +3620,19 @@ scid_eco_book_load(
     }
 }
 
+
 void
-scid_eco_book_free(
-    scid_eco_book* book)
+scid_eco_book_free(scid_eco_book* book)
 {
     delete book;
 }
+
 
 scid_error
 scid_eco_book_code_find(
     const scid_eco_book* book,
     const scid_position* position,
-    scid_eco_code* out_code)
+    scid_eco_code*       out_code)
 {
     if (book == nullptr || position == nullptr || out_code == nullptr)
     {
@@ -3527,13 +3650,14 @@ scid_eco_book_code_find(
     }
 }
 
+
 scid_error
 scid_eco_book_name_find(
     const scid_eco_book* book,
     const scid_position* position,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*                out_text,
+    size_t               out_text_capacity,
+    size_t*              out_text_size)
 {
     if (book == nullptr || position == nullptr)
     {
@@ -3552,41 +3676,45 @@ scid_eco_book_name_find(
     }
 }
 
+
 scid_error
 scid_database_create_memory(
-    const char* name,
+    const char*     name,
     scid_database** out_database)
 {
     return database_open("MEMORY", scid::database::FMODE_Create, name, out_database);
 }
 
+
 scid_error
 scid_database_create_scid5(
-    const char* path,
+    const char*     path,
     scid_database** out_database)
 {
     return database_open("SCID5", scid::database::FMODE_Create, path, out_database);
 }
 
+
 scid_error
 scid_database_open_scid5(
-    const char* path,
+    const char*     path,
     scid_database** out_database)
 {
     return database_open("SCID5", scid::database::FMODE_Both, path, out_database);
 }
 
+
 scid_error
 scid_database_open_scid5_read_only(
-    const char* path,
+    const char*     path,
     scid_database** out_database)
 {
     return database_open("SCID5", scid::database::FMODE_ReadOnly, path, out_database);
 }
 
+
 scid_error
-scid_database_close(
-    scid_database* database)
+scid_database_close(scid_database* database)
 {
     if (database == nullptr)
     {
@@ -3608,17 +3736,18 @@ scid_database_close(
     }
 }
 
+
 void
-scid_database_free(
-    scid_database* database)
+scid_database_free(scid_database* database)
 {
     delete database;
 }
 
+
 scid_error
 scid_database_is_open(
     const scid_database* database,
-    int* out_is_open)
+    int*                 out_is_open)
 {
     if (database == nullptr || out_is_open == nullptr)
     {
@@ -3635,12 +3764,13 @@ scid_database_is_open(
     }
 }
 
+
 scid_error
 scid_database_filename_get(
     const scid_database* database,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*                out_text,
+    size_t               out_text_capacity,
+    size_t*              out_text_size)
 {
     if (database == nullptr)
     {
@@ -3658,12 +3788,13 @@ scid_database_filename_get(
     }
 }
 
+
 scid_error
 scid_database_type_get(
     const scid_database* database,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    char*                out_text,
+    size_t               out_text_capacity,
+    size_t*              out_text_size)
 {
     if (database == nullptr)
     {
@@ -3680,10 +3811,11 @@ scid_database_type_get(
     }
 }
 
+
 scid_error
 scid_database_read_only_get(
     const scid_database* database,
-    int* out_read_only)
+    int*                 out_read_only)
 {
     if (database == nullptr || out_read_only == nullptr)
     {
@@ -3700,12 +3832,13 @@ scid_database_read_only_get(
     }
 }
 
+
 scid_error
 scid_database_filter_create(
     scid_database* database,
-    char* out_filter_id,
-    size_t out_filter_id_capacity,
-    size_t* out_filter_id_size)
+    char*          out_filter_id,
+    size_t         out_filter_id_capacity,
+    size_t*        out_filter_id_size)
 {
     if (database == nullptr || out_filter_id_size == nullptr || !database->value.isOpen())
     {
@@ -3715,7 +3848,7 @@ scid_database_filter_create(
     try
     {
         const std::string filter_id = database->value.newFilter();
-        const scid_error error =
+        const scid_error  error =
             write_text(filter_id, out_filter_id, out_filter_id_capacity, out_filter_id_size);
         if (error != SCID_OK)
         {
@@ -3731,10 +3864,11 @@ scid_database_filter_create(
     }
 }
 
+
 scid_error
 scid_database_filter_delete(
     scid_database* database,
-    const char* filter_id)
+    const char*    filter_id)
 {
     if (database == nullptr || filter_id == nullptr || !database->value.isOpen() ||
         database_filter_id_is_builtin(filter_id))
@@ -3759,11 +3893,12 @@ scid_database_filter_delete(
     }
 }
 
+
 scid_error
 scid_database_filter_fill(
     scid_database* database,
-    const char* filter_id,
-    unsigned value)
+    const char*    filter_id,
+    unsigned       value)
 {
     if (database == nullptr || filter_id == nullptr || !database->value.isOpen() ||
         !database_filter_id_is_mutable(filter_id) || !filter_value_is_valid(value))
@@ -3788,12 +3923,13 @@ scid_database_filter_fill(
     }
 }
 
+
 scid_error
 scid_database_filter_value_set(
     scid_database* database,
-    const char* filter_id,
-    size_t game_index,
-    unsigned value)
+    const char*    filter_id,
+    size_t         game_index,
+    unsigned       value)
 {
     if (database == nullptr || filter_id == nullptr || !database->value.isOpen() ||
         !database_filter_id_is_mutable(filter_id) || !filter_value_is_valid(value))
@@ -3824,12 +3960,13 @@ scid_database_filter_value_set(
     }
 }
 
+
 scid_error
 scid_database_filter_value_get(
     const scid_database* database,
-    const char* filter_id,
-    size_t game_index,
-    unsigned* out_value)
+    const char*          filter_id,
+    size_t               game_index,
+    unsigned*            out_value)
 {
     if (database == nullptr || filter_id == nullptr || out_value == nullptr ||
         !database->value.isOpen())
@@ -3860,11 +3997,12 @@ scid_database_filter_value_get(
     }
 }
 
+
 scid_error
 scid_database_filter_count_get(
     const scid_database* database,
-    const char* filter_id,
-    size_t* out_count)
+    const char*          filter_id,
+    size_t*              out_count)
 {
     if (database == nullptr || filter_id == nullptr || out_count == nullptr ||
         !database->value.isOpen())
@@ -3888,12 +4026,13 @@ scid_database_filter_count_get(
     }
 }
 
+
 scid_error
 scid_database_filter_game_at_get(
     const scid_database* database,
-    const char* filter_id,
-    size_t index,
-    size_t* out_game_index)
+    const char*          filter_id,
+    size_t               index,
+    size_t*              out_game_index)
 {
     if (database == nullptr || filter_id == nullptr || out_game_index == nullptr ||
         !database->value.isOpen())
@@ -3928,16 +4067,17 @@ scid_database_filter_game_at_get(
     }
 }
 
+
 scid_error
 scid_database_game_list_get(
     const scid_database* database,
-    const char* filter_id,
-    const char* sort_criteria,
-    size_t start,
-    size_t count,
-    size_t* out_game_indexes,
-    size_t out_game_indexes_capacity,
-    size_t* out_game_indexes_count)
+    const char*          filter_id,
+    const char*          sort_criteria,
+    size_t               start,
+    size_t               count,
+    size_t*              out_game_indexes,
+    size_t               out_game_indexes_capacity,
+    size_t*              out_game_indexes_count)
 {
     if (database == nullptr || filter_id == nullptr || sort_criteria == nullptr ||
         out_game_indexes_count == nullptr || !database->value.isOpen())
@@ -3961,7 +4101,7 @@ scid_database_game_list_get(
 
         auto& mutable_database = const_cast<scid::database::scidBaseT&>(database->value);
         std::vector<scid::database::gamenumT> game_indexes(count);
-        const size_t listed =
+        const size_t                          listed =
             mutable_database.listGames(sort_criteria, start, count, filter, game_indexes.data());
 
         for (size_t i = 0; i < listed; ++i)
@@ -3977,13 +4117,14 @@ scid_database_game_list_get(
     }
 }
 
+
 scid_error
 scid_database_game_sorted_position_get(
     const scid_database* database,
-    const char* filter_id,
-    const char* sort_criteria,
-    size_t game_index,
-    size_t* out_position)
+    const char*          filter_id,
+    const char*          sort_criteria,
+    size_t               game_index,
+    size_t*              out_position)
 {
     if (database == nullptr || filter_id == nullptr || sort_criteria == nullptr ||
         out_position == nullptr || !database->value.isOpen())
@@ -4005,7 +4146,7 @@ scid_database_game_sorted_position_get(
             return SCID_ERROR_BAD_ARG;
         }
 
-        auto& mutable_database = const_cast<scid::database::scidBaseT&>(database->value);
+        auto&        mutable_database = const_cast<scid::database::scidBaseT&>(database->value);
         const size_t position =
             mutable_database.sortedPosition(sort_criteria, filter, core_game_index);
         if (position == scid::database::INVALID_GAMEID)
@@ -4021,9 +4162,9 @@ scid_database_game_sorted_position_get(
     }
 }
 
+
 scid_error
-scid_database_save(
-    scid_database* database)
+scid_database_save(scid_database* database)
 {
     if (database == nullptr)
     {
@@ -4040,13 +4181,14 @@ scid_database_save(
     }
 }
 
+
 scid_error
 scid_database_metadata_get(
     const scid_database* database,
-    const char* key,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    const char*          key,
+    char*                out_text,
+    size_t               out_text_capacity,
+    size_t*              out_text_size)
 {
     if (database == nullptr || key == nullptr || !database->value.isOpen())
     {
@@ -4071,11 +4213,12 @@ scid_database_metadata_get(
     }
 }
 
+
 scid_error
 scid_database_metadata_set(
     scid_database* database,
-    const char* key,
-    const char* value)
+    const char*    key,
+    const char*    value)
 {
     if (database == nullptr || key == nullptr || value == nullptr || !database->value.isOpen())
     {
@@ -4092,10 +4235,11 @@ scid_database_metadata_set(
     }
 }
 
+
 scid_error
 scid_database_metadata_count_get(
     const scid_database* database,
-    size_t* out_count)
+    size_t*              out_count)
 {
     if (database == nullptr || out_count == nullptr || !database->value.isOpen())
     {
@@ -4112,16 +4256,17 @@ scid_database_metadata_count_get(
     }
 }
 
+
 scid_error
 scid_database_metadata_at_get(
     const scid_database* database,
-    size_t index,
-    char* out_key,
-    size_t out_key_capacity,
-    size_t* out_key_size,
-    char* out_value,
-    size_t out_value_capacity,
-    size_t* out_value_size)
+    size_t               index,
+    char*                out_key,
+    size_t               out_key_capacity,
+    size_t*              out_key_size,
+    char*                out_value,
+    size_t               out_value_capacity,
+    size_t*              out_value_size)
 {
     if (database == nullptr || !database->value.isOpen())
     {
@@ -4151,15 +4296,16 @@ scid_database_metadata_at_get(
     }
 }
 
+
 scid_error
 scid_database_stats_date_range_get(
     const scid_database* database,
-    char* out_min_date,
-    size_t out_min_date_capacity,
-    size_t* out_min_date_size,
-    char* out_max_date,
-    size_t out_max_date_capacity,
-    size_t* out_max_date_size)
+    char*                out_min_date,
+    size_t               out_min_date_capacity,
+    size_t*              out_min_date_size,
+    char*                out_max_date,
+    size_t               out_max_date_capacity,
+    size_t*              out_max_date_size)
 {
     if (database == nullptr || out_min_date_size == nullptr || out_max_date_size == nullptr ||
         !database->value.isOpen())
@@ -4178,6 +4324,7 @@ scid_database_stats_date_range_get(
             return error;
         }
 
+
         return write_text(
             date_to_string(stats.maxDate), out_max_date, out_max_date_capacity, out_max_date_size);
     }
@@ -4187,11 +4334,12 @@ scid_database_stats_date_range_get(
     }
 }
 
+
 scid_error
 scid_database_stats_result_count_get(
     const scid_database* database,
-    const char* result,
-    size_t* out_count)
+    const char*          result,
+    size_t*              out_count)
 {
     if (database == nullptr || result == nullptr || out_count == nullptr ||
         !database->value.isOpen())
@@ -4215,10 +4363,11 @@ scid_database_stats_result_count_get(
     }
 }
 
+
 scid_error
 scid_database_game_count_get(
     const scid_database* database,
-    size_t* out_count)
+    size_t*              out_count)
 {
     if (database == nullptr || out_count == nullptr)
     {
@@ -4235,15 +4384,16 @@ scid_database_game_count_get(
     }
 }
 
+
 scid_error
 scid_database_import_pgn(
     scid_database* database,
-    const char* pgn,
-    size_t pgn_size,
-    char* out_diagnostic,
-    size_t out_diagnostic_capacity,
-    size_t* out_diagnostic_size,
-    size_t* out_imported_count)
+    const char*    pgn,
+    size_t         pgn_size,
+    char*          out_diagnostic,
+    size_t         out_diagnostic_capacity,
+    size_t*        out_diagnostic_size,
+    size_t*        out_imported_count)
 {
     if (database == nullptr || pgn == nullptr || out_imported_count == nullptr)
     {
@@ -4255,8 +4405,8 @@ scid_database_import_pgn(
     try
     {
         std::vector<scid::core::Game> games;
-        scid::core::pgn::ParseLog log;
-        size_t parsed_size = 0;
+        scid::core::pgn::ParseLog     log;
+        size_t                        parsed_size = 0;
 
         while (parsed_size < pgn_size)
         {
@@ -4271,8 +4421,8 @@ scid_database_import_pgn(
             }
 
             scid::core::Game game;
-            const auto start_size = log.n_bytes;
-            const bool ok =
+            const auto       start_size = log.n_bytes;
+            const bool       ok =
                 scid::core::pgn::parseGame(pgn + parsed_size, pgn_size - parsed_size, game, log);
             const auto consumed_size = static_cast<size_t>(log.n_bytes - start_size);
 
@@ -4312,11 +4462,12 @@ scid_database_import_pgn(
     }
 }
 
+
 scid_error
 scid_database_game_add(
-    scid_database* database,
+    scid_database*   database,
     const scid_game* game,
-    const char* flags)
+    const char*      flags)
 {
     if (database == nullptr || game == nullptr)
     {
@@ -4334,12 +4485,13 @@ scid_database_game_add(
     }
 }
 
+
 scid_error
 scid_database_game_replace(
-    scid_database* database,
-    size_t index,
+    scid_database*   database,
+    size_t           index,
     const scid_game* game,
-    const char* flags)
+    const char*      flags)
 {
     if (database == nullptr || game == nullptr)
     {
@@ -4354,6 +4506,7 @@ scid_database_game_replace(
             return SCID_ERROR_BAD_ARG;
         }
 
+
         return database_error_to_c(
             database->value.saveGame(game->value, flags == nullptr ? "" : flags, game_index));
     }
@@ -4363,10 +4516,11 @@ scid_database_game_replace(
     }
 }
 
+
 scid_error
 scid_database_game_delete(
     scid_database* database,
-    size_t index)
+    size_t         index)
 {
     if (database == nullptr)
     {
@@ -4380,6 +4534,7 @@ scid_database_game_delete(
         {
             return SCID_ERROR_BAD_ARG;
         }
+
 
         return database_error_to_c(
             database->value.setFlag(true, 1u << scid::database::GAME_FLAG_DELETE, game_index));
@@ -4390,10 +4545,11 @@ scid_database_game_delete(
     }
 }
 
+
 scid_error
 scid_database_game_undelete(
     scid_database* database,
-    size_t index)
+    size_t         index)
 {
     if (database == nullptr)
     {
@@ -4408,6 +4564,7 @@ scid_database_game_undelete(
             return SCID_ERROR_BAD_ARG;
         }
 
+
         return database_error_to_c(
             database->value.setFlag(false, 1u << scid::database::GAME_FLAG_DELETE, game_index));
     }
@@ -4417,14 +4574,15 @@ scid_database_game_undelete(
     }
 }
 
+
 scid_error
 scid_database_game_get(
     const scid_database* database,
-    size_t index,
-    scid_game** out_game,
-    char* out_flags,
-    size_t out_flags_capacity,
-    size_t* out_flags_size)
+    size_t               index,
+    scid_game**          out_game,
+    char*                out_flags,
+    size_t               out_flags_capacity,
+    size_t*              out_flags_size)
 {
     if (database == nullptr || out_game == nullptr)
     {
@@ -4433,9 +4591,9 @@ scid_database_game_get(
 
     try
     {
-        auto* game = new scid_game;
+        auto*                game = new scid_game;
         std::array<char, 22> flags = {};
-        const auto error = database->value.loadGame(
+        const auto           error = database->value.loadGame(
             static_cast<scid::database::gamenumT>(index), game->value, flags.data(), flags.size());
         if (error != scid::core::OK)
         {
@@ -4463,13 +4621,14 @@ scid_database_game_get(
     }
 }
 
+
 scid_error
 scid_database_game_export_pgn(
     const scid_database* database,
-    size_t index,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    size_t               index,
+    char*                out_text,
+    size_t               out_text_capacity,
+    size_t*              out_text_size)
 {
     if (database == nullptr)
     {
@@ -4485,7 +4644,7 @@ scid_database_game_export_pgn(
         }
 
         scid::core::Game game;
-        const auto error = database->value.loadGame(game_index, game, nullptr, 0);
+        const auto       error = database->value.loadGame(game_index, game, nullptr, 0);
         if (error != scid::core::OK)
         {
             return database_error_to_c(error);
@@ -4501,14 +4660,15 @@ scid_database_game_export_pgn(
     }
 }
 
+
 scid_error
 scid_database_game_tag_get(
     const scid_database* database,
-    size_t index,
-    const char* name,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    size_t               index,
+    const char*          name,
+    char*                out_text,
+    size_t               out_text_capacity,
+    size_t*              out_text_size)
 {
     if (database == nullptr || name == nullptr)
     {
@@ -4524,6 +4684,7 @@ scid_database_game_tag_get(
             return SCID_ERROR_BAD_ARG;
         }
 
+
         return write_text(
             database_game_tag_value(database->value, game_index, name), out_text, out_text_capacity,
             out_text_size);
@@ -4534,11 +4695,12 @@ scid_database_game_tag_get(
     }
 }
 
+
 scid_error
 scid_database_game_halfmove_count_get(
     const scid_database* database,
-    size_t index,
-    size_t* out_count)
+    size_t               index,
+    size_t*              out_count)
 {
     if (database == nullptr || out_count == nullptr)
     {
@@ -4567,11 +4729,12 @@ scid_database_game_halfmove_count_get(
     }
 }
 
+
 scid_error
 scid_database_game_number_get(
     const scid_database* database,
-    size_t index,
-    size_t* out_number)
+    size_t               index,
+    size_t*              out_number)
 {
     if (database == nullptr || out_number == nullptr)
     {
@@ -4594,11 +4757,12 @@ scid_database_game_number_get(
     }
 }
 
+
 scid_error
 scid_database_game_deleted_get(
     const scid_database* database,
-    size_t index,
-    int* out_deleted)
+    size_t               index,
+    int*                 out_deleted)
 {
     if (database == nullptr || out_deleted == nullptr)
     {
@@ -4621,13 +4785,14 @@ scid_database_game_deleted_get(
     }
 }
 
+
 scid_error
 scid_database_game_result_get(
     const scid_database* database,
-    size_t index,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    size_t               index,
+    char*                out_text,
+    size_t               out_text_capacity,
+    size_t*              out_text_size)
 {
     if (database == nullptr)
     {
@@ -4651,11 +4816,12 @@ scid_database_game_result_get(
     }
 }
 
+
 scid_error
 scid_database_game_eco_get(
     const scid_database* database,
-    size_t index,
-    scid_eco_code* out_code)
+    size_t               index,
+    scid_eco_code*       out_code)
 {
     if (database == nullptr || out_code == nullptr)
     {
@@ -4679,13 +4845,14 @@ scid_database_game_eco_get(
     }
 }
 
+
 scid_error
 scid_database_game_date_get(
     const scid_database* database,
-    size_t index,
-    char* out_text,
-    size_t out_text_capacity,
-    size_t* out_text_size)
+    size_t               index,
+    char*                out_text,
+    size_t               out_text_capacity,
+    size_t*              out_text_size)
 {
     if (database == nullptr)
     {

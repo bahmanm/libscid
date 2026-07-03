@@ -234,7 +234,7 @@ namespace scid::core
              */
             constexpr void
             operator()(
-                unsigned& hash,
+                unsigned&     hash,
                 unsigned char p,
                 unsigned char sq) const
             {

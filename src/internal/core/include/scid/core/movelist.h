@@ -86,8 +86,7 @@ namespace scid::core
              */
             template <typename OutputIt>
             OutputIt
-            toLongNotation(
-                OutputIt dest) const
+            toLongNotation(OutputIt dest) const
             {
                 if (from == to)
                 {
@@ -121,8 +120,7 @@ namespace scid::core
 
             /** Orders moves by descending score. */
             bool
-            operator<(
-                const ScoredMove& b) const
+            operator<(const ScoredMove& b) const
             {
                 // Highest score first
                 return score > b.score;
@@ -137,7 +135,7 @@ namespace scid::core
      */
     class MoveList
     {
-            uint ListSize = 0;
+            uint       ListSize = 0;
             ScoredMove Moves[MAX_LEGAL_MOVES];
 
         public:
@@ -177,24 +175,21 @@ namespace scid::core
             }
             /** Changes the logical number of stored moves. */
             void
-            resize(
-                std::size_t count)
+            resize(std::size_t count)
             {
                 assert(count <= MAX_LEGAL_MOVES);
                 ListSize = static_cast<uint>(count);
             }
             /** Appends an already constructed move. */
             void
-            push_back(
-                const ScoredMove& sm)
+            push_back(const ScoredMove& sm)
             {
                 assert(ListSize < MAX_LEGAL_MOVES);
                 Moves[ListSize++] = sm;
             }
             /** Returns a pointer to the move at @p index. */
             ScoredMove*
-            Get(
-                std::size_t index)
+            Get(std::size_t index)
             {
                 assert(index < ListSize);
                 return &(Moves[index]);

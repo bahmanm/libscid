@@ -38,11 +38,11 @@ namespace scid::database
 
     class CodecPgn final : public CodecProxy<CodecPgn>
     {
-            FilebufAppend file_;
-            std::string filename_;
-            std::vector<char> buf_;
-            size_t nParsed_ = 0;
-            size_t nRead_ = 0;
+            FilebufAppend             file_;
+            std::string               filename_;
+            std::vector<char>         buf_;
+            size_t                    nParsed_ = 0;
+            size_t                    nRead_ = 0;
             scid::core::pgn::ParseLog parseLog_;
 
         public:
@@ -51,6 +51,7 @@ namespace scid::database
             {
                 return CodecType::Pgn;
             }
+
 
             std::vector<std::string>
             getFilenames() const final
@@ -78,7 +79,7 @@ namespace scid::database
             scid::core::errorT
             open(
                 const char* filename,
-                fileModeT fmode)
+                fileModeT   fmode)
             {
                 ASSERT(filename);
 
@@ -104,8 +105,8 @@ namespace scid::database
             scid::core::errorT
             parseNext(
                 scid::core::Game& game,
-                char* scidFlagsOut,
-                std::size_t scidFlagsOutLen)
+                char*             scidFlagsOut,
+                std::size_t       scidFlagsOutLen)
             {
                 const auto verge = 3 * (nRead_ / 4);
                 if (nParsed_ > verge && nRead_ == buf_.size())
@@ -161,7 +162,9 @@ namespace scid::database
              * @returns a pair<size_t, size_t> where first element is the quantity of
              * data parsed and second one is the total amount of data of the database.
              */
-            std::pair<size_t, size_t>
+            std::pair<
+                size_t,
+                size_t>
             parseProgress()
             {
                 return std::make_pair(parseLog_.n_bytes / 1024, file_.size() / 1024);

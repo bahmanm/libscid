@@ -7,8 +7,7 @@
 namespace scid::database
 {
 
-    SearchPos::SearchPos(
-        scid::core::Position const& pos)
+    SearchPos::SearchPos(scid::core::Position const& pos)
     {
         std::copy_n(pos.GetBoard(), 64, board_);
         materialSig_ = matsig_Make(pos.GetMaterial());
@@ -32,10 +31,11 @@ namespace scid::database
         storedLine_ = nullptr;
     }
 
+
     bool
     SearchPos::setFilterStdStart(
         scidBaseT const& base,
-        HFilter& filter) const
+        HFilter&         filter) const
     {
         filter->includeAll();
         for (gamenumT i = 0, n = base.numGames(); i < n; i++)
@@ -54,15 +54,15 @@ namespace scid::database
     bool
     SearchPos::SetFilter(
         scidBaseT const& base,
-        HFilter& filter,
-        const Progress& prg) const
+        HFilter&         filter,
+        const Progress&  prg) const
     {
         filter->clear();
         long long progress = 0;
         for (gamenumT i = 0, n = base.numGames(); i < n; i++)
         {
             const IndexEntry* ie = base.getIndexEntry(i);
-            int ply = index_match(*ie);
+            int               ply = index_match(*ie);
             if (ply >= 0)
             {
                 filter.set(i, static_cast<scid::core::byte>(ply + 1));
@@ -79,20 +79,20 @@ namespace scid::database
         return true;
     }
 
+
     template bool
     SearchPos::SetFilter<scid::core::WHITE>(
         scidBaseT const& base,
-        HFilter& filter,
-        const Progress& prg) const;
+        HFilter&         filter,
+        const Progress&  prg) const;
     template bool
     SearchPos::SetFilter<scid::core::BLACK>(
         scidBaseT const& base,
-        HFilter& filter,
-        const Progress& prg) const;
+        HFilter&         filter,
+        const Progress&  prg) const;
 
     int
-    SearchPos::index_match(
-        const IndexEntry& ie) const
+    SearchPos::index_match(const IndexEntry& ie) const
     {
         if (!ie.GetStartFlag())
         {
@@ -113,13 +113,15 @@ namespace scid::database
         return -1;
     }
 
-    std::pair<int, scid::core::FullMove>
+    std::pair<
+        int,
+        scid::core::FullMove>
     SearchPos::match(
         scidBaseT const& base,
-        gamenumT gnum) const
+        gamenumT         gnum) const
     {
         const IndexEntry* ie = base.getIndexEntry(gnum);
-        int ply = index_match(*ie);
+        int               ply = index_match(*ie);
         if (ply < -1)
             return {};
 

@@ -46,8 +46,8 @@ namespace
 
     struct Parser
     {
-            char* name;
-            char* extra;
+            char*         name;
+            char*         extra;
             enum InfoType type;
 
             Parser(char* line);
@@ -62,8 +62,7 @@ namespace
      * - remove leading and trailing white-spaces.
      * - identify the type of data
      */
-    Parser::Parser(
-        char* line)
+    Parser::Parser(char* line)
     {
         ASSERT(line != 0);
 
@@ -156,10 +155,9 @@ namespace scid::spelling
 {
 
     size_t
-    NameNormalizer::normalize(
-        std::string* name) const
+    NameNormalizer::normalize(std::string* name) const
     {
-        size_t corrections = 0;
+        size_t               corrections = 0;
         Cont::const_iterator it;
 
         for (it = prefix_.begin(); it != prefix_.end(); it++)
@@ -176,7 +174,7 @@ namespace scid::spelling
         for (it = infix_.begin(); it != infix_.end(); it++)
         {
             const std::string& s = it->first;
-            size_t pos = name->find(s);
+            size_t             pos = name->find(s);
             while (pos != std::string::npos)
             {
                 corrections++;
@@ -202,30 +200,31 @@ namespace scid::spelling
         return corrections;
     }
 
+
     scid::core::errorT
-    NameNormalizer::addPrefix(
-        const char* s)
+    NameNormalizer::addPrefix(const char* s)
     {
         return add(prefix_, s);
     }
 
+
     scid::core::errorT
-    NameNormalizer::addInfix(
-        const char* s)
+    NameNormalizer::addInfix(const char* s)
     {
         return add(infix_, s);
     }
 
+
     scid::core::errorT
-    NameNormalizer::addSuffix(
-        const char* s)
+    NameNormalizer::addSuffix(const char* s)
     {
         return add(suffix_, s);
     }
 
+
     scid::core::errorT
     NameNormalizer::add(
-        Cont& v,
+        Cont&       v,
         const char* s)
     {
         ASSERT(s != 0);
@@ -249,12 +248,12 @@ namespace scid::spelling
         return scid::core::OK;
     }
 
+
     scid::core::ratingT
-    PlayerElo::getElo(
-        scid::core::dateT date) const
+    PlayerElo::getElo(scid::core::dateT date) const
     {
         scid::core::uint year = scid::core::date_GetYear(date);
-        auto itBegin = std::find_if(
+        auto             itBegin = std::find_if(
             elo_.begin(), elo_.end(),
             [&](const std::pair<uint16_t, scid::core::ratingT>& e) { return e.first == year; });
         auto itEnd = std::find_if(
@@ -353,30 +352,33 @@ namespace scid::spelling
 
     SpellChecker::Idx::Idx(
         const std::string& a,
-        int32_t i)
-        : alias(a), idx(i)
+        int32_t            i)
+        : alias(a),
+          idx(i)
     {}
 
+
     bool
-    SpellChecker::Idx::operator<(
-        const Idx& b) const
+    SpellChecker::Idx::operator<(const Idx& b) const
     {
         return alias < b.alias;
     }
 
+
     bool
-    SpellChecker::Idx::operator<(
-        const std::string& b) const
+    SpellChecker::Idx::operator<(const std::string& b) const
     {
         return alias < b;
     }
 
-    std::pair<scid::core::errorT, std::unique_ptr<SpellChecker>>
+    std::pair<
+        scid::core::errorT,
+        std::unique_ptr<SpellChecker>>
     SpellChecker::create(
-        const char* filename,
+        const char*                     filename,
         const scid::database::Progress& progress)
     {
-        auto res = std::unique_ptr<SpellChecker>(new SpellChecker);
+        auto               res = std::unique_ptr<SpellChecker>(new SpellChecker);
         scid::core::errorT err = res->read(filename, progress);
         if (err != scid::core::OK)
         {
@@ -385,16 +387,17 @@ namespace scid::spelling
         return std::make_pair(err, std::move(res));
     }
 
+
     std::vector<const char*>
     SpellChecker::find(
         const scid::database::nameT& nt,
-        const char* name,
-        scid::core::uint nMaxRes) const
+        const char*                  name,
+        scid::core::uint             nMaxRes) const
     {
         ASSERT(nt < scid::database::NUM_NAME_TYPES);
         ASSERT(name != 0);
         std::vector<const char*> res;
-        std::pair<IdxIt, IdxIt> it;
+        std::pair<IdxIt, IdxIt>  it;
         if (nt != scid::database::NAME_PLAYER)
             it = idxFind(nt, name);
         else
@@ -410,17 +413,18 @@ namespace scid::spelling
         return res;
     }
 
+
     const NameNormalizer&
-    SpellChecker::getGeneralCorrections(
-        const scid::database::nameT& nt) const
+    SpellChecker::getGeneralCorrections(const scid::database::nameT& nt) const
     {
         ASSERT(nt < scid::database::NUM_NAME_TYPES);
         return general_[nt];
     }
 
+
     const PlayerInfo*
     SpellChecker::getPlayerInfo(
-        const char* name,
+        const char*               name,
         std::vector<const char*>* bio) const
     {
         ASSERT(name != 0);
@@ -433,9 +437,9 @@ namespace scid::spelling
         return &(pInfo_[it->idx]);
     }
 
+
     const PlayerElo*
-    SpellChecker::getPlayerElo(
-        const char* name) const
+    SpellChecker::getPlayerElo(const char* name) const
     {
         ASSERT(name != 0);
         if (!hasEloData())
@@ -446,23 +450,24 @@ namespace scid::spelling
         return &(pElo_[it->idx]);
     }
 
+
     bool
     SpellChecker::hasEloData() const
     {
         return pElo_.size() != 0;
     }
 
+
     size_t
-    SpellChecker::numCorrectNames(
-        const scid::database::nameT& nt) const
+    SpellChecker::numCorrectNames(const scid::database::nameT& nt) const
     {
         ASSERT(nt < scid::database::NUM_NAME_TYPES);
         return names_[nt].size();
     }
 
+
     const char*
-    SpellChecker::storeString(
-        const char* s)
+    SpellChecker::storeString(const char* s)
     {
         if (s == nullptr)
             return nullptr;
@@ -470,10 +475,11 @@ namespace scid::spelling
         return strings_.back().c_str();
     }
 
+
     std::string
     SpellChecker::normalizeAndTransform(
         const scid::database::nameT& nt,
-        const char* s) const
+        const char*                  s) const
     {
         std::string res;
         for (const char* i = s; *i != 0; i++)
@@ -486,13 +492,15 @@ namespace scid::spelling
         return res;
     }
 
-    std::pair<SpellChecker::IdxIt, SpellChecker::IdxIt>
+    std::pair<
+        SpellChecker::IdxIt,
+        SpellChecker::IdxIt>
     SpellChecker::idxFind(
         const scid::database::nameT& nt,
-        const char* prefix) const
+        const char*                  prefix) const
     {
         std::pair<IdxIt, IdxIt> res;
-        std::string s = normalizeAndTransform(nt, prefix);
+        std::string             s = normalizeAndTransform(nt, prefix);
         res.first = std::lower_bound(idx_[nt].begin(), idx_[nt].end(), s);
         for (res.second = res.first; res.second != idx_[nt].end(); res.second++)
         {
@@ -504,9 +512,10 @@ namespace scid::spelling
         return res;
     }
 
-    std::pair<SpellChecker::IdxIt, SpellChecker::IdxIt>
-    SpellChecker::idxFindPlayer(
-        const char* prefix) const
+    std::pair<
+        SpellChecker::IdxIt,
+        SpellChecker::IdxIt>
+    SpellChecker::idxFindPlayer(const char* prefix) const
     {
         std::pair<IdxIt, IdxIt> res = idxFind(scid::database::NAME_PLAYER, prefix);
         if (res.first == res.second)
@@ -516,7 +525,7 @@ namespace scid::spelling
             // the name for correction purposes, when it cannot find a correction.
             // This is done to correct names where the surname is last.
             std::string s = prefix;
-            size_t pos = s.rfind(' ');
+            size_t      pos = s.rfind(' ');
             if (pos != std::string::npos)
             {
                 std::string inv = s.substr(pos);
@@ -527,9 +536,9 @@ namespace scid::spelling
         return res;
     }
 
+
     SpellChecker::IdxIt
-    SpellChecker::idxFindPlayerUnambiguous(
-        const char* name) const
+    SpellChecker::idxFindPlayerUnambiguous(const char* name) const
     {
         std::pair<IdxIt, IdxIt> it = idxFindPlayer(name);
         if (it.first == it.second)
@@ -552,12 +561,10 @@ namespace scid::spelling
                 const SpellChecker&)
             {}
             void
-            ignoredLine(
-                const char*)
+            ignoredLine(const char*)
             {}
             void
-            idxDuplicates(
-                const scid::database::nameT&)
+            idxDuplicates(const scid::database::nameT&)
             {}
             void
             checkEloData()
@@ -567,19 +574,18 @@ namespace scid::spelling
     class SpellChecker::SpellingValidate
     {
             const SpellChecker& spell_;
-            std::ofstream f_;
+            std::ofstream       f_;
 
         public:
             SpellingValidate(
-                const char* spellfile,
+                const char*         spellfile,
                 const SpellChecker& sp)
                 : spell_(sp)
             {
                 f_.open(spellfile + std::string(".validate"));
             }
             void
-            ignoredLine(
-                const char* line)
+            ignoredLine(const char* line)
             {
                 f_ << "Ignored line:" << '\n';
                 f_ << line << '\n';
@@ -593,8 +599,7 @@ namespace scid::spelling
                 return a.alias == b.alias;
             }
             void
-            idxDuplicates(
-                const scid::database::nameT& nt)
+            idxDuplicates(const scid::database::nameT& nt)
             {
                 IdxIt it = spell_.idx_[nt].begin();
                 IdxIt it_end = spell_.idx_[nt].end();
@@ -643,21 +648,24 @@ namespace scid::spelling
      */
     class SpellingLoader
     {
-            SpellChecker& sp_;
+            SpellChecker&                   sp_;
             SpellChecker::SpellingValidate& validate_;
-            scid::database::nameT nt_;
-            int32_t nameIdx_;
+            scid::database::nameT           nt_;
+            int32_t                         nameIdx_;
 
         public:
             SpellingLoader(
-                SpellChecker& sp,
+                SpellChecker&                   sp,
                 SpellChecker::SpellingValidate& v)
-                : sp_(sp), validate_(v), nt_(scid::database::NAME_INVALID), nameIdx_(-1)
+                : sp_(sp),
+                  validate_(v),
+                  nt_(scid::database::NAME_INVALID),
+                  nameIdx_(-1)
             {}
 
+
             scid::core::errorT
-            load(
-                const Parser& data)
+            load(const Parser& data)
             {
                 switch (data.type)
                 {
@@ -698,8 +706,7 @@ namespace scid::spelling
 
         private:
             scid::core::errorT
-            nameSection(
-                const Parser& data)
+            nameSection(const Parser& data)
             {
                 // Must be in a valid name section
                 if (!scid::database::NameBase::IsValidNameType(nt_))
@@ -741,9 +748,9 @@ namespace scid::spelling
                 return scid::core::ERROR_CorruptData;
             }
 
+
             scid::core::errorT
-            playerInfo(
-                const Parser& data)
+            playerInfo(const Parser& data)
             {
                 // SPELL_BIO and SPELL_ELO are valid only for a PLAYER name
                 if (nt_ != scid::database::NAME_PLAYER || nameIdx_ == -1)
@@ -778,7 +785,7 @@ namespace scid::spelling
      */
     scid::core::errorT
     SpellChecker::read(
-        const char* filename,
+        const char*                     filename,
         const scid::database::Progress& progress)
     {
         ASSERT(filename != NULL);
@@ -805,12 +812,12 @@ namespace scid::spelling
 
         // Parse the file lines.
         std::vector<char> lineBuffer;
-        scid::core::uint report_i = 0;
-        std::streamsize report_done = 0;
-        SpellingLoader loader(*this, validate);
+        scid::core::uint  report_i = 0;
+        std::streamsize   report_done = 0;
+        SpellingLoader    loader(*this, validate);
         for (size_t lineStart = 0; lineStart < fileBuffer.size();)
         {
-            auto lineEnd = std::find(fileBuffer.begin() + lineStart, fileBuffer.end(), '\n');
+            auto       lineEnd = std::find(fileBuffer.begin() + lineStart, fileBuffer.end(), '\n');
             const auto nextLine =
                 lineEnd == fileBuffer.end()
                     ? fileBuffer.size()
@@ -880,8 +887,7 @@ namespace scid::spelling
     // the holes that - as a consequence - will appear in the rating graph constructed here!
     //
     void
-    PlayerElo::addEloData(
-        const char* str)
+    PlayerElo::addEloData(const char* str)
     {
         while (1)
         {
@@ -989,7 +995,7 @@ namespace scid::spelling
         }
 
         const char* end = start;
-        int length = 0;
+        int         length = 0;
         while (*end != ' ' && *end != 0)
         {
             end++;

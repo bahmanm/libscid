@@ -1,8 +1,7 @@
 #include "test_libscid.h"
 
 int
-main(
-    void)
+main(void)
 {
     test_square();
     test_piece();

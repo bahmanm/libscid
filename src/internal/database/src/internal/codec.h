@@ -56,14 +56,16 @@ namespace scid::database
             virtual ~ICodecDatabase()
             {}
 
-            friend std::pair<ICodecDatabase*, scid::core::errorT>
+            friend std::pair<
+                ICodecDatabase*,
+                scid::core::errorT>
             openCodec(
-                CodecType codec,
-                fileModeT fMode,
-                const char* filename,
+                CodecType       codec,
+                fileModeT       fMode,
+                const char*     filename,
                 const Progress& progress,
-                Index* idx,
-                NameBase* nb);
+                Index*          idx,
+                NameBase*       nb);
 
             /**
              * Returns the codec type.
@@ -83,14 +85,18 @@ namespace scid::database
              * Returns a vector of tag pairs containing extra information about the
              * database (type, description, autoload, etc..)
              */
-            virtual std::vector<std::pair<const char*, std::string>>
+            virtual std::vector<std::pair<
+                const char*,
+                std::string>>
             getExtraInfo() const = 0;
 
             /**
              * Store an extra information about the database (type, description, etc..)
              */
             virtual scid::core::errorT
-            setExtraInfo(const char* tagname, const char* new_value) = 0;
+            setExtraInfo(
+                const char* tagname,
+                const char* new_value) = 0;
 
             /**
              * Fetches the data (encoded in native format) of a game.
@@ -104,7 +110,9 @@ namespace scid::database
              * - 0 (nullptr) on error.
              */
             virtual ByteBuffer
-            getGameData(uint64_t offset, uint32_t length) = 0;
+            getGameData(
+                uint64_t offset,
+                uint32_t length) = 0;
             virtual ByteBuffer
             getGameMoves(IndexEntry const& ie) = 0;
 
@@ -116,7 +124,10 @@ namespace scid::database
              * @returns scid::core::OK if successful or an error code.
              */
             virtual scid::core::errorT
-            addGame(IndexEntry const& ie, TagRoster const& tags, ByteBuffer const& data) = 0;
+            addGame(
+                IndexEntry const& ie,
+                TagRoster const&  tags,
+                ByteBuffer const& data) = 0;
 
             /**
              * Replaces a game in the database.
@@ -129,9 +140,9 @@ namespace scid::database
             virtual scid::core::errorT
             saveGame(
                 IndexEntry const& ie,
-                TagRoster const& tags,
+                TagRoster const&  tags,
                 ByteBuffer const& data,
-                gamenumT replaced) = 0;
+                gamenumT          replaced) = 0;
 
             /**
              * Replaces a game's IndexEntry (which contains the header data of a game).
@@ -140,7 +151,9 @@ namespace scid::database
              * @returns scid::core::OK if successful or an error code.
              */
             virtual scid::core::errorT
-            saveIndexEntry(const IndexEntry& ie, gamenumT replaced) = 0;
+            saveIndexEntry(
+                const IndexEntry& ie,
+                gamenumT          replaced) = 0;
 
             /**
              * Adds a name (player, event, site or round) to the database.
@@ -150,8 +163,12 @@ namespace scid::database
              * - on success, a @e std::pair containing scid::core::OK and the corresponding ID.
              * - on failure, a @e std::pair containing an error code and 0.
              */
-            virtual std::pair<scid::core::errorT, idNumberT>
-            addName(nameT nt, const char* name) = 0;
+            virtual std::pair<
+                scid::core::errorT,
+                idNumberT>
+            addName(
+                nameT       nt,
+                const char* name) = 0;
 
             /**
              * Writes all pending output to the files.
@@ -178,11 +195,11 @@ namespace scid::database
              */
             virtual scid::core::errorT
             dyn_open(
-                fileModeT fMode,
-                const char* filename,
+                fileModeT       fMode,
+                const char*     filename,
                 const Progress& progress,
-                Index* idx,
-                NameBase* nb) = 0;
+                Index*          idx,
+                NameBase*       nb) = 0;
     };
 
     /**
@@ -190,14 +207,16 @@ namespace scid::database
      * @returns a valid codec and scid::core::OK/error warning on usable open, otherwise
      *          nullptr and the error code.
      */
-    std::pair<ICodecDatabase*, scid::core::errorT>
+    std::pair<
+        ICodecDatabase*,
+        scid::core::errorT>
     openCodec(
-        CodecType codec,
-        fileModeT fMode,
-        const char* filename,
+        CodecType       codec,
+        fileModeT       fMode,
+        const char*     filename,
         const Progress& progress,
-        Index* idx,
-        NameBase* nb);
+        Index*          idx,
+        NameBase*       nb);
 
 } // namespace scid::database
 #endif

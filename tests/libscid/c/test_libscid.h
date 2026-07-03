@@ -10,25 +10,24 @@ static const char* TEST_STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQK
 static const char* TEST_SCRATCH_FEN = "8/K7/8/8/7k/8/8/8 w - - 0 1";
 
 static scid_error
-test_position_create_standard(
-    scid_position** out_position)
+test_position_create_standard(scid_position** out_position)
 {
     return scid_position_create_from_fen(TEST_STANDARD_FEN, out_position);
 }
 
+
 static scid_error
-test_position_create_empty(
-    scid_position** out_position)
+test_position_create_empty(scid_position** out_position)
 {
     return scid_position_create_from_fen(TEST_SCRATCH_FEN, out_position);
 }
 
+
 static scid_error
-test_game_create_blank(
-    scid_game** out_game)
+test_game_create_blank(scid_game** out_game)
 {
     scid_position* position = 0;
-    scid_error error = test_position_create_standard(&position);
+    scid_error     error = test_position_create_standard(&position);
     if (error != SCID_OK)
     {
         return error;
@@ -39,17 +38,18 @@ test_game_create_blank(
     return error;
 }
 
+
 static scid_error
 test_game_create(
     const char* pgn,
-    size_t pgn_size,
+    size_t      pgn_size,
     scid_game** out_game,
-    char* out_diagnostic,
-    size_t out_diagnostic_capacity,
-    size_t* out_diagnostic_size)
+    char*       out_diagnostic,
+    size_t      out_diagnostic_capacity,
+    size_t*     out_diagnostic_size)
 {
     scid_position* position = 0;
-    scid_error error = test_position_create_standard(&position);
+    scid_error     error = test_position_create_standard(&position);
     if (error != SCID_OK)
     {
         return error;
@@ -62,16 +62,18 @@ test_game_create(
     return error;
 }
 
+
 static void
 test_cursor_take(
     scid_game_cursor** cursor,
-    scid_game_cursor* next_cursor)
+    scid_game_cursor*  next_cursor)
 {
     assert(cursor != 0);
     assert(next_cursor != 0);
     scid_game_cursor_free(*cursor);
     *cursor = next_cursor;
 }
+
 
 void
 test_cursor(void);

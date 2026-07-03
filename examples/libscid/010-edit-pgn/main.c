@@ -5,7 +5,7 @@
 
 static int
 check(
-    scid_error error,
+    scid_error  error,
     const char* call)
 {
     if (error == SCID_OK)
@@ -17,6 +17,7 @@ check(
     return 0;
 }
 
+
 static int
 contains(
     const char* text,
@@ -25,35 +26,35 @@ contains(
     return strstr(text, needle) != NULL;
 }
 
+
 int
-main(
-    void)
+main(void)
 {
-    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const char* pgn = "[Event \"St Petersburg final\"]\n"
-                      "[Site \"St Petersburg\"]\n"
-                      "[Date \"1914.05.18\"]\n"
-                      "[Round \"7\"]\n"
-                      "[White \"Lasker, Emanuel\"]\n"
-                      "[Black \"Capablanca, Jose Raul\"]\n"
-                      "[Result \"1-0\"]\n"
-                      "[ECO \"C68\"]\n"
-                      "[EventDate \"1914.04.21\"]\n"
-                      "[Annotator \"Example\"]\n"
-                      "\n"
-                      "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0\n";
-    scid_game* game = NULL;
+    const char*    start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const char*    pgn = "[Event \"St Petersburg final\"]\n"
+                         "[Site \"St Petersburg\"]\n"
+                         "[Date \"1914.05.18\"]\n"
+                         "[Round \"7\"]\n"
+                         "[White \"Lasker, Emanuel\"]\n"
+                         "[Black \"Capablanca, Jose Raul\"]\n"
+                         "[Result \"1-0\"]\n"
+                         "[ECO \"C68\"]\n"
+                         "[EventDate \"1914.04.21\"]\n"
+                         "[Annotator \"Example\"]\n"
+                         "\n"
+                         "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0\n";
+    scid_game*     game = NULL;
     scid_position* position = NULL;
-    char diagnostic[1024];
-    char name[64];
-    char value[256];
-    char encoded[4096];
-    size_t diagnostic_size = 0;
-    size_t name_size = 0;
-    size_t value_size = 0;
-    size_t encoded_size = 0;
-    size_t tag_count = 0;
-    int removed = 0;
+    char           diagnostic[1024];
+    char           name[64];
+    char           value[256];
+    char           encoded[4096];
+    size_t         diagnostic_size = 0;
+    size_t         name_size = 0;
+    size_t         value_size = 0;
+    size_t         encoded_size = 0;
+    size_t         tag_count = 0;
+    int            removed = 0;
 
     if (!check(
             scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||

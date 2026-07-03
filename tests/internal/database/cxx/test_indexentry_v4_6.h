@@ -60,21 +60,21 @@ class IndexEntry
         // Name ID values are packed into 12 bytes, saving 8 bytes over the
         // simpler method of just storing each as a 4-scid::core::byte scid::database::idNumberT.
         scid::core::byte WhiteBlack_High; // High bits of White, Black.
-        uint16_t WhiteID_Low;             // Lower 16 bits of White ID.
-        uint16_t BlackID_Low;             // Lower 16 bits of Black ID.
-        uint16_t EventID_Low;             // Lower 16 bits of Site.
-        uint16_t SiteID_Low;              // Lower 16 bits of Site ID.
-        uint16_t RoundID_Low;             // Lower 16 bits of Round ID.
-        uint16_t Flags;
-        uint16_t VarCounts;              // Counters for comments, variations, etc.
+        uint16_t         WhiteID_Low;     // Lower 16 bits of White ID.
+        uint16_t         BlackID_Low;     // Lower 16 bits of Black ID.
+        uint16_t         EventID_Low;     // Lower 16 bits of Site.
+        uint16_t         SiteID_Low;      // Lower 16 bits of Site ID.
+        uint16_t         RoundID_Low;     // Lower 16 bits of Round ID.
+        uint16_t         Flags;
+        uint16_t         VarCounts;      // Counters for comments, variations, etc.
                                          // VarCounts also stores the result.
         scid::database::EcoCode EcoCode; // ECO code
-        scid::core::dateT Dates;         // Date and EventDate fields.
-        scid::core::ratingT WhiteElo;
-        scid::core::ratingT BlackElo;
+        scid::core::dateT       Dates;   // Date and EventDate fields.
+        scid::core::ratingT     WhiteElo;
+        scid::core::ratingT     BlackElo;
         scid::database::matSigT FinalMatSig; // material of the final position in the game,
                                              // and the StoredLineCode in the top 8 bits.
-        uint16_t NumHalfMoves;
+        uint16_t         NumHalfMoves;
         scid::core::byte HomePawnData[HPSIG_SIZE]; // homePawnSig data.
         scid::core::byte EventSiteRnd_High;        // High bits of Event, Site, Round.
 
@@ -83,10 +83,14 @@ class IndexEntry
         Init();
         template <class T>
         scid::core::errorT
-        Read(T* file, scid::database::versionT version);
+        Read(
+            T*                       file,
+            scid::database::versionT version);
         template <class T>
         scid::core::errorT
-        Write(T* file, scid::database::versionT version) const;
+        Write(
+            T*                       file,
+            scid::database::versionT version) const;
 
         uint32_t
         GetOffset() const
@@ -94,8 +98,7 @@ class IndexEntry
             return Offset;
         }
         void
-        SetOffset(
-            uint64_t offset)
+        SetOffset(uint64_t offset)
         {
             Offset = static_cast<uint32_t>(offset);
         }
@@ -105,8 +108,7 @@ class IndexEntry
             return Length_Low + (uint32_t(Length_High & 0x80) << 9);
         }
         void
-        SetLength(
-            size_t length)
+        SetLength(size_t length)
         {
             Length_Low = static_cast<uint16_t>(length & 0xFFFF);
             // preserve the last 7 bits
@@ -141,8 +143,7 @@ class IndexEntry
             return id;
         }
         scid::database::idNumberT
-        GetPlayer(
-            scid::core::colorT col) const
+        GetPlayer(scid::core::colorT col) const
         {
             if (col == scid::core::BLACK)
                 return GetBlack();
@@ -176,17 +177,16 @@ class IndexEntry
             return id;
         }
 
+
         void
-        SetWhite(
-            scid::database::idNumberT id)
+        SetWhite(scid::database::idNumberT id)
         {
             WhiteID_Low = id & 0xFFFF;
             WhiteBlack_High = WhiteBlack_High & 0x0F; // Clear bits 4-7.
             WhiteBlack_High |= ((id >> 16) << 4);     // Set bits 4-7.
         }
         void
-        SetBlack(
-            scid::database::idNumberT id)
+        SetBlack(scid::database::idNumberT id)
         {
             BlackID_Low = id & 0xFFFF;
             WhiteBlack_High = WhiteBlack_High & 0xF0; // Clear bits 0-3.
@@ -194,7 +194,7 @@ class IndexEntry
         }
         void
         SetPlayer(
-            scid::core::colorT col,
+            scid::core::colorT        col,
             scid::database::idNumberT id)
         {
             if (col == scid::core::BLACK)
@@ -202,8 +202,7 @@ class IndexEntry
             return SetWhite(id);
         }
         void
-        SetEvent(
-            scid::database::idNumberT id)
+        SetEvent(scid::database::idNumberT id)
         {
             EventID_Low = id & 0xFFFF;
             // Clear bits 2-4 of EventSiteRnd_high: 31 = 00011111 binary.
@@ -211,8 +210,7 @@ class IndexEntry
             EventSiteRnd_High |= ((id >> 16) << 5);
         }
         void
-        SetSite(
-            scid::database::idNumberT id)
+        SetSite(scid::database::idNumberT id)
         {
             SiteID_Low = id & 0xFFFF;
             // Clear bits 2-4 of EventSiteRnd_high: 227 = 11100011 binary.
@@ -220,8 +218,7 @@ class IndexEntry
             EventSiteRnd_High |= ((id >> 16) << 2);
         }
         void
-        SetRound(
-            scid::database::idNumberT id)
+        SetRound(scid::database::idNumberT id)
         {
             RoundID_Low = id & 0xFFFF;
             // Clear bits 0-1 of EventSiteRnd_high: 252 = 11111100 binary.
@@ -229,36 +226,33 @@ class IndexEntry
             EventSiteRnd_High |= (id >> 16);
         }
 
+
         const char*
-        GetWhiteName(
-            const scid::database::NameBase* nb) const
+        GetWhiteName(const scid::database::NameBase* nb) const
         {
             return nb->GetName(scid::database::NAME_PLAYER, GetWhite());
         }
         const char*
-        GetBlackName(
-            const scid::database::NameBase* nb) const
+        GetBlackName(const scid::database::NameBase* nb) const
         {
             return nb->GetName(scid::database::NAME_PLAYER, GetBlack());
         }
         const char*
-        GetEventName(
-            const scid::database::NameBase* nb) const
+        GetEventName(const scid::database::NameBase* nb) const
         {
             return nb->GetName(scid::database::NAME_EVENT, GetEvent());
         }
         const char*
-        GetSiteName(
-            const scid::database::NameBase* nb) const
+        GetSiteName(const scid::database::NameBase* nb) const
         {
             return nb->GetName(scid::database::NAME_SITE, GetSite());
         }
         const char*
-        GetRoundName(
-            const scid::database::NameBase* nb) const
+        GetRoundName(const scid::database::NameBase* nb) const
         {
             return nb->GetName(scid::database::NAME_ROUND, GetRound());
         }
+
 
         scid::core::dateT
         GetDate() const
@@ -283,11 +277,11 @@ class IndexEntry
         scid::core::dateT
         GetEventDate() const
         {
-            scid::core::uint dyear = scid::core::date_GetYear(GetDate());
+            scid::core::uint  dyear = scid::core::date_GetYear(GetDate());
             scid::core::dateT edate = u32_high_12(Dates);
-            scid::core::uint month = scid::core::date_GetMonth(edate);
-            scid::core::uint day = scid::core::date_GetDay(edate);
-            scid::core::uint year = scid::core::date_GetYear(edate) & 7;
+            scid::core::uint  month = scid::core::date_GetMonth(edate);
+            scid::core::uint  day = scid::core::date_GetDay(edate);
+            scid::core::uint  year = scid::core::date_GetYear(edate) & 7;
             if (year == 0)
             {
                 return scid::core::ZERO_DATE;
@@ -311,8 +305,7 @@ class IndexEntry
             return u16_low_12(BlackElo);
         }
         scid::core::ratingT
-        GetElo(
-            scid::core::colorT col) const
+        GetElo(scid::core::colorT col) const
         {
             if (col == scid::core::BLACK)
                 return GetBlackElo();
@@ -342,14 +335,12 @@ class IndexEntry
         GetRating(const scid::database::NameBase* nb) const;
 
         void
-        SetDate(
-            scid::core::dateT date)
+        SetDate(scid::core::dateT date)
         {
             Dates = u32_set_low_20(Dates, date);
         }
         void
-        SetEventDate(
-            scid::core::dateT edate)
+        SetEventDate(scid::core::dateT edate)
         {
             scid::core::uint codedDate = scid::core::date_GetMonth(edate) << 5;
             codedDate |= scid::core::date_GetDay(edate);
@@ -368,51 +359,44 @@ class IndexEntry
             Dates = u32_set_high_12(Dates, codedDate);
         }
         void
-        SetResult(
-            scid::core::resultT res)
+        SetResult(scid::core::resultT res)
         {
             VarCounts = (VarCounts & 0x0FFF) | (((scid::core::ushort)res) << 12);
         }
         void
-        SetWhiteElo(
-            scid::core::ratingT elo)
+        SetWhiteElo(scid::core::ratingT elo)
         {
             WhiteElo = u16_set_low_12(WhiteElo, elo);
         }
         void
-        SetBlackElo(
-            scid::core::ratingT elo)
+        SetBlackElo(scid::core::ratingT elo)
         {
             BlackElo = u16_set_low_12(BlackElo, elo);
         }
         void
-        SetWhiteRatingType(
-            scid::core::ratingTypeT b)
+        SetWhiteRatingType(scid::core::ratingTypeT b)
         {
             WhiteElo = u16_set_high_4(WhiteElo, b);
         }
         void
-        SetBlackRatingType(
-            scid::core::ratingTypeT b)
+        SetBlackRatingType(scid::core::ratingTypeT b)
         {
             BlackElo = u16_set_high_4(BlackElo, b);
         }
         void
-        SetEcoCode(
-            scid::database::EcoCode eco)
+        SetEcoCode(scid::database::EcoCode eco)
         {
             EcoCode = eco;
         }
         void
-        SetNumHalfMoves(
-            scid::core::ushort b)
+        SetNumHalfMoves(scid::core::ushort b)
         {
             NumHalfMoves = b;
         }
 
+
         bool
-        GetFlag(
-            uint32_t mask) const
+        GetFlag(uint32_t mask) const
         {
             uint32_t tmp = Flags;
             if ((mask & 0xFFFF0000) != 0)
@@ -458,6 +442,7 @@ class IndexEntry
             return (Flags & (1 << IDX_FLAG_DELETE)) != 0;
         }
 
+
         static scid::core::uint
         CharToFlag(char ch);
         static uint32_t
@@ -465,7 +450,9 @@ class IndexEntry
         static uint32_t
         StrToFlagMask(const char* flags);
         scid::core::uint
-        GetFlagStr(char* dest, const char* flags) const;
+        GetFlagStr(
+            char*       dest,
+            const char* flags) const;
 
         scid::core::uint
         GetVariationCount() const
@@ -482,6 +469,7 @@ class IndexEntry
         {
             return DecodeCount((VarCounts >> 8) & 15);
         }
+
 
         scid::database::matSigT
         GetFinalMatSig() const
@@ -504,10 +492,11 @@ class IndexEntry
             return HomePawnData;
         }
 
+
         void
         SetFlag(
             uint32_t flagMask,
-            bool b)
+            bool     b)
         {
             uint16_t flagLow = flagMask & 0xFFFF;
             if (flagLow != 0)
@@ -536,26 +525,22 @@ class IndexEntry
             }
         }
         void
-        SetStartFlag(
-            bool b)
+        SetStartFlag(bool b)
         {
             SetFlag(1 << IDX_FLAG_START, b);
         }
         void
-        SetPromotionsFlag(
-            bool b)
+        SetPromotionsFlag(bool b)
         {
             SetFlag(1 << IDX_FLAG_PROMO, b);
         }
         void
-        SetUnderPromoFlag(
-            bool b)
+        SetUnderPromoFlag(bool b)
         {
             SetFlag(1 << IDX_FLAG_UPROMO, b);
         }
         void
-        SetDeleteFlag(
-            bool b)
+        SetDeleteFlag(bool b)
         {
             SetFlag(1 << IDX_FLAG_DELETE, b);
         }
@@ -565,34 +550,31 @@ class IndexEntry
             return SetFlag(IDX_MASK_ALLFLAGS, false);
         }
 
+
         void
-        SetVariationCount(
-            scid::core::uint x)
+        SetVariationCount(scid::core::uint x)
         {
             VarCounts = (VarCounts & 0xFFF0U) | EncodeCount(x);
         }
         void
-        SetCommentCount(
-            scid::core::uint x)
+        SetCommentCount(scid::core::uint x)
         {
             VarCounts = (VarCounts & 0xFF0FU) | (EncodeCount(x) << 4);
         }
         void
-        SetNagCount(
-            scid::core::uint x)
+        SetNagCount(scid::core::uint x)
         {
             VarCounts = (VarCounts & 0xF0FFU) | (EncodeCount(x) << 8);
         }
 
+
         void
-        SetFinalMatSig(
-            scid::database::matSigT ms)
+        SetFinalMatSig(scid::database::matSigT ms)
         {
             FinalMatSig = u32_set_low_24(FinalMatSig, ms);
         }
         void
-        SetStoredLineCode(
-            scid::core::byte b)
+        SetStoredLineCode(scid::core::byte b)
         {
             FinalMatSig = u32_set_high_8(FinalMatSig, b);
         }
@@ -628,8 +610,7 @@ class IndexEntry
 
     private:
         static scid::core::uint
-        EncodeCount(
-            scid::core::uint x)
+        EncodeCount(scid::core::uint x)
         {
             if (x <= 10)
             {
@@ -658,8 +639,7 @@ class IndexEntry
             return 15; // 15 indicates 50 or more
         }
         static scid::core::uint
-        DecodeCount(
-            scid::core::uint x)
+        DecodeCount(scid::core::uint x)
         {
             static scid::core::uint countCodes[16] = {
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50};
@@ -668,46 +648,46 @@ class IndexEntry
 
         // Bitmask functions for index entry decoding:
         static scid::core::byte
-        u32_high_8(
-            scid::core::uint x)
+        u32_high_8(scid::core::uint x)
         {
             return (scid::core::byte)(x >> 24);
         }
 
+
         static scid::core::uint
-        u32_low_24(
-            scid::core::uint x)
+        u32_low_24(scid::core::uint x)
         {
             return x & 0x00FFFFFF;
         }
 
+
         static scid::core::uint
-        u32_high_12(
-            scid::core::uint x)
+        u32_high_12(scid::core::uint x)
         {
             return x >> 20;
         }
 
+
         static scid::core::uint
-        u32_low_20(
-            scid::core::uint x)
+        u32_low_20(scid::core::uint x)
         {
             return x & 0x000FFFFF;
         }
 
+
         static scid::core::byte
-        u16_high_4(
-            scid::core::ushort x)
+        u16_high_4(scid::core::ushort x)
         {
             return (scid::core::byte)(x >> 12);
         }
 
+
         static scid::core::ushort
-        u16_low_12(
-            scid::core::ushort x)
+        u16_low_12(scid::core::ushort x)
         {
             return x & 0x0FFF;
         }
+
 
         static scid::core::uint
         u32_set_high_8(
@@ -717,6 +697,7 @@ class IndexEntry
             return u32_low_24(u) | ((scid::core::uint)x << 24);
         }
 
+
         static scid::core::uint
         u32_set_low_24(
             scid::core::uint u,
@@ -724,6 +705,7 @@ class IndexEntry
         {
             return (u & 0xFF000000) | (x & 0x00FFFFFF);
         }
+
 
         static scid::core::uint
         u32_set_high_12(
@@ -733,6 +715,7 @@ class IndexEntry
             return u32_low_20(u) | (x << 20);
         }
 
+
         static scid::core::uint
         u32_set_low_20(
             scid::core::uint u,
@@ -741,13 +724,15 @@ class IndexEntry
             return (u & 0xFFF00000) | (x & 0x000FFFFF);
         }
 
+
         static scid::core::ushort
         u16_set_high_4(
             scid::core::ushort u,
-            scid::core::byte x)
+            scid::core::byte   x)
         {
             return u16_low_12(u) | ((scid::core::ushort)x << 12);
         }
+
 
         static scid::core::ushort
         u16_set_low_12(
@@ -801,7 +786,7 @@ IndexEntry::Init()
 template <class T>
 scid::core::errorT
 IndexEntry::Read(
-    T* file,
+    T*                       file,
     scid::database::versionT version)
 {
     // Length of each gamefile record and its offset.
@@ -873,7 +858,7 @@ IndexEntry::Read(
 template <class T>
 scid::core::errorT
 IndexEntry::Write(
-    T* file,
+    T*                       file,
     scid::database::versionT version) const
 {
     // Cannot write old-version index files:
@@ -932,8 +917,7 @@ IndexEntry::Write(
 // scid::database::IndexEntry::CharToFlag():
 //    Returns the flag number corresponding to the given character.
 inline scid::core::uint
-IndexEntry::CharToFlag(
-    char ch)
+IndexEntry::CharToFlag(char ch)
 {
     scid::core::uint flag = 0;
     switch (toupper(ch))
@@ -1003,8 +987,7 @@ IndexEntry::CharToFlag(
 // scid::database::IndexEntry::CharToFlagMask():
 //    Transform a char in a mask that can be used with GetFlag() and SetFlag()
 inline uint32_t
-IndexEntry::CharToFlagMask(
-    char flag)
+IndexEntry::CharToFlagMask(char flag)
 {
     switch (toupper(flag))
     {
@@ -1062,8 +1045,7 @@ IndexEntry::CharToFlagMask(
 // scid::database::IndexEntry::StrToFlagMask():
 //    Transform a string in a mask that can be used with GetFlag() and SetFlag()
 inline uint32_t
-IndexEntry::StrToFlagMask(
-    const char* flags)
+IndexEntry::StrToFlagMask(const char* flags)
 {
     if (flags == 0)
         return 0;
@@ -1083,7 +1065,7 @@ IndexEntry::StrToFlagMask(
 //    Returns the number of specified flags that are turned on.
 inline scid::core::uint
 IndexEntry::GetFlagStr(
-    char* dest,
+    char*       dest,
     const char* flags) const
 {
     if (flags == NULL)

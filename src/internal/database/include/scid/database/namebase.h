@@ -115,9 +115,12 @@ namespace scid::database
              */
             idNumberT
             namebase_add(
-                nameT nt,
+                nameT            nt,
                 std::string_view name,
-                std::map<const char*, idNumberT, idxCmp>::iterator* hint = nullptr)
+                std::map<
+                    const char*,
+                    idNumberT,
+                    idxCmp>::iterator* hint = nullptr)
             {
                 ASSERT(IsValidNameType(nt));
                 ASSERT(names_[nt].size() <= std::numeric_limits<idNumberT>::max());
@@ -146,13 +149,13 @@ namespace scid::database
              */
             idNumberT
             namebase_find_or_add(
-                nameT nt,
+                nameT       nt,
                 const char* name)
             {
                 ASSERT(IsValidNameType(nt));
 
                 auto& nb = idx_[nt];
-                auto it = nb.lower_bound(name);
+                auto  it = nb.lower_bound(name);
                 if (it != nb.end() && !nb.key_comp()(name, it->first))
                     return it->second;
 
@@ -163,8 +166,7 @@ namespace scid::database
              * Returns the number of names stored in @p nt.
              */
             size_t
-            namebase_size(
-                nameT nt) const
+            namebase_size(nameT nt) const
             {
                 ASSERT(IsValidNameType(nt));
 
@@ -185,9 +187,9 @@ namespace scid::database
             bool
             insert(
                 const char* name,
-                size_t nameLen,
-                nameT nt,
-                idNumberT id)
+                size_t      nameLen,
+                nameT       nt,
+                idNumberT   id)
             {
                 if (id >= names_[nt].size())
                     names_[nt].resize(id + size_t{1});
@@ -220,14 +222,14 @@ namespace scid::database
              */
             std::vector<idNumberT>
             getFirstMatches(
-                nameT nt,
+                nameT       nt,
                 const char* str,
-                size_t maxMatches) const
+                size_t      maxMatches) const
             {
                 ASSERT(IsValidNameType(nt) && str != NULL);
 
                 std::vector<idNumberT> res;
-                size_t len = strlen(str);
+                size_t                 len = strlen(str);
                 for (auto it = idx_[nt].lower_bound(str);
                      it != idx_[nt].end() && res.size() < maxMatches; ++it)
                 {
@@ -247,7 +249,7 @@ namespace scid::database
              */
             const char*
             GetName(
-                nameT nt,
+                nameT     nt,
                 idNumberT id) const
             {
                 ASSERT(IsValidNameType(nt) && id < GetNumNames(nt));
@@ -274,8 +276,7 @@ namespace scid::database
              * bucket.
              */
             idNumberT
-            GetNumNames(
-                nameT nt) const
+            GetNumNames(nameT nt) const
             {
                 ASSERT(IsValidNameType(nt));
                 return static_cast<idNumberT>(names_[nt].size());
@@ -292,9 +293,9 @@ namespace scid::database
              */
             scid::core::errorT
             FindExactName(
-                nameT nt,
+                nameT       nt,
                 const char* str,
-                idNumberT* idPtr) const
+                idNumberT*  idPtr) const
             {
                 ASSERT(IsValidNameType(nt) && str != NULL && idPtr != NULL);
 
@@ -314,8 +315,7 @@ namespace scid::database
              * and lookup code that needs a compact, case-insensitive prefix key.
              */
             std::vector<uint32_t>
-            generateHashMap(
-                nameT nt) const
+            generateHashMap(nameT nt) const
             {
                 std::vector<uint32_t> res(names_[nt].size());
                 std::transform(
@@ -330,9 +330,10 @@ namespace scid::database
              * The returned array is indexed first by @c nameT, then by
              * @c idNumberT.  Player references count both White and Black fields.
              */
-            std::array<std::vector<int>, NUM_NAME_TYPES>
-            calcNameFreq(
-                Index const& idx) const
+            std::array<
+                std::vector<int>,
+                NUM_NAME_TYPES>
+            calcNameFreq(Index const& idx) const
             {
                 std::array<std::vector<int>, NUM_NAME_TYPES> resVec;
                 for (nameT n = NAME_PLAYER; n < NUM_NAME_TYPES; n++)
@@ -358,10 +359,9 @@ namespace scid::database
              * may have drifted apart or been repaired during load.
              */
             size_t
-            count_invalid_ids(
-                Index const& idx) const
+            count_invalid_ids(Index const& idx) const
             {
-                size_t n_invalid = 0;
+                size_t                             n_invalid = 0;
                 std::array<size_t, NUM_NAME_TYPES> maxID;
                 for (auto n = nameT{}; n < NUM_NAME_TYPES; n++)
                 {
@@ -383,8 +383,7 @@ namespace scid::database
              * Returns true when @p nt is one of the persisted name buckets.
              */
             static bool
-            IsValidNameType(
-                nameT nt)
+            IsValidNameType(nameT nt)
             {
                 return (nt < NUM_NAME_TYPES);
             }
@@ -399,8 +398,7 @@ namespace scid::database
              * @returns a valid @c nameT, or @c NAME_INVALID.
              */
             static nameT
-            NameTypeFromString(
-                const char* str)
+            NameTypeFromString(const char* str)
             {
                 if (*str == '\0')
                     return NAME_INVALID;
@@ -453,7 +451,7 @@ namespace scid::database
             template <typename TEntry>
             static TagRoster
             make(
-                TEntry const& ie,
+                TEntry const&   ie,
                 NameBase const& nb)
             {
                 TagRoster res;
@@ -472,11 +470,12 @@ namespace scid::database
              * @c {error, id} pair.  It may find existing names or add new ones,
              * depending on the storage backend.  Mapping stops at the first error.
              */
-            template <typename TEntry, typename Fn>
+            template <
+                typename TEntry,
+                typename Fn>
             auto
-            map(
-                TEntry& dest,
-                Fn getID) const
+            map(TEntry& dest,
+                Fn      getID) const
             {
                 {
                     auto [err, id] = getID(NAME_EVENT, event);

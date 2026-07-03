@@ -88,16 +88,14 @@ namespace scid::core
 
     /** Returns the PGN numeric code for @p nag. */
     constexpr std::uint8_t
-    nagCode(
-        Nag nag)
+    nagCode(Nag nag)
     {
         return std::to_underlying(nag);
     }
 
     /** Builds a Nag value from a numeric PGN code. */
     constexpr Nag
-    nagFromCode(
-        std::uint8_t value)
+    nagFromCode(std::uint8_t value)
     {
         return static_cast<Nag>(value);
     }
@@ -111,7 +109,9 @@ namespace scid::core
      * is known for the code, numeric @c $n form is used.
      */
     std::string
-    nagToString(Nag nag, bool asSymbol);
+    nagToString(
+        Nag  nag,
+        bool asSymbol);
     /** Returns the symbolic form for @p nag, or an empty view if none is known. */
     std::string_view
     nagToSymbol(Nag nag);

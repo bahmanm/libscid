@@ -5,7 +5,7 @@
 
 static int
 check(
-    scid_error error,
+    scid_error  error,
     const char* call)
 {
     if (error == SCID_OK)
@@ -17,6 +17,7 @@ check(
     return 0;
 }
 
+
 static int
 contains(
     const char* text,
@@ -25,36 +26,36 @@ contains(
     return strstr(text, expected) != NULL;
 }
 
+
 int
-main(
-    void)
+main(void)
 {
-    const char* pgn = "[Event \"Database PGN\"]\n"
-                      "[Site \"Toronto\"]\n"
-                      "[Date \"2026.06.14\"]\n"
-                      "[White \"Alpha\"]\n"
-                      "[Black \"Beta\"]\n"
-                      "[Result \"1-0\"]\n"
-                      "\n"
-                      "1. e4 e5 2. Nf3 1-0\n"
-                      "\n"
-                      "[Event \"Database PGN Two\"]\n"
-                      "[Site \"Vancouver\"]\n"
-                      "[Date \"2026.06.15\"]\n"
-                      "[White \"Gamma\"]\n"
-                      "[Black \"Delta\"]\n"
-                      "[Result \"0-1\"]\n"
-                      "\n"
-                      "1. d4 Nf6 0-1\n";
+    const char*    pgn = "[Event \"Database PGN\"]\n"
+                         "[Site \"Toronto\"]\n"
+                         "[Date \"2026.06.14\"]\n"
+                         "[White \"Alpha\"]\n"
+                         "[Black \"Beta\"]\n"
+                         "[Result \"1-0\"]\n"
+                         "\n"
+                         "1. e4 e5 2. Nf3 1-0\n"
+                         "\n"
+                         "[Event \"Database PGN Two\"]\n"
+                         "[Site \"Vancouver\"]\n"
+                         "[Date \"2026.06.15\"]\n"
+                         "[White \"Gamma\"]\n"
+                         "[Black \"Delta\"]\n"
+                         "[Result \"0-1\"]\n"
+                         "\n"
+                         "1. d4 Nf6 0-1\n";
     scid_database* database = NULL;
-    char diagnostic[1024];
-    char exported[2048];
-    char event[128];
-    size_t count = 0;
-    size_t diagnostic_size = 0;
-    size_t exported_size = 0;
-    size_t event_size = 0;
-    size_t imported_count = 0;
+    char           diagnostic[1024];
+    char           exported[2048];
+    char           event[128];
+    size_t         count = 0;
+    size_t         diagnostic_size = 0;
+    size_t         exported_size = 0;
+    size_t         event_size = 0;
+    size_t         imported_count = 0;
 
     if (!check(scid_database_create_memory("pgn-io", &database), "scid_database_create_memory") ||
         !check(

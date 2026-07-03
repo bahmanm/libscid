@@ -78,7 +78,11 @@ namespace scid::core::pgn
      *
      * @returns an iterator to the first character of the final line.
      */
-    template <int desired_len = 80, char breakpoint_char = '\0', int hard_len = 0, typename Iter>
+    template <
+        int  desired_len = 80,
+        char breakpoint_char = '\0',
+        int  hard_len = 0,
+        typename Iter>
     Iter
     break_lines(
         Iter begin,
@@ -129,8 +133,8 @@ namespace scid::core::pgn
     template <typename Iter>
     Iter
     break_lines(
-        Iter begin,
-        Iter end,
+        Iter     begin,
+        Iter     end,
         unsigned desired_len)
     {
         auto line_first_char = begin;
@@ -171,7 +175,7 @@ namespace scid::core::pgn
     template <typename TCont>
     void
     escape_string(
-        TCont& str,
+        TCont&                    str,
         typename TCont::size_type pos)
     {
         auto it = str.begin() + pos;
@@ -194,12 +198,14 @@ namespace scid::core::pgn
      * @tparam unknown_to_question_mark when true, empty Event, Site, Round, White,
      * and Black values are written as @c ?.
      */
-    template <bool unknown_to_question_mark = false, typename TCont>
+    template <
+        bool unknown_to_question_mark = false,
+        typename TCont>
     void
     encode_tag_pair(
         std::string_view tag,
         std::string_view value,
-        TCont& dest)
+        TCont&           dest)
     {
         dest.push_back('[');
         dest.insert(dest.end(), tag.begin(), tag.end());
@@ -232,11 +238,13 @@ namespace scid::core::pgn
      *
      * @returns true when @p comment was appended.
      */
-    template <int hard_len = 0, typename TCont>
+    template <
+        int hard_len = 0,
+        typename TCont>
     [[nodiscard]] bool
     encode_comment_rest_of_line(
         std::string_view comment,
-        TCont& dest)
+        TCont&           dest)
     {
         if ((hard_len != 0 && comment.size() >= hard_len) ||
             std::any_of(
@@ -259,11 +267,13 @@ namespace scid::core::pgn
      * first tries semicolon-comment form; when that is not possible, braces inside
      * the comment are replaced with UTF-8 fullwidth brace characters.
      */
-    template <int hard_len = 0, typename TCont>
+    template <
+        int hard_len = 0,
+        typename TCont>
     static void
     encode_comment(
         std::string_view comment,
-        TCont& dest)
+        TCont&           dest)
     {
         auto is_curly = [](char ch) { return ch == '{' || ch == '}'; };
         auto it_curly = std::find_if(comment.begin(), comment.end(), is_curly);
@@ -313,9 +323,9 @@ namespace scid::core::pgn
         /** Internal flattened movetext entry passed to encode_movetext_entry(). */
         struct MovetextEntry
         {
-                MovetextEntryKind kind;
-                std::string_view san;
-                std::string_view comment;
+                MovetextEntryKind    kind;
+                std::string_view     san;
+                std::string_view     comment;
                 std::span<const Nag> nags;
         };
 
@@ -323,8 +333,8 @@ namespace scid::core::pgn
         inline std::string
         san_for_move(
             scid::core::Position& position,
-            const Move& move,
-            scid::core::sanFlagT flag)
+            const Move&           move,
+            scid::core::sanFlagT  flag)
         {
             if (!move.san.empty())
                 return move.san;
@@ -333,14 +343,16 @@ namespace scid::core::pgn
         }
 
         /** Appends a flattened movetext entry to @p dest. */
-        template <int hard_len = 0, typename TCont>
+        template <
+            int hard_len = 0,
+            typename TCont>
         void
         encode_movetext_entry(
-            MovetextEntry const& entry,
-            std::vector<long long>& ply,
+            MovetextEntry const&       entry,
+            std::vector<long long>&    ply,
             typename TCont::size_type& move_end,
-            TCont& dest,
-            EncodeOptions options)
+            TCont&                     dest,
+            EncodeOptions              options)
         {
             switch (entry.kind)
             {
@@ -408,21 +420,23 @@ namespace scid::core::pgn
      * Use encode_movetext() or encode() unless those details are already part of
      * your export pipeline.
      */
-    template <int hard_len = 0, typename TCont>
+    template <
+        int hard_len = 0,
+        typename TCont>
     void
     encode_core_line(
-        MoveSequence const& line,
-        scid::core::Position position,
-        std::vector<long long>& ply,
+        MoveSequence const&        line,
+        scid::core::Position       position,
+        std::vector<long long>&    ply,
         typename TCont::size_type& move_end,
-        TCont& dest,
-        EncodeOptions options = {})
+        TCont&                     dest,
+        EncodeOptions              options = {})
     {
         for (std::size_t i = 0; i < line.moves.size(); ++i)
         {
             auto const& move = line.moves[i];
-            auto position_before_move = position;
-            const auto sanFlag =
+            auto        position_before_move = position;
+            const auto  sanFlag =
                 i + 1 == line.moves.size() ? scid::core::SAN_MATETEST : scid::core::SAN_CHECKTEST;
             const auto san = detail::san_for_move(position, move, sanFlag);
 
@@ -461,15 +475,17 @@ namespace scid::core::pgn
      * separation between PGN tag pairs and movetext in a complete game.  Token
      * separators remain as NUL bytes until break_lines() or encode() is called.
      */
-    template <int hard_len = 0, typename TCont>
+    template <
+        int hard_len = 0,
+        typename TCont>
     void
     encode_movetext(
-        Game const& game,
-        TCont& dest,
+        Game const&   game,
+        TCont&        dest,
         EncodeOptions options = {})
     {
         std::vector<long long> ply = {game.initialPlyCounter()};
-        auto move_end = dest.size();
+        auto                   move_end = dest.size();
         dest.push_back('\n');
 
         if (options.includeComments && !game.initialComment().empty())
@@ -496,8 +512,8 @@ namespace scid::core::pgn
     template <typename TCont>
     void
     encode_core_tag_pairs(
-        Game const& game,
-        TCont& dest,
+        Game const&   game,
+        TCont&        dest,
         EncodeOptions options = {})
     {
         char str_buf[256];
@@ -543,11 +559,13 @@ namespace scid::core::pgn
      * Token separators remain as NUL bytes.  This is useful for callers that want
      * to choose their own wrapping policy; use encode() for normal PGN text.
      */
-    template <int hard_len = 0, typename TCont>
+    template <
+        int hard_len = 0,
+        typename TCont>
     void
     encode_game(
-        Game const& game,
-        TCont& dest,
+        Game const&   game,
+        TCont&        dest,
         EncodeOptions options = {})
     {
         encode_core_tag_pairs(game, dest, options);
@@ -568,11 +586,14 @@ namespace scid::core::pgn
      * scid::core::pgn::encode(game, pgn);
      * @endcode
      */
-    template <int desired_len = 80, typename TGame, typename TCont>
+    template <
+        int desired_len = 80,
+        typename TGame,
+        typename TCont>
     void
     encode(
-        TGame const& game,
-        TCont& dest,
+        TGame const&  game,
+        TCont&        dest,
         EncodeOptions options = {})
     {
         auto begin = dest.size();

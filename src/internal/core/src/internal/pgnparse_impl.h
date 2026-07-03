@@ -27,20 +27,22 @@ namespace scid::core::pgn_impl
         return static_cast<unsigned>(std::strtoul(tmp.c_str(), nullptr, 10));
     }
 
+
     inline scid::core::MovetextLocation
     currentLocation(
-        const scid::core::Game& game,
+        const scid::core::Game&             game,
         const scid::core::MovetextLocation* location)
     {
         (void)game;
         return location ? *location : scid::core::MovetextLocation{};
     }
 
+
     inline void
     setCurrentLocation(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation* location,
-        scid::core::MovetextLocation value)
+        scid::core::MovetextLocation  value)
     {
         if (location)
         {
@@ -49,12 +51,13 @@ namespace scid::core::pgn_impl
         (void)game;
     }
 
+
     inline std::string_view
     currentMoveComment(
-        const scid::core::Game& game,
+        const scid::core::Game&             game,
         const scid::core::MovetextLocation* location = nullptr)
     {
-        scid::core::GameCursor cursor(game);
+        scid::core::GameCursor      cursor(game);
         [[maybe_unused]] const bool restored = cursor.restore(currentLocation(game, location));
         assert(restored);
 
@@ -65,35 +68,38 @@ namespace scid::core::pgn_impl
         return game.movetext().initialComment;
     }
 
+
     inline bool
     setCurrentMoveComment(
-        scid::core::Game& game,
-        std::string_view comment,
+        scid::core::Game&                   game,
+        std::string_view                    comment,
         const scid::core::MovetextLocation* location = nullptr)
     {
-        scid::core::MovetextCursor cursor(game);
+        scid::core::MovetextCursor  cursor(game);
         [[maybe_unused]] const bool restored = cursor.restore(currentLocation(game, location));
         assert(restored);
         return cursor.setComment(comment);
     }
 
+
     inline bool
     addCurrentMoveNag(
-        scid::core::Game& game,
-        scid::core::Nag nag,
+        scid::core::Game&                   game,
+        scid::core::Nag                     nag,
         const scid::core::MovetextLocation* location = nullptr)
     {
-        scid::core::MovetextCursor cursor(game);
+        scid::core::MovetextCursor  cursor(game);
         [[maybe_unused]] const bool restored = cursor.restore(currentLocation(game, location));
         assert(restored);
         return cursor.addPreviousMoveNag(nag);
     }
 
+
     inline scid::core::errorT
     resetStartFen(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation* location,
-        const char* fen)
+        const char*                   fen)
     {
         scid::core::Position position;
         if (auto err = position.ReadFromFEN(fen))
@@ -108,21 +114,23 @@ namespace scid::core::pgn_impl
 
     class PgnVisitor
     {
-            scid::core::Game& game;
-            scid::core::MovetextLocation ownedLocation_;
-            scid::core::MovetextLocation* location_;
+            scid::core::Game&                           game;
+            scid::core::MovetextLocation                ownedLocation_;
+            scid::core::MovetextLocation*               location_;
             std::vector<std::pair<size_t, std::string>> errors_;
-            size_t linenum_ = 0;
-            int nErrorsAllowed_ = 2;
+            size_t                                      linenum_ = 0;
+            int                                         nErrorsAllowed_ = 2;
 
             using TView = std::pair<const char*, const char*>;
 
         public:
             explicit PgnVisitor(
-                scid::core::Game& g,
+                scid::core::Game&             g,
                 scid::core::MovetextLocation* location = nullptr)
-                : game(g), location_(location ? location : &ownedLocation_)
+                : game(g),
+                  location_(location ? location : &ownedLocation_)
             {}
+
 
             auto const&
             errors() const
@@ -140,12 +148,14 @@ namespace scid::core::pgn_impl
                 return nErrorsAllowed_ < 0;
             }
 
+
             void
             visitPGN_inputEOF()
             {
                 if (nErrorsAllowed_)
                     logErr("Unexpected end of input (result missing ?).");
             }
+
 
             void
             visitPGN_inputUnexpectedPGNHeader()
@@ -156,9 +166,9 @@ namespace scid::core::pgn_impl
                         "inside game (result missing ?).");
             }
 
+
             bool
-            visitPGN_Comment(
-                TView comment)
+            visitPGN_Comment(TView comment)
             {
                 if (nErrorsAllowed_ < 0)
                 {
@@ -176,6 +186,7 @@ namespace scid::core::pgn_impl
                 return true;
             }
 
+
             bool
             visitPGN_EndOfLine()
             {
@@ -183,9 +194,9 @@ namespace scid::core::pgn_impl
                 return true;
             }
 
+
             void
-            visitPGN_EPD(
-                TView line)
+            visitPGN_EPD(TView line)
             {
                 assert(nErrorsAllowed_ >= 0);
                 std::string tmp(line.first, line.second);
@@ -203,23 +214,23 @@ namespace scid::core::pgn_impl
                 }
             }
 
+
             bool
-            visitPGN_Escape(
-                TView)
+            visitPGN_Escape(TView)
             {
                 return true;
             }
 
+
             bool
-            visitPGN_MoveNum(
-                TView)
+            visitPGN_MoveNum(TView)
             {
                 return true;
             }
 
+
             bool
-            visitPGN_NAG(
-                TView token)
+            visitPGN_NAG(TView token)
             {
                 if (nErrorsAllowed_ < 0)
                     return true;
@@ -233,9 +244,9 @@ namespace scid::core::pgn_impl
                 return true;
             }
 
+
             void
-            visitPGN_ResultFinal(
-                char resultCh)
+            visitPGN_ResultFinal(char resultCh)
             {
                 auto result = scid::core::RESULT_None;
                 switch (resultCh)
@@ -262,14 +273,14 @@ namespace scid::core::pgn_impl
                 }
             }
 
+
             bool
-            visitPGN_SANMove(
-                TView tok)
+            visitPGN_SANMove(TView tok)
             {
                 if (nErrorsAllowed_ < 0)
                     return true;
 
-                scid::core::GameCursor cursor(game);
+                scid::core::GameCursor      cursor(game);
                 [[maybe_unused]] const bool restored =
                     cursor.restore(currentLocation(game, location_));
                 assert(restored);
@@ -278,7 +289,7 @@ namespace scid::core::pgn_impl
                     return logFatalErr("Failed to parse the move: ", tok);
 
                 scid::core::MoveSpec spec;
-                auto err = position->parseMoveSpec(
+                auto                 err = position->parseMoveSpec(
                     spec, std::string_view(tok.first, tok.second - tok.first));
                 if (err != scid::core::OK)
                 {
@@ -289,7 +300,7 @@ namespace scid::core::pgn_impl
 
                     return logFatalErr("Failed to parse the move: ", tok);
                 }
-                scid::core::MovetextCursor moveCursor(game);
+                scid::core::MovetextCursor  moveCursor(game);
                 [[maybe_unused]] const bool moveRestored =
                     moveCursor.restore(currentLocation(game, location_));
                 assert(moveRestored);
@@ -298,12 +309,13 @@ namespace scid::core::pgn_impl
                 return true;
             }
 
+
             bool
-            visitPGN_Suffix(
-                TView token)
+            visitPGN_Suffix(TView token)
             {
                 return visitPGN_NAG(token);
             }
+
 
             bool
             visitPGN_TagPair(
@@ -319,8 +331,8 @@ namespace scid::core::pgn_impl
                 if (tagLen == 0 || tagLen + valueLen > 240 ||
                     !parseTagPair(tag.first, tagLen, value))
                 {
-                    const auto tag_sv = std::string_view(tag.first, tagLen);
-                    const auto value_sv = std::string_view(value.first, valueLen);
+                    const auto  tag_sv = std::string_view(tag.first, tagLen);
+                    const auto  value_sv = std::string_view(value.first, valueLen);
                     std::string tag_parsed;
                     std::string value_parsed;
                     if (auto parsed = parsedTagValue(tag_sv))
@@ -346,9 +358,9 @@ namespace scid::core::pgn_impl
                 return true;
             }
 
+
             bool
-            visitPGN_Unknown(
-                TView token)
+            visitPGN_Unknown(TView token)
             {
                 if (nErrorsAllowed_ < 0)
                     return true;
@@ -368,13 +380,14 @@ namespace scid::core::pgn_impl
                 return logErr("Unknown token: ", token);
             }
 
+
             bool
             visitPGN_VariationStart()
             {
                 if (nErrorsAllowed_ < 0)
                     return true;
 
-                scid::core::MovetextCursor cursor(game);
+                scid::core::MovetextCursor  cursor(game);
                 [[maybe_unused]] const bool restored =
                     cursor.restore(currentLocation(game, location_));
                 assert(restored);
@@ -385,13 +398,14 @@ namespace scid::core::pgn_impl
                 return true;
             }
 
+
             bool
             visitPGN_VariationEnd()
             {
                 if (nErrorsAllowed_ < 0)
                     return true;
 
-                scid::core::GameCursor cursor(game);
+                scid::core::GameCursor      cursor(game);
                 [[maybe_unused]] const bool restored =
                     cursor.restore(currentLocation(game, location_));
                 assert(restored);
@@ -406,7 +420,9 @@ namespace scid::core::pgn_impl
             bool
             logWarning(
                 const char* str1,
-                TView str2 = {nullptr, nullptr})
+                TView       str2 = {
+                    nullptr,
+                    nullptr})
             {
                 errors_.emplace_back(linenum_, str1);
                 if (std::distance(str2.first, str2.second) > 200)
@@ -421,27 +437,33 @@ namespace scid::core::pgn_impl
                 return true;
             }
 
+
             bool
             logErr(
                 const char* str1,
-                TView str2 = {nullptr, nullptr})
+                TView       str2 = {
+                    nullptr,
+                    nullptr})
             {
                 --nErrorsAllowed_;
                 return logWarning(str1, str2);
             }
 
+
             bool
             logFatalErr(
                 const char* str1,
-                TView str2 = {nullptr, nullptr})
+                TView       str2 = {
+                    nullptr,
+                    nullptr})
             {
                 nErrorsAllowed_ = 0;
                 return logErr(str1, str2);
             }
 
+
             bool
-            parseTagResult(
-                TView str)
+            parseTagResult(TView str)
             {
                 auto len = std::distance(str.first, str.second);
                 if (len > 0 && *str.first == '*')
@@ -470,24 +492,25 @@ namespace scid::core::pgn_impl
                 return logErr("Invalid Result tag: ", str);
             }
 
+
             int
             parseRating(
                 scid::core::colorT col,
-                const char* ratingType,
-                size_t ratingTypeLen,
-                TView rating)
+                const char*        ratingType,
+                size_t             ratingTypeLen,
+                TView              rating)
             {
-                const auto ratingTypeView = std::string_view{ratingType, ratingTypeLen};
+                const auto       ratingTypeView = std::string_view{ratingType, ratingTypeLen};
                 constexpr size_t ratingTypeCount = 7;
-                auto begin = scid::core::ratingTypeNames;
-                auto it = std::find_if(begin, begin + ratingTypeCount, [&](auto rType) {
+                auto             begin = scid::core::ratingTypeNames;
+                auto             it = std::find_if(begin, begin + ratingTypeCount, [&](auto rType) {
                     return ratingTypeView == std::string_view{rType};
                 });
                 auto rType = static_cast<scid::core::ratingTypeT>(std::distance(begin, it));
                 if (rType >= ratingTypeCount)
                     return -1;
 
-                int res = 1;
+                int  res = 1;
                 auto elo = parseUnsigned(rating.first, rating.second);
                 if (elo > 4000)
                 {
@@ -505,12 +528,12 @@ namespace scid::core::pgn_impl
                 return res;
             }
 
+
             std::optional<std::string>
-            parsedTagValue(
-                std::string_view tag) const
+            parsedTagValue(std::string_view tag) const
             {
                 auto const& coreGame = game;
-                char strBuf[256];
+                char        strBuf[256];
 
                 if (tag == "Event")
                     return coreGame.event();
@@ -562,11 +585,12 @@ namespace scid::core::pgn_impl
                 return std::nullopt;
             }
 
+
             bool
             parseTagPair(
                 const char* tag,
-                size_t tagLen,
-                TView value)
+                size_t      tagLen,
+                TView       value)
             {
                 switch (tagLen)
                 {
@@ -630,7 +654,7 @@ namespace scid::core::pgn_impl
                     }
                 }
                 size_t valueLen = std::distance(value.first, value.second);
-                auto& str = game.addTag({tag, tagLen}, {value.first, valueLen});
+                auto&  str = game.addTag({tag, tagLen}, {value.first, valueLen});
                 linenum_ += pgn::normalize<true>(str, 0);
                 return true;
             }
@@ -639,8 +663,8 @@ namespace scid::core::pgn_impl
     inline bool
     logGame(
         scid::core::pgn::ParseLog& log,
-        size_t nBytes,
-        const PgnVisitor& visitor)
+        size_t                     nBytes,
+        const PgnVisitor&          visitor)
     {
         ++log.n_games;
         for (auto& e : visitor.errors())

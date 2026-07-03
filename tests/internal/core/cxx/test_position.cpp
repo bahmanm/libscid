@@ -13,11 +13,13 @@
 namespace
 {
 
-    template <typename PosT, typename MoveT>
+    template <
+        typename PosT,
+        typename MoveT>
     auto
     parse_move(
-        PosT& pos,
-        MoveT dest,
+        PosT&            pos,
+        MoveT            dest,
         std::string_view move)
     {
         scid::core::MoveSpec spec;
@@ -58,8 +60,8 @@ TEST(
         "Qg1+"};
 
     scid::core::Position pos;
-    char buf[64];
-    auto it = std::begin(positions);
+    char                 buf[64];
+    auto                 it = std::begin(positions);
     for (; it != std::end(positions); ++it)
     {
         auto slen = std::strlen(*it);
@@ -155,7 +157,7 @@ TEST(
     ParsesCountersAndEpTarget)
 {
     scid::core::Position pos;
-    char buf[1024];
+    char                 buf[1024];
 
     EXPECT_EQ(scid::core::OK, pos.ReadFromFEN("8/K7/8/8/7k/8/8/8 w - - 45 25"));
     EXPECT_EQ(scid::core::NULL_SQUARE, pos.GetEPTarget());
@@ -173,8 +175,8 @@ TEST(
     RestoresCastlingFlags)
 {
     std::vector<scid::core::MoveAction> moves;
-    char buf[1024];
-    scid::core::Position pos;
+    char                                buf[1024];
+    scid::core::Position                pos;
     ASSERT_EQ(scid::core::OK, pos.ReadFromFEN("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1"));
 
     parse_move(pos, &moves.emplace_back(), "e1g1");

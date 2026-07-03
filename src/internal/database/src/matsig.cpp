@@ -25,8 +25,7 @@ namespace scid::database
 {
 
     std::string
-    matsig_makeString(
-        matSigT m)
+    matsig_makeString(matSigT m)
     {
         std::string s;
         s.reserve(32);
@@ -84,8 +83,8 @@ namespace scid::database
     matsig_isReachable(
         matSigT mStart,
         matSigT mTarget,
-        bool promos,
-        bool upromo)
+        bool    promos,
+        bool    upromo)
     {
         if (MATSIG_Count_WP(mStart) < MATSIG_Count_WP(mTarget))
         {
@@ -163,7 +162,7 @@ namespace scid::database
     //
     bool
     hpSig_PossibleMatch(
-        scid::core::uint hpSig,
+        scid::core::uint        hpSig,
         const scid::core::byte* changeList)
     {
         // First, the starting sig (all pawns home) can match any game:
@@ -227,7 +226,7 @@ namespace scid::database
         scid::core::uint countB = changeListB[0];
         changeListA++;
         changeListB++;
-        bool halfByte = false;
+        bool             halfByte = false;
         scid::core::byte changeA;
         scid::core::byte changeB;
 
@@ -264,13 +263,12 @@ namespace scid::database
     //      Returns the final home pawn signature value of a changeList.
     //
     scid::core::uint
-    hpSig_Final(
-        const scid::core::byte* changeList)
+    hpSig_Final(const scid::core::byte* changeList)
     {
         scid::core::uint hpSig = HPSIG_StdStart;
         scid::core::uint count = (scid::core::uint)changeList[0];
         changeList++;
-        bool halfByte = false;
+        bool             halfByte = false;
         scid::core::byte change;
         for (scid::core::uint i = 0; i < count; i++)
         {

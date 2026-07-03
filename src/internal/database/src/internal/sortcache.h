@@ -45,17 +45,17 @@ namespace scid::database
      */
     class SortCache
     {
-            gamenumT nGames_;
-            atomic_bool valid_fullMap_;
-            atomic_bool th_interrupt_;
-            bool partialHash_;
-            gamenumT* fullMap_;
-            void* th_;
-            uint32_t* hash_;
-            const Index* index_;
+            gamenumT        nGames_;
+            atomic_bool     valid_fullMap_;
+            atomic_bool     th_interrupt_;
+            bool            partialHash_;
+            gamenumT*       fullMap_;
+            void*           th_;
+            uint32_t*       hash_;
+            const Index*    index_;
             const NameBase* nbase_;
-            char criteria_[32];
-            int refCount_;
+            char            criteria_[32];
+            int             refCount_;
 
             // Valid fields that can be used to sort the games.
             enum
@@ -100,7 +100,10 @@ namespace scid::database
              * @returns a pointer to the new object in case of success, NULL otherwise.
              */
             static SortCache*
-            create(const Index* idx, const NameBase* nb, const char* criteria);
+            create(
+                const Index*    idx,
+                const NameBase* nb,
+                const char*     criteria);
             ~SortCache();
 
             /**
@@ -136,8 +139,11 @@ namespace scid::database
              * @returns the number of games' ids stored into @e result.
              */
             size_t
-            select(size_t row_offset, size_t row_count, const HFilter& filter, gamenumT* result)
-                const;
+            select(
+                size_t         row_offset,
+                size_t         row_count,
+                const HFilter& filter,
+                gamenumT*      result) const;
 
             /**
              * Get the sorted position of a game.
@@ -148,17 +154,21 @@ namespace scid::database
              * @returns the sorted position of @e gameId.
              */
             size_t
-            sortedPosition(gamenumT gameId, const HFilter& filter) const;
+            sortedPosition(
+                gamenumT       gameId,
+                const HFilter& filter) const;
 
             int
-            incrRef(
-                int incr)
+            incrRef(int incr)
             {
                 return refCount_ += incr;
             }
 
+
         private:
-            SortCache(const Index* idx, const NameBase* nbase);
+            SortCache(
+                const Index*    idx,
+                const NameBase* nbase);
             SortCache(const SortCache&);
             SortCache&
             operator=(const SortCache&);
@@ -168,15 +178,17 @@ namespace scid::database
                     const SortCache* sc_;
 
                 public:
-                    CmpLess(
-                        const SortCache* sc)
-                        : sc_(sc)
+                    CmpLess(const SortCache* sc) : sc_(sc)
                     {}
                     bool
-                    operator()(gamenumT g1, gamenumT g2) const;
+                    operator()(
+                        gamenumT g1,
+                        gamenumT g2) const;
             };
             int
-            fullCompare(gamenumT left, gamenumT right) const;
+            fullCompare(
+                gamenumT left,
+                gamenumT right) const;
 
             uint32_t
             calcHash(gamenumT gameId);

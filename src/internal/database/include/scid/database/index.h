@@ -99,7 +99,9 @@ namespace scid::database
              * @p replaced must already exist in the index.
              */
             void
-            replaceEntry(const IndexEntry& ie, gamenumT replaced);
+            replaceEntry(
+                const IndexEntry& ie,
+                gamenumT          replaced);
 
         private:
             void

@@ -56,8 +56,7 @@ namespace scid::core
          * @returns the requested half of the bitmap.
          */
         constexpr unsigned long long
-        init_symbol_map(
-            unsigned elem)
+        init_symbol_map(unsigned elem)
         {
             return (elem == 0) ? 0x27ffb80800000000 : 0x47fffffe87ffffff;
 
@@ -95,12 +94,11 @@ namespace scid::core
          * @returns true if @e ch is a PGN symbol character, false otherwise.
          */
         inline bool
-        is_PGNsymbol(
-            unsigned char ch)
+        is_PGNsymbol(unsigned char ch)
         {
             constexpr unsigned long long tok_map[] = {init_symbol_map(0), init_symbol_map(1)};
-            auto high = ch / 64;
-            auto low = ch % 64;
+            auto                         high = ch / 64;
+            auto                         low = ch % 64;
             return high > 1 ? false : tok_map[high] & (1ULL << low);
         }
 
@@ -110,8 +108,7 @@ namespace scid::core
          * @returns true if the character is a numeric character, false otherwise.
          */
         inline bool
-        is_PGNdigit(
-            unsigned char ch)
+        is_PGNdigit(unsigned char ch)
         {
             return ch >= '0' && ch <= '9';
         }
@@ -123,8 +120,7 @@ namespace scid::core
          * @returns true if the character is a white space, false otherwise.
          */
         inline bool
-        is_PGNwhitespace(
-            unsigned char ch)
+        is_PGNwhitespace(unsigned char ch)
         {
             return (ch == ' ' || ch == '\r' || ch == '\t' || ch == '\v' || ch == '\n');
         }
@@ -145,8 +141,7 @@ namespace scid::core
          */
         template <typename TView>
         char
-        is_PGNtermination(
-            TView tok)
+        is_PGNtermination(TView tok)
         {
             auto n_chars = std::distance(tok.first, tok.second);
             if (n_chars == 3)
@@ -181,13 +176,15 @@ namespace scid::core
          * @return: false if it parsed the last token of the game, otherwise return the
          *          result of the parser's invoked function.
          */
-        template <typename TInput, typename TVisitor>
+        template <
+            typename TInput,
+            typename TVisitor>
         bool
         parse_token(
-            char ch,
-            TInput& input,
+            char      ch,
+            TInput&   input,
             TVisitor& parser,
-            int& section)
+            int&      section)
         {
             switch (ch)
             {
@@ -335,13 +332,15 @@ namespace scid::core
         {
                 const char* const begin_;
                 const char* const end_;
-                const char* it_;
+                const char*       it_;
 
             public:
                 InputMemory(
                     const char* begin,
                     const char* end)
-                    : begin_(begin), end_(end), it_(begin)
+                    : begin_(begin),
+                      end_(end),
+                      it_(begin)
                 {}
 
                 /// Reads one character and advances the input sequence by one character.
@@ -392,7 +391,9 @@ namespace scid::core
 
                 /// Returns the range of chars: [curr_char, '\n').
                 /// The '\n' char is left as the next character to extract.
-                std::pair<const char*, const char*>
+                std::pair<
+                    const char*,
+                    const char*>
                 read_line()
                 {
                     auto first = it_;
@@ -402,9 +403,10 @@ namespace scid::core
 
                 /// Returns the range of chars: [curr_char, delim).
                 /// The delim char is skipped.
-                std::pair<const char*, const char*>
-                read_until(
-                    char delim)
+                std::pair<
+                    const char*,
+                    const char*>
+                read_until(char delim)
                 {
                     auto first = it_;
                     it_ = std::find(it_, end_, delim);
@@ -414,9 +416,10 @@ namespace scid::core
 
                 /// Returns the range of chars: [curr_char, cond == true].
                 template <typename Cond>
-                std::pair<const char*, const char*>
-                read_while(
-                    Cond cond)
+                std::pair<
+                    const char*,
+                    const char*>
+                read_while(Cond cond)
                 {
                     auto first = it_;
                     it_ = std::find_if_not(it_, end_, cond);
@@ -426,9 +429,10 @@ namespace scid::core
                 /// Returns the range of chars: [last_extracted_char, cond == true].
                 /// cond is not applied to last_extracted_char.
                 template <typename Cond>
-                std::pair<const char*, const char*>
-                read_token(
-                    Cond cond)
+                std::pair<
+                    const char*,
+                    const char*>
+                read_token(Cond cond)
                 {
                     assert(it_ != begin_);
                     auto first = it_ - 1;
@@ -452,10 +456,12 @@ namespace scid::core
          * least a tag-pair token or a symbol token was dispatched.
          */
         template <typename TVisitor>
-        std::pair<std::size_t, bool>
+        std::pair<
+            std::size_t,
+            bool>
         parse_game(
             pgn_impl::InputMemory input,
-            TVisitor&& parser)
+            TVisitor&&            parser)
         {
             int section = -1;
             do
@@ -487,10 +493,12 @@ namespace scid::core
          * @param pos: start of the substring of @e str that will be normalized.
          * @returns the number of '\n' chars in @e str.
          */
-        template <bool unescape = false, typename TString>
+        template <
+            bool unescape = false,
+            typename TString>
         std::size_t
         normalize(
-            TString& str,
+            TString&    str,
             std::size_t pos)
         {
             std::size_t n_newlines = 0;
@@ -535,11 +543,10 @@ namespace scid::core
          */
         template <typename TView>
         std::size_t
-        trim(
-            TView& str)
+        trim(TView& str)
         {
             std::size_t n_newlines = 0;
-            auto is_space = [&n_newlines](char ch) {
+            auto        is_space = [&n_newlines](char ch) {
                 if (ch == '\n')
                 {
                     ++n_newlines;

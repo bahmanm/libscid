@@ -5,7 +5,7 @@
 
 static int
 check(
-    scid_error error,
+    scid_error  error,
     const char* call)
 {
     if (error == SCID_OK)
@@ -17,18 +17,19 @@ check(
     return 0;
 }
 
+
 static int
 text_equals(
     const char* text,
-    size_t text_size,
+    size_t      text_size,
     const char* expected)
 {
     return text_size == strlen(expected) && strncmp(text, expected, text_size) == 0;
 }
 
+
 static void
-remove_scid5_database(
-    const char* path)
+remove_scid5_database(const char* path)
 {
     char filename[256];
 
@@ -42,15 +43,16 @@ remove_scid5_database(
     remove(filename);
 }
 
+
 static int
 parse_pgn(
     const char* pgn,
     scid_game** out_game)
 {
-    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const char*    start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     scid_position* position = NULL;
-    char diagnostic[1024];
-    size_t diagnostic_size = 0;
+    char           diagnostic[1024];
+    size_t         diagnostic_size = 0;
 
     if (!check(
             scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
@@ -69,47 +71,47 @@ parse_pgn(
     return 1;
 }
 
+
 int
-main(
-    void)
+main(void)
 {
-    const char* path = "libscid-example-persistent-database";
-    const char* pgn = "[Event \"Persistent\"]\n"
-                      "[Site \"Toronto\"]\n"
-                      "[Date \"2026.06.14\"]\n"
-                      "[White \"Alpha\"]\n"
-                      "[Black \"Beta\"]\n"
-                      "[Result \"1-0\"]\n"
-                      "\n"
-                      "1. e4 e5 2. Nf3 1-0\n";
+    const char*    path = "libscid-example-persistent-database";
+    const char*    pgn = "[Event \"Persistent\"]\n"
+                         "[Site \"Toronto\"]\n"
+                         "[Date \"2026.06.14\"]\n"
+                         "[White \"Alpha\"]\n"
+                         "[Black \"Beta\"]\n"
+                         "[Result \"1-0\"]\n"
+                         "\n"
+                         "1. e4 e5 2. Nf3 1-0\n";
     scid_database* created = NULL;
     scid_database* reopened = NULL;
-    scid_game* game = NULL;
-    char event[128];
-    char filename[256];
-    char description[128];
-    char metadata_key[32];
-    char metadata_value[128];
-    char min_date[32];
-    char max_date[32];
-    char result[16];
-    char type[16];
-    char flags[22];
-    size_t count = 0;
-    size_t description_size = 0;
-    size_t event_size = 0;
-    size_t filename_size = 0;
-    size_t result_size = 0;
-    size_t metadata_count = 0;
-    size_t metadata_key_size = 0;
-    size_t metadata_value_size = 0;
-    size_t min_date_size = 0;
-    size_t max_date_size = 0;
-    size_t result_count = 0;
-    size_t type_size = 0;
-    size_t flags_size = 0;
-    int is_open = 0;
-    int read_only = 0;
+    scid_game*     game = NULL;
+    char           event[128];
+    char           filename[256];
+    char           description[128];
+    char           metadata_key[32];
+    char           metadata_value[128];
+    char           min_date[32];
+    char           max_date[32];
+    char           result[16];
+    char           type[16];
+    char           flags[22];
+    size_t         count = 0;
+    size_t         description_size = 0;
+    size_t         event_size = 0;
+    size_t         filename_size = 0;
+    size_t         result_size = 0;
+    size_t         metadata_count = 0;
+    size_t         metadata_key_size = 0;
+    size_t         metadata_value_size = 0;
+    size_t         min_date_size = 0;
+    size_t         max_date_size = 0;
+    size_t         result_count = 0;
+    size_t         type_size = 0;
+    size_t         flags_size = 0;
+    int            is_open = 0;
+    int            read_only = 0;
 
     remove_scid5_database(path);
 

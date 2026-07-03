@@ -20,30 +20,30 @@ namespace scid::database
 
         bool
         materialMatch(
-            bool promotionsFlag,
-            ByteBuffer& buf,
+            bool              promotionsFlag,
+            ByteBuffer&       buf,
             scid::core::byte* min,
             scid::core::byte* max,
-            patternT* ptn,
-            std::size_t ptnSize,
-            int minPly,
-            int maxPly,
-            int matchLength,
-            bool oppBishops,
-            bool sameBishops,
-            int minDiff,
-            int maxDiff);
+            patternT*         ptn,
+            std::size_t       ptnSize,
+            int               minPly,
+            int               maxPly,
+            int               matchLength,
+            bool              oppBishops,
+            bool              sameBishops,
+            int               minDiff,
+            int               maxDiff);
         bool
         exactMatch(
             const scid::core::Game& game,
-            scid::core::Position* pos,
-            ByteBuffer* buf,
-            gameExactMatchT searchType);
+            scid::core::Position*   pos,
+            ByteBuffer*             buf,
+            gameExactMatchT         searchType);
         bool
         varExactMatch(
             const scid::core::Game& game,
-            scid::core::Position* pos,
-            gameExactMatchT searchType);
+            scid::core::Position*   pos,
+            gameExactMatchT         searchType);
 
     } // namespace game_search
 

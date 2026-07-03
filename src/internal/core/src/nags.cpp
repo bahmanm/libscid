@@ -13,13 +13,12 @@ namespace scid::core
     {
 
         Nag
-        parseUnsigned(
-            std::string_view text)
+        parseUnsigned(std::string_view text)
         {
-            unsigned value = 0;
+            unsigned    value = 0;
             const auto* begin = text.data();
             const auto* end = begin + text.size();
-            const auto result = std::from_chars(begin, end, value);
+            const auto  result = std::from_chars(begin, end, value);
             if (result.ec != std::errc{} || result.ptr != end || value > 255)
                 return Nag::None;
             return nagFromCode(static_cast<std::uint8_t>(value));
@@ -28,8 +27,7 @@ namespace scid::core
     } // namespace
 
     std::string_view
-    nagToSymbol(
-        Nag nag)
+    nagToSymbol(Nag nag)
     {
         const auto value = nagCode(nag);
         if (value >= std::size(plainNagSymbols))
@@ -37,9 +35,10 @@ namespace scid::core
         return plainNagSymbols[value];
     }
 
+
     std::string
     nagToString(
-        Nag nag,
+        Nag  nag,
         bool asSymbol)
     {
         if (nag == Nag::None)
@@ -55,9 +54,9 @@ namespace scid::core
         return "$" + std::to_string(nagCode(nag));
     }
 
+
     Nag
-    nagFromString(
-        std::string_view text)
+    nagFromString(std::string_view text)
     {
         if (text.empty() || text.size() > 7)
             return Nag::None;
@@ -69,7 +68,7 @@ namespace scid::core
             return parseUnsigned(text);
 
         const auto* str = text.data();
-        const auto size = text.size();
+        const auto  size = text.size();
         auto at = [&](std::size_t index) -> char { return index < size ? str[index] : '\0'; };
 
         if (at(0) == '!')

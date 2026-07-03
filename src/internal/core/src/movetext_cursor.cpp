@@ -12,16 +12,15 @@ namespace scid::core
         constexpr std::size_t MAX_NAGS_PER_MOVE = 8;
 
         bool
-        isMoveNagValue(
-            Nag nag)
+        isMoveNagValue(Nag nag)
         {
             const auto value = nagCode(nag);
             return value >= 1 && value <= 6;
         }
 
+
         bool
-        isPositionNagValue(
-            Nag nag)
+        isPositionNagValue(Nag nag)
         {
             const auto value = nagCode(nag);
             return value >= 10 && value <= 21;
@@ -29,10 +28,11 @@ namespace scid::core
 
     } // namespace
 
-    MovetextCursor::MovetextCursor(
-        Game& game)
-        : game_(game), currentLine_(&game.movetext_.mainline)
+    MovetextCursor::MovetextCursor(Game& game)
+        : game_(game),
+          currentLine_(&game.movetext_.mainline)
     {}
+
 
     Move*
     MovetextCursor::previousMove()
@@ -42,6 +42,7 @@ namespace scid::core
         return &currentLine().moves[nextIndex_ - 1];
     }
 
+
     const Move*
     MovetextCursor::previousMove() const
     {
@@ -49,6 +50,7 @@ namespace scid::core
             return nullptr;
         return &currentLine().moves[nextIndex_ - 1];
     }
+
 
     Move*
     MovetextCursor::nextMove()
@@ -58,6 +60,7 @@ namespace scid::core
         return &currentLine().moves[nextIndex_];
     }
 
+
     const Move*
     MovetextCursor::nextMove() const
     {
@@ -65,6 +68,7 @@ namespace scid::core
             return nullptr;
         return &currentLine().moves[nextIndex_];
     }
+
 
     Variation*
     MovetextCursor::currentVariation()
@@ -76,6 +80,7 @@ namespace scid::core
         return &parent.line->moves[parent.nextIndex].childVariations[parent.variationIndex];
     }
 
+
     const Variation*
     MovetextCursor::currentVariation() const
     {
@@ -86,6 +91,7 @@ namespace scid::core
         return &parent.line->moves[parent.nextIndex].childVariations[parent.variationIndex];
     }
 
+
     std::size_t
     MovetextCursor::ply() const
     {
@@ -95,6 +101,7 @@ namespace scid::core
         return result;
     }
 
+
     std::size_t
     MovetextCursor::variationCount() const
     {
@@ -102,17 +109,20 @@ namespace scid::core
         return move ? move->childVariations.size() : 0;
     }
 
+
     std::size_t
     MovetextCursor::variationDepth() const
     {
         return parents_.size();
     }
 
+
     std::size_t
     MovetextCursor::variationIndex() const
     {
         return parents_.empty() ? 0 : parents_.back().variationIndex;
     }
+
 
     MovetextLocation
     MovetextCursor::location() const
@@ -124,11 +134,11 @@ namespace scid::core
         return MovetextLocation(std::move(path), nextIndex_);
     }
 
+
     bool
-    MovetextCursor::restore(
-        MovetextLocation location)
+    MovetextCursor::restore(MovetextLocation location)
     {
-        auto* line = &game_.movetext_.mainline;
+        auto*                    line = &game_.movetext_.mainline;
         std::vector<ParentFrame> parents;
         parents.reserve(location.path_.size());
         for (auto const& step : location.path_)
@@ -152,11 +162,13 @@ namespace scid::core
         return true;
     }
 
+
     bool
     MovetextCursor::isAtLineStart() const
     {
         return nextIndex_ == 0;
     }
+
 
     bool
     MovetextCursor::isAtLineEnd() const
@@ -164,11 +176,13 @@ namespace scid::core
         return nextIndex_ == currentLine().moves.size();
     }
 
+
     bool
     MovetextCursor::isAtVariationStart() const
     {
         return isAtLineStart();
     }
+
 
     bool
     MovetextCursor::isAtVariationEnd() const
@@ -176,11 +190,13 @@ namespace scid::core
         return isAtLineEnd();
     }
 
+
     bool
     MovetextCursor::isAtGameStart() const
     {
         return variationDepth() == 0 && isAtVariationStart();
     }
+
 
     bool
     MovetextCursor::isAtGameEnd() const
@@ -188,11 +204,13 @@ namespace scid::core
         return variationDepth() == 0 && isAtVariationEnd();
     }
 
+
     bool
     MovetextCursor::isAtEmptyVariation() const
     {
         return variationDepth() != 0 && isAtVariationStart() && isAtVariationEnd();
     }
+
 
     bool
     MovetextCursor::next()
@@ -203,6 +221,7 @@ namespace scid::core
         return true;
     }
 
+
     bool
     MovetextCursor::previous()
     {
@@ -212,9 +231,9 @@ namespace scid::core
         return true;
     }
 
+
     bool
-    MovetextCursor::enterVariation(
-        std::size_t index)
+    MovetextCursor::enterVariation(std::size_t index)
     {
         auto move = nextMove();
         if (!move || index >= move->childVariations.size())
@@ -225,6 +244,7 @@ namespace scid::core
         nextIndex_ = 0;
         return true;
     }
+
 
     bool
     MovetextCursor::exitVariation()
@@ -239,6 +259,7 @@ namespace scid::core
         return true;
     }
 
+
     void
     MovetextCursor::toStart()
     {
@@ -246,6 +267,7 @@ namespace scid::core
         parents_.clear();
         nextIndex_ = 0;
     }
+
 
     void
     MovetextCursor::toEnd()
@@ -255,9 +277,9 @@ namespace scid::core
         nextIndex_ = currentLine().moves.size();
     }
 
+
     bool
-    MovetextCursor::toPly(
-        std::size_t ply)
+    MovetextCursor::toPly(std::size_t ply)
     {
         auto& mainline = game_.movetext_.mainline;
         if (ply > mainline.moves.size())
@@ -269,9 +291,9 @@ namespace scid::core
         return true;
     }
 
+
     Move&
-    MovetextCursor::addMove(
-        MoveSpec spec)
+    MovetextCursor::addMove(MoveSpec spec)
     {
         auto& line = currentLine();
         if (nextIndex_ < line.moves.size())
@@ -282,9 +304,9 @@ namespace scid::core
         return move;
     }
 
+
     Variation*
-    MovetextCursor::addVariation(
-        std::string_view initialComment)
+    MovetextCursor::addVariation(std::string_view initialComment)
     {
         auto move = nextMove();
         if (!move)
@@ -297,9 +319,9 @@ namespace scid::core
         return &variation;
     }
 
+
     bool
-    MovetextCursor::setPreviousMoveMetadata(
-        MoveMetadata metadata)
+    MovetextCursor::setPreviousMoveMetadata(MoveMetadata metadata)
     {
         auto move = previousMove();
         if (!move)
@@ -309,9 +331,9 @@ namespace scid::core
         return true;
     }
 
+
     bool
-    MovetextCursor::setPreviousMoveSan(
-        std::string_view san)
+    MovetextCursor::setPreviousMoveSan(std::string_view san)
     {
         auto move = previousMove();
         if (!move)
@@ -321,9 +343,9 @@ namespace scid::core
         return true;
     }
 
+
     bool
-    MovetextCursor::setNextMoveSan(
-        std::string_view san)
+    MovetextCursor::setNextMoveSan(std::string_view san)
     {
         auto move = nextMove();
         if (!move)
@@ -333,9 +355,9 @@ namespace scid::core
         return true;
     }
 
+
     bool
-    MovetextCursor::setCurrentVariationInitialComment(
-        std::string_view comment)
+    MovetextCursor::setCurrentVariationInitialComment(std::string_view comment)
     {
         auto variation = currentVariation();
         if (!variation)
@@ -345,9 +367,9 @@ namespace scid::core
         return true;
     }
 
+
     bool
-    MovetextCursor::setComment(
-        std::string_view comment)
+    MovetextCursor::setComment(std::string_view comment)
     {
         if (isAtLineStart())
         {
@@ -367,9 +389,9 @@ namespace scid::core
         return true;
     }
 
+
     bool
-    MovetextCursor::addPreviousMoveNag(
-        Nag nag)
+    MovetextCursor::addPreviousMoveNag(Nag nag)
     {
         auto move = previousMove();
         if (!move)
@@ -411,16 +433,16 @@ namespace scid::core
         return true;
     }
 
+
     bool
-    MovetextCursor::removePreviousMoveNag(
-        bool moveNag)
+    MovetextCursor::removePreviousMoveNag(bool moveNag)
     {
         auto move = previousMove();
         if (!move)
             return true;
 
         auto& nags = move->metadata.nags;
-        auto match = [moveNag](Nag nag) {
+        auto  match = [moveNag](Nag nag) {
             return moveNag ? isMoveNagValue(nag) : isPositionNagValue(nag);
         };
         auto it = std::find_if(nags.begin(), nags.end(), match);
@@ -429,12 +451,14 @@ namespace scid::core
         return true;
     }
 
+
     void
     MovetextCursor::clearPreviousMoveNags()
     {
         if (auto move = previousMove())
             move->metadata.nags.clear();
     }
+
 
     bool
     MovetextCursor::promoteVariationToFirst()
@@ -460,6 +484,7 @@ namespace scid::core
         }
         return true;
     }
+
 
     bool
     MovetextCursor::promoteVariationToMainline()
@@ -517,6 +542,7 @@ namespace scid::core
         return true;
     }
 
+
     bool
     MovetextCursor::deleteVariation()
     {
@@ -538,6 +564,7 @@ namespace scid::core
         return true;
     }
 
+
     void
     MovetextCursor::truncate()
     {
@@ -545,10 +572,11 @@ namespace scid::core
         line.moves.erase(line.moves.begin() + nextIndex_, line.moves.end());
     }
 
+
     void
     MovetextCursor::truncateBeforeCursor()
     {
-        auto& line = currentLine();
+        auto&             line = currentLine();
         std::vector<Move> suffix;
         suffix.reserve(line.moves.size() - nextIndex_);
         for (auto i = nextIndex_; i < line.moves.size(); ++i)
@@ -560,11 +588,13 @@ namespace scid::core
         nextIndex_ = 0;
     }
 
+
     MoveSequence&
     MovetextCursor::currentLine()
     {
         return *currentLine_;
     }
+
 
     const MoveSequence&
     MovetextCursor::currentLine() const

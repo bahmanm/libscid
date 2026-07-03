@@ -10,7 +10,7 @@ namespace scid::database
             // The complete index is loaded in memory and can be huge. Chunked storage
             // avoids reallocating existing entries, so old entry pointers stay valid.
             VectorChunked<IndexEntry, 16> entries;
-            int nInvalidNameId = 0;
+            int                           nInvalidNameId = 0;
     };
 
     Index::Index() : impl_(std::make_unique<Impl>())
@@ -26,13 +26,14 @@ namespace scid::database
         Init();
     }
 
+
     const IndexEntry*
-    Index::GetEntry(
-        gamenumT g) const
+    Index::GetEntry(gamenumT g) const
     {
         ASSERT(g < GetNumGames());
         return &impl_->entries[g];
     }
+
 
     int
     Index::GetBadNameIdCount() const
@@ -40,12 +41,13 @@ namespace scid::database
         return impl_->nInvalidNameId;
     }
 
+
     void
-    Index::setBadNameIdCount(
-        int count)
+    Index::setBadNameIdCount(int count)
     {
         impl_->nInvalidNameId = count;
     }
+
 
     gamenumT
     Index::GetNumGames() const
@@ -53,21 +55,23 @@ namespace scid::database
         return static_cast<gamenumT>(impl_->entries.size());
     }
 
+
     void
-    Index::addEntry(
-        const IndexEntry& ie)
+    Index::addEntry(const IndexEntry& ie)
     {
         impl_->entries.push_back(ie);
     }
 
+
     void
     Index::replaceEntry(
         const IndexEntry& ie,
-        gamenumT replaced)
+        gamenumT          replaced)
     {
         ASSERT(replaced < GetNumGames());
         impl_->entries[replaced] = ie;
     }
+
 
     void
     Index::Init()

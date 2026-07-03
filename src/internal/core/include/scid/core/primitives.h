@@ -80,16 +80,14 @@ namespace scid::core
 
     /** Returns the opposite real colour.  @p c must be WHITE or BLACK. */
     inline colorT
-    color_Flip(
-        colorT c)
+    color_Flip(colorT c)
     {
         return 1 - c;
     }
 
     /** Returns the legacy printable colour character for @p c. */
     inline char
-    color_Char(
-        colorT c)
+    color_Char(colorT c)
     {
         return COLOR_CHAR[c];
     }
@@ -146,23 +144,20 @@ namespace scid::core
 
     /** Returns the colour of a coloured piece, or NOCOLOR for EMPTY. */
     inline colorT
-    piece_Color(
-        pieceT p)
+    piece_Color(pieceT p)
     {
         return (p == EMPTY) ? NOCOLOR : ((p & 8) >> 3);
     }
     /** Faster colour extraction when @p p is known not to be EMPTY. */
     inline colorT
-    piece_Color_NotEmpty(
-        pieceT p)
+    piece_Color_NotEmpty(pieceT p)
     {
         return (p & 8) >> 3;
     }
 
     /** Returns the uncoloured piece type encoded in @p p. */
     inline pieceT
-    piece_Type(
-        pieceT p)
+    piece_Type(pieceT p)
     {
         return (p & 7);
     }
@@ -182,8 +177,7 @@ namespace scid::core
 
     /** Returns the piece-type character for @p p. */
     inline char
-    piece_Char(
-        pieceT p)
+    piece_Char(pieceT p)
     {
         return PIECE_CHAR[piece_Type(p)];
     }
@@ -217,8 +211,7 @@ namespace scid::core
 
             /** Returns the piece represented by @p idx, or EMPTY if none is known. */
             pieceT
-            operator[](
-                unsigned char idx) const
+            operator[](unsigned char idx) const
             {
                 return pieceFromByte_[idx];
             }
@@ -252,8 +245,7 @@ namespace scid::core
 
     /** Converts @c '1'..@c '8' to a rank, or NO_RANK for invalid input. */
     inline rankT
-    rank_FromChar(
-        char c)
+    rank_FromChar(char c)
     {
         if (c < '1' || c > '8')
         {
@@ -265,8 +257,7 @@ namespace scid::core
 
     /** Converts @c 'a'..@c 'h' to a file, or NO_FYLE for invalid input. */
     inline fyleT
-    fyle_FromChar(
-        char c)
+    fyle_FromChar(char c)
     {
         if (c < 'a' || c > 'h')
         {
@@ -287,16 +278,14 @@ namespace scid::core
 
     /** Returns the file of @p sq. */
     constexpr fyleT
-    square_Fyle(
-        squareT sq)
+    square_Fyle(squareT sq)
     {
         return (sq & 0x7);
     }
 
     /** Returns the rank of @p sq. */
     constexpr rankT
-    square_Rank(
-        squareT sq)
+    square_Rank(squareT sq)
     {
         return ((sq >> 3) & 0x7);
     }
@@ -304,7 +293,7 @@ namespace scid::core
     /** Returns @p sq from White's perspective for WHITE, Black's for BLACK. */
     constexpr squareT
     square_Relative(
-        colorT c,
+        colorT  c,
         squareT sq)
     {
         return static_cast<squareT>(sq ^ (c * 56));
@@ -314,7 +303,7 @@ namespace scid::core
     constexpr rankT
     rank_Relative(
         colorT c,
-        rankT r)
+        rankT  r)
     {
         return static_cast<rankT>(r ^ (c * 7));
     }

@@ -84,13 +84,14 @@ namespace scid::eco
                     BookData(
                         char* compact,
                         char* comm)
-                        : compactStr(compact), comment(comm)
+                        : compactStr(compact),
+                          comment(comm)
                     {}
             };
 
             std::unordered_multimap<unsigned, BookData> pos_;
-            std::vector<const char*> comments_;
-            unsigned lineCount_ = 0;
+            std::vector<const char*>                    comments_;
+            unsigned                                    lineCount_ = 0;
             unsigned leastMaterial_ = 32; // The smallest amount of material in any
                                           // position in the book. In the range 0..32.
 

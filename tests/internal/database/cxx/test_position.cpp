@@ -12,7 +12,7 @@ namespace
 
     std::string
     currentFen(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         scid::core::GameCursor cursor(game);
@@ -27,9 +27,10 @@ namespace
         return buf;
     }
 
+
     bool
     nextPgn(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location)
     {
         scid::core::GameCursor cursor(game);
@@ -51,7 +52,7 @@ TEST(
                            "1. Rxa1 Rxa8 2. Ra3 Ra6 3. Rh3 Rh6 4. Rhh1 Rhh8 5. O-O O-O";
     scid::core::Game game;
     scid::core::MovetextLocation location;
-    scid::core::pgn::ParseLog parseLog;
+    scid::core::pgn::ParseLog    parseLog;
     ASSERT_TRUE(scid::core::pgn::parseGame(pgn.data(), pgn.size(), game, location, parseLog));
     location = {};
 
@@ -83,7 +84,7 @@ TEST(
                            "1... Rg6 2. Rg3 Ra6 3. Ra3 Raxa8 4. Raxa1 O-O-O 5. O-O-O";
     scid::core::Game game;
     scid::core::MovetextLocation location;
-    scid::core::pgn::ParseLog parseLog;
+    scid::core::pgn::ParseLog    parseLog;
     ASSERT_TRUE(scid::core::pgn::parseGame(pgn.data(), pgn.size(), game, location, parseLog));
     location = {};
 

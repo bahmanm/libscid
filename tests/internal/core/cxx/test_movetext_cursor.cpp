@@ -17,7 +17,7 @@ namespace
         CoreMovetextCursorTest,
         AddsMainlineMovesAtCursorAndAdvances)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         auto& first = cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -40,7 +40,7 @@ namespace
         CoreMovetextCursorTest,
         ReplacesContinuationWhenAddingBeforeLineEnd)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
         cursor.addMove(quiet(scid::core::E7, scid::core::E5));
@@ -92,7 +92,7 @@ namespace
         CoreMovetextCursorTest,
         SetsPreviousMoveMetadataAtCursor)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
 
@@ -113,7 +113,7 @@ namespace
         CoreMovetextCursorTest,
         RefusesToSetPreviousMoveMetadataAtLineStart)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         EXPECT_FALSE(cursor.setPreviousMoveMetadata({}));
@@ -123,7 +123,7 @@ namespace
         CoreMovetextCursorTest,
         SetsPreviousAndNextMoveSanAtCursor)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
         cursor.addMove(quiet(scid::core::E7, scid::core::E5));
@@ -142,7 +142,7 @@ namespace
         CoreMovetextCursorTest,
         RefusesToSetSanWhenMoveIsMissing)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         EXPECT_FALSE(cursor.setPreviousMoveSan("none"));
@@ -153,7 +153,7 @@ namespace
         CoreMovetextCursorTest,
         SetsCurrentVariationInitialComment)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
         cursor.toStart();
@@ -169,7 +169,7 @@ namespace
         CoreMovetextCursorTest,
         RefusesToSetVariationCommentFromMainline)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         EXPECT_FALSE(cursor.setCurrentVariationInitialComment("No variation"));
@@ -179,7 +179,7 @@ namespace
         CoreMovetextCursorTest,
         RefusesToAddVariationAtLineEnd)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         EXPECT_EQ(nullptr, cursor.addVariation());
@@ -192,7 +192,7 @@ namespace
         CoreMovetextCursorTest,
         SavesAndRestoresVariationLocation)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -215,7 +215,7 @@ namespace
         CoreMovetextCursorTest,
         TruncatesMainlineAtCursor)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -234,7 +234,7 @@ namespace
         CoreMovetextCursorTest,
         TruncatesVariationLineAtCursor)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -256,7 +256,7 @@ namespace
         CoreMovetextCursorTest,
         DeletesCurrentVariationAndExitsToParent)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -285,7 +285,7 @@ namespace
         CoreMovetextCursorTest,
         RefusesToDeleteVariationFromMainline)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -299,7 +299,7 @@ namespace
         CoreMovetextCursorTest,
         PromotesCurrentVariationToFirst)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -328,7 +328,7 @@ namespace
         CoreMovetextCursorTest,
         RefusesToPromoteVariationFromMainline)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -342,7 +342,7 @@ namespace
         CoreMovetextCursorTest,
         PromotesCurrentVariationToMainline)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -383,7 +383,7 @@ namespace
         CoreMovetextCursorTest,
         RefusesToPromoteEmptyVariationToMainlineAsNoOp)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -400,7 +400,7 @@ namespace
         CoreMovetextCursorTest,
         TruncatesBeforeMainlineCursor)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));
@@ -422,7 +422,7 @@ namespace
         CoreMovetextCursorTest,
         TruncatesBeforeVariationCursor)
     {
-        scid::core::Game game;
+        scid::core::Game           game;
         scid::core::MovetextCursor cursor(game);
 
         cursor.addMove(quiet(scid::core::E2, scid::core::E4));

@@ -76,23 +76,23 @@ namespace scid::core
                                  // List[][] for the piece on
                                  // square x.
             squareT List[2][16]; // list of piece squares for each side
-            byte NumOnRank[16][8];
-            byte NumOnFyle[16][8];
-            byte NumOnLeftDiag[16][16]; // Num Queens/Bishops
-            byte NumOnRightDiag[16][16];
-            byte NumOnSquareColor[16][2];
+            byte    NumOnRank[16][8];
+            byte    NumOnFyle[16][8];
+            byte    NumOnLeftDiag[16][16]; // Num Queens/Bishops
+            byte    NumOnRightDiag[16][16];
+            byte    NumOnSquareColor[16][2];
 
             directionT Pinned[16]; // For each List[ToMove][x], stores
                                    // whether piece is pinned to its
                                    // own king and dir from king.
 
             squareT EPTarget; // square pawns can EP capture to
-            colorT ToMove;
-            ushort HalfMoveClock; // Count of halfmoves since last capture
-                                  // or pawn move.
-            ushort PlyCounter;
-            byte Castling;            // castling flags
-            byte variant_;            // 0 -> normal; 1 -> chess960
+            colorT  ToMove;
+            ushort  HalfMoveClock; // Count of halfmoves since last capture
+                                   // or pawn move.
+            ushort  PlyCounter;
+            byte    Castling;         // castling flags
+            byte    variant_;         // 0 -> normal; 1 -> chess960
             squareT castleRookSq_[4]; // start rook squares
 
             uint Hash;     // Hash value.
@@ -102,95 +102,145 @@ namespace scid::core
             //  Position:  Private Functions
 
             inline void
-            AddHash(pieceT p, squareT sq);
+            AddHash(
+                pieceT  p,
+                squareT sq);
             inline void
-            UnHash(pieceT p, squareT sq);
+            UnHash(
+                pieceT  p,
+                squareT sq);
 
             inline void
-            AddToBoard(pieceT p, squareT sq);
+            AddToBoard(
+                pieceT  p,
+                squareT sq);
             inline void
-            RemoveFromBoard(pieceT p, squareT sq);
+            RemoveFromBoard(
+                pieceT  p,
+                squareT sq);
 
             void
-            CalcPinsDir(directionT dir, pieceT attacker);
+            CalcPinsDir(
+                directionT dir,
+                pieceT     attacker);
 
             void
             GenSliderMoves(
-                MoveList* mlist,
-                colorT c,
-                squareT sq,
+                MoveList*  mlist,
+                colorT     c,
+                squareT    sq,
                 directionT dir,
                 SquareSet* sqset,
-                bool capturesOnly);
+                bool       capturesOnly);
             void
             GenKnightMoves(
-                MoveList* mlist,
-                colorT c,
-                squareT sq,
+                MoveList*  mlist,
+                colorT     c,
+                squareT    sq,
                 SquareSet* sqset,
-                bool capturesOnly);
+                bool       capturesOnly);
 
             void
-            AddLegalMove(MoveList* mlist, squareT from, squareT to, pieceT promo);
+            AddLegalMove(
+                MoveList* mlist,
+                squareT   from,
+                squareT   to,
+                pieceT    promo);
             void
             GenCastling(MoveList* mlist);
             void
-            GenKingMoves(MoveList* mlist, genMovesT genType);
+            GenKingMoves(
+                MoveList* mlist,
+                genMovesT genType);
             void
-            AddPromotions(MoveList* mlist, squareT from, squareT dest);
+            AddPromotions(
+                MoveList* mlist,
+                squareT   from,
+                squareT   dest);
             bool
-            IsValidEnPassant(squareT from, squareT to);
+            IsValidEnPassant(
+                squareT from,
+                squareT to);
             void
             GenPawnMoves(
-                MoveList* mlist,
-                squareT from,
+                MoveList*  mlist,
+                squareT    from,
                 directionT dir,
                 SquareSet* sqset,
-                genMovesT genType);
+                genMovesT  genType);
 
             void
             GenCheckEvasions(
-                MoveList* mlist,
-                pieceT mask,
-                genMovesT genType,
+                MoveList*   mlist,
+                pieceT      mask,
+                genMovesT   genType,
                 SquareList* checkSquares);
 
             errorT
-            readPieceMoveAction(MoveAction* sm, const char* str, size_t slen, pieceT p) const;
+            readPieceMoveAction(
+                MoveAction* sm,
+                const char* str,
+                size_t      slen,
+                pieceT      p) const;
             errorT
-            readCastleMoveAction(MoveAction* sm, std::string_view str) const;
+            readCastleMoveAction(
+                MoveAction*      sm,
+                std::string_view str) const;
             errorT
-            readPawnMoveAction(MoveAction* sm, const char* str, size_t slen, fyleT from);
+            readPawnMoveAction(
+                MoveAction* sm,
+                const char* str,
+                size_t      slen,
+                fyleT       from);
             errorT
-            readKingMoveAction(MoveAction* sm, const char* str, size_t slen) const;
+            readKingMoveAction(
+                MoveAction* sm,
+                const char* str,
+                size_t      slen) const;
             errorT
-            readCoordinateMoveAction(MoveAction* m, const char* s, size_t slen, bool reverse);
+            readCoordinateMoveAction(
+                MoveAction* m,
+                const char* s,
+                size_t      slen,
+                bool        reverse);
             errorT
-            parseMoveAction(MoveAction* sm, const char* begin, const char* end);
+            parseMoveAction(
+                MoveAction* sm,
+                const char* begin,
+                const char* end);
             void
             fillMoveAction(MoveAction& sm) const;
             void
-            resolveMove(squareT from, squareT to, pieceT promo, MoveAction& action) const;
+            resolveMove(
+                squareT     from,
+                squareT     to,
+                pieceT      promo,
+                MoveAction& action) const;
 
             template <typename TFunc>
             bool
-            under_attack(squareT target_sq, squareT captured_sq, TFunc not_empty) const;
+            under_attack(
+                squareT target_sq,
+                squareT captured_sq,
+                TFunc   not_empty) const;
             bool
             under_attack(squareT target_sq) const;
 
             static constexpr unsigned
             castlingIdx(
-                colorT color,
+                colorT     color,
                 castleDirT side)
             {
                 return 2 * color + side;
             }
             squareT
-            find_castle_rook(colorT col, squareT rsq) const;
+            find_castle_rook(
+                colorT  col,
+                squareT rsq) const;
             squareT
             castleRookSq(
                 colorT color,
-                bool king_side) const
+                bool   king_side) const
             {
                 return castleRookSq_[2 * color + (king_side ? 1 : 0)];
             }
@@ -218,7 +268,9 @@ namespace scid::core
             IsStdStart() const;
             /** Adds @p p on @p sq while maintaining piece lists, material, and hashes. */
             errorT
-            AddPiece(pieceT p, squareT sq);
+            AddPiece(
+                pieceT  p,
+                squareT sq);
 
             /** Returns true when the position uses Chess960 castling rook squares. */
             bool
@@ -230,8 +282,7 @@ namespace scid::core
             // Set and Get attributes -- one-liners
             /** Returns the number of pieces of the exact piece code @p p. */
             byte
-            PieceCount(
-                pieceT p)
+            PieceCount(pieceT p)
             {
                 return Material[p];
             }
@@ -243,8 +294,7 @@ namespace scid::core
             }
             /** Sets the en-passant target square, or NULL_SQUARE when none exists. */
             void
-            SetEPTarget(
-                squareT s)
+            SetEPTarget(squareT s)
             {
                 EPTarget = s;
             }
@@ -256,8 +306,7 @@ namespace scid::core
             }
             /** Sets the side to move. */
             void
-            SetToMove(
-                colorT c)
+            SetToMove(colorT c)
             {
                 ToMove = c;
             }
@@ -275,8 +324,7 @@ namespace scid::core
             }
             /** Sets the halfmove ply counter used for full-move numbering. */
             void
-            SetPlyCounter(
-                ushort x)
+            SetPlyCounter(ushort x)
             {
                 PlyCounter = x;
             }
@@ -303,15 +351,13 @@ namespace scid::core
             // decode moves:
             /** Returns the raw piece-square list for @p c. */
             const squareT*
-            GetList(
-                colorT c) const
+            GetList(colorT c) const
             {
                 return List[c];
             }
             /** Returns the number of pieces currently held by @p c. */
             uint
-            GetCount(
-                colorT c) const
+            GetCount(colorT c) const
             {
                 return Count[c];
             }
@@ -323,8 +369,7 @@ namespace scid::core
             }
             /** Returns the number of non-pawn pieces for @p c, including the king. */
             uint
-            NumNonPawns(
-                colorT c)
+            NumNonPawns(colorT c)
             {
                 return Count[c] - Material[piece_Make(c, PAWN)];
             }
@@ -341,7 +386,7 @@ namespace scid::core
             inline uint
             FyleCount(
                 pieceT p,
-                fyleT f) const
+                fyleT  f) const
             {
                 return NumOnFyle[p][f];
             }
@@ -349,14 +394,14 @@ namespace scid::core
             inline uint
             RankCount(
                 pieceT p,
-                rankT r) const
+                rankT  r) const
             {
                 return NumOnRank[p][r];
             }
             /** Returns the count of exact piece @p p on left diagonal @p diag. */
             inline uint
             LeftDiagCount(
-                pieceT p,
+                pieceT    p,
                 leftDiagT diag) const
             {
                 return NumOnLeftDiag[p][diag];
@@ -364,7 +409,7 @@ namespace scid::core
             /** Returns the count of exact piece @p p on right diagonal @p diag. */
             inline uint
             RightDiagCount(
-                pieceT p,
+                pieceT     p,
                 rightDiagT diag) const
             {
                 return NumOnRightDiag[p][diag];
@@ -388,8 +433,7 @@ namespace scid::core
 
             /** Returns the piece on @p sq, or EMPTY. */
             pieceT
-            GetPiece(
-                squareT sq) const
+            GetPiece(squareT sq) const
             {
                 assert(sq < 64);
                 return Board[sq];
@@ -398,8 +442,7 @@ namespace scid::core
             // Other one-line methods
             /** Returns the king square for @p c. */
             squareT
-            GetKingSquare(
-                colorT c) const
+            GetKingSquare(colorT c) const
             {
                 return List[c][0];
             }
@@ -420,7 +463,7 @@ namespace scid::core
             /** Returns whether @p c currently has the castling right @p dir. */
             bool
             GetCastling(
-                colorT c,
+                colorT     c,
                 castleDirT dir) const
             {
                 return Castling & (1u << castlingIdx(c, dir));
@@ -433,20 +476,20 @@ namespace scid::core
             }
             /** Validates that the stored castling right still matches king and rook placement. */
             bool
-            validCastlingFlag(colorT color, bool king_side) const;
+            validCastlingFlag(
+                colorT color,
+                bool   king_side) const;
 
             // Hashing
             /** Returns the full position hash. */
             inline uint
-            HashValue(
-                void) const
+            HashValue(void) const
             {
                 return Hash;
             }
             /** Returns the pawn-structure hash. */
             inline uint
-            PawnHashValue(
-                void) const
+            PawnHashValue(void) const
             {
                 return PawnHash;
             }
@@ -460,7 +503,11 @@ namespace scid::core
             CalcPins();
             /** Generates legal moves for one piece into @p mlist. */
             void
-            GenPieceMoves(MoveList* mlist, squareT sq, SquareSet* sqset, bool capturesOnly);
+            GenPieceMoves(
+                MoveList*  mlist,
+                squareT    sq,
+                SquareSet* sqset,
+                bool       capturesOnly);
 
             /** Generates legal moves for the current side.
              *
@@ -475,11 +522,14 @@ namespace scid::core
              * side to move is not in check.
              */
             void
-            GenerateMoves(MoveList* mlist, pieceT mask, genMovesT genType, bool maybeInCheck);
+            GenerateMoves(
+                MoveList* mlist,
+                pieceT    mask,
+                genMovesT genType,
+                bool      maybeInCheck);
             /** Generates every legal move for the current side, replacing @p mlist contents. */
             void
-            GenerateMoves(
-                MoveList* mlist)
+            GenerateMoves(MoveList* mlist)
             {
                 GenerateMoves(mlist, EMPTY, GEN_ALL_MOVES, true);
             }
@@ -494,8 +544,7 @@ namespace scid::core
             }
             /** Generates legal captures for the current side, replacing @p mlist contents. */
             void
-            GenerateCaptures(
-                MoveList* mlist)
+            GenerateCaptures(MoveList* mlist)
             {
                 GenerateMoves(mlist, EMPTY, GEN_CAPTURES, true);
             }
@@ -505,7 +554,10 @@ namespace scid::core
              * queenside castling, or 0 when the move is illegal.
              */
             int
-            IsLegalMove(squareT from, squareT to, pieceT promo) const;
+            IsLegalMove(
+                squareT from,
+                squareT to,
+                pieceT  promo) const;
 
             /** Checks whether the side to move can castle on the requested side.
              *
@@ -519,7 +571,10 @@ namespace scid::core
 
             /** Counts attacks by @p toMove on @p kingSq and optionally stores attacker squares. */
             uint
-            CalcAttacks(colorT toMove, squareT kingSq, SquareList* squares) const;
+            CalcAttacks(
+                colorT      toMove,
+                squareT     kingSq,
+                SquareList* squares) const;
             /** Evaluates recursive capture pressure on @p target for UI attack colouring. */
             int
             TreeCalcAttacks(squareT target);
@@ -531,15 +586,14 @@ namespace scid::core
             }
             /** Counts attacks by the enemy side on @p kingSq. */
             uint
-            CalcNumChecks(
-                squareT kingSq) const
+            CalcNumChecks(squareT kingSq) const
             {
                 return CalcAttacks(1 - ToMove, kingSq, NULL);
             }
             /** Counts enemy attacks on @p kingSq and optionally records checking squares. */
             uint
             CalcNumChecks(
-                squareT kingSq,
+                squareT     kingSq,
                 SquareList* checkSquares) const
             {
                 return CalcAttacks(1 - ToMove, kingSq, checkSquares);
@@ -547,7 +601,10 @@ namespace scid::core
 
             /** Counts rook-like or bishop-like mobility from @p from for evaluation. */
             uint
-            Mobility(pieceT p, colorT color, squareT from);
+            Mobility(
+                pieceT  p,
+                colorT  color,
+                squareT from);
             /** Returns true when the side to move is in check. */
             bool
             IsKingInCheck()
@@ -566,7 +623,9 @@ namespace scid::core
 
             /** Returns true when the two squares could form a promotion move in either order. */
             bool
-            IsPromoMove(squareT from, squareT to);
+            IsPromoMove(
+                squareT from,
+                squareT to);
 
             /** Parses SAN-like or coordinate notation into a MoveSpec for this position.
              *
@@ -574,7 +633,9 @@ namespace scid::core
              * @p spec is left unchanged.
              */
             errorT
-            parseMoveSpec(MoveSpec& spec, std::string_view notation);
+            parseMoveSpec(
+                MoveSpec&        spec,
+                std::string_view notation);
             /** Parses coordinate notation into a MoveSpec.
              *
              * This accepts UCI-style coordinate moves such as @c e2e4 and @c e7e8q.
@@ -586,14 +647,19 @@ namespace scid::core
              * UI smart-move completion.
              */
             errorT
-            readCoordinateMoveSpec(MoveSpec& spec, std::string_view notation, bool reverse);
+            readCoordinateMoveSpec(
+                MoveSpec&        spec,
+                std::string_view notation,
+                bool             reverse);
             /** Formats @p spec as SAN in this position.
              *
              * The position is not changed.  Stored legality and ambiguity are derived
              * from the current board state, and an invalid spec returns an empty string.
              */
             std::string
-            makeSan(MoveSpec const& spec, sanFlagT flag);
+            makeSan(
+                MoveSpec const& spec,
+                sanFlagT        flag);
             /** Resolves and applies @p spec to this position.
              *
              * The position is changed only when the move resolves successfully.
@@ -608,7 +674,9 @@ namespace scid::core
              * readCoordinateMoveSpec() when input must first be validated from text.
              */
             errorT
-            resolveMove(MoveSpec const& spec, MoveAction& action) const;
+            resolveMove(
+                MoveSpec const& spec,
+                MoveAction&     action) const;
             /** Applies a previously resolved action. */
             void
             apply(MoveAction const& action);
@@ -623,7 +691,10 @@ namespace scid::core
              * returns.
              */
             void
-            writeSan(MoveAction const& action, char* s, sanFlagT flag);
+            writeSan(
+                MoveAction const& action,
+                char*             s,
+                sanFlagT          flag);
 
             /** Applies a whitespace-separated sequence of coordinate moves.
              *
@@ -633,7 +704,10 @@ namespace scid::core
              * contain their SAN text.
              */
             errorT
-            applyCoordinateMoves(const char* moves, size_t movesLen, std::string* toSAN = nullptr);
+            applyCoordinateMoves(
+                const char*  moves,
+                size_t       movesLen,
+                std::string* toSAN = nullptr);
 
             // Board I/O
             /** Writes the legacy long board string representation.
@@ -681,25 +755,32 @@ namespace scid::core
              * is too small, the FEN is truncated.
              */
             void
-            PrintFEN(char* str, size_t len) const;
+            PrintFEN(
+                char*  str,
+                size_t len) const;
             /** Appends a LaTeX board diagram. */
             void
-            DumpLatexBoard(DString* dstr, bool flip);
+            DumpLatexBoard(
+                DString* dstr,
+                bool     flip);
             /** Appends a non-flipped LaTeX board diagram. */
             void
-            DumpLatexBoard(
-                DString* dstr)
+            DumpLatexBoard(DString* dstr)
             {
                 DumpLatexBoard(dstr, false);
             }
             /** Appends an HTML board diagram. */
             void
-            DumpHtmlBoard(DString* dstr, uint style, const char* dir, bool flip);
+            DumpHtmlBoard(
+                DString*    dstr,
+                uint        style,
+                const char* dir,
+                bool        flip);
             /** Appends a non-flipped HTML board diagram. */
             void
             DumpHtmlBoard(
-                DString* dstr,
-                uint style,
+                DString*    dstr,
+                uint        style,
                 const char* dir)
             {
                 DumpHtmlBoard(dstr, style, dir, false);
@@ -711,8 +792,7 @@ namespace scid::core
             Compare(Position* p);
             /** Copies every field from @p src. */
             void
-            CopyFrom(
-                Position* src)
+            CopyFrom(Position* src)
             {
                 *this = *src;
             }
@@ -723,17 +803,18 @@ namespace scid::core
 
         private:
             void
-            setCastling(colorT col, squareT rsq);
+            setCastling(
+                colorT  col,
+                squareT rsq);
             void
             ClearCastling(
-                colorT col,
+                colorT     col,
                 castleDirT dir)
             {
                 Castling &= ~(1u << castlingIdx(col, dir));
             }
             void
-            ClearCastlingFlags(
-                colorT c)
+            ClearCastlingFlags(colorT c)
             {
                 Castling &= (c == WHITE) ? 0b11111100 : 0b11110011;
             }

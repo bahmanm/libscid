@@ -6,8 +6,7 @@ namespace scid::core::pgn
 {
 
     bool
-    nextLocation(
-        GameCursor& cursor)
+    nextLocation(GameCursor& cursor)
     {
         if (cursor.previousMove() && !cursor.previousMove()->childVariations.empty() &&
             cursor.previous())
@@ -31,10 +30,11 @@ namespace scid::core::pgn
         return true;
     }
 
+
     bool
     seekLocation(
         GameCursor& cursor,
-        unsigned location)
+        unsigned    location)
     {
         cursor.toStart();
         for (unsigned loc = 1; loc < location; ++loc)
@@ -45,9 +45,9 @@ namespace scid::core::pgn
         return true;
     }
 
+
     unsigned
-    locationOf(
-        const GameCursor& cursor)
+    locationOf(const GameCursor& cursor)
     {
         auto currentLocation = cursor.location();
         auto scan = cursor;
@@ -67,9 +67,9 @@ namespace scid::core::pgn
         return result;
     }
 
+
     unsigned
-    offsetOf(
-        const GameCursor& cursor)
+    offsetOf(const GameCursor& cursor)
     {
         auto scan = cursor;
         while (scan.isAtVariationStart() && scan.variationDepth() != 0)

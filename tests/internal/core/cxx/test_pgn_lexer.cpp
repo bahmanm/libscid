@@ -59,7 +59,7 @@ TEST(
 
     for (auto str : tests)
     {
-        auto str_view = std::make_pair(str, str + std::strlen(str));
+        auto   str_view = std::make_pair(str, str + std::strlen(str));
         size_t n_newlines = std::count(str_view.first, str_view.second, '\n');
         EXPECT_EQ(n_newlines, scid::core::pgn::trim(str_view));
         EXPECT_TRUE(std::equal(str_view.first, str_view.second, tests[0]));

@@ -171,8 +171,7 @@ namespace scid::database
 
             /** Returns true when every bit in @p mask is set. */
             bool
-            hasFlag(
-                std::uint32_t mask) const
+            hasFlag(std::uint32_t mask) const
             {
                 return (flags & mask) == mask;
             }
@@ -249,7 +248,9 @@ namespace scid::database
              * @returns the number of flag characters written, excluding the terminator.
              */
             scid::core::uint
-            flagString(char* dest, const char* flags) const;
+            flagString(
+                char*       dest,
+                const char* flags) const;
     };
 
     /**

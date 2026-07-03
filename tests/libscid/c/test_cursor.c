@@ -7,28 +7,27 @@
 #include <string.h>
 
 void
-test_cursor(
-    void)
+test_cursor(void)
 {
-    const char* pgn = "[Event \"Cursor\"]\n"
-                      "[Result \"*\"]\n"
-                      "\n"
-                      "{Before game} 1. e4 $1 {Best by test} ({Queen pawn alternative} "
-                      "1. d4 {Queen pawn} d5) e5 *\n";
-    scid_game* game = NULL;
-    scid_game* other_game = NULL;
+    const char*       pgn = "[Event \"Cursor\"]\n"
+                            "[Result \"*\"]\n"
+                            "\n"
+                            "{Before game} 1. e4 $1 {Best by test} ({Queen pawn alternative} "
+                            "1. d4 {Queen pawn} d5) e5 *\n";
+    scid_game*        game = NULL;
+    scid_game*        other_game = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* clone = NULL;
     scid_game_cursor* next_cursor = NULL;
-    scid_position* position = NULL;
-    char fen[128];
-    char text[128];
-    int truth = 0;
-    scid_movespec move = {0, 0, 0, 0};
-    scid_nag nag = 0;
-    size_t count = 0;
-    size_t text_size = 0;
-    size_t value = 0;
+    scid_position*    position = NULL;
+    char              fen[128];
+    char              text[128];
+    int               truth = 0;
+    scid_movespec     move = {0, 0, 0, 0};
+    scid_nag          nag = 0;
+    size_t            count = 0;
+    size_t            text_size = 0;
+    size_t            value = 0;
 
     assert(test_game_create(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);

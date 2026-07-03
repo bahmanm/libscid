@@ -38,31 +38,31 @@ namespace scid::database
 
     class SCID_DATABASE_INTERNAL_API StoredLine
     {
-            static constexpr int STORED_LINES = 255;
+            static constexpr int               STORED_LINES = 255;
             static const scid::core::FullMove* Moves_[STORED_LINES + 1];
 
             int8_t matches_[STORED_LINES + 1];
 
         public:
-            StoredLine(const scid::core::pieceT* board, scid::core::colorT toMove);
+            StoredLine(
+                const scid::core::pieceT* board,
+                scid::core::colorT        toMove);
 
             // Result:
             //-2 : the game cannot reach the searched position
             //-1 : the game can reach the searched position
             //>=0: the game reach the searched position at the returned ply
             int
-            match(
-                scid::core::byte code) const
+            match(scid::core::byte code) const
             {
                 return matches_[code];
             }
 
             template <typename CompareOp>
             static scid::core::byte
-            classify(
-                CompareOp comp)
+            classify(CompareOp comp)
             {
-                int res = 0;
+                int            res = 0;
                 std::ptrdiff_t longest = 0;
                 for (int i = 1; i < STORED_LINES; ++i)
                 {
@@ -76,6 +76,7 @@ namespace scid::database
                 }
                 return static_cast<scid::core::byte>(res);
             }
+
 
             static scid::core::FullMove
             getMove(

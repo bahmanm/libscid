@@ -161,7 +161,7 @@ namespace scid::core
     /** Returns the one-step destination from @p sq in @p dir, or NS off-board. */
     constexpr squareT
     square_Move(
-        squareT sq,
+        squareT    sq,
         directionT dir)
     {
         return precomputed_sqMove[sq][dir];
@@ -174,7 +174,7 @@ namespace scid::core
      */
     constexpr squareT
     square_Last(
-        squareT sq,
+        squareT    sq,
         directionT dir)
     {
         return precomputed_sqLast[sq][dir];

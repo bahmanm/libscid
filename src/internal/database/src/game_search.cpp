@@ -17,7 +17,7 @@ namespace scid::database
         //
         int
         calcHomePawnMask(
-            scid::core::pieceT pawn,
+            scid::core::pieceT        pawn,
             const scid::core::pieceT* board)
         {
             ASSERT(pawn == scid::core::WP || pawn == scid::core::BP);
@@ -74,8 +74,8 @@ namespace scid::database
         bool
         patternsMatch(
             const scid::core::Position* pos,
-            patternT* patterns,
-            size_t patternCount)
+            patternT*                   patterns,
+            size_t                      patternCount)
         {
             const scid::core::pieceT* board = pos->GetBoard();
             for (auto pattern = patterns, patternEnd = patterns + patternCount;
@@ -111,7 +111,7 @@ namespace scid::database
 
                     if (pattern->fyleMatch == scid::core::NO_FYLE)
                     { // Test the whole rank:
-                        bool found = false;
+                        bool                found = false;
                         scid::core::squareT sq =
                             scid::core::square_Make(scid::core::A_FYLE, pattern->rankMatch);
                         for (scid::core::uint i = 0; i < 8; i++, sq++)
@@ -148,9 +148,10 @@ namespace scid::database
             return true;
         }
 
+
         scid::core::errorT
         decodeSearchStart(
-            ByteBuffer& buf,
+            ByteBuffer&           buf,
             scid::core::Position& position)
         {
             scid::core::errorT err = buf.decodeTags([](auto, auto) {});
@@ -168,14 +169,16 @@ namespace scid::database
             return scid::core::OK;
         }
 
-        std::array<scid::core::uint, 8>
+        std::array<
+            scid::core::uint,
+            8>
         pawnFylesFor(
             const scid::core::Position& position,
-            scid::core::pieceT pawn)
+            scid::core::pieceT          pawn)
         {
             std::array<scid::core::uint, 8> result = {};
-            const scid::core::pieceT* board = position.GetBoard();
-            scid::core::uint fyle = 0;
+            const scid::core::pieceT*       board = position.GetBoard();
+            scid::core::uint                fyle = 0;
             for (scid::core::squareT sq = scid::core::A1; sq <= scid::core::H8; sq++, board++)
             {
                 if (*board == pawn)
@@ -185,11 +188,16 @@ namespace scid::database
             return result;
         }
 
+
         bool
         fyleCountsMatch(
             const scid::core::Position& position,
-            const std::array<scid::core::uint, 8>& whitePawnFyles,
-            const std::array<scid::core::uint, 8>& blackPawnFyles)
+            const std::array<
+                scid::core::uint,
+                8>& whitePawnFyles,
+            const std::array<
+                scid::core::uint,
+                8>& blackPawnFyles)
         {
             auto whiteCurrent = pawnFylesFor(position, scid::core::WP);
             auto blackCurrent = pawnFylesFor(position, scid::core::BP);
@@ -204,13 +212,18 @@ namespace scid::database
             return true;
         }
 
+
         bool
         positionMatches(
             scid::core::Position* searchPos,
             scid::core::Position& currentPosition,
-            gameExactMatchT searchType,
-            const std::array<scid::core::uint, 8>& whitePawnFyles,
-            const std::array<scid::core::uint, 8>& blackPawnFyles)
+            gameExactMatchT       searchType,
+            const std::array<
+                scid::core::uint,
+                8>& whitePawnFyles,
+            const std::array<
+                scid::core::uint,
+                8>& blackPawnFyles)
         {
             if (searchPos->GetToMove() != currentPosition.GetToMove() ||
                 searchPos->GetCount(scid::core::WHITE) !=
@@ -273,14 +286,19 @@ namespace scid::database
             return true;
         }
 
+
         bool
         varExactMatchLine(
             scid::core::MoveSequence const& line,
-            scid::core::Position currentPosition,
-            scid::core::Position* searchPos,
-            gameExactMatchT searchType,
-            const std::array<scid::core::uint, 8>& whitePawnFyles,
-            const std::array<scid::core::uint, 8>& blackPawnFyles)
+            scid::core::Position            currentPosition,
+            scid::core::Position*           searchPos,
+            gameExactMatchT                 searchType,
+            const std::array<
+                scid::core::uint,
+                8>& whitePawnFyles,
+            const std::array<
+                scid::core::uint,
+                8>& blackPawnFyles)
         {
             for (auto const& move : line.moves)
             {
@@ -303,45 +321,47 @@ namespace scid::database
                 (void)currentPosition.applyMove(move.spec);
             }
 
+
             return line.moves.empty() &&
                    positionMatches(
                        searchPos, currentPosition, searchType, whitePawnFyles, blackPawnFyles);
         }
 
+
         scid::core::Position
-        startPositionFor(
-            const scid::core::Game& game)
+        startPositionFor(const scid::core::Game& game)
         {
             return game.startPosition() ? *game.startPosition()
                                         : scid::core::Position::getStdStart();
         }
 
+
         bool
         materialMatches(
-            bool promotionsFlag,
-            ByteBuffer& buf,
+            bool              promotionsFlag,
+            ByteBuffer&       buf,
             scid::core::byte* min,
             scid::core::byte* max,
-            patternT* patterns,
-            size_t patternCount,
-            int minPly,
-            int maxPly,
-            int matchLength,
-            bool oppBishops,
-            bool sameBishops,
-            int minDiff,
-            int maxDiff)
+            patternT*         patterns,
+            size_t            patternCount,
+            int               minPly,
+            int               maxPly,
+            int               matchLength,
+            bool              oppBishops,
+            bool              sameBishops,
+            int               minDiff,
+            int               maxDiff)
         {
             ASSERT(matchLength >= 1);
 
-            int matchesNeeded = matchLength;
-            int matDiff;
-            scid::core::uint plyCount = 0;
+            int                  matchesNeeded = matchLength;
+            int                  matDiff;
+            scid::core::uint     plyCount = 0;
             scid::core::Position currentPosition;
-            scid::core::errorT err = decodeSearchStart(buf, currentPosition);
+            scid::core::errorT   err = decodeSearchStart(buf, currentPosition);
             while (err == scid::core::OK)
             {
-                bool foundMatch = false;
+                bool             foundMatch = false;
                 scid::core::byte wMinor, bMinor;
 
                 // If current pos has LESS than the minimum of pawns, this
@@ -553,20 +573,21 @@ namespace scid::database
             return false;
         }
 
+
         bool
         exactMatches(
             const scid::core::Game& game,
-            scid::core::Position* searchPos,
-            ByteBuffer* buf,
-            gameExactMatchT searchType)
+            scid::core::Position*   searchPos,
+            ByteBuffer*             buf,
+            gameExactMatchT         searchType)
         {
             // If buf is NULL, the game is in memory. Otherwise, decode only
             // the necessary moves:
-            scid::core::errorT err = scid::core::OK;
-            scid::core::Position decodedPosition;
-            scid::core::Position* currentPosition = &decodedPosition;
+            scid::core::errorT              err = scid::core::OK;
+            scid::core::Position            decodedPosition;
+            scid::core::Position*           currentPosition = &decodedPosition;
             const scid::core::MoveSequence* memoryLine = nullptr;
-            std::size_t memoryMoveIndex = 0;
+            std::size_t                     memoryMoveIndex = 0;
 
             if (buf == NULL)
             {
@@ -580,8 +601,8 @@ namespace scid::database
 
             scid::core::uint search_whiteHPawns = 0;
             scid::core::uint search_blackHPawns = 0;
-            bool check_pawnMaskWhite, check_pawnMaskBlack;
-            bool doHomePawnChecks = false;
+            bool             check_pawnMaskWhite, check_pawnMaskBlack;
+            bool             doHomePawnChecks = false;
 
             scid::core::uint wpawnFyle[8] = {0, 0, 0, 0, 0, 0, 0, 0};
             scid::core::uint bpawnFyle[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -590,7 +611,7 @@ namespace scid::database
             if (searchType == GAME_EXACT_MATCH_Fyles)
             {
                 const scid::core::pieceT* board = searchPos->GetBoard();
-                scid::core::uint fyle = 0;
+                scid::core::uint          fyle = 0;
                 for (scid::core::squareT sq = scid::core::A1; sq <= scid::core::H8; sq++, board++)
                 {
                     if (*board == scid::core::WP)
@@ -826,47 +847,49 @@ namespace scid::database
 
     bool
     game_search::materialMatch(
-        bool promotionsFlag,
-        ByteBuffer& buf,
+        bool              promotionsFlag,
+        ByteBuffer&       buf,
         scid::core::byte* min,
         scid::core::byte* max,
-        patternT* patterns,
-        std::size_t patternCount,
-        int minPly,
-        int maxPly,
-        int matchLength,
-        bool oppBishops,
-        bool sameBishops,
-        int minDiff,
-        int maxDiff)
+        patternT*         patterns,
+        std::size_t       patternCount,
+        int               minPly,
+        int               maxPly,
+        int               matchLength,
+        bool              oppBishops,
+        bool              sameBishops,
+        int               minDiff,
+        int               maxDiff)
     {
         return materialMatches(
             promotionsFlag, buf, min, max, patterns, patternCount, minPly, maxPly, matchLength,
             oppBishops, sameBishops, minDiff, maxDiff);
     }
 
+
     bool
     game_search::exactMatch(
         const scid::core::Game& game,
-        scid::core::Position* pos,
-        ByteBuffer* buf,
-        gameExactMatchT searchType)
+        scid::core::Position*   pos,
+        ByteBuffer*             buf,
+        gameExactMatchT         searchType)
     {
         return exactMatches(game, pos, buf, searchType);
     }
 
+
     bool
     game_search::varExactMatch(
         const scid::core::Game& game,
-        scid::core::Position* pos,
-        gameExactMatchT searchType)
+        scid::core::Position*   pos,
+        gameExactMatchT         searchType)
     {
-        const auto whitePawnFyles = searchType == GAME_EXACT_MATCH_Fyles
-                                        ? pawnFylesFor(*pos, scid::core::WP)
-                                        : std::array<scid::core::uint, 8>{};
-        const auto blackPawnFyles = searchType == GAME_EXACT_MATCH_Fyles
-                                        ? pawnFylesFor(*pos, scid::core::BP)
-                                        : std::array<scid::core::uint, 8>{};
+        const auto           whitePawnFyles = searchType == GAME_EXACT_MATCH_Fyles
+                                                  ? pawnFylesFor(*pos, scid::core::WP)
+                                                  : std::array<scid::core::uint, 8>{};
+        const auto           blackPawnFyles = searchType == GAME_EXACT_MATCH_Fyles
+                                                  ? pawnFylesFor(*pos, scid::core::BP)
+                                                  : std::array<scid::core::uint, 8>{};
         scid::core::Position startPosition = startPositionFor(game);
         return varExactMatchLine(
             game.movetext().mainline, startPosition, pos, searchType, whitePawnFyles,

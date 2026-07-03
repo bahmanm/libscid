@@ -9,10 +9,11 @@ namespace scid::core
         return from == to && !castling;
     }
 
+
     std::string
     MoveSpec::longNotation() const
     {
-        char buf[8] = {};
+        char  buf[8] = {};
         char* dest = buf;
         if (from == to)
         {

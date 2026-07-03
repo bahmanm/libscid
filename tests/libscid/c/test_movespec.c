@@ -7,13 +7,12 @@
 #include <string.h>
 
 void
-test_movespec(
-    void)
+test_movespec(void)
 {
-    scid_movespec move = {0, 0, 0, 0};
+    scid_movespec  move = {0, 0, 0, 0};
     scid_position* position = NULL;
-    char text[8];
-    size_t text_size = 0;
+    char           text[8];
+    size_t         text_size = 0;
 
     assert(scid_movespec_create(12, 28, SCID_PIECE_NONE, 0, &move) == SCID_OK);
     assert(move.from == 12);

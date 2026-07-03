@@ -34,7 +34,7 @@ namespace
 
     class Buffer
     {
-            char buf_[1024];
+            char  buf_[1024];
             char* it_ = buf_;
 
         public:
@@ -44,13 +44,15 @@ namespace
                 it_ = buf_;
             }
 
+
             bool
             equal(
                 const Buffer& b,
-                size_t count)
+                size_t        count)
             {
                 return std::equal(buf_, buf_ + count, b.buf_);
             }
+
 
             char*
             getBuffer()
@@ -58,14 +60,16 @@ namespace
                 return buf_;
             }
 
+
             size_t
             sputn(
                 const char* s,
-                size_t count)
+                size_t      count)
             {
                 it_ = std::copy_n(s, count, it_);
                 return count;
             }
+
 
             scid::core::byte
             ReadOneByte()
@@ -88,33 +92,31 @@ namespace
                 return read<4>();
             }
 
+
             int
-            WriteOneByte(
-                scid::core::byte value)
+            WriteOneByte(scid::core::byte value)
             {
                 *it_ = static_cast<char>(value);
                 ++it_;
                 return 1;
             }
 
+
             int
-            WriteTwoBytes(
-                uint32_t value)
+            WriteTwoBytes(uint32_t value)
             {
                 return WriteOneByte(static_cast<scid::core::byte>(value >> 8)) +
                        WriteOneByte(static_cast<scid::core::byte>(value));
             }
             int
-            WriteThreeBytes(
-                uint32_t value)
+            WriteThreeBytes(uint32_t value)
             {
                 return WriteOneByte(static_cast<scid::core::byte>(value >> 16)) +
                        WriteOneByte(static_cast<scid::core::byte>(value >> 8)) +
                        WriteOneByte(static_cast<scid::core::byte>(value));
             }
             int
-            WriteFourBytes(
-                uint32_t value)
+            WriteFourBytes(uint32_t value)
             {
                 return WriteOneByte(static_cast<scid::core::byte>(value >> 24)) +
                        WriteOneByte(static_cast<scid::core::byte>(value >> 16)) +
@@ -144,8 +146,8 @@ TEST(
     Test_IndexEntry,
     Flags_dedicatedGetSet)
 {
-    scid::database::IndexEntry ie;
-    std::mt19937 re(std::random_device{}());
+    scid::database::IndexEntry      ie;
+    std::mt19937                    re(std::random_device{}());
     std::uniform_int_distribution<> rnd{0, 1};
     for (int i = 0; i < 100000; ++i)
     {
@@ -177,7 +179,7 @@ TEST(
     scid::database::IndexEntry ie;
     ie.clearFlags();
 
-    uint32_t flags = 0;
+    uint32_t     flags = 0;
     std::mt19937 re(std::random_device{}());
     for (int i = 0; i < 100000; ++i)
     {

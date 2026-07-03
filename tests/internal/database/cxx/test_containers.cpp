@@ -37,8 +37,7 @@ namespace
                 ++nObjects;
             }
 
-            RefCounted(
-                const RefCounted& v)
+            RefCounted(const RefCounted& v)
             {
                 std::copy_n(v.ch, sizeof ch, ch);
                 ++nObjects;
@@ -106,7 +105,7 @@ TEST(
     // Test access with iterators
     for (size_t i = 30; i < v.size();)
     {
-        auto contiguous = v.contiguous(i);
+        auto        contiguous = v.contiguous(i);
         RefCounted* it = &v[i];
         for (size_t j = 0; j < contiguous; j++)
         {
@@ -145,7 +144,7 @@ TEST(
     ByteBuffer_GetTerminatedString)
 {
     const char* test_data[] = {"abcd", "", "efg"};
-    auto v = [&] {
+    auto        v = [&] {
         std::vector<char> res;
         for (auto str : test_data)
         {

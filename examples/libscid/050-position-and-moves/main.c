@@ -5,7 +5,7 @@
 
 static int
 check(
-    scid_error error,
+    scid_error  error,
     const char* call)
 {
     if (error == SCID_OK)
@@ -17,30 +17,31 @@ check(
     return 0;
 }
 
+
 static int
 text_equals(
     const char* text,
-    size_t text_size,
+    size_t      text_size,
     const char* expected)
 {
     return text_size == strlen(expected) && strncmp(text, expected, text_size) == 0;
 }
 
+
 int
-main(
-    void)
+main(void)
 {
-    const char* standard_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const char* expected_fen = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/"
-                               "RNBQKBNR w KQkq - 0 2";
+    const char*    standard_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const char*    expected_fen = "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/"
+                                  "RNBQKBNR w KQkq - 0 2";
     scid_position* position = NULL;
     scid_position* next_position = NULL;
-    scid_movespec move;
-    scid_colour side_to_move = SCID_BLACK;
-    scid_piece piece = SCID_PIECE_NONE;
-    char text[256];
-    size_t text_size = 0;
-    unsigned number = 0;
+    scid_movespec  move;
+    scid_colour    side_to_move = SCID_BLACK;
+    scid_piece     piece = SCID_PIECE_NONE;
+    char           text[256];
+    size_t         text_size = 0;
+    unsigned       number = 0;
 
     if (!check(
             scid_position_create_from_fen(standard_fen, &position),
@@ -89,6 +90,7 @@ main(
         scid_position_free(position);
         return 1;
     }
+
 
     if (!check(
             scid_position_side_to_move_get(position, &side_to_move),

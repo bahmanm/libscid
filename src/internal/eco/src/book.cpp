@@ -31,7 +31,7 @@ namespace
 
     std::string_view
     epd_findOpcode(
-        const char* epdStr,
+        const char*      epdStr,
         std::string_view opcode)
     {
         const char* s = epdStr;
@@ -57,9 +57,9 @@ namespace
         return {};
     }
 
+
     const char*
-    trim_left(
-        const char* str)
+    trim_left(const char* str)
     {
         while (*str == ' ' || *str == '\t' || *str == '\r' || *str == '\n')
         {
@@ -68,9 +68,9 @@ namespace
         return str;
     }
 
+
     char*
-    duplicate_cstring(
-        std::string_view str)
+    duplicate_cstring(std::string_view str)
     {
         char* copy = new char[str.size() + 1];
         std::copy(str.begin(), str.end(), copy);
@@ -86,7 +86,7 @@ namespace
     scid::eco::Error
     ReadLine(
         scid::eco::Position& pos,
-        const char* s)
+        const char*          s)
     {
         while (true)
         {
@@ -104,7 +104,7 @@ namespace
             }
 
             scid::core::MoveSpec spec;
-            scid::eco::Error err =
+            scid::eco::Error     err =
                 pos.parseMoveSpec(spec, {begin, static_cast<std::size_t>(s - begin)});
             if (err != scid::eco::OK)
                 return err;
@@ -120,8 +120,7 @@ namespace scid::eco
 {
 
     std::string_view
-    Book::findEcoString(
-        const Position& position) const
+    Book::findEcoString(const Position& position) const
     {
         auto [it, end] = pos_.equal_range(position.HashValue());
         if (it == end)
@@ -139,9 +138,9 @@ namespace scid::eco
         return res.substr(0, res.find('\n'));
     }
 
+
     Code
-    Book::findEco(
-        const Position& position) const
+    Book::findEco(const Position& position) const
     {
         auto it = findEcoString(position);
         if (it.empty())
@@ -152,9 +151,9 @@ namespace scid::eco
         return fromString(buf);
     }
 
+
     std::vector<Book::Line>
-    Book::linesWithPrefix(
-        const std::string_view prefix) const
+    Book::linesWithPrefix(const std::string_view prefix) const
     {
         auto res = std::vector<Line>();
         for (const char* comment : comments_)
@@ -167,7 +166,7 @@ namespace scid::eco
             const auto codeEnd = ecoLine.find(' ');
             const auto nameStart = ecoLine.find('[');
             const auto nameEnd = ecoLine.rfind(']');
-            auto name = std::string_view();
+            auto       name = std::string_view();
             if (nameStart != std::string_view::npos && nameEnd != std::string_view::npos &&
                 nameStart < nameEnd)
             {
@@ -185,9 +184,9 @@ namespace scid::eco
         return res;
     }
 
+
     Book::LoadResult
-    Book::load(
-        const std::filesystem::path& path)
+    Book::load(const std::filesystem::path& path)
     {
         std::filebuf fp;
         if (!fp.open(path, std::ios::in | std::ios::binary))
@@ -199,11 +198,11 @@ namespace scid::eco
         std_start.StdStart();
         std::string text;
         std::string moves;
-        String ecoStr;
-        Code ecoCode;
-        int ch;
-        Error err = OK;
-        bool done = false;
+        String      ecoStr;
+        Code        ecoCode;
+        int         ch;
+        Error       err = OK;
+        bool        done = false;
 
         // Loop to read in and add all positions:
 
