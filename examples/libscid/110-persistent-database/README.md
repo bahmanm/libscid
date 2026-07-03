@@ -1,8 +1,8 @@
 # 110 Persistent Database
 
-This example creates a SCID5 database on disk, adds a PGN game, closes the
-database, reopens it, reads the persisted metadata, and removes the generated
-SCID5 files.
+This example creates a SCID5 database on disk, parses and adds a PGN game,
+closes the database, reopens it, reads the persisted metadata, and removes the
+generated SCID5 files.
 
 Install libscid first; see the installation guide:
 

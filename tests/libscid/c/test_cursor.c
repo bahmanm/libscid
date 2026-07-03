@@ -73,24 +73,19 @@ test_cursor(
     assert(
         scid_game_cursor_previous_move_comment_get(cursor, text, sizeof(text), &text_size) ==
         SCID_ERROR_INVALID_MOVE);
-    assert(
-        scid_game_cursor_previous_move_nag_count_get(cursor, &count) ==
-        SCID_ERROR_INVALID_MOVE);
-    assert(
-        scid_game_cursor_previous_move_nag_at_get(cursor, 0, &nag) == SCID_ERROR_INVALID_MOVE);
+    assert(scid_game_cursor_previous_move_nag_count_get(cursor, &count) == SCID_ERROR_INVALID_MOVE);
+    assert(scid_game_cursor_previous_move_nag_at_get(cursor, 0, &nag) == SCID_ERROR_INVALID_MOVE);
 
     assert(scid_game_cursor_next_movespec_get(cursor, &move) == SCID_OK);
     assert(move.from == 12);
     assert(move.to == 28);
     assert(move.promotion == SCID_PIECE_NONE);
     assert(move.is_castling == 0);
-    assert(
-        scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
+    assert(scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "e4") == 0);
     assert(text_size == 2);
     assert(
-        scid_game_cursor_next_move_comment_get(cursor, text, sizeof(text), &text_size) ==
-        SCID_OK);
+        scid_game_cursor_next_move_comment_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Best by test") == 0);
     assert(text_size == 12);
     assert(scid_game_cursor_next_move_nag_count_get(cursor, &count) == SCID_OK);
@@ -119,8 +114,7 @@ test_cursor(
     assert(move.promotion == SCID_PIECE_NONE);
     assert(move.is_castling == 0);
     assert(
-        scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) ==
-        SCID_OK);
+        scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "e4") == 0);
     assert(text_size == 2);
     assert(
@@ -156,16 +150,14 @@ test_cursor(
     assert(scid_game_cursor_ply_get(clone, &value) == SCID_OK);
     assert(value == 1);
     assert(
-        scid_game_cursor_previous_move_san_get(clone, text, sizeof(text), &text_size) ==
-        SCID_OK);
+        scid_game_cursor_previous_move_san_get(clone, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "e4") == 0);
     assert(scid_game_cursor_next(clone, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
     test_cursor_take(&clone, next_cursor);
     next_cursor = NULL;
     assert(
-        scid_game_cursor_previous_move_san_get(clone, text, sizeof(text), &text_size) ==
-        SCID_OK);
+        scid_game_cursor_previous_move_san_get(clone, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "e5") == 0);
 
     assert(scid_game_cursor_previous(cursor, &truth, &next_cursor) == SCID_OK);
@@ -268,10 +260,8 @@ test_cursor(
     assert(scid_game_cursor_to_end(NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_to_end(cursor, NULL) == SCID_ERROR_BAD_ARG);
     assert(
-        scid_game_cursor_comment_get(NULL, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    assert(
-        scid_game_cursor_comment_get(cursor, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
+        scid_game_cursor_comment_get(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_cursor_comment_get(cursor, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_comment_set(NULL, cursor, "comment") == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_comment_set(game, NULL, "comment") == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_comment_set(game, cursor, NULL) == SCID_ERROR_BAD_ARG);
@@ -298,8 +288,7 @@ test_cursor(
         scid_game_cursor_next_move_san_get(NULL, text, sizeof(text), &text_size) ==
         SCID_ERROR_BAD_ARG);
     assert(
-        scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), NULL) ==
-        SCID_ERROR_BAD_ARG);
+        scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
     assert(
         scid_game_cursor_next_move_comment_get(NULL, text, sizeof(text), &text_size) ==
         SCID_ERROR_BAD_ARG);

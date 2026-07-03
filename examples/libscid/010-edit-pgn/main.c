@@ -56,8 +56,7 @@ main(
     int removed = 0;
 
     if (!check(
-            scid_position_create_from_fen(start_fen, &position),
-            "scid_position_create_from_fen") ||
+            scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
         !check(
             scid_game_create(
                 position, pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic),
@@ -93,7 +92,9 @@ main(
 
     if (!check(scid_game_tag_set(game, "Annotator", "C ABI example"), "scid_game_tag_set") ||
         !check(scid_game_tag_remove(game, "EventDate", &removed), "scid_game_tag_remove") ||
-        !check(scid_game_to_pgn(game, NULL, encoded, sizeof(encoded), &encoded_size), "scid_game_to_pgn"))
+        !check(
+            scid_game_to_pgn(game, NULL, encoded, sizeof(encoded), &encoded_size),
+            "scid_game_to_pgn"))
     {
         scid_position_free(position);
         scid_game_free(game);

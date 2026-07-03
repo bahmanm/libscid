@@ -84,12 +84,16 @@ test_position(
     assert(scid_position_apply_san(position, "not-a-move") == SCID_ERROR_INVALID_MOVE);
     assert(scid_position_create_with_uci(NULL, "e2e4", &next_position) == SCID_ERROR_BAD_ARG);
     assert(scid_position_create_with_uci(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_create_with_uci(position, "not-a-move", &next_position) == SCID_ERROR_INVALID_MOVE);
+    assert(
+        scid_position_create_with_uci(position, "not-a-move", &next_position) ==
+        SCID_ERROR_INVALID_MOVE);
     assert(next_position == NULL);
     assert(scid_position_create_with_uci(position, "g1f3", NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_create_with_san(NULL, "e4", &next_position) == SCID_ERROR_BAD_ARG);
     assert(scid_position_create_with_san(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_create_with_san(position, "not-a-move", &next_position) == SCID_ERROR_INVALID_MOVE);
+    assert(
+        scid_position_create_with_san(position, "not-a-move", &next_position) ==
+        SCID_ERROR_INVALID_MOVE);
     assert(next_position == NULL);
     assert(scid_position_create_with_san(position, "Nf3", NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_apply_uci(NULL, "e2e4") == SCID_ERROR_BAD_ARG);

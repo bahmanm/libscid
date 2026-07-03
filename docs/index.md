@@ -47,6 +47,7 @@ C ABI example projects.
 
 - Use `scid_position` for board state, legal move handling and FEN/UCI/SAN
   helpers.
-- Use `scid_game` for PGN import, editing, traversal and export.
+- Use `scid_game`, `scid_game_cursor` and `scid_game_pgn_options` for PGN
+  import, editing, traversal, merge and export workflows.
 - Use `scid_database` for in-memory and persistent Scid database workflows.
 - Use `scid_eco_book` for ECO opening lookup.

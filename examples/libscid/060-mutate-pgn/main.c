@@ -65,8 +65,7 @@ main(
     size_t variation_count = 0;
 
     if (!check(
-            scid_position_create_from_fen(start_fen, &position),
-            "scid_position_create_from_fen") ||
+            scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
         !check(
             scid_game_create(position, pgn, strlen(pgn), &game, NULL, 0, NULL),
             "scid_game_create") ||
@@ -92,9 +91,7 @@ main(
     if (!check(
             scid_game_cursor_comment_set(game, cursor, "King pawn"),
             "scid_game_cursor_comment_set") ||
-        !check(
-            scid_game_cursor_nag_add(game, cursor, 1, &changed),
-            "scid_game_cursor_nag_add") ||
+        !check(scid_game_cursor_nag_add(game, cursor, 1, &changed), "scid_game_cursor_nag_add") ||
         !changed ||
         !check(
             scid_game_cursor_variation_count_get(cursor, &variation_count),
@@ -107,15 +104,11 @@ main(
         return 1;
     }
 
-    if (!check(
-            scid_game_cursor_position_get(cursor, position),
-            "scid_game_cursor_position_get") ||
+    if (!check(scid_game_cursor_position_get(cursor, position), "scid_game_cursor_position_get") ||
         !check(
             scid_movespec_create_from_san(position, "e6", &move),
             "scid_movespec_create_from_san") ||
-        !check(
-            scid_game_create_blank(position, &source_game),
-            "scid_game_create_blank") ||
+        !check(scid_game_create_blank(position, &source_game), "scid_game_create_blank") ||
         !check(scid_game_cursor_create(source_game, &source_cursor), "scid_game_cursor_create") ||
         !check(
             scid_game_cursor_comment_set(source_game, source_cursor, "French branch"),
@@ -126,8 +119,7 @@ main(
         !take_cursor(&source_cursor, &source_next_cursor) ||
         !check(
             scid_game_merge_moves(
-                game, cursor, source_game, SCID_GAME_MERGE_MOVES_INSERT_VARIATION,
-                &next_cursor),
+                game, cursor, source_game, SCID_GAME_MERGE_MOVES_INSERT_VARIATION, &next_cursor),
             "scid_game_merge_moves") ||
         !take_cursor(&cursor, &next_cursor))
     {
@@ -149,8 +141,7 @@ main(
     next_cursor = NULL;
 
     if (!check(
-            scid_game_cursor_variation_promote_to_first(
-                game, cursor, &changed, &next_cursor),
+            scid_game_cursor_variation_promote_to_first(game, cursor, &changed, &next_cursor),
             "scid_game_cursor_variation_promote_to_first") ||
         !changed || !take_cursor(&cursor, &next_cursor))
     {
@@ -169,7 +160,8 @@ main(
             scid_game_cursor_variation_exit(cursor, &moved, &next_cursor),
             "scid_game_cursor_variation_exit") ||
         !moved || !take_cursor(&cursor, &next_cursor) ||
-        !check(scid_game_to_pgn(game, NULL, output, sizeof(output), &output_size), "scid_game_to_pgn"))
+        !check(
+            scid_game_to_pgn(game, NULL, output, sizeof(output), &output_size), "scid_game_to_pgn"))
     {
         scid_game_cursor_free(next_cursor);
         scid_game_cursor_free(source_next_cursor);

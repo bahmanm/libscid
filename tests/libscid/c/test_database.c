@@ -236,8 +236,8 @@ test_database(
     assert(loaded == NULL);
 
     assert(
-        test_game_create(
-            replacement_pgn, strlen(replacement_pgn), &replacement, NULL, 0, NULL) == SCID_OK);
+        test_game_create(replacement_pgn, strlen(replacement_pgn), &replacement, NULL, 0, NULL) ==
+        SCID_OK);
     assert(replacement != NULL);
     assert(scid_database_game_replace(database, 1, replacement, "Q") == SCID_OK);
     assert(scid_database_game_count_get(database, &count) == SCID_OK);

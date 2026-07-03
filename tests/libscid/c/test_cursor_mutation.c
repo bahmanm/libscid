@@ -103,7 +103,8 @@ test_cursor_move_and_nag_mutation(
     assert(truth == 1);
     test_cursor_take(&cursor, next_cursor);
     next_cursor = NULL;
-    assert(scid_game_cursor_variation_add(game, cursor, "Sicilian", &truth, &next_cursor) == SCID_OK);
+    assert(
+        scid_game_cursor_variation_add(game, cursor, "Sicilian", &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
     test_cursor_take(&cursor, next_cursor);
     next_cursor = NULL;
@@ -151,13 +152,10 @@ test_cursor_move_and_nag_mutation(
         scid_game_cursor_variation_add(NULL, cursor, "", &truth, &next_cursor) ==
         SCID_ERROR_BAD_ARG);
     assert(
-        scid_game_cursor_variation_add(game, NULL, "", &truth, &next_cursor) ==
-        SCID_ERROR_BAD_ARG);
+        scid_game_cursor_variation_add(game, NULL, "", &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
     assert(
-        scid_game_cursor_variation_add(game, cursor, "", NULL, &next_cursor) ==
-        SCID_ERROR_BAD_ARG);
-    assert(
-        scid_game_cursor_variation_add(game, cursor, "", &truth, NULL) == SCID_ERROR_BAD_ARG);
+        scid_game_cursor_variation_add(game, cursor, "", NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_cursor_variation_add(game, cursor, "", &truth, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_nag_add(NULL, cursor, 1, &truth) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_nag_add(game, NULL, 1, &truth) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_nag_add(game, cursor, 1, NULL) == SCID_ERROR_BAD_ARG);
@@ -166,19 +164,20 @@ test_cursor_move_and_nag_mutation(
     assert(scid_game_cursor_nag_remove(game, cursor, 1, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_nag_clear(NULL, cursor) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_nag_clear(game, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_game_cursor_variation_delete(NULL, cursor, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
-    assert(scid_game_cursor_variation_delete(game, NULL, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
-    assert(scid_game_cursor_variation_delete(game, cursor, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(
+        scid_game_cursor_variation_delete(NULL, cursor, &truth, &next_cursor) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_game_cursor_variation_delete(game, NULL, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(
+        scid_game_cursor_variation_delete(game, cursor, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_variation_delete(game, cursor, &truth, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_truncate(NULL, cursor, &next_cursor) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_truncate(game, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_truncate(game, cursor, NULL) == SCID_ERROR_BAD_ARG);
     assert(
-        scid_game_cursor_truncate_before_cursor(NULL, cursor, &next_cursor) ==
-        SCID_ERROR_BAD_ARG);
-    assert(
-        scid_game_cursor_truncate_before_cursor(game, NULL, &next_cursor) ==
-        SCID_ERROR_BAD_ARG);
+        scid_game_cursor_truncate_before_cursor(NULL, cursor, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_cursor_truncate_before_cursor(game, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
     assert(scid_game_cursor_truncate_before_cursor(game, cursor, NULL) == SCID_ERROR_BAD_ARG);
 
     scid_game_cursor_free(next_cursor);
@@ -214,13 +213,14 @@ test_game_merge_moves(
 
     source = create_source_game_from_cursor_san(cursor, "Nf3");
     assert(
-        scid_game_merge_moves(
-            game, cursor, source, SCID_GAME_MERGE_MOVES_APPEND, &next_cursor) == SCID_OK);
+        scid_game_merge_moves(game, cursor, source, SCID_GAME_MERGE_MOVES_APPEND, &next_cursor) ==
+        SCID_OK);
     test_cursor_take(&cursor, next_cursor);
     next_cursor = NULL;
     assert(scid_game_cursor_ply_get(cursor, &count) == SCID_OK);
     assert(count == 3);
-    assert(scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
+    assert(
+        scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Nf3") == 0);
     scid_game_free(source);
     source = NULL;
@@ -239,8 +239,7 @@ test_game_merge_moves(
     source = create_source_game_from_cursor_san(cursor, "c5");
 
     assert(
-        scid_game_merge_moves(
-            game, cursor, source, SCID_GAME_MERGE_MOVES_APPEND, &next_cursor) ==
+        scid_game_merge_moves(game, cursor, source, SCID_GAME_MERGE_MOVES_APPEND, &next_cursor) ==
         SCID_ERROR_BAD_ARG);
     assert(next_cursor == NULL);
     assert(scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
@@ -250,13 +249,13 @@ test_game_merge_moves(
 
     assert(
         scid_game_merge_moves(
-            game, cursor, source, SCID_GAME_MERGE_MOVES_INSERT_VARIATION, &next_cursor) ==
-        SCID_OK);
+            game, cursor, source, SCID_GAME_MERGE_MOVES_INSERT_VARIATION, &next_cursor) == SCID_OK);
     test_cursor_take(&cursor, next_cursor);
     next_cursor = NULL;
     assert(scid_game_cursor_variation_depth_get(cursor, &count) == SCID_OK);
     assert(count == 1);
-    assert(scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
+    assert(
+        scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "c5") == 0);
     scid_game_free(source);
     source = NULL;
@@ -292,11 +291,12 @@ test_game_merge_moves(
     source = create_source_game_from_cursor_san(cursor, "c5");
     assert(scid_game_tag_set(source, "Event", "Source Event") == SCID_OK);
     assert(
-        scid_game_merge_moves(
-            game, cursor, source, SCID_GAME_MERGE_MOVES_REPLACE, &next_cursor) == SCID_OK);
+        scid_game_merge_moves(game, cursor, source, SCID_GAME_MERGE_MOVES_REPLACE, &next_cursor) ==
+        SCID_OK);
     test_cursor_take(&cursor, next_cursor);
     next_cursor = NULL;
-    assert(scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
+    assert(
+        scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "c5") == 0);
     assert(scid_game_cursor_next(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 0);
@@ -310,8 +310,7 @@ test_game_merge_moves(
     assert(scid_movespec_create_from_san(position, "e4", &moves[0]) == SCID_OK);
     source = create_source_game_from_moves(position, moves, 1);
     assert(
-        scid_game_merge_moves(
-            game, cursor, source, SCID_GAME_MERGE_MOVES_APPEND, &next_cursor) ==
+        scid_game_merge_moves(game, cursor, source, SCID_GAME_MERGE_MOVES_APPEND, &next_cursor) ==
         SCID_ERROR_INVALID_MOVE);
     assert(next_cursor == NULL);
     scid_position_free(position);
@@ -371,8 +370,7 @@ test_cursor_variation_promotion(
     assert(scid_game_cursor_variation_index_get(cursor, &count) == SCID_OK);
     assert(count == 1);
     assert(
-        scid_game_cursor_variation_promote_to_first(game, cursor, &truth, &next_cursor) ==
-        SCID_OK);
+        scid_game_cursor_variation_promote_to_first(game, cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
     test_cursor_take(&cursor, next_cursor);
     next_cursor = NULL;
@@ -391,8 +389,7 @@ test_cursor_variation_promotion(
     assert(strcmp(text, "e6") == 0);
 
     assert(
-        scid_game_cursor_variation_promote_to_first(game, cursor, &truth, &next_cursor) ==
-        SCID_OK);
+        scid_game_cursor_variation_promote_to_first(game, cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 0);
     assert(next_cursor == NULL);
     assert(

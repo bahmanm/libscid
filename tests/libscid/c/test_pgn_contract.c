@@ -48,8 +48,8 @@ test_pgn_contract(
     assert(truth == 1);
 
     assert(
-        scid_game_cursor_variation_add(
-            game, cursor, "Sicilian branch", &truth, &next_cursor) == SCID_OK);
+        scid_game_cursor_variation_add(game, cursor, "Sicilian branch", &truth, &next_cursor) ==
+        SCID_OK);
     assert(truth == 1);
     test_cursor_take(&cursor, next_cursor);
     next_cursor = NULL;
@@ -140,8 +140,7 @@ test_pgn_contract(
     next_cursor = NULL;
     assert(scid_game_cursor_comment_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Sicilian branch") == 0);
-    assert(
-        scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
+    assert(scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "c5") == 0);
     assert(scid_game_cursor_variation_exit(cursor, &truth, &next_cursor) == SCID_OK);
     assert(truth == 1);
@@ -152,8 +151,7 @@ test_pgn_contract(
     test_cursor_take(&cursor, next_cursor);
     next_cursor = NULL;
     assert(
-        scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) ==
-        SCID_OK);
+        scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, "Nc3") == 0);
     assert(
         scid_game_cursor_previous_move_comment_get(cursor, text, sizeof(text), &text_size) ==

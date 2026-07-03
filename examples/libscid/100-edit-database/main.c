@@ -37,8 +37,7 @@ parse_pgn(
     size_t diagnostic_size = 0;
 
     if (!check(
-            scid_position_create_from_fen(start_fen, &position),
-            "scid_position_create_from_fen") ||
+            scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
         !check(
             scid_game_create(
                 position, pgn, strlen(pgn), out_game, diagnostic, sizeof(diagnostic),

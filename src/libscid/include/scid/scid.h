@@ -340,9 +340,7 @@ extern "C"
     scid_game_cursor_free(scid_game_cursor* cursor);
 
     SCID_API scid_error
-    scid_game_cursor_position_get(
-        const scid_game_cursor* cursor,
-        scid_position* out_position);
+    scid_game_cursor_position_get(const scid_game_cursor* cursor, scid_position* out_position);
 
     SCID_API scid_error
     scid_game_cursor_ply_get(const scid_game_cursor* cursor, size_t* out_ply);
@@ -374,9 +372,7 @@ extern "C"
         int* out_is_variation_start);
 
     SCID_API scid_error
-    scid_game_cursor_is_variation_end(
-        const scid_game_cursor* cursor,
-        int* out_is_variation_end);
+    scid_game_cursor_is_variation_end(const scid_game_cursor* cursor, int* out_is_variation_end);
 
     SCID_API scid_error
     scid_game_cursor_is_variation_empty(
@@ -397,9 +393,7 @@ extern "C"
         const char* comment);
 
     SCID_API scid_error
-    scid_game_cursor_previous_movespec_get(
-        const scid_game_cursor* cursor,
-        scid_movespec* out_move);
+    scid_game_cursor_previous_movespec_get(const scid_game_cursor* cursor, scid_movespec* out_move);
 
     SCID_API scid_error
     scid_game_cursor_previous_move_san_get(
@@ -416,9 +410,7 @@ extern "C"
         size_t* out_text_size);
 
     SCID_API scid_error
-    scid_game_cursor_previous_move_nag_count_get(
-        const scid_game_cursor* cursor,
-        size_t* out_count);
+    scid_game_cursor_previous_move_nag_count_get(const scid_game_cursor* cursor, size_t* out_count);
 
     SCID_API scid_error
     scid_game_cursor_previous_move_nag_at_get(
@@ -427,9 +419,7 @@ extern "C"
         scid_nag* out_nag);
 
     SCID_API scid_error
-    scid_game_cursor_next_movespec_get(
-        const scid_game_cursor* cursor,
-        scid_movespec* out_move);
+    scid_game_cursor_next_movespec_get(const scid_game_cursor* cursor, scid_movespec* out_move);
 
     SCID_API scid_error
     scid_game_cursor_next_move_san_get(
@@ -446,9 +436,7 @@ extern "C"
         size_t* out_text_size);
 
     SCID_API scid_error
-    scid_game_cursor_next_move_nag_count_get(
-        const scid_game_cursor* cursor,
-        size_t* out_count);
+    scid_game_cursor_next_move_nag_count_get(const scid_game_cursor* cursor, size_t* out_count);
 
     SCID_API scid_error
     scid_game_cursor_next_move_nag_at_get(
@@ -457,14 +445,10 @@ extern "C"
         scid_nag* out_nag);
 
     SCID_API scid_error
-    scid_game_cursor_to_start(
-        const scid_game_cursor* cursor,
-        scid_game_cursor** out_start_cursor);
+    scid_game_cursor_to_start(const scid_game_cursor* cursor, scid_game_cursor** out_start_cursor);
 
     SCID_API scid_error
-    scid_game_cursor_to_end(
-        const scid_game_cursor* cursor,
-        scid_game_cursor** out_end_cursor);
+    scid_game_cursor_to_end(const scid_game_cursor* cursor, scid_game_cursor** out_end_cursor);
 
     SCID_API scid_error
     scid_game_cursor_to_ply(

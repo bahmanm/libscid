@@ -75,8 +75,7 @@ main(
     position = next_position;
     next_position = NULL;
 
-    if (
-        !check(
+    if (!check(
             scid_position_to_fen(position, text, sizeof(text), &text_size), "scid_position_to_fen"))
     {
         scid_position_free(next_position);

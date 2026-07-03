@@ -49,6 +49,26 @@ main(void)
 The public header is `scid/scid.h`, and the installed CMake target is
 `LibScid::LibScid`.
 
+## PGN Workflow
+
+The PGN-facing game API is built from a few foundational calls:
+
+- Create a start position with `scid_position_create_from_fen()`.
+- Create a blank game with `scid_game_create_blank()` or parse moves and tags
+  with `scid_game_create()`.
+- Create a `scid_game_cursor` from the game. Cursor navigation is immutable:
+  functions such as `scid_game_cursor_next()` return a new cursor through an
+  `out_...` parameter.
+- Edit the game at a cursor, or merge another game's moves with
+  `scid_game_merge_moves()`.
+- Export with `scid_game_to_pgn(game, options, ...)`. Pass `NULL` for the
+  default complete PGN export, or pass a `scid_game_pgn_options` object to
+  control symbolic NAGs, supplemental tags, comments, variations and line
+  width.
+
+See @ref examples_recipes "Examples and Recipes" for complete programs that
+parse, author, navigate, mutate and export PGN.
+
 ## With cc
 
 ```sh

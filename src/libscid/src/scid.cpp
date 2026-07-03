@@ -1409,7 +1409,8 @@ scid_position_create_with_san(
         next_position->value = position->value;
 
         scid::core::MoveSpec move;
-        if (const scid_error error = next_position->value.parseMoveSpec(move, san); error != SCID_OK)
+        if (const scid_error error = next_position->value.parseMoveSpec(move, san);
+            error != SCID_OK)
         {
             delete next_position;
             *out_position = nullptr;
@@ -2185,8 +2186,7 @@ scid_game_merge_moves(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (mode != SCID_GAME_MERGE_MOVES_APPEND &&
-        mode != SCID_GAME_MERGE_MOVES_INSERT_VARIATION &&
+    if (mode != SCID_GAME_MERGE_MOVES_APPEND && mode != SCID_GAME_MERGE_MOVES_INSERT_VARIATION &&
         mode != SCID_GAME_MERGE_MOVES_REPLACE)
     {
         return SCID_ERROR_BAD_ARG;
@@ -3131,8 +3131,7 @@ scid_game_cursor_nag_add(
             return write_bool(false, out_added);
         }
 
-        return write_bool(
-            edit_cursor.addPreviousMoveNag(scid::core::nagFromCode(nag)), out_added);
+        return write_bool(edit_cursor.addPreviousMoveNag(scid::core::nagFromCode(nag)), out_added);
     }
     catch (...)
     {

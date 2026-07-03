@@ -129,9 +129,7 @@ main(
         !check(
             scid_game_cursor_comment_set(game, cursor, "King pawn"),
             "scid_game_cursor_comment_set") ||
-        !check(
-            scid_game_cursor_nag_add(game, cursor, 1, &changed),
-            "scid_game_cursor_nag_add") ||
+        !check(scid_game_cursor_nag_add(game, cursor, 1, &changed), "scid_game_cursor_nag_add") ||
         !changed || !add_san_move(game, &cursor, &position, "e5") ||
         !add_san_move(game, &cursor, &position, "Nf3") ||
         !add_san_move(game, &cursor, &position, "Nc6"))
@@ -160,8 +158,7 @@ main(
     {
         scid_game_cursor* next_cursor = NULL;
         if (!check(
-                scid_game_cursor_position_get(cursor, position),
-                "scid_game_cursor_position_get") ||
+                scid_game_cursor_position_get(cursor, position), "scid_game_cursor_position_get") ||
             !check(
                 scid_game_cursor_variation_add(
                     game, cursor, "Sicilian branch", &changed, &next_cursor),
@@ -198,8 +195,7 @@ main(
             return 1;
         }
         next_cursor = NULL;
-        if (
-            !check(scid_game_cursor_to_end(cursor, &next_cursor), "scid_game_cursor_to_end") ||
+        if (!check(scid_game_cursor_to_end(cursor, &next_cursor), "scid_game_cursor_to_end") ||
             !take_cursor(&cursor, &next_cursor))
         {
             scid_game_cursor_free(next_cursor);
@@ -210,8 +206,7 @@ main(
         }
     }
 
-    if (
-        !check(scid_game_to_pgn(game, NULL, pgn, sizeof(pgn), &pgn_size), "scid_game_to_pgn"))
+    if (!check(scid_game_to_pgn(game, NULL, pgn, sizeof(pgn), &pgn_size), "scid_game_to_pgn"))
     {
         scid_game_cursor_free(cursor);
         scid_position_free(position);
@@ -238,8 +233,7 @@ main(
             scid_game_pgn_options_variations_set(pgn_options, 0),
             "scid_game_pgn_options_variations_set") ||
         !check(
-            scid_game_to_pgn(game, pgn_options, pgn, sizeof(pgn), &pgn_size),
-            "scid_game_to_pgn"))
+            scid_game_to_pgn(game, pgn_options, pgn, sizeof(pgn), &pgn_size), "scid_game_to_pgn"))
     {
         scid_game_pgn_options_free(pgn_options);
         scid_game_cursor_free(cursor);

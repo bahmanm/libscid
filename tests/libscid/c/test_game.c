@@ -109,9 +109,7 @@ test_game(
 
     game = NULL;
     text_size = 99;
-    assert(
-        test_game_create(pgn, strlen(pgn), &game, text, sizeof(text), &text_size) ==
-        SCID_OK);
+    assert(test_game_create(pgn, strlen(pgn), &game, text, sizeof(text), &text_size) == SCID_OK);
     assert(game != NULL);
     assert(text_size == 0);
 
@@ -267,8 +265,8 @@ test_game(
     game = NULL;
     assert(scid_position_create_from_fen(custom_fen, &position) == SCID_OK);
     assert(
-        scid_game_create(
-            position, "25. Kb7 *\n", strlen("25. Kb7 *\n"), &game, NULL, 0, NULL) == SCID_OK);
+        scid_game_create(position, "25. Kb7 *\n", strlen("25. Kb7 *\n"), &game, NULL, 0, NULL) ==
+        SCID_OK);
     assert(scid_game_start_position_get(game, position) == SCID_OK);
     assert(scid_position_to_fen(position, text, sizeof(text), &text_size) == SCID_OK);
     assert(strcmp(text, custom_fen) == 0);
@@ -281,15 +279,9 @@ test_game(
 
     game = NULL;
     assert(test_position_create_standard(&position) == SCID_OK);
-    assert(
-        scid_game_create(NULL, pgn, strlen(pgn), &game, NULL, 0, NULL) ==
-        SCID_ERROR_BAD_ARG);
-    assert(
-        scid_game_create(position, NULL, 0, &game, NULL, 0, NULL) ==
-        SCID_ERROR_BAD_ARG);
-    assert(
-        scid_game_create(position, pgn, strlen(pgn), NULL, NULL, 0, NULL) ==
-        SCID_ERROR_BAD_ARG);
+    assert(scid_game_create(NULL, pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_create(position, NULL, 0, &game, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+    assert(scid_game_create(position, pgn, strlen(pgn), NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
     scid_position_free(position);
     position = NULL;
     assert(test_game_create_blank(NULL) == SCID_ERROR_BAD_ARG);

@@ -60,8 +60,7 @@ main(
         !check(scid_database_game_count_get(database, &count), "scid_database_game_count_get") ||
         count != 0 ||
         !check(
-            scid_position_create_from_fen(start_fen, &position),
-            "scid_position_create_from_fen") ||
+            scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
         !check(
             scid_game_create(
                 position, pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic),

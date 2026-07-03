@@ -86,10 +86,8 @@ print_next_move(
             scid_game_cursor_next_move_san_get(cursor, san, sizeof(san), &san_size),
             "scid_game_cursor_next_move_san_get", "next san: ", san, san_size) ||
         !read_text(
-            scid_game_cursor_next_move_comment_get(
-                cursor, comment, sizeof(comment), &comment_size),
-            "scid_game_cursor_next_move_comment_get", "next comment: ", comment,
-            comment_size) ||
+            scid_game_cursor_next_move_comment_get(cursor, comment, sizeof(comment), &comment_size),
+            "scid_game_cursor_next_move_comment_get", "next comment: ", comment, comment_size) ||
         !check(
             scid_game_cursor_next_move_nag_count_get(cursor, &nag_count),
             "scid_game_cursor_next_move_nag_count_get") ||
@@ -149,8 +147,7 @@ main(
     size_t variation_count = 0;
 
     if (!check(
-            scid_position_create_from_fen(start_fen, &position),
-            "scid_position_create_from_fen") ||
+            scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
         !check(
             scid_game_create(
                 position, pgn, strlen(pgn), &game, diagnostic, sizeof(diagnostic),

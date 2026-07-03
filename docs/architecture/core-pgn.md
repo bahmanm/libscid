@@ -24,6 +24,15 @@ Encoding is also position-aware: when a move has no cached SAN text, the encoder
 replays from the current @ref scid::core::Position "Position" and generates SAN
 before writing the move.
 
+The installed C ABI exposes this machinery through game-level primitives rather
+than the internal PGN parser locations: `scid_game_create_blank()` creates a
+game without moves, `scid_game_create()` parses PGN into a game,
+`scid_game_cursor_*()` functions navigate and edit the game tree,
+`scid_game_merge_moves()` applies source-game moves at a cursor, and
+`scid_game_to_pgn()` exports using optional `scid_game_pgn_options`. Internal
+types such as @ref scid::core::MovetextLocation "MovetextLocation" and helpers
+such as PGN-order traversal remain implementation details for the core library.
+
 @startuml core-pgn
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false

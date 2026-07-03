@@ -5,8 +5,7 @@
 
 #include <assert.h>
 
-static const char* TEST_STANDARD_FEN =
-    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+static const char* TEST_STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 static const char* TEST_SCRATCH_FEN = "8/K7/8/8/7k/8/8/8 w - - 0 1";
 
