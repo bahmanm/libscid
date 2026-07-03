@@ -57,7 +57,7 @@ namespace scid::database
     class ByteBuffer;
     class Game;
 
-    inline constexpr size_t MAX_TAG_LEN = 240;
+    inline constexpr size_t           MAX_TAG_LEN = 240;
     inline constexpr std::string_view commonTags[] = {
         // 241, 242: Country
         "WhiteCountry", "BlackCountry",
@@ -75,11 +75,13 @@ namespace scid::database
         // 255: Reserved for compact EventDate encoding
     };
 
-    template <typename SourceT, typename DestT>
+    template <
+        typename SourceT,
+        typename DestT>
     void
     encodeTags(
         const SourceT& tagList,
-        DestT& dest)
+        DestT&         dest)
     {
         for (auto& tag : tagList)
         {
@@ -122,10 +124,10 @@ namespace scid::database
     template <typename DestT>
     void
     encodeStartBoard(
-        bool promoFlag,
-        bool underpromoFlag,
+        bool        promoFlag,
+        bool        underpromoFlag,
         const char* FEN,
-        DestT& dest)
+        DestT&      dest)
     {
         char flags = 0;
         if (FEN)
@@ -150,23 +152,26 @@ namespace scid::database
 
     class ByteBuffer
     {
-            const unsigned char* data_;
+            const unsigned char*       data_;
             const unsigned char* const end_;
 
         public:
             ByteBuffer(
                 const unsigned char* data,
-                size_t length)
-                : data_(data), end_(data + length)
+                size_t               length)
+                : data_(data),
+                  end_(data + length)
             {
                 assert(data_ || data_ == end_);
             }
+
 
             explicit
             operator bool() const
             {
                 return data_ != end_;
             }
+
 
             const unsigned char*
             data() const
@@ -185,8 +190,7 @@ namespace scid::database
             ///            and that will be called for each tag pair.
             template <typename FuncT>
             scid::core::errorT
-            decodeTags(
-                FuncT fn)
+            decodeTags(FuncT fn)
             {
                 if (data_ == end_)
                     return scid::core::ERROR_BufferRead;
@@ -202,7 +206,7 @@ namespace scid::database
                     }
 
                     const char* tag = nullptr;
-                    size_t tagID = 0;
+                    size_t      tagID = 0;
                     if (tagLen > MAX_TAG_LEN)
                     {
                         // A common tag name, not explicitly stored
@@ -218,7 +222,7 @@ namespace scid::database
                         return scid::core::ERROR_Decode;
 
                     // 255 was a special 3-bytes encoding of EventDate used in SCID2
-                    const auto valueLen = (tagLen != 255) ? *it++ : 3;
+                    const auto  valueLen = (tagLen != 255) ? *it++ : 3;
                     const char* value = reinterpret_cast<const char*>(it);
                     it += valueLen;
                     if (it >= end_)
@@ -244,7 +248,9 @@ namespace scid::database
             /// For example with "rnb1k2Q/1p5p/p7/4p3/4q3/8/PPP2R1P/2K5 b" the black
             /// rook on A8 gets index 3, the black night on B8 gets index 1 .... and the
             /// white queen on H8 gets index 6, the pawn on A2 gets index 1 ...
-            std::pair<scid::core::errorT, const char*>
+            std::pair<
+                scid::core::errorT,
+                const char*>
             decodeStartBoard()
             {
                 if (data_ == end_)
@@ -277,14 +283,20 @@ namespace scid::database
             /// @returns a std::pair containing scid::core::OK and the move value.
             ///          Returns scid::core::ERROR_EndOfMoveList when the end of the game is
             ///          reached, an error otherwise.
-            template <typename MoveFn, typename CommentFn, typename VariationFn, typename NagFn>
-            std::pair<scid::core::errorT, unsigned char>
+            template <
+                typename MoveFn,
+                typename CommentFn,
+                typename VariationFn,
+                typename NagFn>
+            std::pair<
+                scid::core::errorT,
+                unsigned char>
             nextMove(
-                int varDepth,
-                MoveFn acceptMove,
-                CommentFn commentMarker,
+                int         varDepth,
+                MoveFn      acceptMove,
+                CommentFn   commentMarker,
                 VariationFn changeVar,
-                NagFn addNag)
+                NagFn       addNag)
             {
                 // The king has always index 0 and only 11 possible moves (8 destination
                 // squares, 2 castle moves and the null move). The unused codes 11-15
@@ -364,7 +376,9 @@ namespace scid::database
 
             /// Find the next move in the current line.
             /// Ignore variations, comments and nags.
-            std::pair<scid::core::errorT, unsigned char>
+            std::pair<
+                scid::core::errorT,
+                unsigned char>
             nextLineMove()
             {
                 return nextMove(
@@ -389,12 +403,14 @@ namespace scid::database
             ///          - castle queenside: {from, scid::core::QUEEN}
             ///          - null move: {from, scid::core::PAWN}
             /// On error returns an invalid square (<0 or >63) or {from, scid::core::INVALID_PIECE}.
-            std::pair<int, scid::core::pieceT>
+            std::pair<
+                int,
+                scid::core::pieceT>
             decodeMove(
-                scid::core::colorT toMove,
-                scid::core::pieceT movingPiece,
+                scid::core::colorT  toMove,
+                scid::core::pieceT  movingPiece,
                 scid::core::squareT from,
-                unsigned char moveCode)
+                unsigned char       moveCode)
             {
                 moveCode &= 0x0F;
                 switch (movingPiece)

@@ -29,10 +29,10 @@ namespace scid::database
     void
     game_storage::loadStandardTags(
         scid::core::Game& game,
-        char* scidFlags,
-        std::size_t scidFlagsLen,
+        char*             scidFlags,
+        std::size_t       scidFlagsLen,
         IndexEntry const& ie,
-        TagRoster const& tags)
+        TagRoster const&  tags)
     {
         game.setEvent(tags.event);
         game.setSite(tags.site);
@@ -64,7 +64,7 @@ namespace scid::database
     static scid::core::byte
     encodeKing(
         scid::core::squareT from,
-        int to)
+        int                 to)
     {
         // Valid King difference-from-old-square values are:
         // -9, -8, -7, -1, 1, 7, 8, 9, and -2 and 2 for castling.
@@ -167,7 +167,7 @@ namespace scid::database
     encodeQueen(
         scid::core::squareT from,
         scid::core::squareT to,
-        scid::core::byte& multibyte)
+        scid::core::byte&   multibyte)
     {
         // We cannot fit all Queen moves in one byte, so Rooklike moves
         // are in one byte (encoded the same way as Rook moves),
@@ -196,7 +196,7 @@ namespace scid::database
     encodePawn(
         scid::core::squareT from,
         scid::core::squareT to,
-        scid::core::pieceT promo)
+        scid::core::pieceT  promo)
     {
         // Pawn moves require a promotion encoding.
         // The pawn moves are:
@@ -210,7 +210,7 @@ namespace scid::database
         // 15 = forward TWO squares.
 
         scid::core::byte val;
-        auto diff = to - from;
+        auto             diff = to - from;
         static_assert(std::is_same_v<decltype(diff), int>);
 
         if (diff < 0)
@@ -270,11 +270,11 @@ namespace scid::database
     scid::core::byte
     pieceListIndex(
         const scid::core::Position& position,
-        scid::core::squareT square)
+        scid::core::squareT         square)
     {
-        const auto toMove = position.GetToMove();
+        const auto  toMove = position.GetToMove();
         const auto* list = position.GetList(toMove);
-        const auto count = position.GetCount(toMove);
+        const auto  count = position.GetCount(toMove);
         for (scid::core::byte index = 0; index < count; ++index)
         {
             if (list[index] == square)
@@ -288,7 +288,7 @@ namespace scid::database
     encodeMove(
         const scid::core::Position& position,
         const scid::core::MoveSpec& action,
-        DestT& dest)
+        DestT&                      dest)
     {
         const auto from =
             action.isNull() ? position.GetKingSquare(position.GetToMove()) : action.from;
@@ -341,11 +341,11 @@ namespace scid::database
     template <typename DestT>
     void
     encodeMovelistLine(
-        bool markComments,
+        bool                            markComments,
         scid::core::MoveSequence const& line,
-        scid::core::Position& position,
-        DestT& dest,
-        MovelistStats& stats)
+        scid::core::Position&           position,
+        DestT&                          dest,
+        MovelistStats&                  stats)
     {
         for (auto const& coreMove : line.moves)
         {
@@ -378,18 +378,20 @@ namespace scid::database
 
     /// Encode the moves, the nags, the comment mark and the variations.
     template <typename DestT>
-    std::pair<unsigned, unsigned>
+    std::pair<
+        unsigned,
+        unsigned>
     encodeMovelist(
-        bool markComments,
+        bool                    markComments,
         scid::core::Game const& game,
-        DestT& dest)
+        DestT&                  dest)
     {
         // Check if there is a pre-game comment
         if (markComments && !game.initialComment().empty())
             dest.emplace_back(ENCODE_COMMENT);
 
         MovelistStats stats;
-        auto position =
+        auto          position =
             game.startPosition() ? *game.startPosition() : scid::core::Position::getStdStart();
         encodeMovelistLine(markComments, game.movetext().mainline, position, dest, stats);
         dest.emplace_back(ENCODE_END_GAME);
@@ -399,8 +401,8 @@ namespace scid::database
     /// Decodes the game moves.
     scid::core::errorT
     decodeMovelist(
-        ByteBuffer& buf,
-        scid::core::Game& game,
+        ByteBuffer&                                buf,
+        scid::core::Game&                          game,
         std::vector<scid::core::MovetextLocation>& comment_marks)
     {
         struct VariationFrame
@@ -411,13 +413,13 @@ namespace scid::database
         };
 
         scid::core::MovetextCursor cursor(game);
-        scid::core::Position position =
+        scid::core::Position       position =
             game.startPosition() ? *game.startPosition() : scid::core::Position::getStdStart();
-        std::vector<VariationFrame> variationStack;
+        std::vector<VariationFrame>         variationStack;
         std::optional<scid::core::Position> positionBeforePreviousMove;
         std::optional<scid::core::MoveSpec> previousMove;
-        scid::core::MoveSpec action;
-        int varDepth = 0;
+        scid::core::MoveSpec                action;
+        int                                 varDepth = 0;
         for (;;)
         {
             auto [err, val] = buf.nextMove(
@@ -471,10 +473,11 @@ namespace scid::database
         }
     }
 
+
     scid::core::errorT
     resetStartFen(
         scid::core::Game& game,
-        const char* fen)
+        const char*       fen)
     {
         scid::core::Position position;
         if (auto err = position.ReadFromFEN(fen))
@@ -494,7 +497,7 @@ namespace scid::database
     void
     countComment(
         std::string_view comment,
-        CommentStats& stats)
+        CommentStats&    stats)
     {
         if (comment.empty())
         {
@@ -506,10 +509,11 @@ namespace scid::database
         }
     }
 
+
     void
     countComments(
         scid::core::MoveSequence const& line,
-        CommentStats& stats)
+        CommentStats&                   stats)
     {
         for (auto const& move : line.moves)
         {
@@ -524,8 +528,7 @@ namespace scid::database
 
     // Return the number of comments and true if comment marks are useful.
     auto
-    countComments(
-        scid::core::Movetext const& movetext)
+    countComments(scid::core::Movetext const& movetext)
     {
         CommentStats stats;
         countComment(movetext.initialComment, stats);
@@ -542,9 +545,9 @@ namespace scid::database
     template <typename DestT>
     void
     encodeComment(
-        bool markComments,
+        bool             markComments,
         std::string_view comment,
-        DestT& dest)
+        DestT&           dest)
     {
         if (!comment.empty() || !markComments)
         {
@@ -556,9 +559,9 @@ namespace scid::database
     template <typename DestT>
     void
     encodeComments(
-        bool markComments,
+        bool                            markComments,
         scid::core::MoveSequence const& line,
-        DestT& dest)
+        DestT&                          dest)
     {
         for (auto const& move : line.moves)
         {
@@ -574,17 +577,17 @@ namespace scid::database
     template <typename DestT>
     void
     encodeComments(
-        bool markComments,
+        bool                        markComments,
         scid::core::Movetext const& movetext,
-        DestT& dest)
+        DestT&                      dest)
     {
         encodeComment(markComments, movetext.initialComment, dest);
         encodeComments(markComments, movetext.mainline, dest);
     }
 
+
     static bool
-    nextPgnLocation(
-        scid::core::MovetextCursor& cursor)
+    nextPgnLocation(scid::core::MovetextCursor& cursor)
     {
         if (cursor.previousMove() && !cursor.previousMove()->childVariations.empty() &&
             cursor.previous())
@@ -608,13 +611,14 @@ namespace scid::database
         return true;
     }
 
+
     static void
     setCoreCommentAt(
-        scid::core::Game& game,
+        scid::core::Game&            game,
         scid::core::MovetextLocation location,
-        std::string_view comment)
+        std::string_view             comment)
     {
-        scid::core::MovetextCursor cursor(game);
+        scid::core::MovetextCursor  cursor(game);
         [[maybe_unused]] const bool restored = cursor.restore(location);
         ASSERT(restored);
         [[maybe_unused]] const bool updated = cursor.setComment(comment);
@@ -629,12 +633,12 @@ namespace scid::database
     template <typename SourceT>
     static scid::core::errorT
     decodeComments(
-        SourceT& buf,
-        scid::core::Game& game,
+        SourceT&                                   buf,
+        scid::core::Game&                          game,
         std::vector<scid::core::MovetextLocation>& comment_marks)
     {
         scid::core::MovetextLocation firstCommentLocation;
-        bool hasFirstCommentLocation = true;
+        bool                         hasFirstCommentLocation = true;
         if (!comment_marks.empty())
         {
             for (auto location : comment_marks)
@@ -645,7 +649,7 @@ namespace scid::database
                     return scid::core::ERROR_Decode;
             }
 
-            scid::core::MovetextCursor cursor(game);
+            scid::core::MovetextCursor  cursor(game);
             [[maybe_unused]] const bool restored = cursor.restore(comment_marks.back());
             ASSERT(restored);
             hasFirstCommentLocation = nextPgnLocation(cursor);
@@ -659,7 +663,7 @@ namespace scid::database
                 return scid::core::ERROR_Decode;
 
             setCoreCommentAt(game, firstCommentLocation, str);
-            scid::core::MovetextCursor cursor(game);
+            scid::core::MovetextCursor  cursor(game);
             [[maybe_unused]] const bool restored = cursor.restore(firstCommentLocation);
             ASSERT(restored);
             hasFirstCommentLocation = nextPgnLocation(cursor);
@@ -675,17 +679,19 @@ namespace scid::database
     /// - number of half moves
     /// - final material signature
     /// - stored line code
-    std::pair<bool, bool>
+    std::pair<
+        bool,
+        bool>
     mainlineInfo(
-        const scid::core::Position* customStart,
+        const scid::core::Position*     customStart,
         scid::core::MoveSequence const& mainline,
-        IndexEntry& dest)
+        IndexEntry&                     dest)
     {
-        scid::core::ushort nHalfMoves = 0;
-        bool PromoFlag = false;
-        bool UnderPromosFlag = false;
-        unsigned hpCount = 0;
-        scid::core::byte hpVal[8] = {};
+        scid::core::ushort   nHalfMoves = 0;
+        bool                 PromoFlag = false;
+        bool                 UnderPromosFlag = false;
+        unsigned             hpCount = 0;
+        scid::core::byte     hpVal[8] = {};
         scid::core::Position pos = customStart ? *customStart : scid::core::Position::getStdStart();
         std::vector<scid::core::MoveSpec> moves;
         moves.reserve(mainline.moves.size());
@@ -762,10 +768,12 @@ namespace scid::database
         return {PromoFlag, UnderPromosFlag};
     }
 
-    std::pair<IndexEntry, TagRoster>
+    std::pair<
+        IndexEntry,
+        TagRoster>
     game_storage::encode(
-        const scid::core::Game& coreGame,
-        const char* scidFlags,
+        const scid::core::Game&        coreGame,
+        const char*                    scidFlags,
         std::vector<scid::core::byte>& dest)
     {
         auto tags = TagRoster();
@@ -831,14 +839,15 @@ namespace scid::database
         return {ie, tags};
     }
 
+
     scid::core::errorT
     game_storage::decode(
         scid::core::Game& coreGame,
-        char* scidFlags,
-        std::size_t scidFlagsLen,
+        char*             scidFlags,
+        std::size_t       scidFlagsLen,
         IndexEntry const& ie,
-        TagRoster const& tags,
-        ByteBuffer buf)
+        TagRoster const&  tags,
+        ByteBuffer        buf)
     {
         coreGame.clear();
         game_storage::loadStandardTags(coreGame, scidFlags, scidFlagsLen, ie, tags);
@@ -870,10 +879,11 @@ namespace scid::database
         return err;
     }
 
+
     scid::core::errorT
     game_storage::decodeMovesOnly(
         scid::core::Game& game,
-        ByteBuffer& buf)
+        ByteBuffer&       buf)
     {
         game.clear();
         if (scid::core::errorT err = buf.decodeTags([](auto, auto) {}))
@@ -889,18 +899,19 @@ namespace scid::database
         }
 
         std::vector<scid::core::MovetextLocation> comment_marks;
-        auto err = decodeMovelist(buf, game, comment_marks);
+        auto                                      err = decodeMovelist(buf, game, comment_marks);
         return err;
     }
 
+
     scid::core::errorT
     game_storage::decodeEncodedMove(
-        ByteBuffer& buf,
-        scid::core::byte val,
+        ByteBuffer&                 buf,
+        scid::core::byte            val,
         const scid::core::Position& pos,
-        scid::core::MoveSpec& action)
+        scid::core::MoveSpec&       action)
     {
-        const scid::core::colorT toMove = pos.GetToMove();
+        const scid::core::colorT  toMove = pos.GetToMove();
         const scid::core::squareT from = pos.GetList(toMove)[val >> 4];
         if (from > scid::core::H8)
             return scid::core::ERROR_Decode;
@@ -943,11 +954,12 @@ namespace scid::database
         return scid::core::OK;
     }
 
+
     scid::core::errorT
     game_storage::decodeMainlineMove(
-        ByteBuffer& buf,
+        ByteBuffer&                 buf,
         const scid::core::Position& pos,
-        scid::core::MoveSpec& action)
+        scid::core::MoveSpec&       action)
     {
         auto [err, val] = buf.nextLineMove();
         if (err)

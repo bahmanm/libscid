@@ -62,8 +62,8 @@ namespace scid::database
         scid::core::errorT
         namefileRead(
             const char* filename,
-            fileModeT fmode,
-            NameBase& nb)
+            fileModeT   fmode,
+            NameBase&   nb)
         {
             Filebuf file;
             if (file.Open(filename, fmode) != scid::core::OK)
@@ -96,7 +96,7 @@ namespace scid::database
 
             for (nameT nt : {NAME_PLAYER, NAME_EVENT, NAME_SITE, NAME_ROUND})
             {
-                idNumberT id;
+                idNumberT   id;
                 std::string prevName;
                 for (idNumberT i = 0; i < Header_numNames[nt]; i++)
                 {
@@ -150,10 +150,12 @@ namespace scid::database
         /// @param filename: the full path of the file to open.
         /// @param nb:       reference to the object where the names will be stored.
         /// @returns scid::core::OK if successful or an error code.
-        template <typename TCont, typename TFreq>
+        template <
+            typename TCont,
+            typename TFreq>
         scid::core::errorT
         namefileWrite(
-            const char* filename,
+            const char*  filename,
             const TCont& names_ids,
             const TFreq& freq)
         {
@@ -191,11 +193,11 @@ namespace scid::database
             for (nameT nt : {NAME_PLAYER, NAME_EVENT, NAME_SITE, NAME_ROUND})
             {
                 const char* prevName = nullptr;
-                size_t numNames = names_ids[nt].size();
+                size_t      numNames = names_ids[nt].size();
                 for (const auto& it : names_ids[nt])
                 {
                     const char* name = it.first;
-                    idNumberT id = it.second;
+                    idNumberT   id = it.second;
 
                     // *** Compatibility ***
                     // Older code used a custom StrTree class with a peculiar sorting:
@@ -273,12 +275,12 @@ namespace scid::database
          * - flag5 description (9 bytes): a null-terminated string describing flag5.
          * - flag6 description (9 bytes): a null-terminated string describing flag6.
          */
-        constexpr char INDEX_MAGIC[8] = "Scid.si";
+        constexpr char   INDEX_MAGIC[8] = "Scid.si";
         constexpr size_t SCID_DESC_LENGTH = 107;
         constexpr size_t CUSTOM_FLAG_MAX = 6;
         constexpr size_t CUSTOM_FLAG_DESC_LENGTH = 8;
-        constexpr int INDEX_ENTRY_SIZE = 47;
-        constexpr int OLD_INDEX_ENTRY_SIZE = 46;
+        constexpr int    INDEX_ENTRY_SIZE = 47;
+        constexpr int    OLD_INDEX_ENTRY_SIZE = 46;
         // Header on-disk size: magic=8, version=2, numGames=3, baseType=4, autoLoad=3
         // Description length = 111 bytes including trailing '\0'.
         // Custom flag desc length = 9 bytes including trailing '\0'.
@@ -291,10 +293,14 @@ namespace scid::database
         /// @param fMode:     a valid file mode.
         /// @param header:    reference to the object where the data will be stored.
         /// @returns scid::core::OK if successful or an error code.
-        template <typename FileT, typename HeaderT>
-        std::pair<scid::core::errorT, gamenumT>
+        template <
+            typename FileT,
+            typename HeaderT>
+        std::pair<
+            scid::core::errorT,
+            gamenumT>
         readIndexHeader(
-            FileT& indexFile,
+            FileT&   indexFile,
             HeaderT& header)
         {
             char magic[8];
@@ -330,12 +336,14 @@ namespace scid::database
         /// @param indexFile: file handle of the Index file.
         /// @param header:    reference to the object containing the header data.
         /// @returns scid::core::OK if successful or an error code.
-        template <typename FileT, typename HeaderT>
+        template <
+            typename FileT,
+            typename HeaderT>
         scid::core::errorT
         writeIndexHeader(
-            FileT& indexFile,
+            FileT&         indexFile,
             HeaderT const& Header,
-            gamenumT nGames)
+            gamenumT       nGames)
         {
             if (indexFile.pubseekpos(0) != std::streampos(0))
                 return scid::core::ERROR_FileWrite;
@@ -374,7 +382,7 @@ namespace scid::database
         void
         decodeIndexEntry(
             const char* buf_it,
-            versionT version,
+            versionT    version,
             IndexEntry* ie)
         {
             auto ReadOneByte = [&buf_it]() {
@@ -489,7 +497,7 @@ namespace scid::database
         void
         encodeIndexEntry(
             const IndexEntry* ie,
-            char* buf_it)
+            char*             buf_it)
         {
             auto WriteOneByte = [&buf_it](uint8_t v) { *buf_it++ = v; };
             auto WriteTwoBytes = [&WriteOneByte](uint16_t v) {
@@ -598,11 +606,11 @@ namespace scid::database
 
     scid::core::errorT
     CodecSCID4::dyn_open(
-        fileModeT fMode,
-        const char* filename,
+        fileModeT       fMode,
+        const char*     filename,
         const Progress& progress,
-        Index* idx,
-        NameBase* nb)
+        Index*          idx,
+        NameBase*       nb)
     {
         if (fMode == FMODE_WriteOnly || !filename || !idx || !nb)
             return scid::core::ERROR;
@@ -671,6 +679,7 @@ namespace scid::database
         return err;
     }
 
+
     scid::core::errorT
     CodecSCID4::flush()
     {
@@ -708,10 +717,10 @@ namespace scid::database
      */
     scid::core::errorT
     CodecSCID4::readIndex(
-        gamenumT nGames,
+        gamenumT        nGames,
         Progress const& progress)
     {
-        gamenumT nUnknowIDs = 0;
+        gamenumT  nUnknowIDs = 0;
         idNumberT maxID[NUM_NAME_TYPES];
         for (nameT nt = NAME_PLAYER; nt < NUM_NAME_TYPES; nt++)
         {
@@ -794,10 +803,11 @@ namespace scid::database
         return (nUnknowIDs == 0) ? scid::core::OK : scid::core::ERROR_NameDataLoss;
     }
 
+
     scid::core::errorT
     CodecSCID4::writeEntry(
         const IndexEntry& ie,
-        gamenumT gnum)
+        gamenumT          gnum)
     {
         if (seqWrite_ == 0 || (gnum != seqWrite_ + 1))
         {
@@ -818,6 +828,7 @@ namespace scid::database
         seqWrite_ = (res == scid::core::OK) ? gnum : 0;
         return res;
     }
+
 
     scid::core::errorT
     CodecSCID4::setExtraInfo(

@@ -76,7 +76,7 @@ namespace
         CoreGameTest,
         StoresRatingsDatesAndResult)
     {
-        scid::core::Game game;
+        scid::core::Game   game;
         scid::core::Player white;
         white.name = "Player A";
         white.rating.value = 2800;
@@ -133,7 +133,7 @@ namespace
         CoreGameTest,
         SetStartFenStoresNonStandardStartPosition)
     {
-        const char* fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
+        const char*      fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
         scid::core::Game game;
 
         ASSERT_EQ(scid::core::OK, game.setStartFen(fen));
@@ -151,7 +151,7 @@ namespace
         CoreGameTest,
         InvalidStartFenLeavesExistingStartPositionUnchanged)
     {
-        const char* fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
+        const char*      fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
         scid::core::Game game;
         ASSERT_EQ(scid::core::OK, game.setStartFen(fen));
 

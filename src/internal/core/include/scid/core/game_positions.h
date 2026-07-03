@@ -87,7 +87,7 @@ namespace scid::core::gamepos
     inline void
     collectPositions(
         const scid::core::Game& game,
-        TCont& dest)
+        TCont&                  dest)
     {
         scid::core::GameCursor cursor(game);
         do
@@ -97,8 +97,8 @@ namespace scid::core::gamepos
 
             dest.emplace_back();
             auto& gamepos = dest.back();
-            char strBuf[256];
-            auto position = cursor.currentPosition();
+            char  strBuf[256];
+            auto  position = cursor.currentPosition();
             assert(position);
             position->PrintFEN(strBuf, sizeof(strBuf));
             gamepos.FEN = strBuf;
@@ -130,8 +130,7 @@ namespace scid::core::gamepos
      *          would append to an empty container.
      */
     inline std::vector<GamePos>
-    collectPositions(
-        const scid::core::Game& game)
+    collectPositions(const scid::core::Game& game)
     {
         std::vector<GamePos> res;
         collectPositions(game, res);

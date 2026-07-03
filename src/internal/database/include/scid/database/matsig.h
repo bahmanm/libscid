@@ -202,7 +202,7 @@ namespace scid::database
      */
     inline scid::core::uint
     matsig_getCount(
-        matSigT m,
+        matSigT            m,
         scid::core::pieceT p)
     {
         return (m & MASK_BY_PIECE[p]) >> SHIFT_BY_PIECE[p];
@@ -215,9 +215,9 @@ namespace scid::database
      */
     inline matSigT
     matsig_setCount(
-        matSigT m,
+        matSigT            m,
         scid::core::pieceT p,
-        scid::core::uint count)
+        scid::core::uint   count)
     {
         // First we clear the old mask for this piece:
         m &= ~(MASK_BY_PIECE[p]);
@@ -261,7 +261,11 @@ namespace scid::database
      * @param upromo true when the candidate game contains under-promotions.
      */
     bool
-    matsig_isReachable(matSigT mStart, matSigT mTarget, bool promos, bool upromo);
+    matsig_isReachable(
+        matSigT mStart,
+        matSigT mTarget,
+        bool    promos,
+        bool    upromo);
 
     /**
      * Returns true when @p mStart could decay into @p mTarget considering pawns
@@ -291,8 +295,7 @@ namespace scid::database
      * saturated at three.
      */
     inline matSigT
-    matsig_Make(
-        const scid::core::byte* materialCounts)
+    matsig_Make(const scid::core::byte* materialCounts)
     {
         matSigT m = 0;
         m |= std::min<matSigT>(3, materialCounts[scid::core::WQ]) << SHIFT_WQ;
@@ -335,7 +338,9 @@ namespace scid::database
      * "definitely matches".
      */
     bool
-    hpSig_PossibleMatch(scid::core::uint hpSig, const scid::core::byte* changeList);
+    hpSig_PossibleMatch(
+        scid::core::uint        hpSig,
+        const scid::core::byte* changeList);
 
     /**
      * Returns true when either home-pawn change list is a prefix of the other.
@@ -344,7 +349,9 @@ namespace scid::database
      * another.
      */
     bool
-    hpSig_Prefix(const scid::core::byte* changeListA, const scid::core::byte* changeListB);
+    hpSig_Prefix(
+        const scid::core::byte* changeListA,
+        const scid::core::byte* changeListB);
 
     /**
      * Returns the final home-pawn signature reached after applying @p changeList.
@@ -364,9 +371,9 @@ namespace scid::database
      */
     inline scid::core::uint
     hpSig_AddPawn(
-        scid::core::uint hpSig,
+        scid::core::uint   hpSig,
         scid::core::colorT color,
-        scid::core::fyleT fyle)
+        scid::core::fyleT  fyle)
     {
         assert(color == scid::core::WHITE || color == scid::core::BLACK);
         assert(fyle <= scid::core::H_FYLE);
@@ -382,9 +389,9 @@ namespace scid::database
      */
     inline scid::core::uint
     hpSig_ClearPawn(
-        scid::core::uint hpSig,
+        scid::core::uint   hpSig,
         scid::core::colorT color,
-        scid::core::fyleT fyle)
+        scid::core::fyleT  fyle)
     {
         assert(color == scid::core::WHITE || color == scid::core::BLACK);
         assert(fyle <= scid::core::H_FYLE);
@@ -407,12 +414,13 @@ namespace scid::database
      *
      * @returns a std::pair containing the bitmap and the number of moved pawns.
      */
-    inline std::pair<std::uint16_t, std::uint16_t>
-    hpSig_make(
-        const scid::core::pieceT* board)
+    inline std::pair<
+        std::uint16_t,
+        std::uint16_t>
+    hpSig_make(const scid::core::pieceT* board)
     {
-        int hpSig = 0;
-        int nMoved = 0;
+        int                       hpSig = 0;
+        int                       nMoved = 0;
         const scid::core::pieceT* b = board + scid::core::A2;
         // clang-format off
 	if (*b != scid::core::WP) { hpSig |= 0x8000; ++nMoved; }  b++;  /* a2 */
@@ -447,8 +455,8 @@ namespace scid::database
      */
     inline bool
     hpSig_match(
-        int hpSig,
-        int nMoved,
+        int                     hpSig,
+        int                     nMoved,
         const scid::core::byte* changeList)
     {
         // The first scid::core::byte of a changeList is the length (in halfbytes) of the

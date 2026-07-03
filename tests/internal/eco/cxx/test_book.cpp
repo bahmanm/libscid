@@ -11,8 +11,7 @@ namespace
 {
 
     std::filesystem::path
-    testFilePath(
-        std::string_view stem)
+    testFilePath(std::string_view stem)
     {
         auto path = std::filesystem::temp_directory_path();
         path /= std::string(stem) + "_" +
@@ -20,20 +19,22 @@ namespace
         return path;
     }
 
+
     void
     writeFile(
         const std::filesystem::path& path,
-        std::string_view contents)
+        std::string_view             contents)
     {
         std::ofstream out(path);
         ASSERT_TRUE(out.good());
         out << contents;
     }
 
+
     void
     play(
         scid::core::Position& position,
-        std::string_view san)
+        std::string_view      san)
     {
         scid::core::MoveSpec spec;
         ASSERT_EQ(scid::core::OK, position.parseMoveSpec(spec, san));
@@ -51,6 +52,7 @@ namespace
                 path_ =
                     testFilePath(::testing::UnitTest::GetInstance()->current_test_info()->name());
             }
+
 
             void
             TearDown() override

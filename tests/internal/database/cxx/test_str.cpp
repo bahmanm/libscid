@@ -26,7 +26,9 @@
 namespace v4_6_2
 {
     scid::core::uint
-    strTrimRight(char* target, const char* trimChars);
+    strTrimRight(
+        char*       target,
+        const char* trimChars);
 }
 
 static std::vector<std::string> strings_;
@@ -35,10 +37,10 @@ createRandom(
     int maxLen,
     int nLines)
 {
-    std::mt19937 re(std::random_device{}());
+    std::mt19937                    re(std::random_device{}());
     std::uniform_int_distribution<> lineLenght(0, maxLen - 1);
     std::uniform_int_distribution<> randomChar(1, 255);
-    std::vector<std::string> res;
+    std::vector<std::string>        res;
     for (int i = 0; i < nLines; i++)
     {
         res.emplace_back();
@@ -56,10 +58,10 @@ class Test_StrLib : public ::testing::Test
         char buf[1024];
         struct Data
         {
-                const char* static_input;
-                char* input1;
-                char* input2;
-                const char* expected;
+                const char*      static_input;
+                char*            input1;
+                char*            input2;
+                const char*      expected;
                 scid::core::uint nTrimmed;
         };
         std::vector<Data> data_ = {
@@ -132,12 +134,12 @@ namespace v4_6_2
 {
     scid::core::uint
     strTrimRight(
-        char* target,
+        char*       target,
         const char* trimChars)
     {
         scid::core::uint trimCount = 0;
-        char* s = target;
-        char* lastNonTrim = NULL;
+        char*            s = target;
+        char*            lastNonTrim = NULL;
         while (*s)
         {
             if (scid::database::strContainsChar(trimChars, *s))
@@ -200,7 +202,7 @@ TEST_F(
         {
             auto hash1 = scid::database::strStartHash(s1.c_str());
             auto hash2 = scid::database::strStartHash(s2.c_str());
-            int cmp = scid::database::strCaseCompare(s1.c_str(), s2.c_str());
+            int  cmp = scid::database::strCaseCompare(s1.c_str(), s2.c_str());
             if (hash1 < hash2)
             {
                 EXPECT_LT(cmp, 0);

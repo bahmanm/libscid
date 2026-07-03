@@ -7,8 +7,7 @@ namespace scid::database::eco_code
 {
 
     EcoCode
-    fromString(
-        const char* ecoStr)
+    fromString(const char* ecoStr)
     {
         EcoCode eco = ECO_CODE_NONE;
 
@@ -61,11 +60,12 @@ namespace scid::database::eco_code
         return eco + 1;
     }
 
+
     void
     toString(
         EcoCode ecoCode,
-        char* ecoStr,
-        bool extensions)
+        char*   ecoStr,
+        bool    extensions)
     {
         char* s = ecoStr;
         if (ecoCode == ECO_CODE_NONE)
@@ -97,9 +97,9 @@ namespace scid::database::eco_code
         *s = 0;
     }
 
+
     EcoCode
-    basicCode(
-        EcoCode ecoCode)
+    basicCode(EcoCode ecoCode)
     {
         if (ecoCode == ECO_CODE_NONE)
         {
@@ -112,9 +112,9 @@ namespace scid::database::eco_code
         return ecoCode + 1;
     }
 
+
     EcoCode
-    reduce(
-        EcoCode ecoCode)
+    reduce(EcoCode ecoCode)
     {
         assert(ecoCode != ECO_CODE_NONE);
 
@@ -123,9 +123,9 @@ namespace scid::database::eco_code
         return result + static_cast<EcoCode>(std::ceil((ecoCode % 131) / 5.0));
     }
 
+
     EcoCode
-    lastSubCode(
-        EcoCode ecoCode)
+    lastSubCode(EcoCode ecoCode)
     {
         if (ecoCode == ECO_CODE_NONE)
         {

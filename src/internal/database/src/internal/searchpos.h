@@ -40,12 +40,12 @@ namespace scid::database
     /// Search for an exact position (same material in the same squares).
     class SearchPos
     {
-            matSigT materialSig_;
-            scid::core::pieceT board_[64];
-            std::unique_ptr<StoredLine> storedLine_;
+            matSigT                       materialSig_;
+            scid::core::pieceT            board_[64];
+            std::unique_ptr<StoredLine>   storedLine_;
             std::pair<uint16_t, uint16_t> hpSig_;
-            scid::core::colorT toMove_;
-            bool isStdStard_;
+            scid::core::colorT            toMove_;
+            bool                          isStdStard_;
 
         public:
             explicit SearchPos(scid::core::Position const& pos);
@@ -74,16 +74,20 @@ namespace scid::database
             /// @returns a std::pair containg the ply where the position was reached and
             ///          the next move. Returns ply==0 if the position was not found.
             /// TODO: filling the SAN info of the returned move may be unnecessary
-            std::pair<int, scid::core::FullMove>
-            match(scidBaseT const& base, gamenumT gnum) const;
+            std::pair<
+                int,
+                scid::core::FullMove>
+            match(
+                scidBaseT const& base,
+                gamenumT         gnum) const;
 
             /// Reset @e filter to include only the games that reached the searched
             /// position in their main line.
             bool
             setFilter(
                 scidBaseT const& base,
-                HFilter& filter,
-                const Progress& progress) const
+                HFilter&         filter,
+                const Progress&  progress) const
             {
                 if (toMove_ == scid::core::BLACK)
                     return SetFilter<scid::core::BLACK>(base, filter, progress);
@@ -96,11 +100,16 @@ namespace scid::database
 
         private:
             bool
-            setFilterStdStart(scidBaseT const& base, HFilter& filter) const;
+            setFilterStdStart(
+                scidBaseT const& base,
+                HFilter&         filter) const;
 
             template <scid::core::colorT TOMOVE>
             bool
-            SetFilter(scidBaseT const& base, HFilter& filter, const Progress& prg) const;
+            SetFilter(
+                scidBaseT const& base,
+                HFilter&         filter,
+                const Progress&  prg) const;
 
             /// Return true if any searched material count is below its final-game
             /// counterpart.
@@ -108,8 +117,8 @@ namespace scid::database
             less_mat(
                 matSigT a,
                 matSigT b,
-                bool promo,
-                bool upromo)
+                bool    promo,
+                bool    upromo)
             {
                 int wp_diff =
                     static_cast<int>(MATSIG_Count_WP(a)) - static_cast<int>(MATSIG_Count_WP(b));

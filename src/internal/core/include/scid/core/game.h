@@ -389,7 +389,9 @@ namespace scid::core
              * @returns the stored value so callers can inspect or modify it in place.
              */
             std::string&
-            addTag(std::string_view tag, std::string_view value);
+            addTag(
+                std::string_view tag,
+                std::string_view value);
 
             /**
              * Finds an existing tag value or creates an empty one.
@@ -450,7 +452,9 @@ namespace scid::core
              * @returns true when a non-standard start position exists.
              */
             bool
-            hasNonStandardStart(char* outFen, std::size_t outFenLen) const;
+            hasNonStandardStart(
+                char*       outFen,
+                std::size_t outFenLen) const;
 
             /**
              * Returns the mutable non-standard start position, if one exists.
@@ -526,7 +530,10 @@ namespace scid::core
              * @param nags when true, clears all move NAGs.
              */
             void
-            stripMovetext(bool variations, bool comments, bool nags);
+            stripMovetext(
+                bool variations,
+                bool comments,
+                bool nags);
 
         private:
             friend class MovetextCursor;
@@ -534,8 +541,8 @@ namespace scid::core
             std::string*
             findStandardTag(std::string_view tag);
 
-            GameHeader header_;
-            Movetext movetext_;
+            GameHeader                          header_;
+            Movetext                            movetext_;
             std::optional<scid::core::Position> startPosition_;
     };
 

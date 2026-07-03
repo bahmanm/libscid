@@ -37,7 +37,7 @@ namespace scid::database
     template <class T, size_t CHUNKSHIFT> class VectorChunked
     {
             std::vector<T*> chunks_;
-            size_t size_ = 0;
+            size_t          size_ = 0;
 
             static constexpr size_t low_mask = ((1ULL << CHUNKSHIFT) - 1);
 
@@ -52,20 +52,20 @@ namespace scid::database
                     delete[] chunk;
             }
 
+
             const T&
-            operator[](
-                size_t idx) const
+            operator[](size_t idx) const
             {
                 assert(idx < size_);
                 return chunks_[idx >> CHUNKSHIFT][idx & low_mask];
             }
             T&
-            operator[](
-                size_t idx)
+            operator[](size_t idx)
             {
                 assert(idx < size_);
                 return chunks_[idx >> CHUNKSHIFT][idx & low_mask];
             }
+
 
             size_t
             capacity() const
@@ -78,8 +78,7 @@ namespace scid::database
              * the count of contiguously allocated objects starting at @e pos (included)
              */
             size_t
-            contiguous(
-                size_t pos) const
+            contiguous(size_t pos) const
             {
                 assert(pos < size());
                 return 1 + (~pos & low_mask);
@@ -88,8 +87,7 @@ namespace scid::database
             /// Returns the next offset in the container where at least @e nElements
             /// can be inserted contiguously
             size_t
-            next_contiguous(
-                size_t nElements) const
+            next_contiguous(size_t nElements) const
             {
                 const auto offset = size();
                 const auto capacity = this->capacity();
@@ -106,8 +104,8 @@ namespace scid::database
             void
             append(
                 const T* src,
-                size_t srcSize,
-                size_t offset)
+                size_t   srcSize,
+                size_t   offset)
             {
                 assert(offset >= size());
                 resize(offset + srcSize);
@@ -122,25 +120,25 @@ namespace scid::database
             const T*
             append(
                 const T* src,
-                size_t srcSize)
+                size_t   srcSize)
             {
                 const auto offset = next_contiguous(srcSize);
                 append(src, srcSize, offset);
                 return &operator[](offset);
             }
 
+
             void
-            push_back(
-                const T& e)
+            push_back(const T& e)
             {
                 size_t idx = size_;
                 resize(size_ + 1);
                 operator[](idx) = e;
             }
 
+
             void
-            resize(
-                size_t count)
+            resize(size_t count)
             {
                 size_ = count;
                 size_t newSize = (count > 0) ? 1 + (count >> CHUNKSHIFT) : 0;
@@ -165,6 +163,7 @@ namespace scid::database
                     chunks_.resize(newSize);
                 }
             }
+
 
             size_t
             size() const

@@ -14,27 +14,28 @@ namespace scid::core::notation
 
     GameCursor
     cursorAt(
-        const Game& game,
+        const Game&      game,
         MovetextLocation location)
     {
-        GameCursor cursor(game);
+        GameCursor                  cursor(game);
         [[maybe_unused]] const bool restored = cursor.restore(location);
         assert(restored);
         return cursor;
     }
 
+
     scid::core::Position
-    startPosition(
-        const Game& game)
+    startPosition(const Game& game)
     {
         return game.startPosition() ? *game.startPosition() : scid::core::Position::getStdStart();
     }
 
+
     std::optional<scid::core::Position>
     positionAfter(
-        const Game& game,
+        const Game&                     game,
         const std::vector<const Move*>& moves,
-        std::size_t count)
+        std::size_t                     count)
     {
         auto position = startPosition(game);
         for (std::size_t i = 0; i < count; ++i)
@@ -45,11 +46,12 @@ namespace scid::core::notation
         return position;
     }
 
+
     std::string
     makeSan(
         scid::core::Position& position,
-        const Move& move,
-        scid::core::sanFlagT flag)
+        const Move&           move,
+        scid::core::sanFlagT  flag)
     {
         if (!move.san.empty())
             return move.san;
@@ -57,14 +59,15 @@ namespace scid::core::notation
         return position.makeSan(move.spec, flag);
     }
 
+
     std::string
     currentPositionUci(
-        const Game& game,
+        const Game&      game,
         MovetextLocation location)
     {
-        char fen[256] = {};
+        char                     fen[256] = {};
         std::vector<std::string> moves;
-        auto position = startPosition(game);
+        auto                     position = startPosition(game);
 
         auto cursor = cursorAt(game, location);
 
@@ -102,33 +105,36 @@ namespace scid::core::notation
         return res;
     }
 
+
     std::string
     previousMoveUci(
-        const Game& game,
+        const Game&      game,
         MovetextLocation location)
     {
-        auto cursor = cursorAt(game, location);
+        auto       cursor = cursorAt(game, location);
         const auto move = cursor.previousMove();
         if (!move)
             return {};
         return move->spec.longNotation();
     }
 
+
     std::string
     nextMoveUci(
-        const Game& game,
+        const Game&      game,
         MovetextLocation location)
     {
-        auto cursor = cursorAt(game, location);
+        auto       cursor = cursorAt(game, location);
         const auto move = cursor.nextMove();
         if (!move)
             return {};
         return move->spec.longNotation();
     }
 
+
     std::string
     previousSan(
-        const Game& game,
+        const Game&      game,
         MovetextLocation location)
     {
         auto cursor = cursorAt(game, location);
@@ -142,12 +148,13 @@ namespace scid::core::notation
         return makeSan(*position, *moves.back(), scid::core::SAN_MATETEST);
     }
 
+
     std::string
     nextSan(
-        const Game& game,
+        const Game&      game,
         MovetextLocation location)
     {
-        auto cursor = cursorAt(game, location);
+        auto       cursor = cursorAt(game, location);
         const auto move = cursor.nextMove();
         if (!move)
             return {};
@@ -156,7 +163,7 @@ namespace scid::core::notation
         auto position = positionAfter(game, moves, moves.size());
         if (!position)
             return {};
-        auto afterMove = cursor;
+        auto                        afterMove = cursor;
         [[maybe_unused]] const bool advanced = afterMove.next();
         assert(advanced);
         const auto flag =
@@ -164,14 +171,15 @@ namespace scid::core::notation
         return makeSan(*position, *move, flag);
     }
 
+
     std::string
     partialMoveList(
         const Game& game,
         std::size_t plyCount)
     {
         std::string out;
-        auto position = startPosition(game);
-        GameCursor cursor(game);
+        auto        position = startPosition(game);
+        GameCursor  cursor(game);
 
         for (std::size_t i = 0; i < plyCount && !cursor.isAtLineEnd(); ++i)
         {
@@ -186,7 +194,7 @@ namespace scid::core::notation
                 entry.push_back(' ');
             }
 
-            auto afterMove = cursor;
+            auto                        afterMove = cursor;
             [[maybe_unused]] const bool advanced = afterMove.next();
             assert(advanced);
             const auto flag =

@@ -22,7 +22,7 @@ namespace scid::core
      */
     class SquareList
     {
-            uint ListSize;
+            uint    ListSize;
             squareT Squares[MAX_SQUARELIST];
 
         public:
@@ -46,8 +46,7 @@ namespace scid::core
             }
             /** Appends @p sq.  The caller must not exceed MAX_SQUARELIST entries. */
             void
-            Add(
-                squareT sq)
+            Add(squareT sq)
             {
                 Squares[ListSize] = sq;
                 ListSize++;
@@ -61,8 +60,7 @@ namespace scid::core
 
             /** Returns the square at @p index. */
             squareT
-            Get(
-                uint index)
+            Get(uint index)
             {
                 assert(index < ListSize);
                 return Squares[index];
@@ -70,8 +68,7 @@ namespace scid::core
 
             /** Returns true when @p sq is present in the list. */
             bool
-            Contains(
-                squareT sq)
+            Contains(squareT sq)
             {
                 for (uint i = 0; i < ListSize; i++)
                 {
@@ -85,8 +82,7 @@ namespace scid::core
 
             /** Removes @p index by replacing it with the current last element. */
             void
-            Remove(
-                uint index)
+            Remove(uint index)
             {
                 assert(index < ListSize);
                 ListSize--;
@@ -109,8 +105,7 @@ namespace scid::core
         public:
             /** Adds @p sq to the set. */
             void
-            Add(
-                squareT sq)
+            Add(squareT sq)
             {
                 assert(sq < 64);
                 bits_ |= 1ull << sq;
@@ -118,8 +113,7 @@ namespace scid::core
 
             /** Returns true when @p sq is present in the set. */
             bool
-            Contains(
-                squareT sq)
+            Contains(squareT sq)
             {
                 assert(sq < 64);
                 return (bits_ & (1ull << sq)) != 0;

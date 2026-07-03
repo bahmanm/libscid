@@ -10,9 +10,9 @@ static scid_game*
 create_source_game_from_moves(
     const scid_position* position,
     const scid_movespec* moves,
-    size_t move_count)
+    size_t               move_count)
 {
-    scid_game* game = NULL;
+    scid_game*        game = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
 
@@ -30,14 +30,15 @@ create_source_game_from_moves(
     return game;
 }
 
+
 static scid_game*
 create_source_game_from_cursor_san(
     const scid_game_cursor* cursor,
-    const char* san)
+    const char*             san)
 {
     scid_position* position = NULL;
-    scid_movespec move = {0, 0, 0, 0};
-    scid_game* game = NULL;
+    scid_movespec  move = {0, 0, 0, 0};
+    scid_game*     game = NULL;
 
     assert(test_position_create_empty(&position) == SCID_OK);
     assert(scid_game_cursor_position_get(cursor, position) == SCID_OK);
@@ -48,17 +49,17 @@ create_source_game_from_cursor_san(
     return game;
 }
 
+
 static void
-test_cursor_move_and_nag_mutation(
-    void)
+test_cursor_move_and_nag_mutation(void)
 {
-    scid_game* game = NULL;
+    scid_game*        game = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
-    scid_movespec move = {0, 0, 0, 0};
-    scid_nag nag = 0;
-    int truth = 0;
-    size_t count = 0;
+    scid_movespec     move = {0, 0, 0, 0};
+    scid_nag          nag = 0;
+    int               truth = 0;
+    size_t            count = 0;
 
     assert(test_game_create_blank(&game) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
@@ -185,25 +186,25 @@ test_cursor_move_and_nag_mutation(
     scid_game_free(game);
 }
 
+
 static void
-test_game_merge_moves(
-    void)
+test_game_merge_moves(void)
 {
-    const char* pgn = "[Event \"Target\"]\n"
-                      "[Result \"*\"]\n"
-                      "\n"
-                      "1. e4 e5 *\n";
-    scid_game* game = NULL;
-    scid_game* source = NULL;
+    const char*       pgn = "[Event \"Target\"]\n"
+                            "[Result \"*\"]\n"
+                            "\n"
+                            "1. e4 e5 *\n";
+    scid_game*        game = NULL;
+    scid_game*        source = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
-    scid_position* position = NULL;
-    scid_position* next_position = NULL;
-    scid_movespec moves[2];
-    char text[2048];
-    int truth = 0;
-    size_t text_size = 0;
-    size_t count = 0;
+    scid_position*    position = NULL;
+    scid_position*    next_position = NULL;
+    scid_movespec     moves[2];
+    char              text[2048];
+    int               truth = 0;
+    size_t            text_size = 0;
+    size_t            count = 0;
 
     assert(test_game_create(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
@@ -339,20 +340,20 @@ test_game_merge_moves(
     scid_game_free(game);
 }
 
+
 static void
-test_cursor_variation_promotion(
-    void)
+test_cursor_variation_promotion(void)
 {
-    const char* pgn = "[Event \"Promote\"]\n"
-                      "[Result \"*\"]\n"
-                      "\n"
-                      "1. e4 e5 (1... c5) (1... e6) *\n";
-    scid_game* game = NULL;
+    const char*       pgn = "[Event \"Promote\"]\n"
+                            "[Result \"*\"]\n"
+                            "\n"
+                            "1. e4 e5 (1... c5) (1... e6) *\n";
+    scid_game*        game = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
-    char text[32];
-    int truth = 0;
-    size_t count = 0;
+    char              text[32];
+    int               truth = 0;
+    size_t            count = 0;
 
     assert(test_game_create(pgn, strlen(pgn), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_cursor_create(game, &cursor) == SCID_OK);
@@ -427,9 +428,9 @@ test_cursor_variation_promotion(
     scid_game_free(game);
 }
 
+
 void
-test_cursor_mutation(
-    void)
+test_cursor_mutation(void)
 {
     test_cursor_move_and_nag_mutation();
     test_game_merge_moves();

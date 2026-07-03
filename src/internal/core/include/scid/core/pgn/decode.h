@@ -69,7 +69,11 @@ namespace scid::core::pgn
      * after a fatal parse error.
      */
     bool
-    parseGame(const char* input, size_t inputLen, scid::core::Game& game, ParseLog& log);
+    parseGame(
+        const char*       input,
+        size_t            inputLen,
+        scid::core::Game& game,
+        ParseLog&         log);
     /** Parses PGN text into @p game starting at @p location.
      *
      * This overload is used by editors that insert moves, comments, NAGs, and
@@ -87,10 +91,10 @@ namespace scid::core::pgn
      */
     bool
     parseGame(
-        const char* input,
-        size_t inputLen,
-        scid::core::Game& game,
+        const char*                   input,
+        size_t                        inputLen,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location,
-        ParseLog& log);
+        ParseLog&                     log);
 
 } // namespace scid::core::pgn

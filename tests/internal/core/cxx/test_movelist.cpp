@@ -12,10 +12,9 @@ namespace
     using namespace scid::core;
 
     std::string
-    longNotation(
-        MoveAction const& move)
+    longNotation(MoveAction const& move)
     {
-        char buf[UCI_MOVE_STRING_SIZE] = {};
+        char  buf[UCI_MOVE_STRING_SIZE] = {};
         char* end = move.toLongNotation(buf);
         return {buf, end};
     }

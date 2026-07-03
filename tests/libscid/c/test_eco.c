@@ -7,8 +7,7 @@
 #include <string.h>
 
 static void
-write_eco_file(
-    const char* path)
+write_eco_file(const char* path)
 {
     FILE* file = fopen(path, "w");
     assert(file != NULL);
@@ -21,16 +20,16 @@ write_eco_file(
     assert(fclose(file) == 0);
 }
 
+
 void
-test_eco(
-    void)
+test_eco(void)
 {
-    char path[128];
-    char text[32];
+    char           path[128];
+    char           text[32];
     scid_eco_book* book = NULL;
-    scid_eco_code code = 0;
+    scid_eco_code  code = 0;
     scid_position* position = NULL;
-    size_t text_size = 0;
+    size_t         text_size = 0;
 
     assert(scid_eco_code_from_string("B91a4", &code) == SCID_OK);
     assert(code != SCID_ECO_NONE);

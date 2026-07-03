@@ -32,19 +32,19 @@ TEST_F(
 {
     // Open the test database
     scid::database::scidBaseT dbase;
-    static const char* database = SCID_TEST_RESOURCES_DIR "res_database";
+    static const char*        database = SCID_TEST_RESOURCES_DIR "res_database";
     ASSERT_EQ(scid::core::OK, dbase.open("SCID4", scid::database::FMODE_ReadOnly, database));
     ASSERT_NE(0U, dbase.numGames());
-    const scid::database::NameBase* nb = dbase.getNameBase();
-    std::uniform_int_distribution<> rndID(0, dbase.numGames() - 1);
+    const scid::database::NameBase*       nb = dbase.getNameBase();
+    std::uniform_int_distribution<>       rndID(0, dbase.numGames() - 1);
     std::vector<scid::database::gamenumT> buf(dbase.numGames());
 
     // Create filters
     auto dbfilter = dbase.getFilter("dbfilter");
     auto emptyfilter = dbase.getFilter(dbase.newFilter());
     emptyfilter.clear();
-    auto filter = dbase.getFilter(dbase.newFilter());
-    std::mt19937 re;
+    auto                            filter = dbase.getFilter(dbase.newFilter());
+    std::mt19937                    re;
     std::uniform_int_distribution<> rndBool(0, 1);
     std::uniform_int_distribution<> filterVal(0, 255);
     for (scid::database::gamenumT i = 0, n = dbase.numGames(); i < n; ++i)
@@ -54,7 +54,7 @@ TEST_F(
 
     // Valid fields
     const char fields[] = "NdyesnwbormRcDEWBCVA150i";
-    auto getFieldIdx = [fields](char ch) -> std::ptrdiff_t {
+    auto       getFieldIdx = [fields](char ch) -> std::ptrdiff_t {
         auto it = std::find(std::begin(fields), std::end(fields), ch);
         if (it != std::end(fields))
             return std::distance(std::begin(fields), it);
@@ -63,7 +63,7 @@ TEST_F(
 
     // Create a Vector with the Index data
     using IndexRec = std::array<int64_t, sizeof fields>;
-    std::vector<IndexRec> vIndex(dbase.numGames());
+    std::vector<IndexRec>    vIndex(dbase.numGames());
     scid::database::gamenumT gameId = 0;
     for (auto& rec : vIndex)
     {

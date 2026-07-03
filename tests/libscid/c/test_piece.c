@@ -5,8 +5,7 @@
 #include <assert.h>
 
 void
-test_piece(
-    void)
+test_piece(void)
 {
     scid_piece piece = SCID_PIECE_NONE;
 

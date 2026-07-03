@@ -7,30 +7,29 @@
 #include <string.h>
 
 void
-test_pgn_contract(
-    void)
+test_pgn_contract(void)
 {
-    const char* input = "[Event \"Original\"]\n"
-                        "[Site \"Internet\"]\n"
-                        "[Date \"2026.06.07\"]\n"
-                        "[Round \"1\"]\n"
-                        "[White \"White\"]\n"
-                        "[Black \"Black\"]\n"
-                        "[Result \"*\"]\n"
-                        "\n"
-                        "1. e4 e5 2. Nf3 Nc6 *\n";
-    scid_game* game = NULL;
-    scid_game* reparsed = NULL;
-    scid_game_cursor* cursor = NULL;
-    scid_game_cursor* next_cursor = NULL;
+    const char*            input = "[Event \"Original\"]\n"
+                                   "[Site \"Internet\"]\n"
+                                   "[Date \"2026.06.07\"]\n"
+                                   "[Round \"1\"]\n"
+                                   "[White \"White\"]\n"
+                                   "[Black \"Black\"]\n"
+                                   "[Result \"*\"]\n"
+                                   "\n"
+                                   "1. e4 e5 2. Nf3 Nc6 *\n";
+    scid_game*             game = NULL;
+    scid_game*             reparsed = NULL;
+    scid_game_cursor*      cursor = NULL;
+    scid_game_cursor*      next_cursor = NULL;
     scid_game_pgn_options* pgn_options = NULL;
-    scid_movespec move = {0, 0, 0, 0};
-    scid_nag nag = 0;
-    char pgn[4096];
-    char text[256];
-    int truth = 0;
-    size_t count = 0;
-    size_t text_size = 0;
+    scid_movespec          move = {0, 0, 0, 0};
+    scid_nag               nag = 0;
+    char                   pgn[4096];
+    char                   text[256];
+    int                    truth = 0;
+    size_t                 count = 0;
+    size_t                 text_size = 0;
 
     assert(test_game_create(input, strlen(input), &game, NULL, 0, NULL) == SCID_OK);
     assert(scid_game_tag_set(game, "Event", "Edited") == SCID_OK);

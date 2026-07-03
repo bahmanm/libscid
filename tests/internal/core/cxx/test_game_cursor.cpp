@@ -18,7 +18,7 @@ namespace
         StartsBeforeFirstMainlineMove)
     {
         scid::core::Game game;
-        auto& first = game.appendMainlineMove(quiet(scid::core::E2, scid::core::E4));
+        auto&            first = game.appendMainlineMove(quiet(scid::core::E2, scid::core::E4));
         first.san = "e4";
         game.appendMainlineMove(quiet(scid::core::E7, scid::core::E5));
 
@@ -119,7 +119,7 @@ namespace
         ReturnsVariationMovesToCursor)
     {
         scid::core::Game game;
-        auto& first = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
+        auto&            first = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
         first.childVariations.emplace_back().line.moves.push_back(
             {quiet(scid::core::E2, scid::core::E4), "e4", {}, {}});
         first.childVariations[0].line.moves.push_back(
@@ -142,8 +142,8 @@ namespace
         ReturnsNestedVariationMovesToCursor)
     {
         scid::core::Game game;
-        auto& first = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
-        auto& variation = first.childVariations.emplace_back();
+        auto&            first = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
+        auto&            variation = first.childVariations.emplace_back();
         variation.line.appendMove(quiet(scid::core::E2, scid::core::E4));
         auto& variationSecond = variation.line.appendMove(quiet(scid::core::E7, scid::core::E5));
         variationSecond.childVariations.emplace_back().line.moves.push_back(
@@ -186,8 +186,8 @@ namespace
         ReturnsCurrentPositionAtVariationLocation)
     {
         scid::core::Game game;
-        auto& first = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
-        auto& variation = first.childVariations.emplace_back();
+        auto&            first = game.appendMainlineMove(quiet(scid::core::D2, scid::core::D4));
+        auto&            variation = first.childVariations.emplace_back();
         variation.line.appendMove(quiet(scid::core::E2, scid::core::E4));
         variation.line.appendMove(quiet(scid::core::E7, scid::core::E5));
 
@@ -209,7 +209,7 @@ namespace
         SeeksToMainlineStartAndEnd)
     {
         scid::core::Game game;
-        auto& first = game.appendMainlineMove(quiet(scid::core::E2, scid::core::E4));
+        auto&            first = game.appendMainlineMove(quiet(scid::core::E2, scid::core::E4));
         first.childVariations.emplace_back().line.moves.push_back(
             {quiet(scid::core::D2, scid::core::D4), "d4", {}, {}});
         game.appendMainlineMove(quiet(scid::core::E7, scid::core::E5));
@@ -278,7 +278,7 @@ namespace
         EntersAndExitsVariationFromNextMove)
     {
         scid::core::Game game;
-        auto& first = game.appendMainlineMove(quiet(scid::core::E2, scid::core::E4));
+        auto&            first = game.appendMainlineMove(quiet(scid::core::E2, scid::core::E4));
         first.childVariations.emplace_back("Queen pawn alternative")
             .line.moves.push_back({quiet(scid::core::D2, scid::core::D4), "d4", {}, {}});
         game.appendMainlineMove(quiet(scid::core::E7, scid::core::E5));
@@ -347,7 +347,7 @@ namespace
         ReportsVariationIndexAndEmptyVariationState)
     {
         scid::core::Game game;
-        auto& first = game.appendMainlineMove(quiet(scid::core::E2, scid::core::E4));
+        auto&            first = game.appendMainlineMove(quiet(scid::core::E2, scid::core::E4));
         first.childVariations.emplace_back();
         first.childVariations.emplace_back().line.moves.push_back(
             {quiet(scid::core::G1, scid::core::F3), "Nf3", {}, {}});
@@ -376,7 +376,7 @@ namespace
         CoreGameCursorTest,
         HandlesEmptyGame)
     {
-        scid::core::Game game;
+        scid::core::Game       game;
         scid::core::GameCursor cursor(game);
 
         EXPECT_TRUE(cursor.isAtLineStart());

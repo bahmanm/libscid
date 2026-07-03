@@ -30,7 +30,7 @@ namespace scid::database
     //
     char*
     strAppend(
-        char* target,
+        char*       target,
         const char* extra)
     {
         ASSERT(target != NULL && extra != NULL);
@@ -52,8 +52,7 @@ namespace scid::database
     // strDuplicate(): Duplicates a string using new[] operator.
     //
     char*
-    strDuplicate(
-        const char* original)
+    strDuplicate(const char* original)
     {
         ASSERT(original != NULL);
         char* newStr = new char[strLength(original) + 1];
@@ -86,10 +85,10 @@ namespace scid::database
     //
     scid::core::uint
     strPad(
-        char* target,
+        char*       target,
         const char* original,
-        int width,
-        char padding)
+        int         width,
+        char        padding)
     {
         ASSERT(target != NULL && original != NULL);
         if (width < 0)
@@ -126,7 +125,7 @@ namespace scid::database
     const char*
     strFirstChar(
         const char* target,
-        char matchChar)
+        char        matchChar)
     {
         const char* s = target;
         while (*s != 0)
@@ -149,7 +148,7 @@ namespace scid::database
     const char*
     strLastChar(
         const char* target,
-        char matchChar)
+        char        matchChar)
     {
         const char* s = target;
         const char* last = NULL;
@@ -170,7 +169,7 @@ namespace scid::database
     void
     strStrip(
         char* str,
-        char ch)
+        char  ch)
     {
         char* s = str;
         while (*str != 0)
@@ -219,11 +218,11 @@ namespace scid::database
     scid::core::uint
     strTrimSuffix(
         char* target,
-        char suffixChar)
+        char  suffixChar)
     {
         scid::core::uint trimCount = 0;
-        char* lastSuffixPtr = NULL;
-        char* s = target;
+        char*            lastSuffixPtr = NULL;
+        char*            s = target;
         while (*s)
         {
             if (*s == suffixChar)
@@ -248,8 +247,7 @@ namespace scid::database
     //    the day part if it is ".??", and also the month part
     //    if it too is ".??".
     void
-    strTrimDate(
-        char* str)
+    strTrimDate(char* str)
     {
         if (str[7] == '.' && str[8] == '?' && str[9] == '?')
         {
@@ -266,12 +264,11 @@ namespace scid::database
     //    Trims in-place all Scid-recognised board mark codes
     //    in a comment string, such as "[%mark ...]" and "[%arrow ...]"
     void
-    strTrimMarkCodes(
-        char* str)
+    strTrimMarkCodes(char* str)
     {
         char* in = str;
         char* out = str;
-        bool inCode = false;
+        bool  inCode = false;
         char* startLocation = NULL;
 
         while (1)
@@ -328,12 +325,11 @@ namespace scid::database
     //    Trims in-place all HTML-like markup codes (<b>, </i>, etc)
     //    from the provided string.
     void
-    strTrimMarkup(
-        char* str)
+    strTrimMarkup(char* str)
     {
         char* in = str;
         char* out = str;
-        bool inTag = false;
+        bool  inTag = false;
 
         while (*in != 0)
         {
@@ -366,8 +362,7 @@ namespace scid::database
     //    Skips over all whitespace at the start of the
     //    string to reach the first word.
     const char*
-    strFirstWord(
-        const char* str)
+    strFirstWord(const char* str)
     {
         ASSERT(str != NULL);
         while (*str != 0 && isspace(static_cast<unsigned char>(*str)))
@@ -383,8 +378,7 @@ namespace scid::database
     //    in the string, then all successive whitespace chars,
     //    to reach the next word in the string.
     const char*
-    strNextWord(
-        const char* str)
+    strNextWord(const char* str)
     {
         ASSERT(str != NULL);
         while (*str != 0 && !isspace(static_cast<unsigned char>(*str)))
@@ -404,8 +398,7 @@ namespace scid::database
     //    string, "?" or "-". Used primarily to test if an event, site
     //    or round name string contains information worth printing.
     bool
-    strIsUnknownName(
-        const char* str)
+    strIsUnknownName(const char* str)
     {
         if (str[0] == 0)
         {
@@ -426,11 +419,10 @@ namespace scid::database
     // strIsSurnameOnly():
     //    Returns true if the name appears to be a surname only.
     bool
-    strIsSurnameOnly(
-        const char* name)
+    strIsSurnameOnly(const char* name)
     {
         scid::core::uint capcount = 0;
-        const char* s = name;
+        const char*      s = name;
         while (*s != 0)
         {
             unsigned char c = *s;
@@ -458,8 +450,7 @@ namespace scid::database
     //      one of "FfNn0".
     //      Returns false if the string does not contain a boolean value.
     bool
-    strGetBoolean(
-        const char* str)
+    strGetBoolean(const char* str)
     {
         static const char* sTrue[] = {"true", "yes", "on", "1", "ja", "si", "oui", NULL};
         static const char* sFalse[] = {"false", "no", "off", "0", NULL};
@@ -508,8 +499,8 @@ namespace scid::database
     //    whitespace-separated string to an array.
     void
     strGetIntegers(
-        const char* str,
-        int* results,
+        const char*      str,
+        int*             results,
         scid::core::uint nResults)
     {
         for (scid::core::uint i = 0; i < nResults; i++)
@@ -532,9 +523,9 @@ namespace scid::database
     //    whitespace-separated string to an array.
     void
     strGetUnsigneds(
-        const char* str,
+        const char*       str,
         scid::core::uint* results,
-        scid::core::uint nResults)
+        scid::core::uint  nResults)
     {
         for (scid::core::uint i = 0; i < nResults; i++)
         {
@@ -554,8 +545,7 @@ namespace scid::database
     // strGetResult:
     //    Extracts a game result value from a string.
     scid::core::resultT
-    strGetResult(
-        const char* str)
+    strGetResult(const char* str)
     {
         switch (*str)
         {
@@ -581,8 +571,7 @@ namespace scid::database
     //    Extracts a flag (FLAG_YES, FLAG_NO or FLAG_BOTH) value from
     //    a string. Defaults to FLAG_EMPTY.
     flagT
-    strGetFlag(
-        const char* str)
+    strGetFlag(const char* str)
     {
         char c = *str;
         switch (c)
@@ -618,8 +607,7 @@ namespace scid::database
     // strGetSquare():
     //   Extracts a square value from a string, such as "a2".
     scid::core::squareT
-    strGetSquare(
-        const char* str)
+    strGetSquare(const char* str)
     {
         char chFyle = str[0];
         if (chFyle < 'a' || chFyle > 'h')
@@ -652,14 +640,14 @@ namespace scid::database
     //      entry must be NULL.
     int
     strUniqueExactMatch(
-        const char* keyStr,
+        const char*  keyStr,
         const char** strTable,
-        bool exact)
+        bool         exact)
     {
-        int index = -1;
-        int abbrevMatches = 0;
-        const char* s1;
-        const char* s2;
+        int          index = -1;
+        int          abbrevMatches = 0;
+        const char*  s1;
+        const char*  s2;
         const char** entryPtr = strTable;
 
         // If keyStr or strTable are null, return no match:

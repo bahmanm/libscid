@@ -31,7 +31,9 @@ namespace scid::core
          * after null moves are emitted from an explicit FEN.
          */
         std::string
-        currentPositionUci(const Game& game, MovetextLocation location);
+        currentPositionUci(
+            const Game&      game,
+            MovetextLocation location);
 
         /**
          * Returns the previous move at a location in UCI long algebraic notation.
@@ -39,7 +41,9 @@ namespace scid::core
          * @returns an empty string when there is no previous move.
          */
         std::string
-        previousMoveUci(const Game& game, MovetextLocation location);
+        previousMoveUci(
+            const Game&      game,
+            MovetextLocation location);
 
         /**
          * Returns the next move at a location in UCI long algebraic notation.
@@ -47,7 +51,9 @@ namespace scid::core
          * @returns an empty string when there is no next move.
          */
         std::string
-        nextMoveUci(const Game& game, MovetextLocation location);
+        nextMoveUci(
+            const Game&      game,
+            MovetextLocation location);
 
         /**
          * Returns the SAN text of the previous move at a location.
@@ -59,7 +65,9 @@ namespace scid::core
          * cannot be replayed legally.
          */
         std::string
-        previousSan(const Game& game, MovetextLocation location);
+        previousSan(
+            const Game&      game,
+            MovetextLocation location);
 
         /**
          * Returns the SAN text of the next move at a location.
@@ -71,13 +79,17 @@ namespace scid::core
          * cannot be replayed legally.
          */
         std::string
-        nextSan(const Game& game, MovetextLocation location);
+        nextSan(
+            const Game&      game,
+            MovetextLocation location);
 
         /**
          * Formats the first @p plyCount mainline half-moves as compact SAN text.
          */
         std::string
-        partialMoveList(const Game& game, std::size_t plyCount);
+        partialMoveList(
+            const Game& game,
+            std::size_t plyCount);
 
     } // namespace notation
 } // namespace scid::core

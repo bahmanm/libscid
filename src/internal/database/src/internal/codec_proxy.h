@@ -66,7 +66,9 @@ namespace scid::database
              * @returns scid::core::OK in case of success, an @p scid::core::errorT code otherwise.
              */
             scid::core::errorT
-            open(const char* filename, fileModeT fMode);
+            open(
+                const char* filename,
+                fileModeT   fMode);
 
             /**
              * Reads the next game.
@@ -92,7 +94,9 @@ namespace scid::database
              * @returns a pair<size_t, size_t> where first element is the quantity of
              * data parsed and second one is the total amount of data of the database.
              */
-            std::pair<size_t, size_t>
+            std::pair<
+                size_t,
+                size_t>
             parseProgress()
             {
                 return std::pair<size_t, size_t>(1, 1);
@@ -132,8 +136,8 @@ namespace scid::database
             scid::core::errorT
             gameSave(
                 scid::core::Game game,
-                const char* scidFlags,
-                gamenumT replaced)
+                const char*      scidFlags,
+                gamenumT         replaced)
             {
                 game.removeExtraTag(special_replace_tag);
                 game.addTag(special_replace_tag, std::to_string(replaced));
@@ -144,11 +148,11 @@ namespace scid::database
             scid::core::errorT
             saveGame(
                 IndexEntry const& ie,
-                TagRoster const& tags,
+                TagRoster const&  tags,
                 ByteBuffer const& data,
-                gamenumT replaced) final
+                gamenumT          replaced) final
             {
-                char scidFlags[22]{};
+                char             scidFlags[22]{};
                 scid::core::Game game;
                 if (scid::core::errorT err =
                         game_storage::decode(game, scidFlags, sizeof(scidFlags), ie, tags, data))
@@ -160,13 +164,14 @@ namespace scid::database
                 return CodecMemory::saveGame(ie, tags, data, replaced);
             }
 
+
             scid::core::errorT
             addGame(
                 IndexEntry const& ie,
-                TagRoster const& tags,
+                TagRoster const&  tags,
                 ByteBuffer const& data) final
             {
-                char scidFlags[22]{};
+                char             scidFlags[22]{};
                 scid::core::Game game;
                 if (scid::core::errorT err =
                         game_storage::decode(game, scidFlags, sizeof(scidFlags), ie, tags, data))
@@ -178,10 +183,11 @@ namespace scid::database
                 return CodecMemory::addGame(ie, tags, data);
             }
 
+
             scid::core::errorT
             saveIndexEntry(
                 const IndexEntry& ie,
-                gamenumT replaced) final
+                gamenumT          replaced) final
             {
                 if (CodecMemory::equalExceptFlags(ie, replaced))
                     return CodecMemory::saveIndexEntry(ie, replaced);
@@ -189,7 +195,9 @@ namespace scid::database
                 return scid::core::ERROR_CodecUnsupFeat;
             }
 
-            std::pair<scid::core::errorT, idNumberT>
+            std::pair<
+                scid::core::errorT,
+                idNumberT>
             addName(
                 nameT,
                 const char*) final
@@ -204,11 +212,11 @@ namespace scid::database
              */
             scid::core::errorT
             dyn_open(
-                fileModeT fMode,
-                const char* filename,
+                fileModeT       fMode,
+                const char*     filename,
                 const Progress& progress,
-                Index* idx,
-                NameBase* nb) final
+                Index*          idx,
+                NameBase*       nb) final
             {
                 if (filename == 0)
                     return scid::core::ERROR;
@@ -249,19 +257,22 @@ namespace scid::database
              * Given a source database of type CodecProxy<T>, for each game a
              * corresponding core Game object and Scid flags are dispatched to @e destFn.
              */
-            template <typename TProgress, typename TSource, typename TDestFn>
+            template <
+                typename TProgress,
+                typename TSource,
+                typename TDestFn>
             static scid::core::errorT
             parseGames(
                 const TProgress& progress,
-                TSource& src,
-                TDestFn destFn)
+                TSource&         src,
+                TDestFn          destFn)
             {
                 auto workTotal = src.parseProgress().second;
 
-                std::array<scid::core::Game, 4> game;
+                std::array<scid::core::Game, 4>     game;
                 std::array<std::array<char, 22>, 4> scidFlags{};
-                std::atomic<size_t> workDone{};
-                std::atomic<int8_t> sync[4] = {};
+                std::atomic<size_t>                 workDone{};
+                std::atomic<int8_t>                 sync[4] = {};
                 enum
                 {
                     sy_free,
@@ -305,8 +316,8 @@ namespace scid::database
 
                 // Consumer
                 scid::core::errorT err = scid::core::OK;
-                uint64_t slot;
-                uint64_t nImported = 0;
+                uint64_t           slot;
+                uint64_t           nImported = 0;
                 while (true)
                 {
                     slot = nImported % 4;

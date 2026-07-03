@@ -31,16 +31,14 @@ namespace scid::core
 
     /** Returns true when @p p has king as its uncoloured type. */
     inline bool
-    piece_IsKing(
-        pieceT p)
+    piece_IsKing(pieceT p)
     {
         return (piece_Type(p) == KING);
     }
 
     /** Returns true when @p p is a queen, rook, or bishop type. */
     inline bool
-    piece_IsSlider(
-        pieceT p)
+    piece_IsSlider(pieceT p)
     {
         return PIECE_IS_SLIDER[piece_Type(p)];
     }
@@ -51,8 +49,7 @@ namespace scid::core
      * EMPTY.
      */
     inline pieceT
-    piece_FromChar(
-        int x)
+    piece_FromChar(int x)
     {
         switch (x)
         {
@@ -73,48 +70,42 @@ namespace scid::core
 
     /** Returns the A1-H8 diagonal index for @p sq. */
     inline leftDiagT
-    square_LeftDiag(
-        squareT sq)
+    square_LeftDiag(squareT sq)
     {
         return square_Rank(sq) + square_Fyle(sq);
     }
 
     /** Returns the H1-A8 diagonal index for @p sq. */
     inline rightDiagT
-    square_RightDiag(
-        squareT sq)
+    square_RightDiag(squareT sq)
     {
         return (7 + square_Rank(sq) - square_Fyle(sq));
     }
 
     /** Returns WHITE for a light square and BLACK for a dark square. */
     inline colorT
-    square_Color(
-        squareT sq)
+    square_Color(squareT sq)
     {
         return 1 - (square_LeftDiag(sq) & 1);
     }
 
     /** Returns @p sq with its file mirrored, for example A1 becomes H1. */
     inline squareT
-    square_FlipFyle(
-        squareT sq)
+    square_FlipFyle(squareT sq)
     {
         return square_Make(A_FYLE + H_FYLE - square_Fyle(sq), square_Rank(sq));
     }
 
     /** Returns @p sq with its rank mirrored, for example A1 becomes A8. */
     inline squareT
-    square_FlipRank(
-        squareT sq)
+    square_FlipRank(squareT sq)
     {
         return square_Make(square_Fyle(sq), RANK_1 + RANK_8 - square_Rank(sq));
     }
 
     /** Returns @p sq reflected across the A1-H8 diagonal. */
     inline squareT
-    square_FlipDiag(
-        squareT sq)
+    square_FlipDiag(squareT sq)
     {
         return square_Make(square_Rank(sq), square_Fyle(sq));
     }
@@ -138,8 +129,7 @@ namespace scid::core
 
     /** Returns the nearest corner square, choosing the lower-file/lower-rank corner on ties. */
     inline squareT
-    square_NearestCorner(
-        squareT sq)
+    square_NearestCorner(squareT sq)
     {
         if (square_Rank(sq) <= RANK_4)
         {
@@ -153,16 +143,14 @@ namespace scid::core
 
     /** Returns true when @p sq is A1, H1, A8, or H8. */
     inline bool
-    square_IsCornerSquare(
-        squareT sq)
+    square_IsCornerSquare(squareT sq)
     {
         return (sq == A1 || sq == H1 || sq == A8 || sq == H8);
     }
 
     /** Returns true when @p sq is on the board edge. */
     inline bool
-    square_IsEdgeSquare(
-        squareT sq)
+    square_IsEdgeSquare(squareT sq)
     {
         rankT rank = square_Rank(sq);
         if (rank == RANK_1 || rank == RANK_8)
@@ -184,8 +172,7 @@ namespace scid::core
 
     /** Returns the distance from @p sq to the nearest board edge. */
     inline int
-    square_EdgeDistance(
-        squareT sq)
+    square_EdgeDistance(squareT sq)
     {
         return edgeDist[sq];
     }
@@ -206,16 +193,14 @@ namespace scid::core
 
     /** Returns the file character for @p sq. */
     inline char
-    square_FyleChar(
-        squareT sq)
+    square_FyleChar(squareT sq)
     {
         return square_Fyle(sq) + 'a';
     }
 
     /** Returns the rank character for @p sq. */
     inline char
-    square_RankChar(
-        squareT sq)
+    square_RankChar(squareT sq)
     {
         return square_Rank(sq) + '1';
     }
@@ -256,8 +241,7 @@ namespace scid::core
 
     /** Returns the opposite direction for @p d. */
     inline directionT
-    direction_Opposite(
-        directionT d)
+    direction_Opposite(directionT d)
     {
         return dirOpposite[d];
     }
@@ -279,8 +263,7 @@ namespace scid::core
 
     /** Returns true when @p dir is one of the four diagonal directions. */
     inline bool
-    direction_IsDiagonal(
-        directionT dir)
+    direction_IsDiagonal(directionT dir)
     {
         return dirIsDiagonal[dir];
     }
@@ -302,8 +285,7 @@ namespace scid::core
 
     /** Returns the board-array delta for @p dir. */
     inline int
-    direction_Delta(
-        directionT dir)
+    direction_Delta(directionT dir)
     {
         return dirDelta[dir];
     }
@@ -342,14 +324,14 @@ namespace scid::core
         assert(from <= H8 && to <= H8);
         rankT fromRank = square_Rank(from);
         rankT toRank = square_Rank(to);
-        int rdist = (int)fromRank - (int)toRank;
+        int   rdist = (int)fromRank - (int)toRank;
         if (rdist < -1 || rdist > 1)
         {
             return false;
         }
         fyleT fromFyle = square_Fyle(from);
         fyleT toFyle = square_Fyle(to);
-        int fdist = (int)fromFyle - (int)toFyle;
+        int   fdist = (int)fromFyle - (int)toFyle;
         if (fdist < -1 || fdist > 1)
         {
             return false;

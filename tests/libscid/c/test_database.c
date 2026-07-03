@@ -8,8 +8,7 @@
 #include <string.h>
 
 static void
-remove_scid5_database(
-    const char* path)
+remove_scid5_database(const char* path)
 {
     char filename[256];
 
@@ -23,81 +22,81 @@ remove_scid5_database(
     remove(filename);
 }
 
+
 void
-test_database(
-    void)
+test_database(void)
 {
-    const char* persisted_path = "_libscid_c_test_scid5";
-    const char* missing_path = "_libscid_c_test_missing_scid5";
-    const char* pgn = "[Event \"Stored\"]\n"
-                      "[Site \"Toronto\"]\n"
-                      "[Date \"2024.06.14\"]\n"
-                      "[Round \"7\"]\n"
-                      "[White \"Alpha\"]\n"
-                      "[Black \"Beta\"]\n"
-                      "[Result \"1-0\"]\n"
-                      "[ECO \"C20\"]\n"
-                      "[EventDate \"2024.06.01\"]\n"
-                      "\n"
-                      "1. e4 e5 2. Nf3 1-0\n";
-    const char* replacement_pgn = "[Event \"Replacement\"]\n"
-                                  "[Site \"Vancouver\"]\n"
-                                  "[Date \"2025.01.02\"]\n"
-                                  "[Round \"1\"]\n"
-                                  "[White \"Gamma\"]\n"
-                                  "[Black \"Delta\"]\n"
+    const char*    persisted_path = "_libscid_c_test_scid5";
+    const char*    missing_path = "_libscid_c_test_missing_scid5";
+    const char*    pgn = "[Event \"Stored\"]\n"
+                         "[Site \"Toronto\"]\n"
+                         "[Date \"2024.06.14\"]\n"
+                         "[Round \"7\"]\n"
+                         "[White \"Alpha\"]\n"
+                         "[Black \"Beta\"]\n"
+                         "[Result \"1-0\"]\n"
+                         "[ECO \"C20\"]\n"
+                         "[EventDate \"2024.06.01\"]\n"
+                         "\n"
+                         "1. e4 e5 2. Nf3 1-0\n";
+    const char*    replacement_pgn = "[Event \"Replacement\"]\n"
+                                     "[Site \"Vancouver\"]\n"
+                                     "[Date \"2025.01.02\"]\n"
+                                     "[Round \"1\"]\n"
+                                     "[White \"Gamma\"]\n"
+                                     "[Black \"Delta\"]\n"
+                                     "[Result \"0-1\"]\n"
+                                     "\n"
+                                     "1. d4 d5 0-1\n";
+    const char*    imported_pgn = "[Event \"Imported\"]\n"
+                                  "[Site \"Montreal\"]\n"
+                                  "[Date \"2026.02.03\"]\n"
+                                  "[White \"Epsilon\"]\n"
+                                  "[Black \"Zeta\"]\n"
+                                  "[Result \"1/2-1/2\"]\n"
+                                  "\n"
+                                  "1. c4 c5 1/2-1/2\n"
+                                  "\n"
+                                  "[Event \"Imported Two\"]\n"
+                                  "[Site \"Calgary\"]\n"
+                                  "[Date \"2026.02.04\"]\n"
+                                  "[White \"Eta\"]\n"
+                                  "[Black \"Theta\"]\n"
                                   "[Result \"0-1\"]\n"
                                   "\n"
-                                  "1. d4 d5 0-1\n";
-    const char* imported_pgn = "[Event \"Imported\"]\n"
-                               "[Site \"Montreal\"]\n"
-                               "[Date \"2026.02.03\"]\n"
-                               "[White \"Epsilon\"]\n"
-                               "[Black \"Zeta\"]\n"
-                               "[Result \"1/2-1/2\"]\n"
-                               "\n"
-                               "1. c4 c5 1/2-1/2\n"
-                               "\n"
-                               "[Event \"Imported Two\"]\n"
-                               "[Site \"Calgary\"]\n"
-                               "[Date \"2026.02.04\"]\n"
-                               "[White \"Eta\"]\n"
-                               "[Black \"Theta\"]\n"
-                               "[Result \"0-1\"]\n"
-                               "\n"
-                               "1. d4 Nf6 0-1\n";
+                                  "1. d4 Nf6 0-1\n";
     scid_database* database = NULL;
-    scid_game* game = NULL;
-    scid_game* replacement = NULL;
-    scid_game* loaded = NULL;
+    scid_game*     game = NULL;
+    scid_game*     replacement = NULL;
+    scid_game*     loaded = NULL;
     scid_database* persisted = NULL;
     scid_database* reopened = NULL;
     scid_database* read_only_database = NULL;
-    char flags[22];
-    char filter_id[16];
-    char filter_id_two[16];
-    char diagnostic[1024];
-    char key[64];
-    char max_date[32];
-    char text[1024];
-    size_t count = 99;
-    size_t diagnostic_size = 99;
-    size_t filter_id_size = 99;
-    size_t filter_id_two_size = 99;
-    size_t flags_size = 99;
-    size_t game_indexes[4] = {99, 99, 99, 99};
-    size_t imported_count = 99;
-    size_t key_size = 99;
-    size_t list_count = 99;
-    size_t max_date_size = 99;
-    size_t sorted_position = 99;
-    size_t text_size = 99;
-    scid_eco_code eco_code = 0;
-    scid_eco_code expected_eco_code = 0;
-    unsigned filter_value = 99;
-    int is_open = 0;
-    int read_only = 99;
-    int deleted = 99;
+    char           flags[22];
+    char           filter_id[16];
+    char           filter_id_two[16];
+    char           diagnostic[1024];
+    char           key[64];
+    char           max_date[32];
+    char           text[1024];
+    size_t         count = 99;
+    size_t         diagnostic_size = 99;
+    size_t         filter_id_size = 99;
+    size_t         filter_id_two_size = 99;
+    size_t         flags_size = 99;
+    size_t         game_indexes[4] = {99, 99, 99, 99};
+    size_t         imported_count = 99;
+    size_t         key_size = 99;
+    size_t         list_count = 99;
+    size_t         max_date_size = 99;
+    size_t         sorted_position = 99;
+    size_t         text_size = 99;
+    scid_eco_code  eco_code = 0;
+    scid_eco_code  expected_eco_code = 0;
+    unsigned       filter_value = 99;
+    int            is_open = 0;
+    int            read_only = 99;
+    int            deleted = 99;
 
     assert(scid_database_create_memory("scratch", &database) == SCID_OK);
     assert(database != NULL);

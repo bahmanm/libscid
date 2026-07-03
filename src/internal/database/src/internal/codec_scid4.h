@@ -40,23 +40,23 @@ namespace scid::database
 
     class CodecSCID4 : public ICodecDatabase
     {
-            Index* idx_ = nullptr;
-            NameBase* nb_ = nullptr;
+            Index*                   idx_ = nullptr;
+            NameBase*                nb_ = nullptr;
             std::vector<std::string> filenames_;
-            Filebuf idxfile_;
-            FilebufAppend gfile_;
-            char gamecache_[1ULL << 17];
-            gamenumT seqWrite_ = 0;
+            Filebuf                  idxfile_;
+            FilebufAppend            gfile_;
+            char                     gamecache_[1ULL << 17];
+            gamenumT                 seqWrite_ = 0;
 
             struct
             {
                     std::string description;         // a string describing the database.
                     std::string flagDesc[6];         // short description (8 chars) for CUSTOM flags
-                    gamenumT autoLoad = 1;           // game number to autoload:
+                    gamenumT    autoLoad = 1;        // game number to autoload:
                                                      // 0=none, 1=1st, >numGames=last
                     uint32_t baseType = 0;           // Type, e.g. tournament, theory, etc.
                     versionT version = SCID_VERSION; // version number. 2 bytes.
-                    bool dirty = false;
+                    bool     dirty = false;
             } header_;
 
             enum : uint64_t
@@ -85,7 +85,9 @@ namespace scid::database
                 return filenames_;
             };
 
-            std::vector<std::pair<const char*, std::string>>
+            std::vector<std::pair<
+                const char*,
+                std::string>>
             getExtraInfo() const final
             {
                 std::vector<std::pair<const char*, std::string>> res;
@@ -102,8 +104,11 @@ namespace scid::database
                 return res;
             }
 
+
             scid::core::errorT
-            setExtraInfo(const char* tagname, const char* new_value) override;
+            setExtraInfo(
+                const char* tagname,
+                const char* new_value) override;
 
             ByteBuffer
             getGameData(
@@ -123,9 +128,9 @@ namespace scid::database
                 return {reinterpret_cast<const scid::core::byte*>(gamecache_), length};
             }
 
+
             ByteBuffer
-            getGameMoves(
-                IndexEntry const& ie) final
+            getGameMoves(IndexEntry const& ie) final
             {
                 auto data = getGameData(ie.GetOffset(), ie.GetLength());
                 if (data && scid::core::OK == data.decodeTags([](auto, auto) {}))
@@ -134,10 +139,11 @@ namespace scid::database
                 return {nullptr, 0};
             }
 
+
             scid::core::errorT
             addGame(
                 IndexEntry const& ie_src,
-                TagRoster const& tags,
+                TagRoster const&  tags,
                 ByteBuffer const& data) final
             {
                 IndexEntry ie = ie_src;
@@ -147,12 +153,13 @@ namespace scid::database
                 return dyn_addIndexEntry(ie);
             }
 
+
             scid::core::errorT
             saveGame(
                 IndexEntry const& ie_src,
-                TagRoster const& tags,
+                TagRoster const&  tags,
                 ByteBuffer const& data,
-                gamenumT replaced) final
+                gamenumT          replaced) final
             {
                 IndexEntry ie = ie_src;
                 if (auto err = addGameNamesAndData(ie, tags, data.data(), data.size()))
@@ -161,27 +168,36 @@ namespace scid::database
                 return dyn_saveIndexEntry(ie, replaced);
             }
 
+
             scid::core::errorT
             saveIndexEntry(
                 const IndexEntry& ie,
-                gamenumT replaced) final
+                gamenumT          replaced) final
             {
                 return dyn_saveIndexEntry(ie, replaced);
             }
 
-            std::pair<scid::core::errorT, idNumberT>
+            std::pair<
+                scid::core::errorT,
+                idNumberT>
             addName(
-                nameT nt,
+                nameT       nt,
                 const char* name) final
             {
                 return dyn_addName(nt, name);
             }
 
+
             scid::core::errorT
             flush() final;
 
             scid::core::errorT
-            dyn_open(fileModeT, const char*, const Progress&, Index*, NameBase*) final;
+            dyn_open(
+                fileModeT,
+                const char*,
+                const Progress&,
+                Index*,
+                NameBase*) final;
 
         private:
             /**
@@ -194,10 +210,12 @@ namespace scid::database
              *   data (needed for retrieving the data with getGameData()).
              * - on failure, a @e std::pair containing an error code and 0.
              */
-            std::pair<scid::core::errorT, uint64_t>
+            std::pair<
+                scid::core::errorT,
+                uint64_t>
             dyn_addGameData(
                 const scid::core::byte* src,
-                size_t length)
+                size_t                  length)
             {
                 ASSERT(src != 0);
                 const char* data = reinterpret_cast<const char*>(src);
@@ -235,9 +253,11 @@ namespace scid::database
              * - on success, a @e std::pair containing scid::core::OK and the ID.
              * - on failure, a @e std::pair containing an error code and 0.
              */
-            std::pair<scid::core::errorT, idNumberT>
+            std::pair<
+                scid::core::errorT,
+                idNumberT>
             dyn_addName(
-                nameT nt,
+                nameT       nt,
                 const char* name)
             {
                 if (std::string_view(name).size() > LIMIT_NAMELEN)
@@ -267,8 +287,7 @@ namespace scid::database
              * @returns scid::core::OK if successful or an error code.
              */
             scid::core::errorT
-            dyn_addIndexEntry(
-                const IndexEntry& ie)
+            dyn_addIndexEntry(const IndexEntry& ie)
             {
                 const auto nGames = idx_->GetNumGames();
                 if (nGames >= LIMIT_NUMGAMES)
@@ -288,7 +307,7 @@ namespace scid::database
             scid::core::errorT
             dyn_saveIndexEntry(
                 const IndexEntry& ie,
-                gamenumT replaced)
+                gamenumT          replaced)
             {
                 idx_->replaceEntry(ie, replaced);
                 return writeEntry(ie, replaced);
@@ -298,10 +317,10 @@ namespace scid::database
             /// Set the references to the new data in @e ie.
             scid::core::errorT
             addGameNamesAndData(
-                IndexEntry& ie,
-                TagRoster const& tags,
+                IndexEntry&             ie,
+                TagRoster const&        tags,
                 const scid::core::byte* srcData,
-                size_t dataLen)
+                size_t                  dataLen)
             {
                 if (!ie.isChessStd())
                     return scid::core::ERROR_CodecChess960;
@@ -320,11 +339,16 @@ namespace scid::database
                 return err;
             }
 
-            scid::core::errorT
-            readIndex(gamenumT nGames, Progress const& progress);
 
             scid::core::errorT
-            writeEntry(const IndexEntry& ie, gamenumT gnum);
+            readIndex(
+                gamenumT        nGames,
+                Progress const& progress);
+
+            scid::core::errorT
+            writeEntry(
+                const IndexEntry& ie,
+                gamenumT          gnum);
     };
 
 } // namespace scid::database

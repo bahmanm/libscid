@@ -65,11 +65,14 @@ namespace scid::core
                 return nextIndex_;
             }
 
+
         private:
-            MovetextLocation(std::vector<Step> path, std::size_t nextIndex);
+            MovetextLocation(
+                std::vector<Step> path,
+                std::size_t       nextIndex);
 
             std::vector<Step> path_;
-            std::size_t nextIndex_ = 0;
+            std::size_t       nextIndex_ = 0;
 
             friend class GameCursor;
             friend class MovetextCursor;

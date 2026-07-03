@@ -9,8 +9,7 @@ namespace scid::core
     {
 
         scid::core::Position
-        startPosition(
-            const Game& game)
+        startPosition(const Game& game)
         {
             return game.startPosition() ? *game.startPosition()
                                         : scid::core::Position::getStdStart();
@@ -18,10 +17,11 @@ namespace scid::core
 
     } // namespace
 
-    GameCursor::GameCursor(
-        const Game& game)
-        : game_(game), currentLine_(&game.movetext().mainline)
+    GameCursor::GameCursor(const Game& game)
+        : game_(game),
+          currentLine_(&game.movetext().mainline)
     {}
+
 
     const Move*
     GameCursor::previousMove() const
@@ -31,6 +31,7 @@ namespace scid::core
         return &currentLine().moves[nextIndex_ - 1];
     }
 
+
     const Move*
     GameCursor::nextMove() const
     {
@@ -38,6 +39,7 @@ namespace scid::core
             return nullptr;
         return &currentLine().moves[nextIndex_];
     }
+
 
     const Variation*
     GameCursor::currentVariation() const
@@ -48,6 +50,7 @@ namespace scid::core
         auto const& parent = parents_.back();
         return &parent.line->moves[parent.nextIndex].childVariations[parent.variationIndex];
     }
+
 
     std::vector<const Move*>
     GameCursor::movesToCursor() const
@@ -66,6 +69,7 @@ namespace scid::core
         return result;
     }
 
+
     std::optional<scid::core::Position>
     GameCursor::currentPosition() const
     {
@@ -78,6 +82,7 @@ namespace scid::core
         return position;
     }
 
+
     std::size_t
     GameCursor::ply() const
     {
@@ -87,6 +92,7 @@ namespace scid::core
         return result;
     }
 
+
     std::size_t
     GameCursor::variationCount() const
     {
@@ -94,11 +100,13 @@ namespace scid::core
         return move ? move->childVariations.size() : 0;
     }
 
+
     std::size_t
     GameCursor::variationDepth() const
     {
         return parents_.size();
     }
+
 
     std::size_t
     GameCursor::variationIndex() const
@@ -106,11 +114,13 @@ namespace scid::core
         return parents_.empty() ? 0 : parents_.back().variationIndex;
     }
 
+
     bool
     GameCursor::isAtLineStart() const
     {
         return nextIndex_ == 0;
     }
+
 
     bool
     GameCursor::isAtLineEnd() const
@@ -118,11 +128,13 @@ namespace scid::core
         return nextIndex_ == currentLine().moves.size();
     }
 
+
     bool
     GameCursor::isAtVariationStart() const
     {
         return isAtLineStart();
     }
+
 
     bool
     GameCursor::isAtVariationEnd() const
@@ -130,11 +142,13 @@ namespace scid::core
         return isAtLineEnd();
     }
 
+
     bool
     GameCursor::isAtGameStart() const
     {
         return variationDepth() == 0 && isAtVariationStart();
     }
+
 
     bool
     GameCursor::isAtGameEnd() const
@@ -142,11 +156,13 @@ namespace scid::core
         return variationDepth() == 0 && isAtVariationEnd();
     }
 
+
     bool
     GameCursor::isAtEmptyVariation() const
     {
         return variationDepth() != 0 && isAtVariationStart() && isAtVariationEnd();
     }
+
 
     bool
     GameCursor::next()
@@ -157,6 +173,7 @@ namespace scid::core
         return true;
     }
 
+
     bool
     GameCursor::previous()
     {
@@ -166,9 +183,9 @@ namespace scid::core
         return true;
     }
 
+
     bool
-    GameCursor::enterVariation(
-        std::size_t index)
+    GameCursor::enterVariation(std::size_t index)
     {
         auto move = nextMove();
         if (!move || index >= move->childVariations.size())
@@ -179,6 +196,7 @@ namespace scid::core
         nextIndex_ = 0;
         return true;
     }
+
 
     bool
     GameCursor::exitVariation()
@@ -193,6 +211,7 @@ namespace scid::core
         return true;
     }
 
+
     void
     GameCursor::toStart()
     {
@@ -200,6 +219,7 @@ namespace scid::core
         parents_.clear();
         nextIndex_ = 0;
     }
+
 
     void
     GameCursor::toEnd()
@@ -209,9 +229,9 @@ namespace scid::core
         nextIndex_ = currentLine().moves.size();
     }
 
+
     bool
-    GameCursor::toPly(
-        std::size_t ply)
+    GameCursor::toPly(std::size_t ply)
     {
         auto const& mainline = game_.movetext().mainline;
         if (ply > mainline.moves.size())
@@ -223,6 +243,7 @@ namespace scid::core
         return true;
     }
 
+
     MovetextLocation
     GameCursor::location() const
     {
@@ -233,11 +254,11 @@ namespace scid::core
         return MovetextLocation(std::move(path), nextIndex_);
     }
 
+
     bool
-    GameCursor::restore(
-        MovetextLocation location)
+    GameCursor::restore(MovetextLocation location)
     {
-        auto line = &game_.movetext().mainline;
+        auto                     line = &game_.movetext().mainline;
         std::vector<ParentFrame> parents;
         parents.reserve(location.path_.size());
         for (auto const& step : location.path_)
@@ -260,6 +281,7 @@ namespace scid::core
         nextIndex_ = location.nextIndex_;
         return true;
     }
+
 
     const MoveSequence&
     GameCursor::currentLine() const

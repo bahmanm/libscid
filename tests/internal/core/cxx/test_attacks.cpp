@@ -12,7 +12,9 @@ namespace
     void
     expectAttackList(
         const squareT (&actual)[9],
-        const std::array<squareT, N>& expected)
+        const std::array<
+            squareT,
+            N>& expected)
     {
         for (std::size_t i = 0; i < expected.size(); ++i)
         {

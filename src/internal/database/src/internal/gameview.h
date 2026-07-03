@@ -69,8 +69,7 @@ namespace scid::database
 
                     /// Return the total number of pieces of the specified color.
                     int8_t
-                    count(
-                        scid::core::colorT color) const
+                    count(scid::core::colorT color) const
                     {
                         ASSERT(color == 0 || color == 1);
 
@@ -90,8 +89,7 @@ namespace scid::database
                     }
 
                     bool
-                    operator==(
-                        const MaterialCount& b) const
+                    operator==(const MaterialCount& b) const
                     {
                         const int8_t* a = n_[0];
                         const int8_t* b_ptr = b.n_[0];
@@ -99,8 +97,7 @@ namespace scid::database
                     }
 
                     bool
-                    operator!=(
-                        const MaterialCount& b) const
+                    operator!=(const MaterialCount& b) const
                     {
                         return !operator==(b);
                     }
@@ -112,7 +109,7 @@ namespace scid::database
                     struct
                     {
                             scid::core::squareT sq;
-                            scid::core::pieceT piece_type;
+                            scid::core::pieceT  piece_type;
                     } pieces_[2][16];
 
                 public:
@@ -127,7 +124,7 @@ namespace scid::database
                     scid::core::pieceT
                     getPieceType(
                         scid::core::colorT color,
-                        int idx) const
+                        int                idx) const
                     {
                         ASSERT(color == 0 || color == 1);
                         ASSERT(idx >= 0 && idx < 16);
@@ -139,7 +136,7 @@ namespace scid::database
                     scid::core::squareT
                     getSquare(
                         scid::core::colorT color,
-                        int idx) const
+                        int                idx) const
                     {
                         ASSERT(color == 0 || color == 1);
                         ASSERT(idx >= 0 && idx < 16);
@@ -150,8 +147,8 @@ namespace scid::database
                     /// Change the square position of the piece with index @e idx
                     void
                     changeSq(
-                        scid::core::colorT color,
-                        int idx,
+                        scid::core::colorT  color,
+                        int                 idx,
                         scid::core::squareT to)
                     {
                         ASSERT(color == 0 || color == 1);
@@ -164,7 +161,7 @@ namespace scid::database
                     void
                     promote(
                         scid::core::colorT color,
-                        int idx,
+                        int                idx,
                         scid::core::pieceT piece_type)
                     {
                         ASSERT(color == 0 || color == 1);
@@ -180,8 +177,8 @@ namespace scid::database
                     scid::core::squareT
                     remove(
                         scid::core::colorT color,
-                        int removed_idx,
-                        int lastvalid_idx)
+                        int                removed_idx,
+                        int                lastvalid_idx)
                     {
                         ASSERT(color == 0 || color == 1);
                         ASSERT(removed_idx >= 0 && removed_idx < 16);
@@ -193,11 +190,10 @@ namespace scid::database
 
                     /// Set the type and square of the piece with index @e idx
                     void
-                    set(
-                        scid::core::colorT color,
-                        int idx,
+                    set(scid::core::colorT  color,
+                        int                 idx,
                         scid::core::squareT sq,
-                        scid::core::pieceT piece_type)
+                        scid::core::pieceT  piece_type)
                     {
                         ASSERT(color == 0 || color == 1);
                         ASSERT(idx >= 0 && idx < 16);
@@ -210,10 +206,10 @@ namespace scid::database
 
             class FastBoard
             {
-                    uint8_t board_[64];
+                    uint8_t       board_[64];
                     MaterialCount mt_;
-                    PieceList pieces_;
-                    uint8_t castlingRook_[2]
+                    PieceList     pieces_;
+                    uint8_t       castlingRook_[2]
                                          [2]; // [scid::core::WHITE|scid::core::BLACK][long|short]
                                               // the idx of the rooks that can castle. 0 if none
 
@@ -223,11 +219,11 @@ namespace scid::database
                     };
 
                 public:
-                    explicit FastBoard(
-                        const scid::core::Position& pos)
+                    explicit FastBoard(const scid::core::Position& pos)
                     {
                         Init(pos);
                     }
+
 
                     static FastBoard
                     stdStart()
@@ -237,9 +233,9 @@ namespace scid::database
                         return std_start;
                     }
 
+
                     static MaterialCount
-                    countMaterial(
-                        const scid::core::pieceT* board)
+                    countMaterial(const scid::core::pieceT* board)
                     {
                         MaterialCount mt_count;
                         for (int i = 0; i < 64; ++i)
@@ -254,9 +250,9 @@ namespace scid::database
                         return mt_count;
                     }
 
+
                     void
-                    Init(
-                        const scid::core::Position& pos)
+                    Init(const scid::core::Position& pos)
                     {
                         std::fill_n(board_, 64, EMPTY_SQ_);
                         std::fill_n(*castlingRook_, 4, 0);
@@ -270,7 +266,7 @@ namespace scid::database
                                 if (idx < pos_count)
                                 {
                                     const scid::core::squareT sq = pos_list[idx];
-                                    const scid::core::pieceT piece_type =
+                                    const scid::core::pieceT  piece_type =
                                         scid::core::piece_Type(pos.GetPiece(sq));
                                     pieces_.set(color, idx, sq, piece_type);
                                     board_[sq] = idx;
@@ -297,10 +293,11 @@ namespace scid::database
                         }
                     }
 
+
                     bool
                     isEqual(
                         const scid::core::pieceT* board,
-                        const MaterialCount& mt_count) const
+                        const MaterialCount&      mt_count) const
                     {
                         if (mt_ != mt_count)
                             return false;
@@ -322,24 +319,27 @@ namespace scid::database
                         return true;
                     }
 
+
                     const MaterialCount&
                     materialCount() const
                     {
                         return mt_;
                     }
 
+
                     scid::core::squareT
                     getSquare(
                         scid::core::colorT color,
-                        int idx) const
+                        int                idx) const
                     {
                         return pieces_.getSquare(color, idx);
                     }
 
+
                     scid::core::pieceT
                     getPiece(
                         scid::core::colorT color,
-                        int idx) const
+                        int                idx) const
                     {
                         return pieces_.getPieceType(color, idx);
                     }
@@ -350,8 +350,7 @@ namespace scid::database
                     ///          On error returns the king's square (no piece is moved).
                     template <scid::core::colorT color>
                     scid::core::squareT
-                    castle(
-                        bool king_side)
+                    castle(bool king_side)
                     {
                         const scid::core::squareT king_to =
                             king_side ? scid::core::square_Relative(color, scid::core::G1)
@@ -359,7 +358,7 @@ namespace scid::database
                         const scid::core::squareT rook_to =
                             king_side ? scid::core::square_Relative(color, scid::core::F1)
                                       : scid::core::square_Relative(color, scid::core::D1);
-                        const auto king_idx = pieces_.getKingIdx();
+                        const auto                king_idx = pieces_.getKingIdx();
                         const scid::core::squareT king_from = pieces_.getSquare(color, king_idx);
                         const auto rook_idx = castlingRook_[color][king_side ? 1 : 0];
                         const scid::core::squareT rook_from = pieces_.getSquare(color, rook_idx);
@@ -379,9 +378,9 @@ namespace scid::database
                     template <scid::core::colorT color>
                     scid::core::pieceT
                     move(
-                        int idx,
+                        int                 idx,
                         scid::core::squareT to,
-                        scid::core::pieceT promo)
+                        scid::core::pieceT  promo)
                     {
                         if (promo != scid::core::INVALID_PIECE)
                         {
@@ -399,7 +398,7 @@ namespace scid::database
                     scid::core::pieceT
                     remove(
                         scid::core::squareT sq,
-                        int newIdx = EMPTY_SQ_)
+                        int                 newIdx = EMPTY_SQ_)
                     {
                         ASSERT(static_cast<uint8_t>(newIdx) == newIdx);
                         const auto oldIdx = board_[sq];
@@ -432,13 +431,12 @@ namespace scid::database
                      * @param lastmove: the last move played.
                      */
                     void
-                    fillSANInfo(
-                        scid::core::FullMove& lastmove) const
+                    fillSANInfo(scid::core::FullMove& lastmove) const
                     {
                         const auto lastFrom = lastmove.getFrom();
                         const auto lastTo = lastmove.getTo();
                         const auto lastCol = lastmove.getColor();
-                        auto lastPt = lastmove.getPiece();
+                        auto       lastPt = lastmove.getPiece();
 
                         if (lastPt == scid::core::PAWN)
                         {
@@ -456,9 +454,9 @@ namespace scid::database
                         ASSERT(
                             mt_.count(scid::core::WHITE) >= 1 && mt_.count(scid::core::BLACK) >= 1);
 
-                        auto isOccupied = [this](auto sq) { return board_[sq] != EMPTY_SQ_; };
+                        auto       isOccupied = [this](auto sq) { return board_[sq] != EMPTY_SQ_; };
                         const auto enemyKingSq = getKingSquare(scid::core::color_Flip(lastCol));
-                        bool direct_check = (lastPt != scid::core::KING) &&
+                        bool       direct_check = (lastPt != scid::core::KING) &&
                                             scid::core::move_predicates::attack(
                                                 lastTo, enemyKingSq, lastCol, lastPt, isOccupied);
                         if (direct_check || // Look for a discovered check
@@ -475,23 +473,23 @@ namespace scid::database
 
                 private:
                     scid::core::squareT
-                    getKingSquare(
-                        scid::core::colorT color) const
+                    getKingSquare(scid::core::colorT color) const
                     {
                         return pieces_.getSquare(color, pieces_.getKingIdx());
                     }
+
 
                     int
                     ambiguousMove(
                         scid::core::squareT lastFrom,
                         scid::core::squareT lastTo,
-                        scid::core::colorT lastCol,
-                        scid::core::pieceT lastPt) const
+                        scid::core::colorT  lastCol,
+                        scid::core::pieceT  lastPt) const
                     {
                         int ambiguity = 0;
 
                         const scid::core::squareT kingSq = getKingSquare(lastCol);
-                        const scid::core::colorT enemyCol = scid::core::color_Flip(lastCol);
+                        const scid::core::colorT  enemyCol = scid::core::color_Flip(lastCol);
                         for (int i = 1, n = mt_.count(lastCol); i < n; i++)
                         {
                             if (getPiece(lastCol, i) != lastPt)
@@ -546,10 +544,11 @@ namespace scid::database
                         return ambiguity;
                     }
 
+
                     int
                     find_attacker_slider(
                         scid::core::squareT destSq,
-                        scid::core::colorT color) const
+                        scid::core::colorT  color) const
                     {
                         for (int idx = 0, n = mt_.count(color); idx < n; ++idx)
                         {
@@ -572,26 +571,28 @@ namespace scid::database
                     }
             };
 
-            FastBoard board_;
-            ByteBuffer bbuf_;
+            FastBoard          board_;
+            ByteBuffer         bbuf_;
             scid::core::colorT cToMove_;
 
         public:
-            explicit GameView(
-                const ByteBuffer& bbuf)
-                : board_(FastBoard::stdStart()), bbuf_(bbuf), cToMove_(scid::core::WHITE)
+            explicit GameView(const ByteBuffer& bbuf)
+                : board_(FastBoard::stdStart()),
+                  bbuf_(bbuf),
+                  cToMove_(scid::core::WHITE)
             {}
 
             GameView(
-                const ByteBuffer& bbuf,
+                const ByteBuffer&           bbuf,
                 const scid::core::Position& startPos)
-                : board_(startPos), bbuf_(bbuf), cToMove_(startPos.GetToMove())
+                : board_(startPos),
+                  bbuf_(bbuf),
+                  cToMove_(startPos.GetToMove())
             {}
 
             template <typename FuncT>
             void
-            mainLine(
-                FuncT fn)
+            mainLine(FuncT fn)
             {
                 while (const auto move =
                            (cToMove_ == scid::core::WHITE)
@@ -604,9 +605,9 @@ namespace scid::database
                 }
             }
 
+
             scid::core::FullMove
-            getMove(
-                int ply_to_skip)
+            getMove(int ply_to_skip)
             {
                 for (int ply = 0; ply <= ply_to_skip; ply++, cToMove_ = 1 - cToMove_)
                 {
@@ -626,13 +627,14 @@ namespace scid::database
                 return {};
             }
 
+
             std::string
             getMoveSAN(
                 int ply_to_skip,
                 int count)
             {
                 std::stringstream res;
-                const auto ply_num = (cToMove_ == scid::core::WHITE) ? 2 : 3;
+                const auto        ply_num = (cToMove_ == scid::core::WHITE) ? 2 : 3;
                 for (int ply = 0; ply < ply_to_skip + count; ply++, cToMove_ = 1 - cToMove_)
                 {
                     scid::core::FullMove move;
@@ -667,12 +669,11 @@ namespace scid::database
 
             template <scid::core::colorT toMove>
             int
-            search(
-                const scid::core::pieceT* board)
+            search(const scid::core::pieceT* board)
             {
                 const auto mt_count = FastBoard::countMaterial(board);
-                int ply = 1;
-                auto less_material = [](const MaterialCount& a, const MaterialCount& b,
+                int        ply = 1;
+                auto       less_material = [](const MaterialCount& a, const MaterialCount& b,
                                         const scid::core::colorT color, const auto move) {
                     if (!move)
                         return true;
@@ -717,7 +718,9 @@ namespace scid::database
             }
 
         private:
-            template <typename TResult, scid::core::colorT toMove>
+            template <
+                typename TResult,
+                scid::core::colorT toMove>
             TResult
             DecodeNextMove()
             {
@@ -728,10 +731,11 @@ namespace scid::database
                 return doPly<TResult, toMove>(val);
             }
 
-            template <typename TResult, scid::core::colorT toMove>
+            template <
+                typename TResult,
+                scid::core::colorT toMove>
             TResult
-            doPly(
-                scid::core::byte v)
+            doPly(scid::core::byte v)
             {
                 const auto idx_piece_moving = v >> 4;
                 const auto moving_piece = board_.getPiece(toMove, idx_piece_moving);
@@ -759,7 +763,7 @@ namespace scid::database
                 bool enPassant = moving_piece == scid::core::PAWN &&
                                  scid::core::square_Fyle(from) != scid::core::square_Fyle(to);
                 scid::core::pieceT captured = board_.move<toMove>(idx_piece_moving, to, promo);
-                TResult res(toMove, from, to, moving_piece);
+                TResult            res(toMove, from, to, moving_piece);
                 if (promo != scid::core::INVALID_PIECE)
                     res.setPromo(promo);
                 if (captured != scid::core::INVALID_PIECE)

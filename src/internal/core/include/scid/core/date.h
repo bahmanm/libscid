@@ -67,32 +67,28 @@ namespace scid::core
 
     /** Returns the year field, or 0 when unknown. */
     inline uint32_t
-    date_GetYear(
-        dateT date)
+    date_GetYear(dateT date)
     {
         return (uint32_t)(date >> YEAR_SHIFT);
     }
 
     /** Returns the month field, or 0 when unknown. */
     inline uint32_t
-    date_GetMonth(
-        dateT date)
+    date_GetMonth(dateT date)
     {
         return (uint32_t)((date >> MONTH_SHIFT) & 15);
     }
 
     /** Returns the day field, or 0 when unknown. */
     inline uint32_t
-    date_GetDay(
-        dateT date)
+    date_GetDay(dateT date)
     {
         return (uint32_t)(date & 31);
     }
 
     /** Returns true when the year, month, or day field is unknown. */
     inline bool
-    date_isPartial(
-        dateT date)
+    date_isPartial(dateT date)
     {
         return date_GetYear(date) == 0 || date_GetMonth(date) == 0 || date_GetDay(date) == 0;
     }
@@ -163,13 +159,12 @@ namespace scid::core
      * the parsed year, and an invalid day keeps the parsed year and month.
      */
     inline dateT
-    date_EncodeFromString(
-        const char* str)
+    date_EncodeFromString(const char* str)
     {
         // Do checks on str's validity as a date string:
         assert(str != NULL);
 
-        dateT date;
+        dateT    date;
         uint32_t year, month, day;
 
         // convert year:
@@ -228,7 +223,7 @@ namespace scid::core
     inline dateT
     date_parsePGNTag(
         const char* str,
-        size_t len)
+        size_t      len)
     {
         auto is_digit = [](auto v) { return v >= 0 && v <= 9; };
 
@@ -273,7 +268,9 @@ namespace scid::core
     /** Parses a PGN Date tag value described by a pointer pair. */
     inline dateT
     date_parsePGNTag(
-        std::pair<const char*, const char*> str)
+        std::pair<
+            const char*,
+            const char*> str)
     {
         return date_parsePGNTag(str.first, std::distance(str.first, str.second));
     }

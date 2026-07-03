@@ -5,7 +5,7 @@
 
 static int
 check(
-    scid_error error,
+    scid_error  error,
     const char* call)
 {
     if (error == SCID_OK)
@@ -17,26 +17,28 @@ check(
     return 0;
 }
 
+
 static int
 text_equals(
     const char* text,
-    size_t text_size,
+    size_t      text_size,
     const char* expected)
 {
     return text_size == strlen(expected) && strncmp(text, expected, text_size) == 0;
 }
 
+
 static int
 add_pgn(
     scid_database* database,
-    const char* pgn,
-    const char* flags)
+    const char*    pgn,
+    const char*    flags)
 {
-    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    scid_game* game = NULL;
+    const char*    start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    scid_game*     game = NULL;
     scid_position* position = NULL;
-    char diagnostic[1024];
-    size_t diagnostic_size = 0;
+    char           diagnostic[1024];
+    size_t         diagnostic_size = 0;
 
     if (!check(
             scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
@@ -64,27 +66,28 @@ add_pgn(
     return 1;
 }
 
+
 static int
 print_game_row(
     scid_database* database,
-    size_t index)
+    size_t         index)
 {
-    char event[128];
-    char white[128];
-    char black[128];
-    char date[32];
-    char result[16];
-    char eco_text[SCID_ECO_STRING_CAPACITY];
-    size_t number = 0;
-    size_t halfmoves = 0;
-    size_t event_size = 0;
-    size_t white_size = 0;
-    size_t black_size = 0;
-    size_t date_size = 0;
-    size_t result_size = 0;
-    size_t eco_size = 0;
+    char          event[128];
+    char          white[128];
+    char          black[128];
+    char          date[32];
+    char          result[16];
+    char          eco_text[SCID_ECO_STRING_CAPACITY];
+    size_t        number = 0;
+    size_t        halfmoves = 0;
+    size_t        event_size = 0;
+    size_t        white_size = 0;
+    size_t        black_size = 0;
+    size_t        date_size = 0;
+    size_t        result_size = 0;
+    size_t        eco_size = 0;
     scid_eco_code eco = SCID_ECO_NONE;
-    int deleted = 0;
+    int           deleted = 0;
 
     if (!check(
             scid_database_game_number_get(database, index, &number),
@@ -127,33 +130,33 @@ print_game_row(
     return 1;
 }
 
+
 int
-main(
-    void)
+main(void)
 {
-    const char* first_pgn = "[Event \"Archive One\"]\n"
-                            "[Site \"Toronto\"]\n"
-                            "[Date \"2024.06.14\"]\n"
-                            "[White \"Alpha\"]\n"
-                            "[Black \"Beta\"]\n"
-                            "[Result \"1-0\"]\n"
-                            "[ECO \"C20\"]\n"
-                            "\n"
-                            "1. e4 e5 2. Nf3 1-0\n";
-    const char* second_pgn = "[Event \"Archive Two\"]\n"
-                             "[Site \"Vancouver\"]\n"
-                             "[Date \"2025.01.02\"]\n"
-                             "[White \"Gamma\"]\n"
-                             "[Black \"Delta\"]\n"
-                             "[Result \"0-1\"]\n"
-                             "[ECO \"D00\"]\n"
-                             "\n"
-                             "1. d4 d5 0-1\n";
+    const char*    first_pgn = "[Event \"Archive One\"]\n"
+                               "[Site \"Toronto\"]\n"
+                               "[Date \"2024.06.14\"]\n"
+                               "[White \"Alpha\"]\n"
+                               "[Black \"Beta\"]\n"
+                               "[Result \"1-0\"]\n"
+                               "[ECO \"C20\"]\n"
+                               "\n"
+                               "1. e4 e5 2. Nf3 1-0\n";
+    const char*    second_pgn = "[Event \"Archive Two\"]\n"
+                                "[Site \"Vancouver\"]\n"
+                                "[Date \"2025.01.02\"]\n"
+                                "[White \"Gamma\"]\n"
+                                "[Black \"Delta\"]\n"
+                                "[Result \"0-1\"]\n"
+                                "[ECO \"D00\"]\n"
+                                "\n"
+                                "1. d4 d5 0-1\n";
     scid_database* database = NULL;
-    char text[128];
-    size_t count = 0;
-    size_t text_size = 0;
-    int deleted = 0;
+    char           text[128];
+    size_t         count = 0;
+    size_t         text_size = 0;
+    int            deleted = 0;
 
     if (!check(scid_database_create_memory("listing", &database), "scid_database_create_memory") ||
         !add_pgn(database, first_pgn, "D") || !add_pgn(database, second_pgn, "M") ||
@@ -172,6 +175,7 @@ main(
             return 1;
         }
     }
+
 
     if (!check(
             scid_database_game_tag_get(database, 0, "Event", text, sizeof(text), &text_size),

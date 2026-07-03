@@ -59,18 +59,18 @@ namespace scid::database
     void
     SortCache::th_sort()
     {
-        size_t nGames = this->nGames_;
+        size_t    nGames = this->nGames_;
         gamenumT* v = this->fullMap_;
         gamenumT* begin = v;
         gamenumT* end = v + nGames;
-        auto comp = SortCache::CmpLess(this);
+        auto      comp = SortCache::CmpLess(this);
 
         std::iota(begin, end, 0);
 
         // An interruptible implementation of:
         // std::make_heap(v.begin(), v.end(), comp);
         ASSERT(nGames < size_t(INT_MAX / 2));
-        const int lastNode = static_cast<int>(nGames) - 1;
+        const int  lastNode = static_cast<int>(nGames) - 1;
         const auto lastRoot = (lastNode - 1) / 2;
         for (auto node = lastRoot; node >= 0; --node)
         {
@@ -108,10 +108,18 @@ namespace scid::database
     }
 
     SortCache::SortCache(
-        const Index* idx,
+        const Index*    idx,
         const NameBase* nbase)
-        : nGames_(0), valid_fullMap_(false), th_interrupt_(false), partialHash_(false),
-          fullMap_(NULL), th_(NULL), hash_(NULL), index_(idx), nbase_(nbase), refCount_(0)
+        : nGames_(0),
+          valid_fullMap_(false),
+          th_interrupt_(false),
+          partialHash_(false),
+          fullMap_(NULL),
+          th_(NULL),
+          hash_(NULL),
+          index_(idx),
+          nbase_(nbase),
+          refCount_(0)
     {}
 
     SortCache::~SortCache()
@@ -121,11 +129,12 @@ namespace scid::database
         delete[] fullMap_;
     }
 
+
     SortCache*
     SortCache::create(
-        const Index* idx,
+        const Index*    idx,
         const NameBase* nb,
-        const char* criteria)
+        const char*     criteria)
     {
         ASSERT(idx != NULL && nb != NULL && criteria != NULL);
 
@@ -168,12 +177,13 @@ namespace scid::database
         return sc;
     }
 
+
     size_t
     SortCache::select(
-        size_t row_offset,
-        size_t row_count,
+        size_t         row_offset,
+        size_t         row_count,
         const HFilter& filter,
-        gamenumT* result) const
+        gamenumT*      result) const
     {
         ASSERT(filter != NULL && filter->size() <= nGames_);
         ASSERT(result != NULL);
@@ -240,9 +250,10 @@ namespace scid::database
         return row_end - row_offset;
     }
 
+
     size_t
     SortCache::sortedPosition(
-        gamenumT gameId,
+        gamenumT       gameId,
         const HFilter& filter) const
     {
         ASSERT(filter != 0 && filter->size() <= nGames_);
@@ -274,9 +285,9 @@ namespace scid::database
         return res;
     }
 
+
     void
-    SortCache::checkForChanges(
-        gamenumT id)
+    SortCache::checkForChanges(gamenumT id)
     {
         th_interrupt();
         if (id >= nGames_)
@@ -378,9 +389,9 @@ namespace scid::database
     static int
     nameComp(
         const NameBase* nbase,
-        nameT nt,
-        idNumberT id1,
-        idNumberT id2)
+        nameT           nt,
+        idNumberT       id1,
+        idNumberT       id2)
     {
         ASSERT(nbase != NULL);
         return (id1 == id2) ? 0 : strCaseCompare(nbase->GetName(nt, id1), nbase->GetName(nt, id2));
@@ -482,8 +493,8 @@ namespace scid::database
                 {
                     const char* sOne = nbase_->GetName(NAME_SITE, ie1->GetSite());
                     const char* sTwo = nbase_->GetName(NAME_SITE, ie2->GetSite());
-                    size_t slenOne = std::strlen(sOne);
-                    size_t slenTwo = std::strlen(sTwo);
+                    size_t      slenOne = std::strlen(sOne);
+                    size_t      slenTwo = std::strlen(sTwo);
                     if (slenOne > 3)
                     {
                         sOne += slenOne - 3;
@@ -550,18 +561,17 @@ namespace scid::database
      * @returns the hash value.
      */
     uint32_t
-    SortCache::calcHash(
-        gamenumT gameId)
+    SortCache::calcHash(gamenumT gameId)
     {
-        uint64_t retValue = 0;
-        const size_t nHashBits = 32;
-        size_t totalBitsUsed = 0;
+        uint64_t          retValue = 0;
+        const size_t      nHashBits = 32;
+        size_t            totalBitsUsed = 0;
         const IndexEntry* ie = index_->GetEntry(gameId);
 
         for (const char* field = criteria_; *field != SORTING_sentinel; ++field)
         {
             uint32_t value;
-            size_t bitsUsed;
+            size_t   bitsUsed;
             switch (*field)
             {
                 case SORTING_white:
@@ -592,7 +602,7 @@ namespace scid::database
                 case SORTING_country:
                 {
                     const char* scountry = nbase_->GetName(NAME_SITE, ie->GetSite());
-                    size_t slen = std::strlen(scountry);
+                    size_t      slen = std::strlen(scountry);
                     if (slen > 3)
                         scountry += slen - 3;
                     value = strStartHash(scountry);

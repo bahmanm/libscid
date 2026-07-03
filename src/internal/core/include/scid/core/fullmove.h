@@ -50,9 +50,7 @@ namespace scid::core
 
         public:
             /** Constructs an empty move or wraps an already encoded value. */
-            constexpr FullMove(
-                std::uint32_t m = 0)
-                : m_(m)
+            constexpr FullMove(std::uint32_t m = 0) : m_(m)
             {}
 
             /** Constructs a castling move.
@@ -61,29 +59,32 @@ namespace scid::core
              * so that Chess960 castling can be undone without losing the rook identity.
              */
             FullMove(
-                colorT c,
+                colorT  c,
                 squareT kingSq,
                 squareT rookSq)
                 // Castle: encoding as king to rook allows the undoing of Chess960 moves
-                : FullMove(c, kingSq, rookSq, KING)
+                : FullMove(
+                      c,
+                      kingSq,
+                      rookSq,
+                      KING)
             {
                 m_ |= (3 << 14);
             }
 
             /** Constructs a normal move by colour, origin, destination, and piece type. */
             FullMove(
-                colorT c,
+                colorT  c,
                 squareT from,
                 squareT to,
-                pieceT pt)
+                pieceT  pt)
             {
                 m_ = to | (from << 6) | (pt << 24) | (c << 27);
             }
 
             /** Compares the complete encoded value. */
             bool
-            operator==(
-                FullMove const& f) const
+            operator==(FullMove const& f) const
             {
                 return m_ == f.m_;
             }
@@ -174,8 +175,8 @@ namespace scid::core
             getSAN() const
             {
                 std::string res;
-                const auto to = getTo();
-                const auto from = getFrom();
+                const auto  to = getTo();
+                const auto  from = getFrom();
                 if (to == 0 && from == 0)
                     return "--";
                 if (isCastle())
@@ -245,8 +246,7 @@ namespace scid::core
 
             /** Marks the move as a promotion to @p promo. */
             void
-            setPromo(
-                pieceT promo)
+            setPromo(pieceT promo)
             {
                 assert(promo == QUEEN || promo == ROOK || promo == BISHOP || promo == KNIGHT);
                 m_ |= ((promo - 2) << 12) | (1 << 14);
@@ -256,7 +256,7 @@ namespace scid::core
             void
             setCapture(
                 pieceT piece,
-                bool enPassant)
+                bool   enPassant)
             {
                 m_ |= ((piece & 0x07) << 21);
                 if (enPassant)

@@ -8,18 +8,20 @@ namespace scid::core::pgn
 
         bool
         parseGameImpl(
-            const char* input,
-            size_t inputLen,
-            scid::core::Game& game,
+            const char*                   input,
+            size_t                        inputLen,
+            scid::core::Game&             game,
             scid::core::MovetextLocation* location,
-            ParseLog& log)
+            ParseLog&                     log)
         {
             struct VisitorNoEOF : public pgn_impl::PgnVisitor
             {
                     VisitorNoEOF(
-                        scid::core::Game& g,
+                        scid::core::Game&             g,
                         scid::core::MovetextLocation* location)
-                        : pgn_impl::PgnVisitor(g, location)
+                        : pgn_impl::PgnVisitor(
+                              g,
+                              location)
                     {}
                     void
                     visitPGN_inputEOF()
@@ -41,22 +43,23 @@ namespace scid::core::pgn
 
     bool
     parseGame(
-        const char* input,
-        size_t inputLen,
+        const char*       input,
+        size_t            inputLen,
         scid::core::Game& game,
-        ParseLog& log)
+        ParseLog&         log)
     {
         scid::core::MovetextLocation location;
         return parseGameImpl(input, inputLen, game, &location, log);
     }
 
+
     bool
     parseGame(
-        const char* input,
-        size_t inputLen,
-        scid::core::Game& game,
+        const char*                   input,
+        size_t                        inputLen,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location,
-        ParseLog& log)
+        ParseLog&                     log)
     {
         return parseGameImpl(input, inputLen, game, &location, log);
     }

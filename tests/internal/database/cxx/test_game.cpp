@@ -47,17 +47,18 @@ namespace
     void
     expectMoveAction(
         const scid::core::Move* move,
-        scid::core::squareT from,
-        scid::core::squareT to)
+        scid::core::squareT     from,
+        scid::core::squareT     to)
     {
         ASSERT_NE(nullptr, move);
         EXPECT_EQ(from, move->spec.from);
         EXPECT_EQ(to, move->spec.to);
     }
 
+
     std::optional<scid::core::Position>
     currentPosition(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         scid::core::GameCursor cursor(game);
@@ -67,9 +68,10 @@ namespace
         return position;
     }
 
+
     std::string
     currentFen(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         auto position = currentPosition(game, location);
@@ -81,9 +83,10 @@ namespace
         return buf;
     }
 
+
     std::string_view
     currentMoveComment(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         scid::core::GameCursor cursor(game);
@@ -95,23 +98,25 @@ namespace
         return game.initialComment();
     }
 
+
     scid::core::MoveSpec
     makeCurrentMove(
-        scid::core::Game& game,
+        scid::core::Game&            game,
         scid::core::MovetextLocation location,
-        scid::core::squareT from,
-        scid::core::squareT to)
+        scid::core::squareT          from,
+        scid::core::squareT          to)
     {
         (void)game;
         (void)location;
         return {from, to, scid::core::EMPTY, false};
     }
 
+
     void
     addMove(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location,
-        scid::core::MoveSpec const& move)
+        scid::core::MoveSpec const&   move)
     {
         scid::core::MovetextCursor cursor(game);
         ASSERT_TRUE(cursor.restore(location));
@@ -119,9 +124,10 @@ namespace
         location = cursor.location();
     }
 
+
     void
     addVariation(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location)
     {
         scid::core::MovetextCursor cursor(game);
@@ -131,28 +137,31 @@ namespace
         location = cursor.location();
     }
 
+
     std::string
     nextCoreSan(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         return scid::core::notation::nextSan(game, location);
     }
 
+
     scid::core::GameCursor
     coreCursor(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
-        scid::core::GameCursor cursor(game);
+        scid::core::GameCursor      cursor(game);
         [[maybe_unused]] const bool restored = cursor.restore(location);
         EXPECT_TRUE(restored);
         return cursor;
     }
 
+
     bool
     nextPgn(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location)
     {
         auto cursor = coreCursor(game, location);
@@ -162,11 +171,12 @@ namespace
         return true;
     }
 
+
     bool
     toPgnLocation(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& currentLocation,
-        unsigned location)
+        unsigned                      location)
     {
         scid::core::GameCursor cursor(game);
         if (!scid::core::pgn::seekLocation(cursor, location))
@@ -175,58 +185,64 @@ namespace
         return true;
     }
 
+
     unsigned
     pgnLocation(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         return scid::core::pgn::locationOf(coreCursor(game, location));
     }
 
+
     unsigned
     pgnOffset(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         return scid::core::pgn::offsetOf(coreCursor(game, location));
     }
 
+
     void
     setCurrentComment(
-        scid::core::Game& game,
+        scid::core::Game&            game,
         scid::core::MovetextLocation location,
-        std::string_view comment)
+        std::string_view             comment)
     {
         scid::core::MovetextCursor cursor(game);
         ASSERT_TRUE(cursor.restore(location));
         ASSERT_TRUE(cursor.setComment(comment));
     }
 
+
     bool
     addCurrentNag(
-        scid::core::Game& game,
+        scid::core::Game&            game,
         scid::core::MovetextLocation location,
-        scid::core::Nag nag)
+        scid::core::Nag              nag)
     {
         scid::core::MovetextCursor cursor(game);
         EXPECT_TRUE(cursor.restore(location));
         return cursor.addPreviousMoveNag(nag);
     }
 
+
     bool
     removeCurrentNag(
-        scid::core::Game& game,
+        scid::core::Game&            game,
         scid::core::MovetextLocation location,
-        bool moveNag)
+        bool                         moveNag)
     {
         scid::core::MovetextCursor cursor(game);
         EXPECT_TRUE(cursor.restore(location));
         return cursor.removePreviousMoveNag(moveNag);
     }
 
+
     void
     clearCurrentNags(
-        scid::core::Game& game,
+        scid::core::Game&            game,
         scid::core::MovetextLocation location)
     {
         scid::core::MovetextCursor cursor(game);
@@ -234,13 +250,14 @@ namespace
         cursor.clearPreviousMoveNags();
     }
 
+
     void
     stripMovetext(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location,
-        bool variations,
-        bool comments,
-        bool nags)
+        bool                          variations,
+        bool                          comments,
+        bool                          nags)
     {
         if (variations)
         {
@@ -255,11 +272,12 @@ namespace
         game.stripMovetext(variations, comments, nags);
     }
 
+
     scid::core::errorT
     resetGameStartFen(
-        scid::core::Game& game,
+        scid::core::Game&             game,
         scid::core::MovetextLocation& location,
-        const char* fen)
+        const char*                   fen)
     {
         scid::core::Position position;
         if (auto err = position.ReadFromFEN(fen))
@@ -285,7 +303,7 @@ TEST(
         ASSERT_EQ(scid::core::OK, dbase.open("PGN", scid::database::FMODE_Both, filename));
         ASSERT_NE(nullptr, dbase.getIndexEntry_bounds(0));
 
-        scid::core::Game game;
+        scid::core::Game     game;
         std::array<char, 22> scidFlags{};
         ASSERT_EQ(
             scid::core::OK,
@@ -297,7 +315,7 @@ TEST(
             toPgnLocation(game, location, std::uniform_int_distribution<unsigned>{0, 500}(re)));
 
         scid::core::Game clone{game};
-        auto cloneLocation = location;
+        auto             cloneLocation = location;
 
         ASSERT_EQ(pgnOffset(clone, cloneLocation), pgnOffset(game, location));
 
@@ -345,7 +363,7 @@ TEST(
             }
 
             std::string san = nextCoreSan(game, currentLocation);
-            auto ply1 = coreCursor(game, currentLocation).ply();
+            auto        ply1 = coreCursor(game, currentLocation).ply();
             ASSERT_TRUE(toPgnLocation(game, currentLocation, location));
             auto ply2 = coreCursor(game, currentLocation).ply();
             ASSERT_EQ(ply1, ply2);
@@ -364,9 +382,9 @@ TEST(
     auto ie = dbase.getIndexEntry_bounds(0);
     ASSERT_NE(nullptr, ie);
 
-    auto randomEngine = std::mt19937(std::random_device{}());
-    auto distribution = std::uniform_int_distribution<>{2, 500};
-    scid::core::Game game;
+    auto                 randomEngine = std::mt19937(std::random_device{}());
+    auto                 distribution = std::uniform_int_distribution<>{2, 500};
+    scid::core::Game     game;
     std::array<char, 22> scidFlags{};
     ASSERT_EQ(scid::core::OK, dbase.loadGame(*ie, game, scidFlags.data(), scidFlags.size()));
     scid::core::MovetextLocation location;
@@ -422,7 +440,7 @@ TEST(
     game.addTag("UTCDate", "2018.06.10");
     game.addTag("Annotator", "Example");
     game.setResult(scid::core::RESULT_Black);
-    const char* fen = "8/N2P1pk1/2n2q2/1P2pp2/5PN1/QKPp1P2/8/8 w - - 0 1";
+    const char*                  fen = "8/N2P1pk1/2n2q2/1P2pp2/5PN1/QKPp1P2/8/8 w - - 0 1";
     scid::core::MovetextLocation location;
     ASSERT_EQ(scid::core::OK, resetGameStartFen(game, location, fen));
     game.addTag("Event", "event nAme");
@@ -468,7 +486,7 @@ TEST(
     }
 
     scid::database::ByteBuffer bbuf(encodedGame.data(), encodedGame.size());
-    int i = 0;
+    int                        i = 0;
     bbuf.decodeTags([&i](auto tag_name, auto tag_value) {
         if (i++ == 0)
         {
@@ -491,14 +509,14 @@ TEST(
     std::vector<unsigned char> encodedGame;
     const char* kiwipete = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
     {
-        scid::core::Game game;
+        scid::core::Game             game;
         scid::core::MovetextLocation location;
         ASSERT_EQ(scid::core::OK, resetGameStartFen(game, location, kiwipete));
         scid::database::game_storage::encode(game, "", encodedGame);
     }
     {
         scid::database::ByteBuffer bbuf(encodedGame.data(), encodedGame.size());
-        scid::core::Game game;
+        scid::core::Game           game;
         game.clear();
         scid::database::game_storage::decodeMovesOnly(game, bbuf);
         scid::core::MovetextLocation location;
@@ -510,8 +528,8 @@ TEST(
     Test_Game,
     currentPositionUci_startpos)
 {
-    std::string_view pgn = "1.d4 (1.e4 e5 ( 1...c5)) (1.c4) 1...d5 2.c4";
-    scid::core::Game game;
+    std::string_view          pgn = "1.d4 (1.e4 e5 ( 1...c5)) (1.c4) 1...d5 2.c4";
+    scid::core::Game          game;
     scid::core::pgn::ParseLog log;
     ASSERT_TRUE(scid::core::pgn::parseGame(pgn.data(), pgn.size(), game, log));
     scid::core::MovetextLocation location;
@@ -592,7 +610,7 @@ TEST(
     Test_Game,
     coreGameMovetextMirrorsProgrammaticVariationAdds)
 {
-    scid::core::Game game;
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
 
     addMove(game, location, makeCurrentMove(game, location, scid::core::E2, scid::core::E4));
@@ -613,7 +631,7 @@ TEST(
     Test_Game,
     stateQueriesMirrorCoreCursorForProgrammaticVariation)
 {
-    scid::core::Game game;
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
 
     addMove(game, location, makeCurrentMove(game, location, scid::core::E2, scid::core::E4));
@@ -657,7 +675,7 @@ TEST(
     Test_Game,
     savedLocationRestoresProgrammaticVariationState)
 {
-    scid::core::Game game;
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
 
     addMove(game, location, makeCurrentMove(game, location, scid::core::E2, scid::core::E4));
@@ -685,7 +703,7 @@ TEST(
     Test_Game,
     coreGameMoveMetadataMirrorsProgrammaticNagMutation)
 {
-    scid::core::Game game;
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
 
     addMove(game, location, makeCurrentMove(game, location, scid::core::E2, scid::core::E4));
@@ -711,7 +729,7 @@ TEST(
     Test_Game,
     coreGameVariationMetadataMirrorsProgrammaticNagMutation)
 {
-    scid::core::Game game;
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
 
     addMove(game, location, makeCurrentMove(game, location, scid::core::E2, scid::core::E4));
@@ -730,7 +748,7 @@ TEST(
 {
     using namespace std::literals;
 
-    scid::core::Game game;
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
     setCurrentComment(game, location, "Before the first move");
     addMove(game, location, makeCurrentMove(game, location, scid::core::E2, scid::core::E4));
@@ -756,7 +774,7 @@ TEST(
     Test_Game,
     moveCommentReadsCoreCommentAtCurrentLocation)
 {
-    scid::core::Game game;
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
     setCurrentComment(game, location, "Before the first move");
     game.setInitialComment("Core initial comment");
@@ -781,7 +799,7 @@ TEST(
     Test_Game,
     coreGameMirrorsStrip)
 {
-    scid::core::Game game;
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
     setCurrentComment(game, location, "Before the first move");
     addMove(game, location, makeCurrentMove(game, location, scid::core::E2, scid::core::E4));
@@ -808,7 +826,7 @@ TEST(
 {
     using namespace std::literals;
 
-    scid::core::Game game;
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
     setCurrentComment(game, location, "Before the first move");
 
@@ -836,8 +854,8 @@ TEST(
 {
     using namespace std::literals;
 
-    std::string_view pgn = "1.d4! {Best by test} (1.e4 e5 ( 1...c5)) (1.c4) 1...d5 2.c4";
-    scid::core::Game game;
+    std::string_view          pgn = "1.d4! {Best by test} (1.e4 e5 ( 1...c5)) (1.c4) 1...d5 2.c4";
+    scid::core::Game          game;
     scid::core::pgn::ParseLog log;
     ASSERT_TRUE(scid::core::pgn::parseGame(pgn.data(), pgn.size(), game, log));
     scid::core::MovetextLocation location;
@@ -866,9 +884,9 @@ TEST(
     Test_Game,
     currentPositionUci_fen)
 {
-    std::string_view pgn = "[FEN 8/8/8/8/2p5/1k1p4/p4N2/2K5 w - - 0 198]\n"
-                           "198.Kd2 ( 198.Nxd3 a1=R+ 199.Kd2 cxd3 )198...a1=Q 199.Ke3 Qe1+ 0-1";
-    scid::core::Game game;
+    std::string_view          pgn = "[FEN 8/8/8/8/2p5/1k1p4/p4N2/2K5 w - - 0 198]\n"
+                                    "198.Kd2 ( 198.Nxd3 a1=R+ 199.Kd2 cxd3 )198...a1=Q 199.Ke3 Qe1+ 0-1";
+    scid::core::Game          game;
     scid::core::pgn::ParseLog log;
     ASSERT_TRUE(scid::core::pgn::parseGame(pgn.data(), pgn.size(), game, log));
     scid::core::MovetextLocation location;
@@ -899,10 +917,10 @@ TEST(
     Test_Game,
     illegalPGN_Castling)
 {
-    std::string_view pgn = "1.e4 e5 2.Nf3 Nf6 3.Be2 Be7 4.O-O O-O 5.O-O";
-    scid::core::Game game;
+    std::string_view             pgn = "1.e4 e5 2.Nf3 Nf6 3.Be2 Be7 4.O-O O-O 5.O-O";
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
-    scid::core::pgn::ParseLog pgnLog;
+    scid::core::pgn::ParseLog    pgnLog;
     EXPECT_FALSE(scid::core::pgn::parseGame(pgn.data(), pgn.size(), game, location, pgnLog));
     EXPECT_FALSE(pgnLog.log.empty());
     {
@@ -928,10 +946,10 @@ TEST(
     Test_Game,
     illegalPGN_KingCapture)
 {
-    std::string_view pgn = "1.d4 e6 2.e4 Bb4+ 3.-- Be1";
-    scid::core::Game game;
+    std::string_view             pgn = "1.d4 e6 2.e4 Bb4+ 3.-- Be1";
+    scid::core::Game             game;
     scid::core::MovetextLocation location;
-    scid::core::pgn::ParseLog pgnLog;
+    scid::core::pgn::ParseLog    pgnLog;
     EXPECT_FALSE(scid::core::pgn::parseGame(pgn.data(), pgn.size(), game, location, pgnLog));
     EXPECT_FALSE(pgnLog.log.empty());
     {
@@ -950,12 +968,12 @@ namespace
     /// Replace the move after the first comment with @e movecode
     auto
     make_invalid(
-        unsigned char movecode,
+        unsigned char    movecode,
         std::string_view pgn)
     {
         std::vector<unsigned char> data;
-        scid::core::Game g;
-        scid::core::pgn::ParseLog log;
+        scid::core::Game           g;
+        scid::core::pgn::ParseLog  log;
         (void)scid::core::pgn::parseGame(pgn.data(), pgn.size(), g, log);
         scid::database::game_storage::encode(g, "", data);
         auto comment_tag = std::find(data.begin(), data.end(), 12);
@@ -966,8 +984,7 @@ namespace
 
     template <typename DataT>
     std::string
-    decode_gameview(
-        DataT const& data)
+    decode_gameview(DataT const& data)
     {
         auto bbuf = scid::database::ByteBuffer{data.data() + 1, data.size()};
         auto fen = bbuf.decodeStartBoard().second;
@@ -982,15 +999,14 @@ namespace
 
     template <typename DataT>
     std::string
-    decode_game(
-        DataT const& data)
+    decode_game(DataT const& data)
     {
-        auto bbuf = scid::database::ByteBuffer{data.data(), data.size()};
+        auto             bbuf = scid::database::ByteBuffer{data.data(), data.size()};
         scid::core::Game game;
         game.clear();
         scid::database::game_storage::decodeMovesOnly(game, bbuf);
         scid::core::MovetextLocation location;
-        std::string moves;
+        std::string                  moves;
         do
         {
             moves += ' ';

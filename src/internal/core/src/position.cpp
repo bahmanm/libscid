@@ -22,7 +22,7 @@ namespace scid::core
         bool
         valid_sqlist(
             pieceT* begin,
-            size_t n,
+            size_t  n,
             pieceT* board)
         {
             auto unique_sq = std::vector<pieceT>(begin, begin + n);
@@ -43,9 +43,9 @@ namespace scid::core
                    && std::count(kings.begin(), kings.end(), KING) == 1;
         }
 
+
         MoveSpec
-        moveSpecFrom(
-            MoveAction const& sm)
+        moveSpecFrom(MoveAction const& sm)
         {
             return {sm.from, sm.to, sm.promote, sm.isCastle() != 0};
         }
@@ -54,7 +54,7 @@ namespace scid::core
 
     inline void
     Position::AddHash(
-        pieceT p,
+        pieceT  p,
         squareT sq)
     {
         HASH(Hash, p, sq);
@@ -64,9 +64,10 @@ namespace scid::core
         }
     }
 
+
     inline void
     Position::UnHash(
-        pieceT p,
+        pieceT  p,
         squareT sq)
     {
         UNHASH(Hash, p, sq);
@@ -76,9 +77,10 @@ namespace scid::core
         }
     }
 
+
     inline void
     Position::AddToBoard(
-        pieceT p,
+        pieceT  p,
         squareT sq)
     {
         assert(Board[sq] == EMPTY);
@@ -91,9 +93,10 @@ namespace scid::core
         AddHash(p, sq);
     }
 
+
     inline void
     Position::RemoveFromBoard(
-        pieceT p,
+        pieceT  p,
         squareT sq)
     {
         assert(Board[sq] == p);
@@ -116,7 +119,7 @@ namespace scid::core
             {
                 // Initialise the sqDir[][] array of directions between every pair
                 // of squares.
-                squareT i, j;
+                squareT    i, j;
                 directionT dirArray[] = {
                     UP, DOWN, LEFT, RIGHT, UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT, NULL_DIR};
                 // First, set everything to NULL_DIR:
@@ -156,7 +159,7 @@ namespace scid::core
     inline void
     Position::CalcPinsDir(
         directionT dir,
-        pieceT attacker)
+        pieceT     attacker)
     {
         // Two pieces can pin along any path. A queen is always one,
         // the other is a bishop or rook. To save calculating it here, the
@@ -167,7 +170,7 @@ namespace scid::core
         squareT friendly = NULL_SQUARE;
         squareT x = king;
         squareT last = square_Last(king, dir);
-        int delta = direction_Delta(dir);
+        int     delta = direction_Delta(dir);
 
         while (x != last)
         {
@@ -216,9 +219,9 @@ namespace scid::core
     inline void
     Position::AddLegalMove(
         MoveList* mlist,
-        squareT from,
-        squareT to,
-        pieceT promo)
+        squareT   from,
+        squareT   to,
+        pieceT    promo)
     {
         assert(mlist != NULL);
         auto& sm = mlist->emplace_back();
@@ -232,16 +235,16 @@ namespace scid::core
     //      If sqset != NULL, moves must be to a square in sqset.
     inline void
     Position::GenSliderMoves(
-        MoveList* mlist,
-        colorT color,
-        squareT fromSq,
+        MoveList*  mlist,
+        colorT     color,
+        squareT    fromSq,
         directionT dir,
         SquareSet* sqset,
-        bool capturesOnly)
+        bool       capturesOnly)
     {
         squareT dest = fromSq;
         squareT last = square_Last(fromSq, dir);
-        int delta = direction_Delta(dir);
+        int     delta = direction_Delta(dir);
 
         while (dest != last)
         {
@@ -276,11 +279,11 @@ namespace scid::core
     //      If sqset != NULL, moves must be to a square in sqset.
     inline void
     Position::GenKnightMoves(
-        MoveList* mlist,
-        colorT c,
-        squareT fromSq,
+        MoveList*  mlist,
+        colorT     c,
+        squareT    fromSq,
         SquareSet* sqset,
-        bool capturesOnly)
+        bool       capturesOnly)
     {
         const squareT* destPtr = knightAttacks[fromSq];
         while (true)
@@ -311,7 +314,7 @@ namespace scid::core
     Position::under_attack(
         squareT target_sq,
         squareT captured_sq,
-        TFunc not_empty) const
+        TFunc   not_empty) const
     {
         const auto enemy = color_Flip(GetToMove());
         const auto lpawn_atk = square_Move(target_sq, enemy == WHITE ? DOWN_LEFT : UP_LEFT);
@@ -344,9 +347,9 @@ namespace scid::core
         return move_predicates::valid_king(enemy_pieces[0], target_sq);
     }
 
+
     bool
-    Position::under_attack(
-        squareT target_sq) const
+    Position::under_attack(squareT target_sq) const
     {
         return under_attack(target_sq, target_sq, [&](auto sq) { return GetPiece(sq) != EMPTY; });
     }
@@ -357,7 +360,7 @@ namespace scid::core
     bool
     Position::validCastlingFlag(
         colorT color,
-        bool king_side) const
+        bool   king_side) const
     {
         if (!GetCastling(color, king_side ? KSIDE : QSIDE))
             return false;
@@ -371,8 +374,7 @@ namespace scid::core
 
     template <bool check_legal>
     bool
-    Position::canCastle(
-        bool king_side) const
+    Position::canCastle(bool king_side) const
     {
         if (check_legal && !GetCastling(ToMove, king_side ? KSIDE : QSIDE))
             return false;
@@ -420,8 +422,7 @@ namespace scid::core
     //    should verify this first.
     //
     void
-    Position::GenCastling(
-        MoveList* mlist)
+    Position::GenCastling(MoveList* mlist)
     {
         const squareT from = GetKingSquare();
 
@@ -442,12 +443,12 @@ namespace scid::core
         MoveList* mlist,
         genMovesT genType)
     {
-        squareT kingSq = GetKingSquare();
-        squareT enemyKingSq = GetEnemyKingSquare();
-        colorT enemy = color_Flip(ToMove);
+        squareT        kingSq = GetKingSquare();
+        squareT        enemyKingSq = GetEnemyKingSquare();
+        colorT         enemy = color_Flip(ToMove);
         const squareT* destPtr;
-        pieceT king = piece_Make(ToMove, KING);
-        bool genNonCaptures = (genType & GEN_NON_CAPS);
+        pieceT         king = piece_Make(ToMove, KING);
+        bool           genNonCaptures = (genType & GEN_NON_CAPS);
 
         assert(Board[kingSq] == king);
 
@@ -457,7 +458,7 @@ namespace scid::core
             // Try this move and see if it legal:
 
             squareT destSq = *destPtr;
-            bool addThisMove = false;
+            bool    addThisMove = false;
 
             // Only try this move if the target square has an enemy piece,
             // or if it is empty and noncaptures are to be generated:
@@ -497,8 +498,8 @@ namespace scid::core
     inline void
     Position::AddPromotions(
         MoveList* mlist,
-        squareT from,
-        squareT dest)
+        squareT   from,
+        squareT   dest)
     {
         assert(piece_Type(Board[from]) == PAWN);
         assert(square_Rank(dest) == RANK_1 || square_Rank(dest) == RANK_8);
@@ -525,8 +526,8 @@ namespace scid::core
         assert(to == EPTarget);
 
         // Check that this en passant capture is legal:
-        pieceT ownPawn = piece_Make(ToMove, PAWN);
-        pieceT enemyPawn = piece_Make(color_Flip(ToMove), PAWN);
+        pieceT  ownPawn = piece_Make(ToMove, PAWN);
+        pieceT  enemyPawn = piece_Make(color_Flip(ToMove), PAWN);
         squareT enemyPawnSq = (ToMove == WHITE) ? to - 8 : to + 8;
         assert(Board[from] == ownPawn);
         assert(Board[enemyPawnSq] == enemyPawn);
@@ -554,17 +555,17 @@ namespace scid::core
     //      The dir and sq parameters are for pinned pawns and check evasions.
     void
     Position::GenPawnMoves(
-        MoveList* mlist,
-        squareT from,
+        MoveList*  mlist,
+        squareT    from,
         directionT dir,
         SquareSet* sqset,
-        genMovesT genType)
+        genMovesT  genType)
     {
-        bool genNonCaptures = (genType & GEN_NON_CAPS);
+        bool       genNonCaptures = (genType & GEN_NON_CAPS);
         directionT oppdir = direction_Opposite(dir);
         directionT forward;
-        rankT promoRank;
-        rankT secondRank;
+        rankT      promoRank;
+        rankT      secondRank;
         if (ToMove == WHITE)
         {
             forward = UP;
@@ -655,10 +656,9 @@ namespace scid::core
     //      Return the position's home pawn signature.
     //
     uint
-    Position::GetHPSig(
-        void)
+    Position::GetHPSig(void)
     {
-        uint hpSig = 0;
+        uint    hpSig = 0;
         pieceT* b = &(Board[A2]);
         if (*b == WP)
         {
@@ -754,8 +754,7 @@ namespace scid::core
     //      Clear the board and associated structures.
     //
     void
-    Position::Clear(
-        void)
+    Position::Clear(void)
     {
         int i;
         for (i = A1; i <= H8; i++)
@@ -788,9 +787,10 @@ namespace scid::core
         return;
     }
 
+
     squareT
     Position::find_castle_rook(
-        colorT col,
+        colorT  col,
         squareT rsq) const
     {
         const auto ksq = GetKingSquare(col);
@@ -808,9 +808,10 @@ namespace scid::core
         return rsq;
     }
 
+
     void
     Position::setCastling(
-        colorT col,
+        colorT  col,
         squareT rsq)
     {
         static_assert(1 << castlingIdx(WHITE, QSIDE) == 1);
@@ -838,7 +839,7 @@ namespace scid::core
     Position::getStdStart()
     {
         static Position startPositionTemplate;
-        static bool init = true;
+        static bool     init = true;
 
         if (init)
         {
@@ -952,7 +953,7 @@ namespace scid::core
     //
     errorT
     Position::AddPiece(
-        pieceT p,
+        pieceT  p,
         squareT sq)
     {
         assert(p != EMPTY);
@@ -1000,18 +1001,17 @@ namespace scid::core
     //      means the WQ is Pinned in the direction UP.
     //
     void
-    Position::CalcPins(
-        void)
+    Position::CalcPins(void)
     {
         Pinned[0] = Pinned[1] = Pinned[2] = Pinned[3] = Pinned[4] = Pinned[5] = Pinned[6] =
             Pinned[7] = Pinned[8] = Pinned[9] = Pinned[10] = Pinned[11] = Pinned[12] = Pinned[13] =
                 Pinned[14] = Pinned[15] = NULL_DIR;
 
         squareT kingSq = GetKingSquare(ToMove);
-        colorT enemy = color_Flip(ToMove);
-        pieceT enemyQueen = piece_Make(enemy, QUEEN);
-        pieceT enemyRook = piece_Make(enemy, ROOK);
-        pieceT enemyBishop = piece_Make(enemy, BISHOP);
+        colorT  enemy = color_Flip(ToMove);
+        pieceT  enemyQueen = piece_Make(enemy, QUEEN);
+        pieceT  enemyRook = piece_Make(enemy, ROOK);
+        pieceT  enemyBishop = piece_Make(enemy, BISHOP);
 
         // Pins and checks from Bishops/Queens/Rooks:
         fyleT fyle = square_Fyle(kingSq);
@@ -1046,10 +1046,10 @@ namespace scid::core
     //      If sqset != NULL, moves must be to a square in sqset.<
     void
     Position::GenPieceMoves(
-        MoveList* mlist,
-        squareT fromSq,
+        MoveList*  mlist,
+        squareT    fromSq,
         SquareSet* sqset,
-        bool capturesOnly)
+        bool       capturesOnly)
     {
         colorT c = ToMove;
         pieceT p = Board[fromSq];
@@ -1085,9 +1085,9 @@ namespace scid::core
     void
     Position::GenerateMoves(
         MoveList* mlist,
-        pieceT pieceType,
+        pieceT    pieceType,
         genMovesT genType,
-        bool maybeInCheck)
+        bool      maybeInCheck)
     {
         assert(mlist != NULL);
 
@@ -1135,8 +1135,8 @@ namespace scid::core
         for (uint x = 1; x < npieces; x++)
         {
             squareT sq = List[ToMove][x];
-            pieceT p = Board[sq];
-            pieceT ptype = piece_Type(p);
+            pieceT  p = Board[sq];
+            pieceT  ptype = piece_Type(p);
             if (!(mask & (1 << ptype)))
             {
                 continue;
@@ -1200,8 +1200,8 @@ namespace scid::core
     static bool
     xray_check(
         Position const& pos,
-        squareT from,
-        squareT to)
+        squareT         from,
+        squareT         to)
     {
         const auto [atk_piece, atk_sq] = move_predicates::opens_ray(
             from, to, pos.GetKingSquare(), [&](auto sq) { return pos.GetPiece(sq) != EMPTY; });
@@ -1221,9 +1221,9 @@ namespace scid::core
     static bool
     invalid_move(
         Position const& pos,
-        squareT from,
-        squareT to,
-        pieceT promo)
+        squareT         from,
+        squareT         to,
+        pieceT          promo)
     {
         if (from > H8 || to > H8)
             return true; // Invalid square
@@ -1242,9 +1242,9 @@ namespace scid::core
     static squareT
     pseudo_legal(
         Position const& pos,
-        squareT from,
-        squareT to,
-        pieceT promo)
+        squareT         from,
+        squareT         to,
+        pieceT          promo)
     {
         const auto toMove = pos.GetToMove();
         const auto captured = pos.GetPiece(to);
@@ -1285,9 +1285,9 @@ namespace scid::core
     static squareT
     pseudo_not_pinned(
         Position const& pos,
-        squareT from,
-        squareT to,
-        pieceT promo)
+        squareT         from,
+        squareT         to,
+        pieceT          promo)
     {
         const auto captured_sq = pseudo_legal(pos, from, to, promo);
         if (captured_sq == NULL_SQUARE)
@@ -1308,7 +1308,7 @@ namespace scid::core
     Position::IsLegalMove(
         squareT from,
         squareT to,
-        pieceT promo) const
+        pieceT  promo) const
     {
         if (invalid_move(*this, from, to, promo))
             return 0;
@@ -1333,7 +1333,7 @@ namespace scid::core
         }
 
         const auto target_sq = (from == king_sq) ? to : king_sq;
-        auto not_empty = [&](auto sq) {
+        auto       not_empty = [&](auto sq) {
             return sq == to || (sq != from && sq != captured_sq && GetPiece(sq) != EMPTY);
         };
         return under_attack(target_sq, captured_sq, not_empty) ? 0 : 1;
@@ -1346,9 +1346,9 @@ namespace scid::core
     //
     void
     Position::GenCheckEvasions(
-        MoveList* mlist,
-        pieceT mask,
-        genMovesT genType,
+        MoveList*   mlist,
+        pieceT      mask,
+        genMovesT   genType,
         SquareList* checkSquares)
     {
         assert(mlist != NULL);
@@ -1371,9 +1371,9 @@ namespace scid::core
             // First, generate a list of targets: squares between the king
             // and attacker to block, and the attacker's square.
 
-            squareT attackSq = checkSquares->Get(0);
+            squareT    attackSq = checkSquares->Get(0);
             directionT dir = sqDir[king][attackSq];
-            SquareSet targets; // Set of blocking/capturing squares.
+            SquareSet  targets; // Set of blocking/capturing squares.
             targets.Add(attackSq);
 
             // Now add squares we can might be able to block on.
@@ -1398,7 +1398,7 @@ namespace scid::core
             for (uint p2 = 1; p2 < numPieces; p2++)
             {
                 squareT from = List[ToMove][p2];
-                pieceT p2piece = Board[from];
+                pieceT  p2piece = Board[from];
                 if (Pinned[p2] != NULL_DIR)
                 {
                     continue;
@@ -1444,8 +1444,7 @@ namespace scid::core
     //      Calculate attack score for a side on a square,
     //      using a recursive tree search.
     int
-    Position::TreeCalcAttacks(
-        squareT target)
+    Position::TreeCalcAttacks(squareT target)
     {
         MoveList moves;
         GenerateCaptures(&moves);
@@ -1489,8 +1488,8 @@ namespace scid::core
     //      without having to update other information.
     uint
     Position::CalcAttacks(
-        colorT side,
-        squareT target,
+        colorT      side,
+        squareT     target,
         SquareList* fromSquares) const
     {
         // If squares is NULL, caller doesn't want a list of the squares of
@@ -1531,10 +1530,10 @@ namespace scid::core
         // We only bother if there are any sliding pieces of each type:
         if (numQueensRooks > 0)
         {
-            fyleT fyle = square_Fyle(target);
-            rankT rank = square_Rank(target);
+            fyleT      fyle = square_Fyle(target);
+            rankT      rank = square_Rank(target);
             directionT dirs[4];
-            uint ndirs = 0;
+            uint       ndirs = 0;
             if (FyleCount(queen, fyle) + FyleCount(rook, fyle) > 0)
             {
                 dirs[ndirs++] = UP;
@@ -1548,9 +1547,9 @@ namespace scid::core
             for (uint i = 0; i < ndirs; i++)
             {
                 directionT dir = dirs[i];
-                int delta = direction_Delta(dir);
-                squareT dest = target;
-                squareT last = square_Last(target, dir);
+                int        delta = direction_Delta(dir);
+                squareT    dest = target;
+                squareT    last = square_Last(target, dir);
 
                 while (dest != last)
                 {
@@ -1578,10 +1577,10 @@ namespace scid::core
         // Now diagonal sliders: Queens/Bishops:
         if (numQueensBishops > 0)
         {
-            leftDiagT left = square_LeftDiag(target);
+            leftDiagT  left = square_LeftDiag(target);
             rightDiagT right = square_RightDiag(target);
             directionT dirs[4];
-            uint ndirs = 0;
+            uint       ndirs = 0;
             if (LeftDiagCount(queen, left) + LeftDiagCount(bishop, left) > 0)
             {
                 dirs[ndirs++] = UP_LEFT;
@@ -1595,9 +1594,9 @@ namespace scid::core
             for (uint i = 0; i < ndirs; i++)
             {
                 directionT dir = dirs[i];
-                int delta = direction_Delta(dir);
-                squareT dest = target;
-                squareT last = square_Last(target, dir);
+                int        delta = direction_Delta(dir);
+                squareT    dest = target;
+                squareT    last = square_Last(target, dir);
 
                 while (dest != last)
                 {
@@ -1695,8 +1694,7 @@ namespace scid::core
     //   move could not have left the king in check.
     //
     bool
-    Position::IsKingInCheck(
-        MoveAction const& sm)
+    Position::IsKingInCheck(MoveAction const& sm)
     {
         pieceT p = (sm.promote == EMPTY) ? piece_Type(sm.movingPiece) : sm.promote;
 
@@ -1731,22 +1729,22 @@ namespace scid::core
     //    color would attack from the specified square.
     uint
     Position::Mobility(
-        pieceT p,
-        colorT color,
+        pieceT  p,
+        colorT  color,
         squareT from)
     {
         assert(p == ROOK || p == BISHOP);
-        uint mobility = 0;
-        directionT rookDirs[4] = {UP, DOWN, LEFT, RIGHT};
-        directionT bishopDirs[4] = {UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT};
+        uint        mobility = 0;
+        directionT  rookDirs[4] = {UP, DOWN, LEFT, RIGHT};
+        directionT  bishopDirs[4] = {UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT};
         directionT* dirPtr = (p == ROOK ? rookDirs : bishopDirs);
 
         for (uint i = 0; i < 4; i++)
         {
             directionT dir = dirPtr[i];
-            int delta = direction_Delta(dir);
-            squareT dest = from;
-            squareT last = square_Last(from, dir);
+            int        delta = direction_Delta(dir);
+            squareT    dest = from;
+            squareT    last = square_Last(from, dir);
 
             while (dest != last)
             {
@@ -1775,11 +1773,10 @@ namespace scid::core
     //      Quick check if king is in mate.
     //
     bool
-    Position::IsKingInMate(
-        void)
+    Position::IsKingInMate(void)
     {
         SquareList checkSquares;
-        uint numChecks = CalcNumChecks(GetKingSquare(ToMove), &checkSquares);
+        uint       numChecks = CalcNumChecks(GetKingSquare(ToMove), &checkSquares);
         if (numChecks == 0)
         {
             return false;
@@ -1802,8 +1799,7 @@ namespace scid::core
     //     - if there are any pawns on the 1st/8th rank;
     //     - if the side to move is already checking the enemy king.
     bool
-    Position::IsLegal(
-        void)
+    Position::IsLegal(void)
     {
         squareT stmKing = GetKingSquare();
         squareT enemyKing = GetEnemyKingSquare();
@@ -1844,7 +1840,7 @@ namespace scid::core
         squareT from,
         squareT to)
     {
-        rankT seventh, eighth;
+        rankT  seventh, eighth;
         pieceT pawn;
         if (ToMove == WHITE)
         {
@@ -1869,39 +1865,42 @@ namespace scid::core
         return 0;
     }
 
+
     errorT
     Position::parseMoveSpec(
-        MoveSpec& spec,
+        MoveSpec&        spec,
         std::string_view notation)
     {
         MoveAction move;
-        auto err = parseMoveAction(&move, notation.data(), notation.data() + notation.size());
+        auto       err = parseMoveAction(&move, notation.data(), notation.data() + notation.size());
         if (err != OK)
             return err;
 
         spec = moveSpecFrom(move);
         return OK;
     }
+
 
     errorT
     Position::readCoordinateMoveSpec(
-        MoveSpec& spec,
+        MoveSpec&        spec,
         std::string_view notation,
-        bool reverse)
+        bool             reverse)
     {
         MoveAction move;
-        auto err = readCoordinateMoveAction(&move, notation.data(), notation.size(), reverse);
+        auto       err = readCoordinateMoveAction(&move, notation.data(), notation.size(), reverse);
         if (err != OK)
             return err;
 
         spec = moveSpecFrom(move);
         return OK;
     }
+
 
     std::string
     Position::makeSan(
         MoveSpec const& spec,
-        sanFlagT flag)
+        sanFlagT        flag)
     {
         MoveAction move;
         if (auto err = resolveMove(spec, move); err != OK)
@@ -1912,9 +1911,9 @@ namespace scid::core
         return san;
     }
 
+
     errorT
-    Position::applyMove(
-        MoveSpec const& spec)
+    Position::applyMove(MoveSpec const& spec)
     {
         MoveAction move;
         if (auto err = resolveMove(spec, move); err != OK)
@@ -1924,10 +1923,11 @@ namespace scid::core
         return OK;
     }
 
+
     errorT
     Position::resolveMove(
         MoveSpec const& spec,
-        MoveAction& action) const
+        MoveAction&     action) const
     {
         if (spec.isNull())
         {
@@ -1957,9 +1957,9 @@ namespace scid::core
     /// from == to && PAWN != KING -> castle queenside
     void
     Position::resolveMove(
-        squareT from,
-        squareT to,
-        pieceT promo,
+        squareT     from,
+        squareT     to,
+        pieceT      promo,
         MoveAction& res) const
     {
         res.castling = 0;
@@ -2003,8 +2003,7 @@ namespace scid::core
     /// Use the current position to retrieve all the information needed to create a
     /// MoveAction which can also be used in undo.
     void
-    Position::fillMoveAction(
-        MoveAction& sm) const
+    Position::fillMoveAction(MoveAction& sm) const
     {
         const auto from = sm.from;
         const auto to = sm.to;
@@ -2040,9 +2039,9 @@ namespace scid::core
         }
     }
 
+
     void
-    Position::apply(
-        MoveAction const& sm)
+    Position::apply(MoveAction const& sm)
     {
         const auto from = sm.from;
         const auto to = sm.to;
@@ -2168,13 +2167,12 @@ namespace scid::core
     //      Take back a move action that has been made with apply().
     //
     void
-    Position::undo(
-        MoveAction const& sm)
+    Position::undo(MoveAction const& sm)
     {
         const squareT from = sm.from;
         const squareT to = sm.to;
-        const auto pieceNum = ListPos[to];
-        pieceT p = Board[to];
+        const auto    pieceNum = ListPos[to];
+        pieceT        p = Board[to];
         EPTarget = sm.epSquare;
         Castling = sm.castleFlags;
         HalfMoveClock = sm.oldHalfMoveClock;
@@ -2197,7 +2195,7 @@ namespace scid::core
         if (auto castleSide = sm.isCastle())
         {
             const auto kingSq = GetKingSquare(ToMove);
-            squareT rookfrom, rookto;
+            squareT    rookfrom, rookto;
             if (castleSide > 0)
             {
                 rookfrom = kingSq - 1;
@@ -2270,8 +2268,7 @@ namespace scid::core
     //    Bishop, Knight: 3 each
     //    Pawn: 1
     uint
-    Position::MaterialValue(
-        colorT c)
+    Position::MaterialValue(colorT c)
     {
         assert(c == WHITE || c == BLACK);
         uint value = 0;
@@ -2303,16 +2300,16 @@ namespace scid::core
     void
     Position::writeSan(
         MoveAction const& action,
-        char* s,
-        sanFlagT flag)
+        char*             s,
+        sanFlagT          flag)
     {
         assert(s != NULL);
         assert(action.from == List[ToMove][ListPos[action.from]]);
         const squareT from = action.from;
         const squareT to = action.to;
-        char* c = s;
-        pieceT piece = Board[from];
-        pieceT p = piece_Type(piece);
+        char*         c = s;
+        pieceT        piece = Board[from];
+        pieceT        p = piece_Type(piece);
 
         if (p == PAWN)
         {
@@ -2433,8 +2430,8 @@ namespace scid::core
     // Convert and store the moves in SAN notation if @e toSAN is not nullptr.
     errorT
     Position::applyCoordinateMoves(
-        const char* moves,
-        size_t moveslen,
+        const char*  moves,
+        size_t       moveslen,
         std::string* toSAN)
     {
         auto is_space = [](char ch) { return isspace(static_cast<unsigned char>(ch)); };
@@ -2490,8 +2487,8 @@ namespace scid::core
     Position::readCoordinateMoveAction(
         MoveAction* m,
         const char* str,
-        size_t slen,
-        bool reverse)
+        size_t      slen,
+        bool        reverse)
     {
         assert(m != NULL && str != NULL);
 
@@ -2509,8 +2506,8 @@ namespace scid::core
         const auto fromRank = rank_FromChar(str[1]);
         const auto toFyle = fyle_FromChar(str[2]);
         const auto toRank = rank_FromChar(str[3]);
-        auto from = square_Make(fromFyle, fromRank);
-        auto to = square_Make(toFyle, toRank);
+        auto       from = square_Make(fromFyle, fromRank);
+        auto       to = square_Make(toFyle, toRank);
 
         auto legal = IsLegalMove(from, to, promote);
         if (!legal && reverse)
@@ -2532,10 +2529,11 @@ namespace scid::core
         return OK;
     }
 
+
     static size_t
     trimCheck(
         const char* str,
-        size_t slen)
+        size_t      slen)
     {
         while (slen > 0)
         { // trim mate '#' or check '+'
@@ -2549,12 +2547,13 @@ namespace scid::core
         return slen;
     }
 
+
     errorT
     Position::readPawnMoveAction(
         MoveAction* sm,
         const char* str,
-        size_t slen,
-        fyleT frFyle)
+        size_t      slen,
+        fyleT       frFyle)
     {
         assert(sm != NULL && str != NULL && frFyle <= H_FYLE);
 
@@ -2571,8 +2570,8 @@ namespace scid::core
         }
 
         MoveList mlist;
-        pieceT promo = EMPTY;
-        auto last_ch = static_cast<unsigned char>(str[slen - 1]);
+        pieceT   promo = EMPTY;
+        auto     last_ch = static_cast<unsigned char>(str[slen - 1]);
         if (!is_digit(last_ch))
         {
             // Promotion, last char must be Q/R/B/N.
@@ -2597,7 +2596,7 @@ namespace scid::core
             if (toFyle > 8 || fromRank <= 0 || fromRank >= 8)
                 return false;
 
-            auto from = square_Make(frFyle, fromRank);
+            auto       from = square_Make(frFyle, fromRank);
             const auto to = square_Make(toFyle, toRank);
             const auto pawn = piece_Make(ToMove, PAWN);
             if (GetPiece(from) == pawn && IsLegalMove(from, to, promo))
@@ -2636,11 +2635,12 @@ namespace scid::core
         return ERROR_InvalidMove;
     }
 
+
     errorT
     Position::readKingMoveAction(
         MoveAction* sm,
         const char* str,
-        size_t slen) const
+        size_t      slen) const
     {
         assert(sm != NULL && str != NULL);
 
@@ -2678,8 +2678,8 @@ namespace scid::core
     Position::readPieceMoveAction(
         MoveAction* sm,
         const char* str,
-        size_t slen,
-        pieceT piece) const
+        size_t      slen,
+        pieceT      piece) const
     {
         assert(sm != NULL && str != NULL);
         assert(piece == QUEEN || piece == ROOK || piece == BISHOP || piece == KNIGHT);
@@ -2707,9 +2707,9 @@ namespace scid::core
 
         // Loop through looking for pieces of the corresponding type. We start at 1
         // since the King is always the piece at position 0 in the list.
-        int matchCount = 0;
+        int  matchCount = 0;
         auto movingPiece = piece_Make(ToMove, piece);
-        int nPieces = Material[movingPiece];
+        int  nPieces = Material[movingPiece];
         for (unsigned i = 1, n = Count[ToMove]; i < n && nPieces; i++)
         {
             auto from = List[ToMove][i];
@@ -2732,9 +2732,10 @@ namespace scid::core
                                                       // (ambiguous) moves match.
     }
 
+
     errorT
     Position::readCastleMoveAction(
-        MoveAction* sm,
+        MoveAction*      sm,
         std::string_view str) const
     {
         bool king_side = true;
@@ -2818,9 +2819,9 @@ namespace scid::core
         };
     }
 
+
     errorT
-    Position::ReadFromLongStr(
-        const char* str)
+    Position::ReadFromLongStr(const char* str)
     {
         Clear();
         for (squareT sq = A1; sq <= H8; sq++)
@@ -2865,8 +2866,7 @@ namespace scid::core
     //      "RNBQKBNRPPPPPPPP................................pppppppprbnqkbnr w"
     //
     void
-    Position::MakeLongStr(
-        char* str) const
+    Position::MakeLongStr(char* str) const
     {
         assert(str != NULL);
         char* s = str;
@@ -2889,8 +2889,7 @@ namespace scid::core
     //    can be used as a regular null-terminated string), the value 1
     //    is added to the color, castling and en passant fields.
     void
-    Position::PrintCompactStr(
-        char* cboard) const
+    Position::PrintCompactStr(char* cboard) const
     {
         for (uint i = 0; i < 32; i++)
         {
@@ -2928,7 +2927,7 @@ namespace scid::core
     const char*
     FEN_parsePieces(
         const char* str,
-        AddPiece add)
+        AddPiece    add)
     {
         assert(str);
 
@@ -2980,8 +2979,7 @@ namespace scid::core
     /// counter to be invalid, so this routine can also read positions
     /// from EPD lines (which only share the first four fields with FEN).
     errorT
-    Position::ReadFromFEN(
-        const char* str)
+    Position::ReadFromFEN(const char* str)
     {
         assert(str != NULL);
 
@@ -3185,8 +3183,7 @@ namespace scid::core
     /// Accept strings like "position startpos", "position startpos moves e2e4",
     /// "FENSTRING", "FENSTRING moves e2e4", "position fen FENSTRING moves e2e4".
     errorT
-    Position::ReadFromFENorUCI(
-        std::string_view str)
+    Position::ReadFromFENorUCI(std::string_view str)
     {
         auto trimLeft = std::find_if_not(str.begin(), str.end(), [](char ch) {
             return isspace(static_cast<unsigned char>(ch));
@@ -3217,9 +3214,10 @@ namespace scid::core
         return applyCoordinateMoves(str.data(), str.size());
     }
 
+
     void
     Position::PrintFEN(
-        char* str,
+        char*  str,
         size_t len) const
     {
         assert(str != NULL);
@@ -3234,7 +3232,7 @@ namespace scid::core
         for (uint iRank = 0; iRank < 8; iRank++)
         {
             const pieceT* pBoard = &(Board[(7 - iRank) * 8]);
-            uint emptyRun = 0;
+            uint          emptyRun = 0;
             if (iRank > 0)
             {
                 fen.push_back('/');
@@ -3337,19 +3335,19 @@ namespace scid::core
 
     struct htmlStyleT
     {
-            const char* dir;  // directory containing images.
-            uint width;       // width value specified in <img> tag.
-            uint height;      // height value specified in <img> tag.
-            bool transparent; // True if the style uses transparent images,
-                              // with square colors set by "bgcolor".
+            const char* dir;         // directory containing images.
+            uint        width;       // width value specified in <img> tag.
+            uint        height;      // height value specified in <img> tag.
+            bool        transparent; // True if the style uses transparent images,
+                                     // with square colors set by "bgcolor".
     };
 
     void
     Position::DumpHtmlBoard(
-        DString* dstr,
-        uint style,
+        DString*    dstr,
+        uint        style,
         const char* dir,
-        bool flip)
+        bool        flip)
     {
         const uint HTML_DIAG_STYLES = 2;
         htmlStyleT hs[HTML_DIAG_STYLES];
@@ -3364,9 +3362,9 @@ namespace scid::core
             style = 0;
         }
 
-        uint width = hs[style].width;
-        uint height = hs[style].height;
-        uint iRank, iFyle;
+        uint    width = hs[style].width;
+        uint    height = hs[style].height;
+        uint    iRank, iFyle;
         pieceT* pBoard;
         if (dir == NULL)
         {
@@ -3456,9 +3454,9 @@ namespace scid::core
     void
     Position::DumpLatexBoard(
         DString* dstr,
-        bool flip)
+        bool     flip)
     {
-        uint iRank, iFyle;
+        uint    iRank, iFyle;
         pieceT* pBoard;
         dstr->Append("\\board{");
         for (iRank = 0; iRank < 8; iRank++)
@@ -3496,10 +3494,9 @@ namespace scid::core
     //      Compare another position with this one.
     //
     sint
-    Position::Compare(
-        Position* p)
+    Position::Compare(Position* p)
     {
-        int i = 32;
+        int   i = 32;
         byte *p1, *p2;
         p1 = Board;
         p2 = p->Board;

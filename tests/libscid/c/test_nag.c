@@ -7,12 +7,11 @@
 #include <string.h>
 
 void
-test_nag(
-    void)
+test_nag(void)
 {
     scid_nag nag = 0;
-    char text[8];
-    size_t text_size = 0;
+    char     text[8];
+    size_t   text_size = 0;
 
     assert(scid_nag_create_from_string("!", &nag) == SCID_OK);
     assert(nag == 1);

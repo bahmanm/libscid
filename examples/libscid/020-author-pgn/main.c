@@ -5,7 +5,7 @@
 
 static int
 check(
-    scid_error error,
+    scid_error  error,
     const char* call)
 {
     if (error == SCID_OK)
@@ -16,6 +16,7 @@ check(
     fprintf(stderr, "%s failed with scid_error %hu\n", call, error);
     return 0;
 }
+
 
 static int
 take_cursor(
@@ -33,10 +34,11 @@ take_cursor(
     return 1;
 }
 
+
 static int
 take_position(
     scid_position** position,
-    scid_position* next_position)
+    scid_position*  next_position)
 {
     if (next_position == NULL)
     {
@@ -48,16 +50,17 @@ take_position(
     return 1;
 }
 
+
 static int
 add_san_move(
-    scid_game* game,
+    scid_game*         game,
     scid_game_cursor** cursor,
-    scid_position** position,
-    const char* san)
+    scid_position**    position,
+    const char*        san)
 {
-    scid_movespec move;
+    scid_movespec     move;
     scid_game_cursor* next_cursor = NULL;
-    scid_position* next_position = NULL;
+    scid_position*    next_position = NULL;
     if (!check(
             scid_movespec_create_from_san(*position, san, &move), "scid_movespec_create_from_san"))
     {
@@ -78,6 +81,7 @@ add_san_move(
     return take_cursor(cursor, &next_cursor) && take_position(position, next_position);
 }
 
+
 static int
 contains(
     const char* text,
@@ -86,19 +90,19 @@ contains(
     return strstr(text, needle) != NULL;
 }
 
+
 int
-main(
-    void)
+main(void)
 {
-    const char* standard_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    scid_game* game = NULL;
-    scid_position* position = NULL;
+    const char*       standard_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    scid_game*        game = NULL;
+    scid_position*    position = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_pgn_options* pgn_options = NULL;
-    char pgn[4096];
-    size_t pgn_size = 0;
-    int moved = 0;
-    int changed = 0;
+    char                   pgn[4096];
+    size_t                 pgn_size = 0;
+    int                    moved = 0;
+    int                    changed = 0;
 
     if (!check(
             scid_position_create_from_fen(standard_fen, &position),

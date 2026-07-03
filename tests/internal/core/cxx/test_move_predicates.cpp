@@ -29,7 +29,7 @@ namespace
         DetectsAttacksByPieceType)
     {
         const int empty = 1234;
-        int board[64];
+        int       board[64];
         std::fill_n(board, 64, empty);
 
         board[12] = !empty;
@@ -81,7 +81,7 @@ namespace
         DetectsOpenedRays)
     {
         const int empty = 7777;
-        int board[64];
+        int       board[64];
         std::fill_n(board, 64, empty);
 
         board[12] = !empty;

@@ -5,7 +5,7 @@
 
 static int
 check(
-    scid_error error,
+    scid_error  error,
     const char* call)
 {
     if (error == SCID_OK)
@@ -16,6 +16,7 @@ check(
     fprintf(stderr, "%s failed with scid_error %hu\n", call, error);
     return 0;
 }
+
 
 static int
 take_cursor(
@@ -33,6 +34,7 @@ take_cursor(
     return 1;
 }
 
+
 static int
 contains(
     const char* text,
@@ -41,28 +43,28 @@ contains(
     return strstr(text, needle) != NULL;
 }
 
+
 int
-main(
-    void)
+main(void)
 {
-    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const char* pgn = "[Event \"Mutation\"]\n"
-                      "[Result \"*\"]\n"
-                      "\n"
-                      "1. e4 e5 (1... c5) *\n";
-    scid_game* game = NULL;
-    scid_game* source_game = NULL;
+    const char*       start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const char*       pgn = "[Event \"Mutation\"]\n"
+                            "[Result \"*\"]\n"
+                            "\n"
+                            "1. e4 e5 (1... c5) *\n";
+    scid_game*        game = NULL;
+    scid_game*        source_game = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
     scid_game_cursor* source_cursor = NULL;
     scid_game_cursor* source_next_cursor = NULL;
-    scid_position* position = NULL;
-    scid_movespec move;
-    char output[4096];
-    int changed = 0;
-    int moved = 0;
-    size_t output_size = 0;
-    size_t variation_count = 0;
+    scid_position*    position = NULL;
+    scid_movespec     move;
+    char              output[4096];
+    int               changed = 0;
+    int               moved = 0;
+    size_t            output_size = 0;
+    size_t            variation_count = 0;
 
     if (!check(
             scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||

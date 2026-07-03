@@ -211,9 +211,9 @@ namespace scid::database
             scid::core::errorT
             open(
                 std::string_view dbType,
-                fileModeT fMode,
-                const char* filename,
-                const Progress& progress = {});
+                fileModeT        fMode,
+                const char*      filename,
+                const Progress&  progress = {});
 
             /**
              * Closes the current database and releases codec, index, namebase, filter,
@@ -257,7 +257,9 @@ namespace scid::database
              * custom flag names.  The supported keys and persistence semantics depend
              * on the active codec.
              */
-            std::vector<std::pair<const char*, std::string>>
+            std::vector<std::pair<
+                const char*,
+                std::string>>
             getExtraInfo() const;
 
             /**
@@ -267,7 +269,9 @@ namespace scid::database
              * Unsupported keys return the codec's error code.
              */
             scid::core::errorT
-            setExtraInfo(const char* tagname, const char* new_value);
+            setExtraInfo(
+                const char* tagname,
+                const char* new_value);
 
             /**
              * Flushes pending codec state to storage.
@@ -287,8 +291,7 @@ namespace scid::database
              * database is closed.
              */
             const IndexEntry*
-            getIndexEntry(
-                gamenumT g) const
+            getIndexEntry(gamenumT g) const
             {
                 assert(g < numGames());
                 return idx->GetEntry(g);
@@ -297,8 +300,7 @@ namespace scid::database
              * Returns the index entry for @p g, or null when @p g is out of range.
              */
             const IndexEntry*
-            getIndexEntry_bounds(
-                gamenumT g) const
+            getIndexEntry_bounds(gamenumT g) const
             {
                 static_assert(std::is_unsigned_v<gamenumT>);
                 return g < numGames() ? getIndexEntry(g) : nullptr;
@@ -314,8 +316,7 @@ namespace scid::database
              * Returns @ref gameInfo() for @p g, or @c std::nullopt when out of range.
              */
             std::optional<GameInfo>
-            gameInfoBounds(
-                gamenumT g) const
+            gameInfoBounds(gamenumT g) const
             {
                 static_assert(std::is_unsigned_v<gamenumT>);
                 return g < numGames() ? std::optional<GameInfo>{gameInfo(g)} : std::nullopt;
@@ -331,15 +332,16 @@ namespace scid::database
              *          invalid game number, or a storage/codec error.
              */
             scid::core::errorT
-            updateGameInfo(gamenumT g, const GameInfoUpdate& update);
+            updateGameInfo(
+                gamenumT              g,
+                const GameInfoUpdate& update);
             /**
              * Resolves the Seven Tag Roster name fields for game @p gnum.
              *
              * The returned string pointers are owned by the database namebase.
              */
             TagRoster
-            tagRoster(
-                gamenumT gnum) const
+            tagRoster(gamenumT gnum) const
             {
                 return tagRoster(*getIndexEntry(gnum));
             }
@@ -349,8 +351,7 @@ namespace scid::database
              * The index entry must belong to this database's namebase.
              */
             TagRoster
-            tagRoster(
-                IndexEntry const& ie) const
+            tagRoster(IndexEntry const& ie) const
             {
                 return TagRoster::make(ie, *nb_);
             }
@@ -377,15 +378,14 @@ namespace scid::database
              * zero.
              */
             scid::core::ratingT
-            peakElo(
-                idNumberT playerID) const
+            peakElo(idNumberT playerID) const
             {
                 if (peakEloCache_.empty())
                 {
                     for (gamenumT gnum = 0, n = numGames(); gnum < n; gnum++)
                     {
                         IndexEntry const& ie = *getIndexEntry(gnum);
-                        auto updateMax = [&](auto id, auto elo) {
+                        auto              updateMax = [&](auto id, auto elo) {
                             auto& max_value = peakEloCache_[id];
                             max_value = std::max(max_value, elo);
                         };
@@ -408,17 +408,17 @@ namespace scid::database
             loadGame(
                 const IndexEntry& ie,
                 scid::core::Game& dest,
-                char* scidFlags,
-                std::size_t scidFlagsLen) const;
+                char*             scidFlags,
+                std::size_t       scidFlagsLen) const;
             /**
              * Bounds-checked overload of @ref loadGame() by game number.
              */
             scid::core::errorT
             loadGame(
-                gamenumT gNum,
+                gamenumT          gNum,
                 scid::core::Game& dest,
-                char* scidFlags,
-                std::size_t scidFlagsLen) const;
+                char*             scidFlags,
+                std::size_t       scidFlagsLen) const;
             /**
              * Loads only the start position and movetext into @p dest.
              *
@@ -427,12 +427,16 @@ namespace scid::database
              * metadata.
              */
             scid::core::errorT
-            loadGameMovesOnly(gamenumT gNum, scid::core::Game& dest) const;
+            loadGameMovesOnly(
+                gamenumT          gNum,
+                scid::core::Game& dest) const;
             /**
              * Loads only the start position and movetext for @p ie.
              */
             scid::core::errorT
-            loadGameMovesOnly(const IndexEntry& ie, scid::core::Game& dest) const;
+            loadGameMovesOnly(
+                const IndexEntry& ie,
+                scid::core::Game& dest) const;
             /**
              * Decodes only the non-standard stored tag pairs for game @p gNum.
              *
@@ -440,47 +444,64 @@ namespace scid::database
              * Tags are appended to @p dest.
              */
             scid::core::errorT
-            gameTags(gamenumT gNum, std::vector<std::pair<std::string, std::string>>& dest) const;
+            gameTags(
+                gamenumT           gNum,
+                std::vector<std::pair<
+                    std::string,
+                    std::string>>& dest) const;
             /**
              * Loads standard tags and Scid flag text without decoding movetext.
              */
             scid::core::errorT
             loadStandardTags(
-                gamenumT gNum,
+                gamenumT          gNum,
                 scid::core::Game& dest,
-                char* scidFlags,
-                std::size_t scidFlagsLen) const;
+                char*             scidFlags,
+                std::size_t       scidFlagsLen) const;
             /**
              * Decodes only the non-standard stored tag pairs for @p ie.
              */
             scid::core::errorT
-            gameTags(const IndexEntry& ie, std::vector<std::pair<std::string, std::string>>& dest)
-                const;
+            gameTags(
+                const IndexEntry&  ie,
+                std::vector<std::pair<
+                    std::string,
+                    std::string>>& dest) const;
             /**
              * Returns up to @p maxPly mainline moves for game @p gNum.
              *
              * Out-of-range game numbers return an empty vector.
              */
             std::vector<scid::core::FullMove>
-            mainlineMoves(gamenumT gNum, std::size_t maxPly) const;
+            mainlineMoves(
+                gamenumT    gNum,
+                std::size_t maxPly) const;
             /**
              * Returns up to @p maxPly mainline moves for @p ie.
              */
             std::vector<scid::core::FullMove>
-            mainlineMoves(const IndexEntry* ie, std::size_t maxPly) const;
+            mainlineMoves(
+                const IndexEntry* ie,
+                std::size_t       maxPly) const;
             /**
              * Returns SAN for @p count moves after skipping @p plyToSkip half-moves.
              *
              * Out-of-range game numbers return an empty string.
              */
             std::string
-            moveSAN(gamenumT gNum, int plyToSkip, int count) const;
+            moveSAN(
+                gamenumT gNum,
+                int      plyToSkip,
+                int      count) const;
             /**
              * Returns SAN for @p count moves from @p ie after skipping @p plyToSkip
              * half-moves.
              */
             std::string
-            moveSAN(const IndexEntry* ie, int plyToSkip, int count) const;
+            moveSAN(
+                const IndexEntry* ie,
+                int               plyToSkip,
+                int               count) const;
             /**
              * Replaces game dates in a filtered set of games.
              *
@@ -492,10 +513,12 @@ namespace scid::database
              *
              * @returns a pair of error code and number of games whose date changed.
              */
-            std::pair<scid::core::errorT, size_t>
+            std::pair<
+                scid::core::errorT,
+                size_t>
             replaceGameDates(
-                HFilter filter,
-                const Progress& progress,
+                HFilter           filter,
+                const Progress&   progress,
                 scid::core::dateT oldDate,
                 scid::core::dateT newDate);
             /**
@@ -508,10 +531,12 @@ namespace scid::database
              * @returns a pair of error code and number of games whose event date
              *          changed.
              */
-            std::pair<scid::core::errorT, size_t>
+            std::pair<
+                scid::core::errorT,
+                size_t>
             replaceGameEventDates(
-                HFilter filter,
-                const Progress& progress,
+                HFilter           filter,
+                const Progress&   progress,
                 scid::core::dateT oldDate,
                 scid::core::dateT newDate);
             /**
@@ -525,12 +550,14 @@ namespace scid::database
              * @returns a pair of error code and number of games where at least one
              *          side's rating field changed.
              */
-            std::pair<scid::core::errorT, size_t>
+            std::pair<
+                scid::core::errorT,
+                size_t>
             setPlayerRatings(
-                HFilter filter,
-                const Progress& progress,
-                idNumberT player,
-                scid::core::ratingT rating,
+                HFilter                 filter,
+                const Progress&         progress,
+                idNumberT               player,
+                scid::core::ratingT     rating,
                 scid::core::ratingTypeT ratingType);
             /**
              * Updates player ratings in a filtered set using a caller-provided source.
@@ -551,12 +578,14 @@ namespace scid::database
              *          with at least one available rating.
              */
             template <typename TRatingResolver>
-            std::pair<scid::core::errorT, RatingUpdateStats>
+            std::pair<
+                scid::core::errorT,
+                RatingUpdateStats>
             updatePlayerRatings(
-                HFilter filter,
+                HFilter         filter,
                 const Progress& progress,
-                bool overwrite,
-                bool saveRatings,
+                bool            overwrite,
+                bool            saveRatings,
                 TRatingResolver ratingFor);
             /**
              * Tests one game against a board-position search.
@@ -584,15 +613,15 @@ namespace scid::database
              */
             scid::core::errorT
             searchBoard(
-                const IndexEntry& ie,
-                scid::core::Game& game,
+                const IndexEntry&     ie,
+                scid::core::Game&     game,
                 scid::core::Position* pos,
                 scid::core::Position* posFlip,
-                bool useVariations,
-                bool possibleMatch,
-                bool possibleFlippedMatch,
-                gameExactMatchT searchType,
-                scid::core::uint& ply) const;
+                bool                  useVariations,
+                bool                  possibleMatch,
+                bool                  possibleFlippedMatch,
+                gameExactMatchT       searchType,
+                scid::core::uint&     ply) const;
             /**
              * Bounds-checked overload of @ref searchBoard() by game number.
              *
@@ -601,15 +630,15 @@ namespace scid::database
              */
             scid::core::errorT
             searchBoard(
-                gamenumT gNum,
-                scid::core::Game& game,
+                gamenumT              gNum,
+                scid::core::Game&     game,
                 scid::core::Position* pos,
                 scid::core::Position* posFlip,
-                bool useVariations,
-                bool possibleMatch,
-                bool possibleFlippedMatch,
-                gameExactMatchT searchType,
-                scid::core::uint& ply) const;
+                bool                  useVariations,
+                bool                  possibleMatch,
+                bool                  possibleFlippedMatch,
+                gameExactMatchT       searchType,
+                scid::core::uint&     ply) const;
             /**
              * Tests one game against material and piece-placement constraints.
              *
@@ -639,46 +668,46 @@ namespace scid::database
             bool
             materialSearchMatch(
                 const IndexEntry& ie,
-                bool possibleMatch,
-                bool possibleFlippedMatch,
+                bool              possibleMatch,
+                bool              possibleFlippedMatch,
                 scid::core::byte* min,
                 scid::core::byte* max,
                 scid::core::byte* minFlipped,
                 scid::core::byte* maxFlipped,
-                patternT* patterns,
-                std::size_t patternCount,
-                patternT* flippedPatterns,
-                std::size_t flippedPatternCount,
-                int minPly,
-                int maxPly,
-                int matchLength,
-                bool oppBishops,
-                bool sameBishops,
-                int minDiff,
-                int maxDiff) const;
+                patternT*         patterns,
+                std::size_t       patternCount,
+                patternT*         flippedPatterns,
+                std::size_t       flippedPatternCount,
+                int               minPly,
+                int               maxPly,
+                int               matchLength,
+                bool              oppBishops,
+                bool              sameBishops,
+                int               minDiff,
+                int               maxDiff) const;
             /**
              * Bounds-checked overload of @ref materialSearchMatch() by game number.
              */
             bool
             materialSearchMatch(
-                gamenumT gNum,
-                bool possibleMatch,
-                bool possibleFlippedMatch,
+                gamenumT          gNum,
+                bool              possibleMatch,
+                bool              possibleFlippedMatch,
                 scid::core::byte* min,
                 scid::core::byte* max,
                 scid::core::byte* minFlipped,
                 scid::core::byte* maxFlipped,
-                patternT* patterns,
-                std::size_t patternCount,
-                patternT* flippedPatterns,
-                std::size_t flippedPatternCount,
-                int minPly,
-                int maxPly,
-                int matchLength,
-                bool oppBishops,
-                bool sameBishops,
-                int minDiff,
-                int maxDiff) const;
+                patternT*         patterns,
+                std::size_t       patternCount,
+                patternT*         flippedPatterns,
+                std::size_t       flippedPatternCount,
+                int               minPly,
+                int               maxPly,
+                int               matchLength,
+                bool              oppBishops,
+                bool              sameBishops,
+                int               minDiff,
+                int               maxDiff) const;
             /**
              * Replaces @p filter with games whose main line reaches @p pos.
              *
@@ -700,8 +729,8 @@ namespace scid::database
             bool
             setPositionSearchFilter(
                 const scid::core::Position& pos,
-                HFilter& filter,
-                const Progress& progress) const;
+                HFilter&                    filter,
+                const Progress&             progress) const;
 
             /**
              * Copies the games included in @p filter from another open database.
@@ -718,7 +747,10 @@ namespace scid::database
              * game and already-copied games remain in the destination.
              */
             scid::core::errorT
-            importGames(const scidBaseT* srcBase, const HFilter& filter, const Progress& progress);
+            importGames(
+                const scidBaseT* srcBase,
+                const HFilter&   filter,
+                const Progress&  progress);
             /**
              * Imports games from an external file.
              *
@@ -734,9 +766,9 @@ namespace scid::database
             scid::core::errorT
             importGames(
                 std::string_view dbType,
-                const char* filename,
-                const Progress& progress,
-                std::string& errorMsg);
+                const char*      filename,
+                const Progress&  progress,
+                std::string&     errorMsg);
 
             /**
              * Adds or replaces a stored game.
@@ -759,8 +791,8 @@ namespace scid::database
             scid::core::errorT
             saveGame(
                 scid::core::Game const& game,
-                const char* scidFlags,
-                gamenumT replacedGameId = INVALID_GAMEID);
+                const char*             scidFlags,
+                gamenumT                replacedGameId = INVALID_GAMEID);
             /**
              * Appends @p game to the database.
              *
@@ -769,7 +801,7 @@ namespace scid::database
             scid::core::errorT
             addGame(
                 scid::core::Game const& game,
-                const char* scidFlags)
+                const char*             scidFlags)
             {
                 return saveGame(game, scidFlags, INVALID_GAMEID);
             }
@@ -795,7 +827,10 @@ namespace scid::database
              * @p gNum must be a valid zero-based game number.
              */
             scid::core::errorT
-            setFlag(bool value, scid::core::uint flag, scid::core::uint gNum);
+            setFlag(
+                bool             value,
+                scid::core::uint flag,
+                scid::core::uint gNum);
             /**
              * Sets or clears one raw index flag for every game included in @p filter.
              *
@@ -804,7 +839,10 @@ namespace scid::database
              * work at a higher level.
              */
             scid::core::errorT
-            setFlags(bool value, scid::core::uint flag, const HFilter& filter);
+            setFlags(
+                bool             value,
+                scid::core::uint flag,
+                const HFilter&   filter);
             /**
              * Toggles one raw index flag for one game.
              *
@@ -812,12 +850,16 @@ namespace scid::database
              * @ref setFlag().
              */
             scid::core::errorT
-            invertFlag(scid::core::uint flag, scid::core::uint gNum);
+            invertFlag(
+                scid::core::uint flag,
+                scid::core::uint gNum);
             /**
              * Toggles one raw index flag for every game included in @p filter.
              */
             scid::core::errorT
-            invertFlags(scid::core::uint flag, const HFilter& filter);
+            invertFlags(
+                scid::core::uint flag,
+                const HFilter&   filter);
 
             /**
              * Creates a named filter covering the current database.
@@ -858,23 +900,21 @@ namespace scid::database
             }
             /** Returns the raw default-filter value for @p g. */
             scid::core::byte
-            defaultFilterGet(
-                gamenumT g) const
+            defaultFilterGet(gamenumT g) const
             {
                 return dbFilter->Get(g);
             }
             /** Sets the raw default-filter value for @p g. */
             void
             defaultFilterSet(
-                gamenumT g,
+                gamenumT         g,
                 scid::core::byte value)
             {
                 dbFilter->Set(g, value);
             }
             /** Sets every default-filter entry to @p value. */
             void
-            defaultFilterFill(
-                scid::core::byte value)
+            defaultFilterFill(scid::core::byte value)
             {
                 dbFilter->Fill(value);
             }
@@ -899,7 +939,9 @@ namespace scid::database
              *          cannot be resolved.
              */
             std::string
-            composeFilter(std::string_view mainFilter, std::string_view maskFilter) const;
+            composeFilter(
+                std::string_view mainFilter,
+                std::string_view maskFilter) const;
 
             /**
              * Splits @p filterId into its main and mask components.
@@ -908,7 +950,9 @@ namespace scid::database
              * filter, the first component is the main filter and the second is the
              * mask.
              */
-            std::pair<std::string, std::string>
+            std::pair<
+                std::string,
+                std::string>
             getFilterComponents(std::string_view filterId) const;
 
             /**
@@ -937,7 +981,7 @@ namespace scid::database
              */
             scid::core::uint
             getNameFreq(
-                nameT nt,
+                nameT     nt,
                 idNumberT id)
             {
                 if (nameFreq_[nt].size() == 0)
@@ -1042,11 +1086,11 @@ namespace scid::database
              */
             size_t
             listGames(
-                const char* criteria,
-                size_t start,
-                size_t count,
+                const char*    criteria,
+                size_t         start,
+                size_t         count,
                 const HFilter& filter,
-                gamenumT* destCont);
+                gamenumT*      destCont);
 
             /**
              * Returns the sorted row of @p gameId within @p filter.
@@ -1058,7 +1102,10 @@ namespace scid::database
              * demand.
              */
             size_t
-            sortedPosition(const char* criteria, const HFilter& filter, gamenumT gameId);
+            sortedPosition(
+                const char*    criteria,
+                const HFilter& filter,
+                gamenumT       gameId);
 
             /**
              * Remaps name IDs in filtered index entries.
@@ -1082,15 +1129,19 @@ namespace scid::database
              * @returns a pair of error code and number of games whose index entry was
              *          rewritten.
              */
-            template <typename TInitFunc, typename TMapFunc>
-            std::pair<scid::core::errorT, size_t>
+            template <
+                typename TInitFunc,
+                typename TMapFunc>
+            std::pair<
+                scid::core::errorT,
+                size_t>
             transformNames(
-                nameT nt,
-                HFilter hfilter,
-                const Progress& progress,
+                nameT                           nt,
+                HFilter                         hfilter,
+                const Progress&                 progress,
                 const std::vector<std::string>& newNames,
-                TInitFunc fnInit,
-                TMapFunc getID);
+                TInitFunc                       fnInit,
+                TMapFunc                        getID);
 
             /**
              * Removes stored extra PGN tags from games included in @p hfilter.
@@ -1107,10 +1158,12 @@ namespace scid::database
              * @returns a pair of error code and number of games whose stored tag block
              *          was rewritten.
              */
-            std::pair<scid::core::errorT, size_t>
+            std::pair<
+                scid::core::errorT,
+                size_t>
             stripGames(
-                HFilter hfilter,
-                const Progress& progress,
+                HFilter                              hfilter,
+                const Progress&                      progress,
                 std::vector<std::string_view> const& removeTags);
 
             /**
@@ -1135,8 +1188,7 @@ namespace scid::database
              * @ref extractDuplicates().
              */
             void
-            setDuplicates(
-                std::unique_ptr<gamenumT[]> duplicates)
+            setDuplicates(std::unique_ptr<gamenumT[]> duplicates)
             {
                 duplicates_ = std::move(duplicates);
             }
@@ -1147,8 +1199,7 @@ namespace scid::database
              * one greater than the duplicate game number.
              */
             gamenumT
-            getDuplicates(
-                gamenumT gNum) const
+            getDuplicates(gamenumT gNum) const
             {
                 return duplicates_ ? duplicates_[gNum] : 0;
             }
@@ -1156,22 +1207,22 @@ namespace scid::database
         private:
             struct Storage;
 
-            bool inUse; // true if the database is open (in use).
-            Filter* dbFilter;
+            bool                     inUse; // true if the database is open (in use).
+            Filter*                  dbFilter;
             std::unique_ptr<Storage> storage_;
-            Index* idx;
-            NameBase* nb_;
-            fileModeT fileMode_; // Read-only, write-only, or both.
+            Index*                   idx;
+            NameBase*                nb_;
+            fileModeT                fileMode_; // Read-only, write-only, or both.
             std::vector<std::pair<std::string, Filter*>> filters_;
-            mutable Filter all_filter_{0};
-            mutable Stats* stats_;
+            mutable Filter                               all_filter_{0};
+            mutable Stats*                               stats_;
             std::array<std::vector<int>, NUM_NAME_TYPES> nameFreq_;
             // For each game: idx of duplicate game + 1 (0 if there is no duplicate).
-            std::unique_ptr<gamenumT[]> duplicates_;
-            std::vector<std::pair<std::string, SortCache*>> sortCaches_;
+            std::unique_ptr<gamenumT[]>                                duplicates_;
+            std::vector<std::pair<std::string, SortCache*>>            sortCaches_;
             mutable std::unordered_map<idNumberT, scid::core::ratingT> peakEloCache_;
-            scid::core::errorT err_open_ = scid::core::OK;
-            uint64_t cacheInvalidationToken_ = 0;
+            scid::core::errorT                                         err_open_ = scid::core::OK;
+            uint64_t                                                   cacheInvalidationToken_ = 0;
 
         private:
             friend class SearchPos;
@@ -1185,9 +1236,9 @@ namespace scid::database
             scid::core::errorT
             openHelper(
                 std::string_view dbType,
-                fileModeT mode,
-                const char* filename,
-                const Progress& progress = {});
+                fileModeT        mode,
+                const char*      filename,
+                const Progress&  progress = {});
 
             void
             clear();
@@ -1217,27 +1268,37 @@ namespace scid::database
             endTransaction(gamenumT gameId = INVALID_GAMEID);
 
             scid::core::errorT
-            importGameHelper(const scidBaseT* sourceBase, scid::core::uint gNum);
+            importGameHelper(
+                const scidBaseT* sourceBase,
+                scid::core::uint gNum);
             scid::core::errorT
             saveGameData(
                 IndexEntry const& ie,
-                TagRoster const& tags,
+                TagRoster const&  tags,
                 ByteBuffer const& data,
-                gamenumT replaced);
+                gamenumT          replaced);
             scid::core::errorT
-            saveIndexEntry(IndexEntry const& ie, gamenumT replaced);
-            std::pair<scid::core::errorT, idNumberT>
-            addName(nameT nt, const char* name);
+            saveIndexEntry(
+                IndexEntry const& ie,
+                gamenumT          replaced);
+            std::pair<
+                scid::core::errorT,
+                idNumberT>
+            addName(
+                nameT       nt,
+                const char* name);
 
             SortCache*
             getSortCache(const char* criteria);
 
             template <typename TOper>
-            std::pair<scid::core::errorT, size_t>
+            std::pair<
+                scid::core::errorT,
+                size_t>
             transformIndex(
-                HFilter hfilter,
+                HFilter         hfilter,
                 const Progress& progress,
-                TOper entry_op)
+                TOper           entry_op)
             {
                 if (auto errModify = beginTransaction())
                     return {errModify, 0};
@@ -1261,11 +1322,13 @@ namespace scid::database
              * @returns an error code plus the number of entries rewritten.
              */
             template <typename TOper>
-            std::pair<scid::core::errorT, size_t>
+            std::pair<
+                scid::core::errorT,
+                size_t>
             transformIndex_(
-                HFilter hfilter,
+                HFilter         hfilter,
                 const Progress& progress,
-                TOper entry_op)
+                TOper           entry_op)
             {
                 size_t nCorrections = 0;
                 size_t iProg = 0;
@@ -1289,21 +1352,25 @@ namespace scid::database
             }
     };
 
-    template <typename TInitFunc, typename TMapFunc>
-    std::pair<scid::core::errorT, size_t>
+    template <
+        typename TInitFunc,
+        typename TMapFunc>
+    std::pair<
+        scid::core::errorT,
+        size_t>
     scidBaseT::transformNames(
-        nameT nt,
-        HFilter hfilter,
-        const Progress& progress,
+        nameT                           nt,
+        HFilter                         hfilter,
+        const Progress&                 progress,
         const std::vector<std::string>& newNames,
-        TInitFunc initFunc,
-        TMapFunc getNewID)
+        TInitFunc                       initFunc,
+        TMapFunc                        getNewID)
     {
         if (auto errModify = beginTransaction())
             return {errModify, 0};
 
         std::vector<idNumberT> nameIDs(newNames.size());
-        auto it = nameIDs.begin();
+        auto                   it = nameIDs.begin();
         for (auto& name : newNames)
         {
             auto id = addName(nt, name.c_str());
@@ -1319,9 +1386,9 @@ namespace scid::database
 
         auto res = transformIndex_(hfilter, progress, [&](IndexEntry& ie) {
             const IndexEntry& ie_const = ie;
-            idNumberT oldID;
-            idNumberT oldBlackID = 0;
-            idNumberT newBlackID = 0;
+            idNumberT         oldID;
+            idNumberT         oldBlackID = 0;
+            idNumberT         newBlackID = 0;
             switch (nt)
             {
                 case NAME_PLAYER:
@@ -1368,16 +1435,18 @@ namespace scid::database
     }
 
     template <typename TRatingResolver>
-    std::pair<scid::core::errorT, scidBaseT::RatingUpdateStats>
+    std::pair<
+        scid::core::errorT,
+        scidBaseT::RatingUpdateStats>
     scidBaseT::updatePlayerRatings(
-        HFilter filter,
+        HFilter         filter,
         const Progress& progress,
-        bool overwrite,
-        bool saveRatings,
+        bool            overwrite,
+        bool            saveRatings,
         TRatingResolver ratingFor)
     {
         RatingUpdateStats stats;
-        auto entry_op = [&](IndexEntry& ie) {
+        auto              entry_op = [&](IndexEntry& ie) {
             const auto date = ie.GetDate();
             const auto whiteElo =
                 (!overwrite && ie.GetWhiteElo() != 0) ? 0 : ratingFor(ie.GetWhite(), date);

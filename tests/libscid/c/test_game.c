@@ -7,31 +7,30 @@
 #include <string.h>
 
 void
-test_game(
-    void)
+test_game(void)
 {
-    const char* pgn = "[Event \"Friendly\"]\n"
-                      "[Site \"Toronto\"]\n"
-                      "[Date \"2024.05.01\"]\n"
-                      "[Round \"1\"]\n"
-                      "[White \"Player A\"]\n"
-                      "[Black \"Player B\"]\n"
-                      "[Result \"*\"]\n"
-                      "[Annotator \"Example\"]\n"
-                      "\n"
-                      "1. e4 e5 *\n";
-    const char* custom_fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
-    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    scid_game* game = NULL;
-    scid_game_cursor* cursor = NULL;
+    const char*            pgn = "[Event \"Friendly\"]\n"
+                                 "[Site \"Toronto\"]\n"
+                                 "[Date \"2024.05.01\"]\n"
+                                 "[Round \"1\"]\n"
+                                 "[White \"Player A\"]\n"
+                                 "[Black \"Player B\"]\n"
+                                 "[Result \"*\"]\n"
+                                 "[Annotator \"Example\"]\n"
+                                 "\n"
+                                 "1. e4 e5 *\n";
+    const char*            custom_fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
+    const char*            start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    scid_game*             game = NULL;
+    scid_game_cursor*      cursor = NULL;
     scid_game_pgn_options* pgn_options = NULL;
-    scid_position* position = NULL;
-    char name[64];
-    char text[1024];
-    size_t name_size = 0;
-    size_t text_size = 0;
-    size_t tag_count = 0;
-    int removed = 0;
+    scid_position*         position = NULL;
+    char                   name[64];
+    char                   text[1024];
+    size_t                 name_size = 0;
+    size_t                 text_size = 0;
+    size_t                 tag_count = 0;
+    int                    removed = 0;
 
     assert(test_game_create_blank(&game) == SCID_OK);
     assert(game != NULL);

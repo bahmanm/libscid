@@ -34,7 +34,10 @@ namespace scid::eco
      * @c String.  @c ECO_None writes an empty string.
      */
     void
-    toString(Code ecoCode, char* ecoStr, bool extensions = true);
+    toString(
+        Code  ecoCode,
+        char* ecoStr,
+        bool  extensions = true);
 
     /**
      * Writes only the basic three-character ECO code.
@@ -44,7 +47,7 @@ namespace scid::eco
      */
     inline void
     toBasicString(
-        Code ecoCode,
+        Code  ecoCode,
         char* ecoStr)
     {
         toString(ecoCode, ecoStr, false);
@@ -55,7 +58,7 @@ namespace scid::eco
      */
     inline void
     toExtendedString(
-        Code ecoCode,
+        Code  ecoCode,
         char* ecoStr)
     {
         toString(ecoCode, ecoStr, true);

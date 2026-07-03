@@ -7,21 +7,20 @@
 #include <string.h>
 
 void
-test_position(
-    void)
+test_position(void)
 {
-    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const char* custom_fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
-    const char* check_fen = "4k3/8/8/8/8/8/4q3/4K3 w - - 0 1";
-    const char* mate_fen = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
+    const char*    start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const char*    custom_fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
+    const char*    check_fen = "4k3/8/8/8/8/8/4q3/4K3 w - - 0 1";
+    const char*    mate_fen = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
     scid_position* position = NULL;
     scid_position* next_position = NULL;
-    scid_colour side_to_move = SCID_WHITE;
-    char fen[128];
-    int truth = 0;
-    scid_piece piece = SCID_PIECE_NONE;
-    unsigned number = 0;
-    size_t fen_size = 0;
+    scid_colour    side_to_move = SCID_WHITE;
+    char           fen[128];
+    int            truth = 0;
+    scid_piece     piece = SCID_PIECE_NONE;
+    unsigned       number = 0;
+    size_t         fen_size = 0;
 
     assert(test_position_create_standard(&position) == SCID_OK);
     assert(position != NULL);

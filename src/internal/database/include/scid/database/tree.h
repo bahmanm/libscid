@@ -61,9 +61,7 @@ namespace scid::database
 
         public:
             /** Creates an empty aggregate for @p m. */
-            explicit TreeNode(
-                scid::core::FullMove m)
-                : move(m)
+            explicit TreeNode(scid::core::FullMove m) : move(m)
             {}
 
             /**
@@ -73,11 +71,10 @@ namespace scid::database
              * Year sums are updated only for non-zero years.
              */
             void
-            add(
-                scid::core::resultT result,
-                int eloW,
-                int eloB,
-                unsigned year)
+            add(scid::core::resultT result,
+                int                 eloW,
+                int                 eloB,
+                unsigned            year)
             {
                 static_assert(scid::core::RESULT_None == 0);
                 freq[0]++; // total count of games
@@ -128,7 +125,7 @@ namespace scid::database
                 if (eloCount == 0)
                     return 0;
 
-                int score = (this->score() + 5) / 10;
+                int  score = (this->score() + 5) / 10;
                 auto eloOpp = eloBlackSum;
                 if (move.getColor() != scid::core::WHITE)
                 {

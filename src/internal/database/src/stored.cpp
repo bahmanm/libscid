@@ -46,14 +46,12 @@ namespace scid::database
                 scid::core::pieceT b_[64];
 
             public:
-                explicit Board(
-                    const scid::core::pieceT* b)
+                explicit Board(const scid::core::pieceT* b)
                 {
                     std::copy_n(b, 64, b_);
                 }
                 void
-                doMove(
-                    scid::core::FullMove m)
+                doMove(scid::core::FullMove m)
                 {
                     // No promo, no null moves, no queenside castle
                     if (!m.isCastle())
@@ -77,14 +75,12 @@ namespace scid::database
                     }
                 }
                 bool
-                operator==(
-                    const Board& b) const
+                operator==(const Board& b) const
                 {
                     return std::equal(b_, b_ + 64, b.b_);
                 }
                 bool
-                neverMatch(
-                    const Board& m) const
+                neverMatch(const Board& m) const
                 {
                     // Pawns allows to exclude some games:
                     int p[3][8] = {{0}};
@@ -718,14 +714,14 @@ namespace scid::database
 
     StoredLine::StoredLine(
         const scid::core::pieceT* board,
-        scid::core::colorT toMove)
+        scid::core::colorT        toMove)
     {
         Board search(board);
         matches_[0] = -1;
         matches_[STORED_LINES] = -1;
         for (int line = 1; line < STORED_LINES; line++)
         {
-            Board b(scid::core::START_BOARD);
+            Board                       b(scid::core::START_BOARD);
             const scid::core::FullMove* end = Moves_[line + 1];
             for (int ply = 0; ply < 99; ply++)
             {

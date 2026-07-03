@@ -15,25 +15,24 @@ namespace
 
     template <typename TCont>
     std::string
-    encodePgn(
-        const TCont& game)
+    encodePgn(const TCont& game)
     {
         std::string res;
 
         struct
         {
-                const char sep = ' ';
-                const char endl = '\n';
-                const char RAVstart = '(';
-                const char RAVend = ')';
-                const char commentStart = '{';
-                const char commentEnd = '}';
+                const char  sep = ' ';
+                const char  endl = '\n';
+                const char  RAVstart = '(';
+                const char  RAVend = ')';
+                const char  commentStart = '{';
+                const char  commentEnd = '}';
                 const char* MoveNumEndW = ".";
                 const char* MoveNumEndB = "...";
         } token;
 
         const size_t lineLen = 80;
-        auto formatLine = [&](std::string& src, std::string& dest) {
+        auto         formatLine = [&](std::string& src, std::string& dest) {
             size_t skip_start = src.find_first_not_of(token.sep);
             src.erase(0, skip_start);
             while (src.size() > lineLen)
@@ -54,7 +53,7 @@ namespace
 
         auto FEN_getColor = [](const std::string& FEN) {
             scid::core::colorT res = scid::core::NOCOLOR;
-            size_t toMove = FEN.find(' ');
+            size_t             toMove = FEN.find(' ');
             if (toMove != std::string::npos && ++toMove < FEN.size())
             {
                 if (FEN[toMove] == 'w')
@@ -66,7 +65,7 @@ namespace
         };
         auto FEN_getMoveNum = [](const std::string& FEN) {
             std::string res;
-            size_t moveNum = FEN.rfind(' ');
+            size_t      moveNum = FEN.rfind(' ');
             if (moveNum != std::string::npos && ++moveNum < FEN.size())
                 res = FEN.substr(moveNum, std::string::npos);
             return res;
@@ -200,12 +199,13 @@ namespace
         return res;
     }
 
+
     scid::core::gamepos::GamePos
     makeGamePos(
         scid::core::uint RAVdepth,
         scid::core::uint RAVnum,
-        const char* FEN,
-        const char* SAN)
+        const char*      FEN,
+        const char*      SAN)
     {
         scid::core::gamepos::GamePos res;
         res.RAVdepth = RAVdepth;
@@ -245,10 +245,11 @@ namespace
         };
     }
 
+
     scid::core::Game
     parseShortGame()
     {
-        scid::core::Game game;
+        scid::core::Game          game;
         scid::core::pgn::ParseLog parseLog;
         EXPECT_TRUE(
             scid::core::pgn::parseGame(

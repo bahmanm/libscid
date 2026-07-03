@@ -67,7 +67,7 @@ namespace scid::core
         valid_slider(
             squareT sqFrom,
             squareT sqTo,
-            pieceT pieceType)
+            pieceT  pieceType)
         {
             assert(pieceType == QUEEN || pieceType == ROOK || pieceType == BISHOP);
 
@@ -75,7 +75,7 @@ namespace scid::core
             int distFyle = (sqTo % NSQUARES) - (sqFrom % NSQUARES);
 
             // Make sure the direction is valid:
-            int sqStep;
+            int  sqStep;
             bool isDiagonal = false;
             if (distRank == 0)
             {
@@ -112,7 +112,7 @@ namespace scid::core
         attack_pawn(
             squareT sqFrom,
             squareT sqTo,
-            colorT pieceCol)
+            colorT  pieceCol)
         {
             int distRank = (sqTo / NSQUARES) - (sqFrom / NSQUARES);
             int distFyle = (sqTo % NSQUARES) - (sqFrom % NSQUARES);
@@ -134,8 +134,8 @@ namespace scid::core
         attack_slider(
             squareT sqFrom,
             squareT sqTo,
-            pieceT pieceType,
-            TFunc isOccupied)
+            pieceT  pieceType,
+            TFunc   isOccupied)
         {
             int sqStep = valid_slider(sqFrom, sqTo, pieceType);
             if (sqStep == 0)
@@ -170,9 +170,9 @@ namespace scid::core
         attack(
             squareT sqFrom,
             squareT sqTo,
-            pieceT pieceCol,
-            pieceT pieceType,
-            TFunc isOccupied)
+            pieceT  pieceCol,
+            pieceT  pieceType,
+            TFunc   isOccupied)
         {
             switch (pieceType)
             {
@@ -198,8 +198,8 @@ namespace scid::core
         pseudo_advance_pawn(
             squareT sqFrom,
             squareT sqTo,
-            colorT pieceCol,
-            TFunc isOccupied)
+            colorT  pieceCol,
+            TFunc   isOccupied)
         {
             if ((sqTo % NSQUARES) != (sqFrom % NSQUARES) // Different file
                 || isOccupied(sqTo))                     // Pawns can only capture diagonally
@@ -226,9 +226,9 @@ namespace scid::core
         pseudo(
             squareT sqFrom,
             squareT sqTo,
-            colorT pieceCol,
-            pieceT pieceType,
-            TFunc isOccupied)
+            colorT  pieceCol,
+            pieceT  pieceType,
+            TFunc   isOccupied)
         {
             // TODO: castle moves
             if (pieceType == PAWN && pseudo_advance_pawn(sqFrom, sqTo, pieceCol, isOccupied))
@@ -252,12 +252,14 @@ namespace scid::core
          * illegal.
          */
         template <typename TFunc>
-        inline std::pair<pieceT, squareT>
+        inline std::pair<
+            pieceT,
+            squareT>
         opens_ray(
             squareT sqFrom,
             squareT sqTo,
             squareT sqRay,
-            TFunc isOccupied)
+            TFunc   isOccupied)
         {
             assert(sqRay != sqFrom);
 
@@ -266,8 +268,8 @@ namespace scid::core
             int distRank = (sqRay / NSQUARES) - (sqFrom / NSQUARES);
 
             // Make sure the direction is valid:
-            int fyleEdge;
-            int sqStep;
+            int    fyleEdge;
+            int    sqStep;
             pieceT pt;
             if (distFyle == 0)
             {

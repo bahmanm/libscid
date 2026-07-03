@@ -47,7 +47,9 @@ namespace scid::database
             long max_;
 
         protected:
-            StrRange() : min_(0), max_(0)
+            StrRange()
+                : min_(0),
+                  max_(0)
             {}
 
         public:
@@ -57,8 +59,7 @@ namespace scid::database
              * Extra words after the second value are ignored.  Missing second values
              * become an exact range.
              */
-            explicit StrRange(
-                const char* range)
+            explicit StrRange(const char* range)
             {
                 char* next;
                 min_ = std::strtol(range, &next, 10);
@@ -72,8 +73,7 @@ namespace scid::database
 
             /** Returns true when @p val is inside the inclusive range. */
             bool
-            inRange(
-                long val) const
+            inRange(long val) const
             {
                 if (val < min_ || val > max_)
                     return false;
@@ -110,15 +110,16 @@ namespace scid::database
                      * no status text to display.
                      */
                     virtual bool
-                    report(size_t done, size_t total, const char* msg) = 0;
+                    report(
+                        size_t      done,
+                        size_t      total,
+                        const char* msg) = 0;
             };
 
             /**
              * Takes ownership of @p f.
              */
-            Progress(
-                Impl* f = NULL)
-                : f_(f)
+            Progress(Impl* f = NULL) : f_(f)
             {}
             Progress(const Progress&) = delete;
             /** Deletes the owned callback implementation. */
@@ -138,8 +139,8 @@ namespace scid::database
             /** Reports progress and returns whether the caller should continue. */
             bool
             operator()(
-                size_t done,
-                size_t total,
+                size_t      done,
+                size_t      total,
                 const char* msg = NULL) const
             {
                 if (f_)
@@ -171,8 +172,7 @@ namespace scid::database
      * @c "R", @c "r", and @c "2" mean reset.  Unknown values default to reset.
      */
     inline filterOpT
-    strGetFilterOp(
-        const char* str)
+    strGetFilterOp(const char* str)
     {
         switch (*str)
         {
@@ -214,8 +214,7 @@ namespace scid::database
      * as a compact sortable prefix key for names.
      */
     inline uint32_t
-    strStartHash(
-        const char* str)
+    strStartHash(const char* str)
     {
         ASSERT(str != 0);
         const unsigned char* s = reinterpret_cast<const unsigned char*>(str);
@@ -242,30 +241,43 @@ namespace scid::database
 
     /** Appends @p extra to @p target and returns the new end pointer. */
     char*
-    strAppend(char* target, const char* extra);
+    strAppend(
+        char*       target,
+        const char* extra);
     /**
      * Copies @p orig into @p target using exactly @p length bytes when
      * @p length is non-negative, padding with @p pad as needed.
      */
     scid::core::uint
-    strPad(char* target, const char* orig, int length, char pad);
+    strPad(
+        char*       target,
+        const char* orig,
+        int         length,
+        char        pad);
     /** Returns the first occurrence of @p matchChar in @p target, or null. */
     const char*
-    strFirstChar(const char* target, char matchChar);
+    strFirstChar(
+        const char* target,
+        char        matchChar);
     /** Returns the last occurrence of @p matchChar in @p target, or null. */
     const char*
-    strLastChar(const char* target, char matchChar);
+    strLastChar(
+        const char* target,
+        char        matchChar);
     /** Removes every occurrence of @p ch from @p str in place. */
     void
-    strStrip(char* str, char ch);
+    strStrip(
+        char* str,
+        char  ch);
 
     /** Returns the first character in @p target that is not in @p trimChars. */
     const char*
-    strTrimLeft(const char* target, const char* trimChars);
+    strTrimLeft(
+        const char* target,
+        const char* trimChars);
     /** Returns @p target after skipping leading ASCII whitespace. */
     inline const char*
-    strTrimLeft(
-        const char* target)
+    strTrimLeft(const char* target)
     {
         return strTrimLeft(target, " \t\r\n");
     }
@@ -276,7 +288,9 @@ namespace scid::database
      *          character is not present.
      */
     scid::core::uint
-    strTrimSuffix(char* target, char suffixChar);
+    strTrimSuffix(
+        char* target,
+        char  suffixChar);
     /** Removes unknown month/day suffixes from a @c yyyy.mm.dd date string. */
     void
     strTrimDate(char* str);
@@ -295,8 +309,7 @@ namespace scid::database
 
     /** Returns an empty string for one item, otherwise @c "s". */
     inline const char*
-    strPlural(
-        scid::core::uint x)
+    strPlural(scid::core::uint x)
     {
         return (x == 1 ? "" : "s");
     }
@@ -326,8 +339,7 @@ namespace scid::database
      * Non-numeric strings return zero, following @c strtol behaviour.
      */
     inline int
-    strGetInteger(
-        const char* str)
+    strGetInteger(const char* str)
     {
         return std::strtol(str, NULL, 10);
     }
@@ -338,8 +350,7 @@ namespace scid::database
      * Non-numeric strings return zero, following @c strtoul behaviour.
      */
     inline uint32_t
-    strGetUnsigned(
-        const char* str)
+    strGetUnsigned(const char* str)
     {
         ASSERT(str != NULL);
         return static_cast<uint32_t>(std::strtoul(str, NULL, 10));
@@ -354,7 +365,7 @@ namespace scid::database
         ASSERT(str1 != NULL && str2 != NULL);
         const unsigned char* s1 = reinterpret_cast<const unsigned char*>(str1);
         const unsigned char* s2 = reinterpret_cast<const unsigned char*>(str2);
-        int c1, c2;
+        int                  c1, c2;
         do
         {
             c1 = tolower(*s1++);
@@ -397,10 +408,16 @@ namespace scid::database
 
     /** Parses @p nResults signed integers from @p str into @p results. */
     void
-    strGetIntegers(const char* str, int* results, scid::core::uint nResults);
+    strGetIntegers(
+        const char*      str,
+        int*             results,
+        scid::core::uint nResults);
     /** Parses @p nResults unsigned integers from @p str into @p results. */
     void
-    strGetUnsigneds(const char* str, scid::core::uint* results, scid::core::uint nResults);
+    strGetUnsigneds(
+        const char*       str,
+        scid::core::uint* results,
+        scid::core::uint  nResults);
     /** Parses a PGN-style game result from @p str. */
     scid::core::resultT
     strGetResult(const char* str);
@@ -417,15 +434,13 @@ namespace scid::database
     const flagT FLAG_BOTH = 3;
     /** Returns true when @p t includes @c FLAG_YES. */
     inline bool
-    flag_Yes(
-        flagT t)
+    flag_Yes(flagT t)
     {
         return (t & FLAG_YES);
     }
     /** Returns true when @p t includes @c FLAG_NO. */
     inline bool
-    flag_No(
-        flagT t)
+    flag_No(flagT t)
     {
         return (t & FLAG_NO);
     }
@@ -445,16 +460,14 @@ namespace scid::database
 
     /** Trims @p target at the last dot, returning the number of removed chars. */
     inline scid::core::uint
-    strTrimFileSuffix(
-        char* target)
+    strTrimFileSuffix(char* target)
     {
         return strTrimSuffix(target, '.');
     }
 
     /** Returns the last dot in @p target, or null when there is no suffix. */
     inline const char*
-    strFileSuffix(
-        const char* target)
+    strFileSuffix(const char* target)
     {
         return strLastChar(target, '.');
     }
@@ -466,12 +479,15 @@ namespace scid::database
      * also accepted; ambiguous or missing matches return -1.
      */
     int
-    strUniqueExactMatch(const char* keyStr, const char** strTable, bool exact);
+    strUniqueExactMatch(
+        const char*  keyStr,
+        const char** strTable,
+        bool         exact);
 
     /** Finds a unique exact or abbreviated match in @p strTable. */
     inline int
     strUniqueMatch(
-        const char* keyStr,
+        const char*  keyStr,
         const char** strTable)
     {
         return strUniqueExactMatch(keyStr, strTable, false);
@@ -479,7 +495,7 @@ namespace scid::database
     /** Finds only a complete match in @p strTable. */
     inline int
     strExactMatch(
-        const char* keyStr,
+        const char*  keyStr,
         const char** strTable)
     {
         return strUniqueExactMatch(keyStr, strTable, true);
@@ -489,7 +505,7 @@ namespace scid::database
     inline bool
     strContainsChar(
         const char* str,
-        char ch)
+        char        ch)
     {
         while (*str)
         {
@@ -533,7 +549,7 @@ namespace scid::database
     /** Copies @p original into @p target, including the trailing NUL byte. */
     inline void
     strCopy(
-        char* target,
+        char*       target,
         const char* original)
     {
         ASSERT(target != NULL && original != NULL);
@@ -689,8 +705,7 @@ namespace scid::database
 
     /** Returns the length of @p str, excluding the trailing NUL byte. */
     inline scid::core::uint
-    strLength(
-        const char* str)
+    strLength(const char* str)
     {
         ASSERT(str != NULL);
         scid::core::uint len = 0;
@@ -710,12 +725,12 @@ namespace scid::database
      */
     inline void
     strTrimRight(
-        char* target,
+        char*       target,
         const char* trimChars,
-        size_t nTrimCh)
+        size_t      nTrimCh)
     {
         const char* endTrim = trimChars + nTrimCh;
-        size_t iCh = strlen(target);
+        size_t      iCh = strlen(target);
         for (; iCh > 0; --iCh)
         {
             if (std::find(trimChars, endTrim, target[iCh - 1]) == endTrim)
@@ -725,8 +740,7 @@ namespace scid::database
     }
     /** Removes trailing ASCII whitespace from @p target. */
     inline void
-    strTrimRight(
-        char* target)
+    strTrimRight(char* target)
     {
         return strTrimRight(target, " \t\r\n", 4);
     }

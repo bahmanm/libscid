@@ -15,7 +15,7 @@ namespace
 
     std::string
     currentFen(
-        const scid::core::Game& game,
+        const scid::core::Game&      game,
         scid::core::MovetextLocation location)
     {
         scid::core::GameCursor cursor(game);
@@ -30,14 +30,14 @@ namespace
         return buf;
     }
 
+
     void
-    expect_roundtrip(
-        std::string_view pgn)
+    expect_roundtrip(std::string_view pgn)
     {
         SCOPED_TRACE(std::string(pgn));
-        scid::core::Game original;
+        scid::core::Game             original;
         scid::core::MovetextLocation originalLocation;
-        scid::core::pgn::ParseLog parseLog;
+        scid::core::pgn::ParseLog    parseLog;
         ASSERT_TRUE(
             scid::core::pgn::parseGame(
                 pgn.data(), pgn.size(), original, originalLocation, parseLog));
@@ -46,7 +46,7 @@ namespace
         scid::database::game_storage::encode(original, "", encoded);
 
         scid::database::ByteBuffer bbuf(encoded.data(), encoded.size());
-        scid::core::Game decoded;
+        scid::core::Game           decoded;
         decoded.clear();
         ASSERT_EQ(scid::core::OK, scid::database::game_storage::decodeMovesOnly(decoded, bbuf));
 

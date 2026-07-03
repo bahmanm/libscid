@@ -69,9 +69,9 @@ namespace scid::spelling
     class NameNormalizer
     {
             typedef std::vector<std::pair<std::string, std::string>> Cont;
-            Cont prefix_;
-            Cont infix_;
-            Cont suffix_;
+            Cont                                                     prefix_;
+            Cont                                                     infix_;
+            Cont                                                     suffix_;
 
         public:
             /**
@@ -126,7 +126,8 @@ namespace scid::spelling
 
         private:
             scid::core::errorT
-            add(Cont& v, const char* s);
+            add(Cont&       v,
+                const char* s);
     };
 
     /**
@@ -197,7 +198,7 @@ namespace scid::spelling
      */
     class PlayerInfo
     {
-            const char* comment_;
+            const char*              comment_;
             std::vector<const char*> bio_;
 
             friend class SpellingLoader;
@@ -212,9 +213,7 @@ namespace scid::spelling
              * construct @ref PlayerInfo directly must keep the string alive for the
              * lifetime of the object.
              */
-            PlayerInfo(
-                const char* s)
-                : comment_(s)
+            PlayerInfo(const char* s) : comment_(s)
             {}
             /**
              * Returns the first recognised chess title in the player comment.
@@ -289,10 +288,11 @@ namespace scid::spelling
             struct Idx
             {
                     std::string alias;
-                    int32_t idx;
+                    int32_t     idx;
 
                     Idx();
-                    Idx(const std::string& a, int32_t i);
+                    Idx(const std::string& a,
+                        int32_t            i);
                     bool
                     operator<(const Idx& b) const;
                     bool
@@ -300,13 +300,13 @@ namespace scid::spelling
             };
             typedef std::vector<Idx>::const_iterator IdxIt;
 
-            NameNormalizer general_[scid::database::NUM_NAME_TYPES];
-            std::string excludeChars_[scid::database::NUM_NAME_TYPES];
-            std::vector<Idx> idx_[scid::database::NUM_NAME_TYPES];
+            NameNormalizer           general_[scid::database::NUM_NAME_TYPES];
+            std::string              excludeChars_[scid::database::NUM_NAME_TYPES];
+            std::vector<Idx>         idx_[scid::database::NUM_NAME_TYPES];
             std::vector<const char*> names_[scid::database::NUM_NAME_TYPES];
-            std::vector<PlayerInfo> pInfo_;
-            std::vector<PlayerElo> pElo_;
-            std::deque<std::string> strings_;
+            std::vector<PlayerInfo>  pInfo_;
+            std::vector<PlayerElo>   pElo_;
+            std::deque<std::string>  strings_;
 
             friend class SpellingLoader;
 
@@ -323,8 +323,12 @@ namespace scid::spelling
              *         success.  On failure the error describes the load problem and the
              *         pointer is null.
              */
-            static std::pair<scid::core::errorT, std::unique_ptr<SpellChecker>>
-            create(const char* filename, const scid::database::Progress& progress);
+            static std::pair<
+                scid::core::errorT,
+                std::unique_ptr<SpellChecker>>
+            create(
+                const char*                     filename,
+                const scid::database::Progress& progress);
 
             /**
              * Finds canonical names that match @p name.
@@ -350,8 +354,10 @@ namespace scid::spelling
              * @return Canonical names owned by this spell checker, in index order.
              */
             std::vector<const char*>
-            find(const scid::database::nameT& nt, const char* name, scid::core::uint nMaxRes = 10)
-                const;
+            find(
+                const scid::database::nameT& nt,
+                const char*                  name,
+                scid::core::uint             nMaxRes = 10) const;
 
             /**
              * Returns the general normalisation rules loaded for @p nt.
@@ -384,7 +390,9 @@ namespace scid::spelling
              *         name is absent or ambiguous.  On failure @p bio is left unchanged.
              */
             const PlayerInfo*
-            getPlayerInfo(const char* name, std::vector<const char*>* bio = 0) const;
+            getPlayerInfo(
+                const char*               name,
+                std::vector<const char*>* bio = 0) const;
 
             /**
              * Returns rating history for an unambiguous player name.
@@ -421,18 +429,28 @@ namespace scid::spelling
             operator=(const SpellChecker&) = delete;
 
             scid::core::errorT
-            read(const char* filename, const scid::database::Progress& progress);
+            read(
+                const char*                     filename,
+                const scid::database::Progress& progress);
 
             const char*
             storeString(const char* s);
 
             std::string
-            normalizeAndTransform(const scid::database::nameT& nt, const char* s) const;
+            normalizeAndTransform(
+                const scid::database::nameT& nt,
+                const char*                  s) const;
 
-            std::pair<IdxIt, IdxIt>
-            idxFind(const scid::database::nameT& nt, const char* prefix) const;
+            std::pair<
+                IdxIt,
+                IdxIt>
+            idxFind(
+                const scid::database::nameT& nt,
+                const char*                  prefix) const;
 
-            std::pair<IdxIt, IdxIt>
+            std::pair<
+                IdxIt,
+                IdxIt>
             idxFindPlayer(const char* prefix) const;
 
             IdxIt

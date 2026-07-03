@@ -54,7 +54,7 @@ TEST(
     Test_StoredLine,
     getMove)
 {
-    auto it = std::begin(line63);
+    auto     it = std::begin(line63);
     unsigned i = 0;
     while (auto move = scid::database::StoredLine::getMove(63, i++))
     {

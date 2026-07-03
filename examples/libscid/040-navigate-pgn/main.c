@@ -5,7 +5,7 @@
 
 static int
 check(
-    scid_error error,
+    scid_error  error,
     const char* call)
 {
     if (error == SCID_OK)
@@ -16,6 +16,7 @@ check(
     fprintf(stderr, "%s failed with scid_error %hu\n", call, error);
     return 0;
 }
+
 
 static int
 take_cursor(
@@ -33,13 +34,14 @@ take_cursor(
     return 1;
 }
 
+
 static int
 read_text(
-    scid_error error,
+    scid_error  error,
     const char* call,
     const char* label,
     const char* text,
-    size_t text_size)
+    size_t      text_size)
 {
     if (!check(error, call))
     {
@@ -50,30 +52,31 @@ read_text(
     return 1;
 }
 
+
 static int
 text_equals(
     const char* text,
-    size_t text_size,
+    size_t      text_size,
     const char* expected)
 {
     return text_size == strlen(expected) && strncmp(text, expected, text_size) == 0;
 }
 
+
 static int
-print_next_move(
-    scid_game_cursor* cursor)
+print_next_move(scid_game_cursor* cursor)
 {
-    char san[64];
-    char uci[16];
-    char comment[256];
+    char          san[64];
+    char          uci[16];
+    char          comment[256];
     scid_movespec move;
-    scid_nag nag = 0;
-    size_t san_size = 0;
-    size_t uci_size = 0;
-    size_t comment_size = 0;
-    size_t nag_count = 0;
-    size_t variation_count = 0;
-    size_t ply = 0;
+    scid_nag      nag = 0;
+    size_t        san_size = 0;
+    size_t        uci_size = 0;
+    size_t        comment_size = 0;
+    size_t        nag_count = 0;
+    size_t        variation_count = 0;
+    size_t        ply = 0;
 
     if (!check(scid_game_cursor_ply_get(cursor, &ply), "scid_game_cursor_ply_get") ||
         !check(
@@ -123,28 +126,28 @@ print_next_move(
     return 1;
 }
 
+
 int
-main(
-    void)
+main(void)
 {
-    const char* start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    const char* pgn = "[Event \"Navigation\"]\n"
-                      "[Result \"*\"]\n"
-                      "\n"
-                      "{Before game} 1. e4 $1 {King pawn} "
-                      "({Queen pawn line} 1. d4 {Queen pawn} d5) e5 2. Nf3 Nc6 *\n";
-    scid_game* game = NULL;
+    const char*       start_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const char*       pgn = "[Event \"Navigation\"]\n"
+                            "[Result \"*\"]\n"
+                            "\n"
+                            "{Before game} 1. e4 $1 {King pawn} "
+                            "({Queen pawn line} 1. d4 {Queen pawn} d5) e5 2. Nf3 Nc6 *\n";
+    scid_game*        game = NULL;
     scid_game_cursor* cursor = NULL;
     scid_game_cursor* next_cursor = NULL;
-    scid_position* position = NULL;
-    char diagnostic[1024];
-    char text[256];
-    scid_movespec move;
-    int moved = 0;
-    size_t diagnostic_size = 0;
-    size_t text_size = 0;
-    size_t depth = 0;
-    size_t variation_count = 0;
+    scid_position*    position = NULL;
+    char              diagnostic[1024];
+    char              text[256];
+    scid_movespec     move;
+    int               moved = 0;
+    size_t            diagnostic_size = 0;
+    size_t            text_size = 0;
+    size_t            depth = 0;
+    size_t            variation_count = 0;
 
     if (!check(
             scid_position_create_from_fen(start_fen, &position), "scid_position_create_from_fen") ||
@@ -162,6 +165,7 @@ main(
         return 1;
     }
 
+
     if (!read_text(
             scid_game_cursor_comment_get(cursor, text, sizeof(text), &text_size),
             "scid_game_cursor_comment_get", "initial comment: ", text, text_size) ||
@@ -176,6 +180,7 @@ main(
         scid_game_free(game);
         return 1;
     }
+
 
     if (!check(
             scid_game_cursor_variation_enter(cursor, 0, &moved, &next_cursor),

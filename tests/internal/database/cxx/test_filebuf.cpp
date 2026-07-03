@@ -40,10 +40,10 @@ TEST_F(
     } cleanup;
 
     // Generate random data
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::random_device              rd;
+    std::mt19937                    gen(rd());
     std::uniform_int_distribution<> randch(0, 255);
-    std::vector<unsigned char> v(300 * 1024);
+    std::vector<unsigned char>      v(300 * 1024);
     for (auto& e : v)
         e = static_cast<unsigned char>(randch(gen));
 
@@ -61,8 +61,8 @@ TEST_F(
             ASSERT_EQ(scid::core::OK, file.open(fname, scid::database::FMODE_Both));
 
             std::vector<unsigned char> v2(v.size());
-            auto buf2 = reinterpret_cast<char*>(v2.data());
-            auto buf = reinterpret_cast<const char*>(v.data());
+            auto                       buf2 = reinterpret_cast<char*>(v2.data());
+            auto                       buf = reinterpret_cast<const char*>(v.data());
             buf += v.size() / 2;
             size_t nLeft = v.size() - v.size() / 2;
             while (nLeft > 0)
@@ -86,7 +86,7 @@ TEST_F(
             scid::database::FilebufAppend file;
             ASSERT_EQ(scid::core::OK, file.open(fname, scid::database::FMODE_ReadOnly));
             std::vector<unsigned char> v2(v.size());
-            auto buf2 = reinterpret_cast<char*>(v2.data());
+            auto                       buf2 = reinterpret_cast<char*>(v2.data());
             file.pubseekpos(0);
             file.sgetn(buf2, v2.size());
             EXPECT_TRUE(std::equal(v.begin(), v.end(), v2.begin()));
@@ -111,8 +111,8 @@ TEST_F(
             }
     } cleanup;
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::random_device                      rd;
+    std::mt19937                            gen(rd());
     std::uniform_int_distribution<uint32_t> dis24(0, (1 << 24) - 1);
     std::uniform_int_distribution<uint32_t> dis32;
 
@@ -229,7 +229,7 @@ TEST_F(
     Test_Filebuf,
     readAll)
 {
-    std::streamsize fileSize = -1;
+    std::streamsize         fileSize = -1;
     scid::database::Filebuf file;
     if (file.open(filename, std::ios::in | std::ios::binary | std::ios::ate) != 0)
     {
@@ -239,10 +239,10 @@ TEST_F(
     ASSERT_NE(-1, fileSize);
 
     std::unique_ptr<char[]> buf(new char[static_cast<size_t>(fileSize + 1)]);
-    char* line = buf.get();
-    char* bEnd = buf.get() + fileSize + 1;
-    std::streamsize nTot = 0;
-    size_t nRead;
+    char*                   line = buf.get();
+    char*                   bEnd = buf.get() + fileSize + 1;
+    std::streamsize         nTot = 0;
+    size_t                  nRead;
     while ((nRead = file.getline(line, std::distance(line, bEnd))) != 0)
     {
         nTot += nRead;
@@ -252,9 +252,9 @@ TEST_F(
     EXPECT_EQ(fileSize, nTot);
     EXPECT_EQ(bEnd, line + 1);
     { // Verify that scid::database::Filebuf::getline behaves like std::fstream::getline
-        const char* s = buf.get();
+        const char*  s = buf.get();
         std::fstream stl(filename, std::ios::in | std::ios::binary);
-        char stlBuf[1024];
+        char         stlBuf[1024];
         while (stl.getline(stlBuf, sizeof stlBuf))
         {
             std::string tmp(stlBuf);
@@ -349,14 +349,13 @@ TEST_F(
 using lines = std::vector<std::pair<std::streamsize, std::string>>;
 
 lines
-getlineSTL(
-    size_t bufSize)
+getlineSTL(size_t bufSize)
 {
-    lines vStl;
+    lines                   vStl;
     std::unique_ptr<char[]> unique_buf(new char[bufSize]);
-    char* buf = unique_buf.get();
-    std::ifstream stl(filename);
-    size_t i = 0;
+    char*                   buf = unique_buf.get();
+    std::ifstream           stl(filename);
+    size_t                  i = 0;
     for (; !stl.eof(); i++)
     {
         if (stl.fail())
@@ -374,14 +373,15 @@ getlineSTL(
     return vStl;
 }
 
+
 lines
 getlineScid(
     scid::database::Filebuf& file,
-    size_t bufSize)
+    size_t                   bufSize)
 {
-    lines vScid;
+    lines                   vScid;
     std::unique_ptr<char[]> unique_buf(new char[bufSize]);
-    char* buf = unique_buf.get();
+    char*                   buf = unique_buf.get();
     *buf = 0;
     size_t i = 0;
     for (; file.sgetc() != EOF; i++)
@@ -408,7 +408,7 @@ TEST_P(
     read)
 {
     const size_t bufSize = GetParam();
-    lines vStl = getlineSTL(bufSize);
+    lines        vStl = getlineSTL(bufSize);
 
     scid::database::Filebuf file;
     file.open(filename, std::ios::in);
@@ -454,4 +454,10 @@ TEST_P(
     }
 }
 
-INSTANTIATE_TEST_SUITE_P(smallbuf, Test_FilebufGetline, ::testing::Values(1000, 100, 10));
+INSTANTIATE_TEST_SUITE_P(
+    smallbuf,
+    Test_FilebufGetline,
+    ::testing::Values(
+        1000,
+        100,
+        10));

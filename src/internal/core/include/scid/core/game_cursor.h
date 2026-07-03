@@ -30,8 +30,8 @@ namespace scid::core
             struct ParentFrame
             {
                     const MoveSequence* line = nullptr;
-                    std::size_t nextIndex = 0;
-                    std::size_t variationIndex = 0;
+                    std::size_t         nextIndex = 0;
+                    std::size_t         variationIndex = 0;
             };
 
         public:
@@ -226,9 +226,9 @@ namespace scid::core
             const MoveSequence&
             currentLine() const;
 
-            const Game& game_;
-            const MoveSequence* currentLine_ = nullptr;
-            std::size_t nextIndex_ = 0;
+            const Game&              game_;
+            const MoveSequence*      currentLine_ = nullptr;
+            std::size_t              nextIndex_ = 0;
             std::vector<ParentFrame> parents_;
     };
 
