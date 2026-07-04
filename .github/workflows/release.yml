@@ -23,9 +23,11 @@ jobs:
         include:
           - os: ubuntu-24.04
             asset_label: linux
-            cpp_compiler: g++
+            c_compiler: clang-20
+            cpp_compiler: clang++-20
           - os: macos-15
             asset_label: macos-arm
+            c_compiler: clang
             cpp_compiler: clang++
 
     steps:
@@ -39,7 +41,7 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get install --yes default-jre doxygen graphviz plantuml
+            sudo apt-get install --yes clang-20 clang-tools-20 default-jre doxygen graphviz plantuml
             plantuml_jar="$(dpkg -L plantuml | awk '/\/plantuml\.jar$/ { print; exit }')"
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew update
@@ -79,6 +81,7 @@ jobs:
         run: >
           cmake
           --preset package
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DLIBSCID_PROJECT_VERSION="$LIBSCID_PROJECT_VERSION"
           -DLIBSCID_VERSION="$LIBSCID_VERSION"

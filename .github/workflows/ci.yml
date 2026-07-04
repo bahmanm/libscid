@@ -24,13 +24,15 @@ jobs:
       - name: Install clang-format
         run: >
           sudo apt-get update
-          && sudo apt-get install --yes clang-format-20
+          && sudo apt-get install --yes clang-20 clang-format-20 clang-tools-20
 
       - name: Configure
         run: >
           cmake
           -S .
           -B _build-format
+          -DCMAKE_C_COMPILER=clang-20
+          -DCMAKE_CXX_COMPILER=clang++-20
 
       - name: Check formatting
         run: >
@@ -53,13 +55,21 @@ jobs:
         include:
           - os: ubuntu-24.04
             check_label: linux
-            cpp_compiler: g++
+            c_compiler: clang-20
+            cpp_compiler: clang++-20
           - os: macos-15
             check_label: macos
+            c_compiler: clang
             cpp_compiler: clang++
 
     steps:
       - uses: actions/checkout@v7
+
+      - name: Install LLVM toolchain
+        if: runner.os == 'Linux'
+        run: >
+          sudo apt-get update
+          && sudo apt-get install --yes clang-20 clang-tools-20
 
       - name: Configure
         run: >
@@ -68,6 +78,7 @@ jobs:
           -B _build
           -DBUILD_TESTING=ON
           -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
 
       - name: Build
@@ -130,9 +141,11 @@ jobs:
         include:
           - os: ubuntu-24.04
             check_label: linux
-            cpp_compiler: g++
+            c_compiler: clang-20
+            cpp_compiler: clang++-20
           - os: macos-15
             check_label: macos
+            c_compiler: clang
             cpp_compiler: clang++
 
     steps:
@@ -142,6 +155,12 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Install LLVM toolchain
+        if: runner.os == 'Linux'
+        run: >
+          sudo apt-get update
+          && sudo apt-get install --yes clang-20 clang-tools-20
+
       - name: Configure
         run: >
           cmake
@@ -150,6 +169,7 @@ jobs:
           -DBUILD_SHARED_LIBS=ON
           -DBUILD_TESTING=ON
           -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
 
       - name: Build
