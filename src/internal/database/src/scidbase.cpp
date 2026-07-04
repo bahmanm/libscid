@@ -1201,12 +1201,14 @@ namespace scid::database
 
         size_t maskName = filterID.find('+', 1);
         ASSERT(maskName != std::string::npos);
-        ASSERT(getFilter(filterID.substr(1, maskName - 1)) != nullptr);
-        ASSERT(getFilter(filterID.substr(maskName + 1)) != nullptr);
+        const auto mainFilterID = filterID.substr(1, maskName - 1);
+        const auto maskFilterID = filterID.substr(maskName + 1);
+        const bool mainFilterExists = getFilter(mainFilterID) != nullptr;
+        const bool maskFilterExists = getFilter(maskFilterID) != nullptr;
+        ASSERT(mainFilterExists);
+        ASSERT(maskFilterExists);
 
-        return {
-            std::string(filterID.substr(1, maskName - 1)),
-            std::string(filterID.substr(maskName + 1))};
+        return {std::string(mainFilterID), std::string(maskFilterID)};
     }
 
     /**
