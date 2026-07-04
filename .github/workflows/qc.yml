@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  format:
-    name: format
+  qc__format:
+    name: qc__format
     runs-on: ubuntu-24.04
 
     defaults:
@@ -41,8 +41,8 @@ jobs:
           --target format-check
           --verbose
 
-  cppcheck:
-    name: cppcheck
+  qc__cppcheck:
+    name: qc__cppcheck
     runs-on: ubuntu-24.04
 
     defaults:
@@ -71,8 +71,8 @@ jobs:
           --preset cppcheck
           --verbose
 
-  clang-tidy:
-    name: clang-tidy
+  qc__clang-tidy:
+    name: qc__clang-tidy
     runs-on: ubuntu-24.04
 
     defaults:
