@@ -122,6 +122,8 @@ namespace scid::database
             Progress(Impl* f = NULL) : f_(f)
             {}
             Progress(const Progress&) = delete;
+            Progress&
+            operator=(const Progress&) = delete;
             /** Deletes the owned callback implementation. */
             ~Progress()
             {
