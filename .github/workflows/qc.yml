@@ -1,0 +1,102 @@
+name: qc
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    name: format
+    runs-on: ubuntu-24.04
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install clang-format
+        run: >
+          sudo apt-get update
+          && sudo apt-get install --yes clang-20 clang-format-20 clang-tools-20
+
+      - name: Configure
+        run: >
+          cmake
+          -S .
+          -B _build-format
+          -DCMAKE_C_COMPILER=clang-20
+          -DCMAKE_CXX_COMPILER=clang++-20
+
+      - name: Check formatting
+        run: >
+          cmake
+          --build _build-format
+          --target format-check
+          --verbose
+
+  cppcheck:
+    name: cppcheck
+    runs-on: ubuntu-24.04
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install static analysis tools
+        run: >
+          sudo apt-get update
+          && sudo apt-get install --yes clang-20 clang-tools-20 cppcheck
+
+      - name: Configure
+        run: >
+          cmake
+          --preset analysis
+          -DCMAKE_C_COMPILER=clang-20
+          -DCMAKE_CXX_COMPILER=clang++-20
+
+      - name: Run cppcheck
+        run: >
+          cmake
+          --build
+          --preset cppcheck
+          --verbose
+
+  clang-tidy:
+    name: clang-tidy
+    runs-on: ubuntu-24.04
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install static analysis tools
+        run: >
+          sudo apt-get update
+          && sudo apt-get install --yes clang-20 clang-tidy-20 clang-tools-20
+
+      - name: Configure
+        run: >
+          cmake
+          --preset analysis
+          -DCMAKE_C_COMPILER=clang-20
+          -DCMAKE_CXX_COMPILER=clang++-20
+
+      - name: Run clang-tidy
+        run: >
+          cmake
+          --build
+          --preset clang-tidy
+          --verbose

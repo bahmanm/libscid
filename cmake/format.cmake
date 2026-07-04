@@ -1,6 +1,7 @@
 find_program(
     LIBSCID_CLANG_FORMAT
-    NAMES clang-format-20 clang-format )
+    NAMES clang-format-20 clang-format
+    HINTS "$ENV{LLVM20}/bin" "/opt/homebrew/opt/llvm@20/bin" )
 
 if( NOT LIBSCID_CLANG_FORMAT )
     add_custom_target(
@@ -41,6 +42,11 @@ file(
     "${PROJECT_SOURCE_DIR}/tests/*.hh"
     "${PROJECT_SOURCE_DIR}/tests/*.hpp"
     "${PROJECT_SOURCE_DIR}/tests/*.hxx" )
+
+list(
+    FILTER LIBSCID_FORMAT_SOURCES
+    EXCLUDE REGEX
+    "/(_build[^/]*|build|CMakeFiles)/" )
 
 add_custom_target(
     format
