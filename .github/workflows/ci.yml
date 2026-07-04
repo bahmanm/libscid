@@ -13,8 +13,8 @@ env:
   LIBSCID_WINDOWS_LLVM_VERSION: "20.1.4"
 
 jobs:
-  unix-build-and-test:
-    name: unix-build-and-test (${{ matrix.check_label }})
+  ci__unix:
+    name: ci__unix (${{ matrix.check_label }})
     runs-on: ${{ matrix.os }}
 
     defaults:
@@ -84,8 +84,8 @@ jobs:
           -C Release
           --output-on-failure
 
-  windoze-build-and-test:
-    name: windoze-build-and-test
+  ci__windoze:
+    name: ci__windoze
     runs-on: windows-2022
 
     defaults:
@@ -140,8 +140,8 @@ jobs:
           --test-dir _build
           --output-on-failure
 
-  unix-shared-build-and-test:
-    name: unix-shared-build-and-test (${{ matrix.check_label }})
+  ci__unix-shared:
+    name: ci__unix-shared (${{ matrix.check_label }})
     runs-on: ${{ matrix.os }}
 
     defaults:
@@ -226,8 +226,8 @@ jobs:
           python examples/libscid/000-python-bindings/pgn_roundtrip.py \
             --library "_build-shared/src/libscid/${library_name}"
 
-  windoze-shared-build-and-test:
-    name: windoze-shared-build-and-test
+  ci__windoze-shared:
+    name: ci__windoze-shared
     runs-on: windows-2022
 
     defaults:

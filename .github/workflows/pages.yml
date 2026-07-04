@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  pages__build:
     runs-on: ubuntu-24.04
 
     defaults:
@@ -64,8 +64,8 @@ jobs:
         with:
           path: _build/docs/doxygen/html
 
-  deploy:
-    needs: build
+  pages__deploy:
+    needs: pages__build
     runs-on: ubuntu-24.04
 
     environment:
