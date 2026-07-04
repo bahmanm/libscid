@@ -193,6 +193,9 @@ namespace scid::database
 
             scidBaseT();
             ~scidBaseT();
+            scidBaseT(const scidBaseT&) = delete;
+            scidBaseT&
+            operator=(const scidBaseT&) = delete;
 
             /**
              * Opens a database using the requested codec and file mode.
