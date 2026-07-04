@@ -119,6 +119,7 @@ namespace scid::database
           hash_(NULL),
           index_(idx),
           nbase_(nbase),
+          criteria_{},
           refCount_(0)
     {}
 
