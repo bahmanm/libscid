@@ -68,6 +68,13 @@
       ]
     },
     {
+      "name": "clang-tidy",
+      "configurePreset": "analysis",
+      "targets": [
+        "clang-tidy"
+      ]
+    },
+    {
       "name": "package",
       "configurePreset": "package"
     },
