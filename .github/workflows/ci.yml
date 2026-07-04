@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  LIBSCID_WINDOWS_LLVM_VERSION: "20.1.4"
+
 jobs:
   format:
     name: format
@@ -24,13 +27,15 @@ jobs:
       - name: Install clang-format
         run: >
           sudo apt-get update
-          && sudo apt-get install --yes clang-format-20
+          && sudo apt-get install --yes clang-20 clang-format-20 clang-tools-20
 
       - name: Configure
         run: >
           cmake
           -S .
           -B _build-format
+          -DCMAKE_C_COMPILER=clang-20
+          -DCMAKE_CXX_COMPILER=clang++-20
 
       - name: Check formatting
         run: >
@@ -53,22 +58,45 @@ jobs:
         include:
           - os: ubuntu-24.04
             check_label: linux
-            cpp_compiler: g++
           - os: macos-15
             check_label: macos
-            cpp_compiler: clang++
 
     steps:
       - uses: actions/checkout@v7
 
+      - name: Install LLVM toolchain
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update
+            sudo apt-get install --yes clang-20 clang-tools-20
+            echo "LIBSCID_C_COMPILER=clang-20" >> "$GITHUB_ENV"
+            echo "LIBSCID_CXX_COMPILER=clang++-20" >> "$GITHUB_ENV"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install llvm@20
+            llvm_prefix="$(brew --prefix llvm@20)"
+            sdkroot="$(xcrun --show-sdk-path)"
+            echo "$llvm_prefix/bin" >> "$GITHUB_PATH"
+            echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
+            echo "LIBSCID_C_COMPILER=$llvm_prefix/bin/clang" >> "$GITHUB_ENV"
+            echo "LIBSCID_CXX_COMPILER=$llvm_prefix/bin/clang++" >> "$GITHUB_ENV"
+          fi
+
       - name: Configure
-        run: >
-          cmake
-          -S .
-          -B _build
-          -DBUILD_TESTING=ON
-          -DCMAKE_BUILD_TYPE=Release
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        run: |
+          cmake_args=(
+            -S .
+            -B _build
+            -DBUILD_TESTING=ON
+            -DCMAKE_BUILD_TYPE=Release
+            "-DCMAKE_C_COMPILER=$LIBSCID_C_COMPILER"
+            "-DCMAKE_CXX_COMPILER=$LIBSCID_CXX_COMPILER"
+          )
+
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            cmake_args+=("-DCMAKE_OSX_SYSROOT=$SDKROOT")
+          fi
+
+          cmake "${cmake_args[@]}"
 
       - name: Build
         run: >
@@ -95,25 +123,40 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install LLVM toolchain
+        run: |
+          choco install llvm --version="$env:LIBSCID_WINDOWS_LLVM_VERSION" --yes --no-progress
+          choco install ninja --yes --no-progress
+
+          $llvmBin = "C:\Program Files\LLVM\bin"
+          "PATH=$llvmBin;$env:Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_C_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_CXX_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Configure
         run: >
           cmake
           -S .
           -B _build
+          -G Ninja
           -DBUILD_TESTING=ON
+          -DCMAKE_BUILD_TYPE=Release
+          "-DCMAKE_C_COMPILER=$env:LIBSCID_C_COMPILER"
+          "-DCMAKE_CXX_COMPILER=$env:LIBSCID_CXX_COMPILER"
 
       - name: Build
         run: >
           cmake
           --build _build
-          --config Release
           --verbose
 
       - name: Test
         run: >
           ctest
           --test-dir _build
-          -C Release
           --output-on-failure
 
   unix-shared-build-and-test:
@@ -130,10 +173,8 @@ jobs:
         include:
           - os: ubuntu-24.04
             check_label: linux
-            cpp_compiler: g++
           - os: macos-15
             check_label: macos
-            cpp_compiler: clang++
 
     steps:
       - uses: actions/checkout@v7
@@ -142,15 +183,40 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Install LLVM toolchain
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update
+            sudo apt-get install --yes clang-20 clang-tools-20
+            echo "LIBSCID_C_COMPILER=clang-20" >> "$GITHUB_ENV"
+            echo "LIBSCID_CXX_COMPILER=clang++-20" >> "$GITHUB_ENV"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install llvm@20
+            llvm_prefix="$(brew --prefix llvm@20)"
+            sdkroot="$(xcrun --show-sdk-path)"
+            echo "$llvm_prefix/bin" >> "$GITHUB_PATH"
+            echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
+            echo "LIBSCID_C_COMPILER=$llvm_prefix/bin/clang" >> "$GITHUB_ENV"
+            echo "LIBSCID_CXX_COMPILER=$llvm_prefix/bin/clang++" >> "$GITHUB_ENV"
+          fi
+
       - name: Configure
-        run: >
-          cmake
-          -S .
-          -B _build-shared
-          -DBUILD_SHARED_LIBS=ON
-          -DBUILD_TESTING=ON
-          -DCMAKE_BUILD_TYPE=Release
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        run: |
+          cmake_args=(
+            -S .
+            -B _build-shared
+            -DBUILD_SHARED_LIBS=ON
+            -DBUILD_TESTING=ON
+            -DCMAKE_BUILD_TYPE=Release
+            "-DCMAKE_C_COMPILER=$LIBSCID_C_COMPILER"
+            "-DCMAKE_CXX_COMPILER=$LIBSCID_CXX_COMPILER"
+          )
+
+          if [[ "$RUNNER_OS" == "macOS" ]]; then
+            cmake_args+=("-DCMAKE_OSX_SYSROOT=$SDKROOT")
+          fi
+
+          cmake "${cmake_args[@]}"
 
       - name: Build
         run: >
@@ -191,30 +257,45 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install LLVM toolchain
+        run: |
+          choco install llvm --version="$env:LIBSCID_WINDOWS_LLVM_VERSION" --yes --no-progress
+          choco install ninja --yes --no-progress
+
+          $llvmBin = "C:\Program Files\LLVM\bin"
+          "PATH=$llvmBin;$env:Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_C_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_CXX_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
       - name: Configure
         run: >
           cmake
           -S .
           -B _build-shared
+          -G Ninja
           -DBUILD_SHARED_LIBS=ON
           -DBUILD_TESTING=ON
+          -DCMAKE_BUILD_TYPE=Release
+          "-DCMAKE_C_COMPILER=$env:LIBSCID_C_COMPILER"
+          "-DCMAKE_CXX_COMPILER=$env:LIBSCID_CXX_COMPILER"
 
       - name: Build
         run: >
           cmake
           --build _build-shared
-          --config Release
           --verbose
 
       - name: Test
         run: >
           ctest
           --test-dir _build-shared
-          -C Release
           --output-on-failure
 
       - name: Test Python examples
         run: >
           python
           examples/libscid/000-python-bindings/pgn_roundtrip.py
-          --library _build-shared/src/libscid/Release/scid.dll
+          --library _build-shared/src/libscid/scid.dll

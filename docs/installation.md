@@ -8,9 +8,37 @@ prebuilt archive is not available for the target platform.
 ## Requirements
 
 - A C11 compiler for public C ABI consumers.
-- A C++20 compiler for source builds.
-- CMake 3.23 or newer for source builds and CMake consumers.
-- CMake 3.25 or newer when using the repository's CMake presets.
+- A C++23 compiler for source builds.
+- CMake 3.28 or newer for source builds, CMake consumers and the repository's
+  CMake presets.
+
+On Ubuntu 24.04, install Clang 20 and the matching Clang dependency scanner for
+source builds:
+
+```sh
+sudo apt-get update
+sudo apt-get install --yes clang-20 clang-tools-20
+```
+
+On local macOS development machines, use the Homebrew LLVM 20 toolchain from
+`/opt/homebrew/opt/llvm@20/bin` so the compiler major version stays aligned
+with CI:
+
+```sh
+brew install llvm@20
+
+export LLVM20=/opt/homebrew/opt/llvm@20
+export PATH="$LLVM20/bin:$PATH"
+export SDKROOT="$(xcrun --show-sdk-path)"
+```
+
+On Windows, the CI pipeline uses LLVM 20 through Chocolatey and builds with
+`clang-cl` so the toolchain keeps the MSVC ABI and runtime model:
+
+```powershell
+choco install llvm --version=20.1.4 --yes --no-progress
+choco install ninja --yes --no-progress
+```
 
 ## Install From A Release Archive
 
@@ -68,6 +96,8 @@ Configure, build and install with an explicit prefix:
 cmake -S . -B _build/release \
     -DCMAKE_BUILD_TYPE=Release \
     -DLIBSCID_INSTALL=ON \
+    -DCMAKE_C_COMPILER=clang-20 \
+    -DCMAKE_CXX_COMPILER=clang++-20 \
     -DCMAKE_INSTALL_PREFIX="$PWD/install/libscid"
 
 cmake --build _build/release
@@ -82,6 +112,8 @@ cmake -S . -B _build/package \
     -DCMAKE_BUILD_TYPE=Release \
     -DLIBSCID_INSTALL=ON \
     -DLIBSCID_BUILD_DOCS=ON \
+    -DCMAKE_C_COMPILER=clang-20 \
+    -DCMAKE_CXX_COMPILER=clang++-20 \
     -DCMAKE_INSTALL_PREFIX="$PWD/install/libscid"
 
 cmake --build _build/package
@@ -104,9 +136,31 @@ cpack --preset portable-tgz
 Tests are disabled by default in top-level builds. Enable them explicitly:
 
 ```sh
-cmake -S . -B _build -DBUILD_TESTING=ON -DLIBSCID_INSTALL=OFF
+cmake -S . -B _build \
+    -DBUILD_TESTING=ON \
+    -DLIBSCID_INSTALL=OFF \
+    -DCMAKE_C_COMPILER=clang-20 \
+    -DCMAKE_CXX_COMPILER=clang++-20
 cmake --build _build
 ctest --test-dir _build --output-on-failure
+```
+
+On macOS, replace the compiler settings in the source-build commands with the
+Homebrew LLVM 20 paths:
+
+```sh
+-DCMAKE_C_COMPILER="$LLVM20/bin/clang" \
+-DCMAKE_CXX_COMPILER="$LLVM20/bin/clang++" \
+-DCMAKE_OSX_SYSROOT="$SDKROOT"
+```
+
+On Windows, configure with Ninja and `clang-cl` from the LLVM install:
+
+```powershell
+cmake -S . -B _build -G Ninja `
+    -DBUILD_TESTING=ON `
+    "-DCMAKE_C_COMPILER=C:\Program Files\LLVM\bin\clang-cl.exe" `
+    "-DCMAKE_CXX_COMPILER=C:\Program Files\LLVM\bin\clang-cl.exe"
 ```
 
 Focused module test runs are also available after configuring with tests:
