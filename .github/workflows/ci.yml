@@ -44,6 +44,36 @@ jobs:
           --target format-check
           --verbose
 
+  cppcheck:
+    name: cppcheck
+    runs-on: ubuntu-24.04
+
+    defaults:
+      run:
+        shell: bash -euo pipefail {0}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install static analysis tools
+        run: >
+          sudo apt-get update
+          && sudo apt-get install --yes clang-20 clang-tools-20 cppcheck
+
+      - name: Configure
+        run: >
+          cmake
+          --preset analysis
+          -DCMAKE_C_COMPILER=clang-20
+          -DCMAKE_CXX_COMPILER=clang++-20
+
+      - name: Run cppcheck
+        run: >
+          cmake
+          --build
+          --preset cppcheck
+          --verbose
+
   unix-build-and-test:
     name: unix-build-and-test (${{ matrix.check_label }})
     runs-on: ${{ matrix.os }}
