@@ -149,7 +149,7 @@ namespace scid::core::pgn_impl
             }
 
 
-            void
+            virtual void
             visitPGN_inputEOF()
             {
                 if (nErrorsAllowed_)

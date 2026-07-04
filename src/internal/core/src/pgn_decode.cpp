@@ -24,7 +24,7 @@ namespace scid::core::pgn
                               location)
                     {}
                     void
-                    visitPGN_inputEOF()
+                    visitPGN_inputEOF() override
                     {}
             } visitor(game, location);
 
