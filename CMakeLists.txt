@@ -34,10 +34,18 @@ option( LIBSCID_INSTALL "Install libscid targets and CMake package files." "${PR
 option( LIBSCID_BUILD_DOCS "Build libscid API documentation." OFF )
 
 if( PROJECT_IS_TOP_LEVEL )
+    set(
+        CMAKE_EXPORT_COMPILE_COMMANDS
+        ON
+        CACHE BOOL "Generate compile_commands.json for static analysis tools."
+        FORCE )
+
     if( NOT DEFINED BUILD_TESTING )
         set( BUILD_TESTING OFF CACHE BOOL "Build tests" )
     endif()
     include( CTest )
+    include( cmake/clang-tidy.cmake )
+    include( cmake/cppcheck.cmake )
     include( cmake/format.cmake )
 endif()
 

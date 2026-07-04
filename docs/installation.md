@@ -32,6 +32,14 @@ export PATH="$LLVM20/bin:$PATH"
 export SDKROOT="$(xcrun --show-sdk-path)"
 ```
 
+Install cppcheck separately when running local static analysis. The Homebrew
+LLVM package includes `clang-tidy` and `run-clang-tidy`.
+
+```sh
+sudo apt-get install --yes cppcheck clang-tidy-20 clang-tools-20 # Ubuntu
+brew install cppcheck                                           # macOS
+```
+
 On Windows, the CI pipeline uses LLVM 20 through Chocolatey and builds with
 `clang-cl` so the toolchain keeps the MSVC ABI and runtime model:
 
@@ -143,6 +151,24 @@ cmake -S . -B _build \
     -DCMAKE_CXX_COMPILER=clang++-20
 cmake --build _build
 ctest --test-dir _build --output-on-failure
+```
+
+Top-level source builds generate a compilation database at
+`<build-dir>/compile_commands.json` for static analysis tools.
+
+Run the relaxed cppcheck pass with the analysis preset:
+
+```sh
+cmake --preset analysis \
+    -DCMAKE_C_COMPILER=clang-20 \
+    -DCMAKE_CXX_COMPILER=clang++-20
+cmake --build --preset cppcheck
+```
+
+Run the relaxed clang-tidy pass with the same analysis preset:
+
+```sh
+cmake --build --preset clang-tidy
 ```
 
 On macOS, replace the compiler settings in the source-build commands with the
