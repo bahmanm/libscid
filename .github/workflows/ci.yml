@@ -98,6 +98,9 @@ jobs:
 
           cmake "${cmake_args[@]}"
 
+      - name: Check compilation database
+        run: test -s _build/compile_commands.json
+
       - name: Build
         run: >
           cmake
@@ -146,6 +149,15 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release
           "-DCMAKE_C_COMPILER=$env:LIBSCID_C_COMPILER"
           "-DCMAKE_CXX_COMPILER=$env:LIBSCID_CXX_COMPILER"
+
+      - name: Check compilation database
+        run: |
+          if (-not (Test-Path _build/compile_commands.json)) {
+            throw "Missing _build/compile_commands.json."
+          }
+          if ((Get-Item _build/compile_commands.json).Length -eq 0) {
+            throw "_build/compile_commands.json is empty."
+          }
 
       - name: Build
         run: >
@@ -218,6 +230,9 @@ jobs:
 
           cmake "${cmake_args[@]}"
 
+      - name: Check compilation database
+        run: test -s _build-shared/compile_commands.json
+
       - name: Build
         run: >
           cmake
@@ -281,6 +296,15 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release
           "-DCMAKE_C_COMPILER=$env:LIBSCID_C_COMPILER"
           "-DCMAKE_CXX_COMPILER=$env:LIBSCID_CXX_COMPILER"
+
+      - name: Check compilation database
+        run: |
+          if (-not (Test-Path _build-shared/compile_commands.json)) {
+            throw "Missing _build-shared/compile_commands.json."
+          }
+          if ((Get-Item _build-shared/compile_commands.json).Length -eq 0) {
+            throw "_build-shared/compile_commands.json is empty."
+          }
 
       - name: Build
         run: >

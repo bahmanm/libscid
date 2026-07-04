@@ -145,6 +145,9 @@ cmake --build _build
 ctest --test-dir _build --output-on-failure
 ```
 
+Top-level source builds generate a compilation database at
+`<build-dir>/compile_commands.json` for static analysis tools.
+
 On macOS, replace the compiler settings in the source-build commands with the
 Homebrew LLVM 20 paths:
 
