@@ -1,4 +1,4 @@
-name: build and test
+name: ci
 
 on:
   push:
@@ -14,7 +14,7 @@ env:
 
 jobs:
   ci__unix:
-    name: ci__unix (${{ matrix.check_label }})
+    name: ci__${{ matrix.check_label }}
     runs-on: ${{ matrix.os }}
 
     defaults:
@@ -141,7 +141,7 @@ jobs:
           --output-on-failure
 
   ci__unix-shared:
-    name: ci__unix-shared (${{ matrix.check_label }})
+    name: ci__${{ matrix.check_label }}-shared
     runs-on: ${{ matrix.os }}
 
     defaults:
