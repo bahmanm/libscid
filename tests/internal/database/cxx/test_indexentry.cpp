@@ -144,6 +144,55 @@ namespace
 
 TEST(
     Test_IndexEntry,
+    DefaultInitialisesPackedFields)
+{
+    scid::database::IndexEntry ie;
+
+    EXPECT_EQ(0U, ie.GetOffset());
+    EXPECT_EQ(0U, ie.GetLength());
+    EXPECT_EQ(0U, ie.GetWhite());
+    EXPECT_EQ(0U, ie.GetBlack());
+    EXPECT_EQ(0U, ie.GetEvent());
+    EXPECT_EQ(0U, ie.GetSite());
+    EXPECT_EQ(0U, ie.GetRound());
+    EXPECT_EQ(0, ie.GetWhiteElo());
+    EXPECT_EQ(0, ie.GetBlackElo());
+    EXPECT_EQ(0, ie.GetWhiteRatingType());
+    EXPECT_EQ(0, ie.GetBlackRatingType());
+    EXPECT_EQ(scid::core::ZERO_DATE, ie.GetDate());
+    EXPECT_EQ(scid::core::ZERO_DATE, ie.GetEventDate());
+    EXPECT_EQ(scid::core::RESULT_None, ie.GetResult());
+    EXPECT_EQ(0U, ie.GetVariationCount());
+    EXPECT_EQ(0U, ie.GetCommentCount());
+    EXPECT_EQ(0U, ie.GetNagCount());
+    EXPECT_EQ(0, ie.GetNumHalfMoves());
+    EXPECT_EQ(0U, ie.GetFinalMatSig());
+    EXPECT_EQ(0, ie.GetStoredLineCode());
+    EXPECT_EQ(scid::database::ECO_CODE_NONE, ie.GetEcoCode());
+    EXPECT_EQ(0U, ie.GetRawFlags());
+    EXPECT_EQ(0U, ie.GetRaw4bitsCounts());
+    EXPECT_EQ(0, ie.GetRating());
+    EXPECT_TRUE(ie.isChessStd());
+
+    EXPECT_FALSE(ie.GetStartFlag());
+    EXPECT_FALSE(ie.GetPromotionsFlag());
+    EXPECT_FALSE(ie.GetUnderPromoFlag());
+    EXPECT_FALSE(ie.GetDeleteFlag());
+    EXPECT_FALSE(ie.GetCommentsFlag());
+    EXPECT_FALSE(ie.GetVariationsFlag());
+    EXPECT_FALSE(ie.GetNagsFlag());
+
+    scid::core::byte emptyHomePawnData[scid::database::HPSIG_SIZE] = {};
+    EXPECT_TRUE(
+        std::equal(
+            std::begin(emptyHomePawnData), std::end(emptyHomePawnData), ie.GetHomePawnData()));
+
+    EXPECT_TRUE(std::has_unique_object_representations_v<scid::database::IndexEntry>);
+    EXPECT_TRUE(ie.equalExceptFlags(scid::database::IndexEntry{}));
+}
+
+TEST(
+    Test_IndexEntry,
     Flags_dedicatedGetSet)
 {
     scid::database::IndexEntry      ie;

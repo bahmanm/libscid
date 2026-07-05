@@ -65,42 +65,42 @@ namespace scid::database
      */
     class IndexEntry
     {
-            uint64_t offset_ : 46;       // Start of gamefile record for this game.
-            uint64_t gameDataSize_ : 18; // Length of gamefile record for this game.
+            uint64_t offset_ : 46 = 0;       // Start of gamefile record for this game.
+            uint64_t gameDataSize_ : 18 = 0; // Length of gamefile record for this game.
 
-            uint32_t nComments_ : 4;
-            uint32_t whiteID_ : 28;
+            uint32_t nComments_ : 4 = 0;
+            uint32_t whiteID_ : 28 = 0;
 
-            uint32_t nVariations_ : 4;
-            uint32_t blackID_ : 28;
+            uint32_t nVariations_ : 4 = 0;
+            uint32_t blackID_ : 28 = 0;
 
-            uint32_t nNags_ : 4;
-            uint32_t eventID_ : 28;
+            uint32_t nNags_ : 4 = 0;
+            uint32_t eventID_ : 28 = 0;
 
-            uint32_t siteID_;
+            uint32_t siteID_ = 0;
 
-            uint32_t variant_ : 1;
-            uint32_t roundID_ : 31;
+            uint32_t variant_ : 1 = 0;
+            uint32_t roundID_ : 31 = 0;
 
-            uint32_t whiteElo_ : 12;
-            uint32_t date_ : 20;
+            uint32_t whiteElo_ : 12 = 0;
+            uint32_t date_ : 20 = 0;
 
-            uint32_t blackElo_ : 12;
-            uint32_t eventDate_ : 20;
+            uint32_t blackElo_ : 12 = 0;
+            uint32_t eventDate_ : 20 = 0;
 
-            uint32_t numHalfMoves_ : 10;
-            uint32_t flags_ : 22;
+            uint32_t numHalfMoves_ : 10 = 0;
+            uint32_t flags_ : 22 = 0;
 
-            uint32_t result_ : 2;
-            uint32_t whiteEloType_ : 3;
-            uint32_t blackEloType_ : 3;
-            uint32_t finalMatSig_ : 24; // material of the final position in the game
+            uint32_t result_ : 2 = 0;
+            uint32_t whiteEloType_ : 3 = 0;
+            uint32_t blackEloType_ : 3 = 0;
+            uint32_t finalMatSig_ : 24 = 0; // material of the final position in the game
 
-            uint16_t ECOcode_;
+            uint16_t ECOcode_ = 0;
 
-            uint8_t storedLineCode_;
+            uint8_t storedLineCode_ = 0;
 
-            scid::core::byte HomePawnData[HPSIG_SIZE]; // homePawnSig data.
+            scid::core::byte HomePawnData[HPSIG_SIZE] = {}; // homePawnSig data.
 
         public:
             /** Returns the byte offset of the encoded game record. */
