@@ -378,13 +378,13 @@ namespace scid::spelling
         const char*                     filename,
         const scid::database::Progress& progress)
     {
-        auto               res = std::unique_ptr<SpellChecker>(new SpellChecker);
+        auto               res = std::make_unique<SpellChecker>(ConstructionToken{});
         scid::core::errorT err = res->read(filename, progress);
         if (err != scid::core::OK)
         {
-            res.reset();
+            return std::make_pair(err, std::unique_ptr<SpellChecker>());
         }
-        return std::make_pair(err, std::move(res));
+        return std::make_pair(scid::core::OK, std::move(res));
     }
 
 
