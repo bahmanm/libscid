@@ -332,8 +332,7 @@ namespace scid::eco
             auto cboard = std::make_unique<char[]>(36);
             pos.PrintCompactStr(cboard.get());
             auto it = book.pos_.emplace(
-                pos.HashValue(),
-                BookData{std::move(cboard), duplicate_cstring(text)});
+                pos.HashValue(), BookData{std::move(cboard), duplicate_cstring(text)});
             book.comments_.push_back(it->second.comment.get());
             book.leastMaterial_ = std::min(book.leastMaterial_, pos.TotalMaterial());
         }

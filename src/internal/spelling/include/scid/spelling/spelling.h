@@ -318,7 +318,8 @@ namespace scid::spelling
             friend class SpellingLoader;
 
         public:
-            explicit SpellChecker(ConstructionToken) {}
+            explicit SpellChecker(ConstructionToken)
+            {}
 
             /**
              * Loads a spelling file into a new spell checker.
