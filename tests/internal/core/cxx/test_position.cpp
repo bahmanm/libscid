@@ -32,6 +32,22 @@ namespace
 } // namespace
 
 TEST(
+    Test_PositionConstruction,
+    DefaultInitialisesAuxiliaryState)
+{
+    scid::core::Position pos;
+
+    EXPECT_EQ(0, pos.PieceCount(scid::core::WQ));
+    EXPECT_EQ(0, pos.RankCount(scid::core::WQ, scid::core::RANK_1));
+    EXPECT_EQ(0, pos.FyleCount(scid::core::WQ, scid::core::D_FYLE));
+    EXPECT_EQ(0, pos.LeftDiagCount(scid::core::WQ, scid::core::square_LeftDiag(scid::core::D1)));
+    EXPECT_EQ(0, pos.RightDiagCount(scid::core::WQ, scid::core::square_RightDiag(scid::core::D1)));
+    EXPECT_EQ(0, pos.SquareColorCount(scid::core::WQ, scid::core::WHITE));
+    EXPECT_EQ(0, pos.GetCastlingFlags());
+    EXPECT_FALSE(pos.isChess960());
+}
+
+TEST(
     Test_PositionSAN,
     WritesMoveActionSanFromUCI)
 {

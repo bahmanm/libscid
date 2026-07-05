@@ -68,19 +68,19 @@ namespace scid::core
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             //  Position:  Data structures
 
-            pieceT Board[66];    // the actual board + a color square
-                                 // and a NULL square.
-            uint Count[2];       // count of pieces & pawns each
-            byte Material[16];   // count of each type of piece
-            byte ListPos[64];    // ListPos stores the position in
-                                 // List[][] for the piece on
-                                 // square x.
-            squareT List[2][16]; // list of piece squares for each side
-            byte    NumOnRank[16][8];
-            byte    NumOnFyle[16][8];
-            byte    NumOnLeftDiag[16][16]; // Num Queens/Bishops
-            byte    NumOnRightDiag[16][16];
-            byte    NumOnSquareColor[16][2];
+            pieceT Board[66];       // the actual board + a color square
+                                    // and a NULL square.
+            uint Count[2];          // count of pieces & pawns each
+            byte Material[16] = {}; // count of each type of piece
+            byte ListPos[64] = {};  // ListPos stores the position in
+                                    // List[][] for the piece on
+                                    // square x.
+            squareT List[2][16];    // list of piece squares for each side
+            byte    NumOnRank[16][8] = {};
+            byte    NumOnFyle[16][8] = {};
+            byte    NumOnLeftDiag[16][16] = {}; // Num Queens/Bishops
+            byte    NumOnRightDiag[16][16] = {};
+            byte    NumOnSquareColor[16][2] = {};
 
             directionT Pinned[16]; // For each List[ToMove][x], stores
                                    // whether piece is pinned to its
@@ -91,8 +91,8 @@ namespace scid::core
             ushort  HalfMoveClock; // Count of halfmoves since last capture
                                    // or pawn move.
             ushort  PlyCounter;
-            byte    Castling;         // castling flags
-            byte    variant_;         // 0 -> normal; 1 -> chess960
+            byte    Castling = 0;     // castling flags
+            byte    variant_ = 0;     // 0 -> normal; 1 -> chess960
             squareT castleRookSq_[4]; // start rook squares
 
             uint Hash;     // Hash value.
