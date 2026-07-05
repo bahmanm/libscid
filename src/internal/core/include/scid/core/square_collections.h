@@ -27,10 +27,8 @@ namespace scid::core
 
         public:
             /** Constructs an empty list. */
-            SquareList()
-            {
-                ListSize = 0;
-            }
+            SquareList() : ListSize(0)
+            {}
 
             /** Clears the list.  Kept for legacy call sites. */
             void

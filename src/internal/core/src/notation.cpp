@@ -14,8 +14,8 @@ namespace scid::core::notation
 
     GameCursor
     cursorAt(
-        const Game&      game,
-        MovetextLocation location)
+        const Game&             game,
+        const MovetextLocation& location)
     {
         GameCursor                  cursor(game);
         [[maybe_unused]] const bool restored = cursor.restore(location);
@@ -62,8 +62,8 @@ namespace scid::core::notation
 
     std::string
     currentPositionUci(
-        const Game&      game,
-        MovetextLocation location)
+        const Game&             game,
+        const MovetextLocation& location)
     {
         char                     fen[256] = {};
         std::vector<std::string> moves;
@@ -108,8 +108,8 @@ namespace scid::core::notation
 
     std::string
     previousMoveUci(
-        const Game&      game,
-        MovetextLocation location)
+        const Game&             game,
+        const MovetextLocation& location)
     {
         auto       cursor = cursorAt(game, location);
         const auto move = cursor.previousMove();
@@ -121,8 +121,8 @@ namespace scid::core::notation
 
     std::string
     nextMoveUci(
-        const Game&      game,
-        MovetextLocation location)
+        const Game&             game,
+        const MovetextLocation& location)
     {
         auto       cursor = cursorAt(game, location);
         const auto move = cursor.nextMove();
@@ -134,8 +134,8 @@ namespace scid::core::notation
 
     std::string
     previousSan(
-        const Game&      game,
-        MovetextLocation location)
+        const Game&             game,
+        const MovetextLocation& location)
     {
         auto cursor = cursorAt(game, location);
         auto moves = cursor.movesToCursor();
@@ -151,8 +151,8 @@ namespace scid::core::notation
 
     std::string
     nextSan(
-        const Game&      game,
-        MovetextLocation location)
+        const Game&             game,
+        const MovetextLocation& location)
     {
         auto       cursor = cursorAt(game, location);
         const auto move = cursor.nextMove();

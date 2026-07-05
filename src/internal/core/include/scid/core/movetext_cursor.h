@@ -126,7 +126,7 @@ namespace scid::core
              * movetext tree.
              */
             bool
-            restore(MovetextLocation location);
+            restore(const MovetextLocation& location);
 
             /**
              * Reports whether the cursor is before the first move of the current line.

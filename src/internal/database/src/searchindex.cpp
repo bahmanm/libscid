@@ -42,9 +42,9 @@ namespace scid::database
 
             public:
                 SearchName(
-                    const scidBaseT* base,
-                    std::string      pattern,
-                    nameT            name_type,
+                    const scidBaseT*   base,
+                    const std::string& pattern,
+                    nameT              name_type,
                     idNumberT (IndexEntry::*f1)() const,
                     idNumberT (IndexEntry::*f2)() const = 0)
                     : base_(base),

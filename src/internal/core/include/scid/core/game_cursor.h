@@ -220,7 +220,7 @@ namespace scid::core
              * movetext tree.
              */
             bool
-            restore(MovetextLocation location);
+            restore(const MovetextLocation& location);
 
         private:
             const MoveSequence&
