@@ -1,32 +1,14 @@
 #include "scid/primitives.h"
 
-#include "scid/libscid/handles.h"
 #include "scid/libscid/support.h"
 
-#include "scid/core/date.h"
-#include "scid/core/game.h"
-#include "scid/core/game_cursor.h"
-#include "scid/core/game_result.h"
-#include "scid/core/movetext_cursor.h"
 #include "scid/core/nags.h"
-#include "scid/core/notation.h"
-#include "scid/core/pgn/decode.h"
-#include "scid/core/pgn/encode.h"
-#include "scid/core/position.h"
 #include "scid/core/primitives.h"
-#include "scid/database/scidbase.h"
-#include "scid/eco/book.h"
-#include "scid/eco/code.h"
 
-#include <array>
 #include <cctype>
 #include <cstring>
-#include <limits>
-#include <optional>
 #include <string>
 #include <string_view>
-#include <utility>
-#include <vector>
 
 using namespace scid::libscid;
 

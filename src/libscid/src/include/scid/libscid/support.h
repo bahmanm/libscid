@@ -1,7 +1,8 @@
 #ifndef SCID_LIBSCID_SUPPORT_H
 #define SCID_LIBSCID_SUPPORT_H
 
-#include "scid/scid.h"
+#include "scid/movespec.h"
+#include "scid/primitives.h"
 
 #include "scid/core/game.h"
 #include "scid/core/movetext_cursor.h"
@@ -11,6 +12,11 @@
 #include <cstddef>
 #include <string>
 #include <string_view>
+
+struct scid_database;
+struct scid_game;
+struct scid_game_cursor;
+struct scid_position;
 
 namespace scid::libscid
 {
