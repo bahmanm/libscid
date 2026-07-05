@@ -30,14 +30,14 @@ jobs:
         run: >
           cmake
           -S .
-          -B _build-format
+          -B _build/format
           -DCMAKE_C_COMPILER=clang-20
           -DCMAKE_CXX_COMPILER=clang++-20
 
       - name: Check formatting
         run: >
           cmake
-          --build _build-format
+          --build _build/format
           --target format-check
           --verbose
 
