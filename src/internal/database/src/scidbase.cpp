@@ -159,15 +159,14 @@ namespace scid::database
     }
 
     scidBaseT::scidBaseT()
-    {
-        storage_ = std::make_unique<Storage>();
-        idx = new Index;
-        nb_ = new NameBase;
-        inUse = false;
-        fileMode_ = FMODE_None;
-        dbFilter = new Filter(0);
-        stats_ = NULL;
-    }
+        : inUse(false),
+          dbFilter(new Filter(0)),
+          storage_(std::make_unique<Storage>()),
+          idx(new Index),
+          nb_(new NameBase),
+          fileMode_(FMODE_None),
+          stats_(NULL)
+    {}
 
     scidBaseT::~scidBaseT()
     {

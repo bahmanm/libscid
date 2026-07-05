@@ -336,7 +336,7 @@ namespace scid::eco
             book.comments_.push_back(it->second.comment.get());
             book.leastMaterial_ = std::min(book.leastMaterial_, pos.TotalMaterial());
         }
-        return std::move(book);
+        return book;
 
     corrupt:
         return std::unexpected(ERROR_Corrupt);

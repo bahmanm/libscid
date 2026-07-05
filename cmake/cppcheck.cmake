@@ -12,7 +12,7 @@ endif()
 
 set(
     LIBSCID_CPPCHECK_ENABLE
-    "warning,portability"
+    "warning,portability,performance"
     CACHE STRING "Comma-separated cppcheck check classes enabled by the cppcheck target." )
 
 set( LIBSCID_CPPCHECK_EXITCODE_SUPPRESSIONS

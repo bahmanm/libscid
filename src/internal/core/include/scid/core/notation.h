@@ -32,8 +32,8 @@ namespace scid::core
          */
         std::string
         currentPositionUci(
-            const Game&      game,
-            MovetextLocation location);
+            const Game&             game,
+            const MovetextLocation& location);
 
         /**
          * Returns the previous move at a location in UCI long algebraic notation.
@@ -42,8 +42,8 @@ namespace scid::core
          */
         std::string
         previousMoveUci(
-            const Game&      game,
-            MovetextLocation location);
+            const Game&             game,
+            const MovetextLocation& location);
 
         /**
          * Returns the next move at a location in UCI long algebraic notation.
@@ -52,8 +52,8 @@ namespace scid::core
          */
         std::string
         nextMoveUci(
-            const Game&      game,
-            MovetextLocation location);
+            const Game&             game,
+            const MovetextLocation& location);
 
         /**
          * Returns the SAN text of the previous move at a location.
@@ -66,8 +66,8 @@ namespace scid::core
          */
         std::string
         previousSan(
-            const Game&      game,
-            MovetextLocation location);
+            const Game&             game,
+            const MovetextLocation& location);
 
         /**
          * Returns the SAN text of the next move at a location.
@@ -80,8 +80,8 @@ namespace scid::core
          */
         std::string
         nextSan(
-            const Game&      game,
-            MovetextLocation location);
+            const Game&             game,
+            const MovetextLocation& location);
 
         /**
          * Formats the first @p plyCount mainline half-moves as compact SAN text.

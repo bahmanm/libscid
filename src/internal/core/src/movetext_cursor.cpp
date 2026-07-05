@@ -136,7 +136,7 @@ namespace scid::core
 
 
     bool
-    MovetextCursor::restore(MovetextLocation location)
+    MovetextCursor::restore(const MovetextLocation& location)
     {
         auto*                    line = &game_.movetext_.mainline;
         std::vector<ParentFrame> parents;

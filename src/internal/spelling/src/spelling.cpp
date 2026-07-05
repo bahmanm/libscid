@@ -160,7 +160,7 @@ namespace scid::spelling
         size_t               corrections = 0;
         Cont::const_iterator it;
 
-        for (it = prefix_.begin(); it != prefix_.end(); it++)
+        for (it = prefix_.begin(); it != prefix_.end(); ++it)
         {
             const std::string& s = it->first;
             if (name->compare(0, s.length(), s) == 0)
@@ -171,7 +171,7 @@ namespace scid::spelling
             }
         }
 
-        for (it = infix_.begin(); it != infix_.end(); it++)
+        for (it = infix_.begin(); it != infix_.end(); ++it)
         {
             const std::string& s = it->first;
             size_t             pos = name->find(s);
@@ -183,7 +183,7 @@ namespace scid::spelling
             }
         }
 
-        for (it = suffix_.begin(); it != suffix_.end(); it++)
+        for (it = suffix_.begin(); it != suffix_.end(); ++it)
         {
             const std::string& s = it->first;
             if (name->length() < s.length())

@@ -40,9 +40,9 @@ namespace scid::core::pgn_impl
 
     inline void
     setCurrentLocation(
-        scid::core::Game&             game,
-        scid::core::MovetextLocation* location,
-        scid::core::MovetextLocation  value)
+        scid::core::Game&                   game,
+        scid::core::MovetextLocation*       location,
+        const scid::core::MovetextLocation& value)
     {
         if (location)
         {

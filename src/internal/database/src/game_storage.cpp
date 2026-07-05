@@ -614,9 +614,9 @@ namespace scid::database
 
     static void
     setCoreCommentAt(
-        scid::core::Game&            game,
-        scid::core::MovetextLocation location,
-        std::string_view             comment)
+        scid::core::Game&                   game,
+        const scid::core::MovetextLocation& location,
+        std::string_view                    comment)
     {
         scid::core::MovetextCursor  cursor(game);
         [[maybe_unused]] const bool restored = cursor.restore(location);
