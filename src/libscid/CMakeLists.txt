@@ -8,6 +8,13 @@ include( GNUInstallDirs )
 
 set(
     SCID_PUBLIC_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/_platform.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/eco.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/game.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/movespec.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/position.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/primitives.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/scid.h" )
 
 set( SCID_LIBRARY_TYPE "" )

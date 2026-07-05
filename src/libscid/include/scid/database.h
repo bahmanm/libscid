@@ -1,0 +1,327 @@
+#ifndef SCID_DATABASE_H
+#define SCID_DATABASE_H
+
+#include "scid/_platform.h"
+#include "scid/eco.h"
+#include "scid/game.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+    typedef struct scid_database scid_database;
+
+
+    SCID_API scid_error
+    scid_database_create_memory(
+        const char*     name,
+        scid_database** out_database);
+
+
+    SCID_API scid_error
+    scid_database_create_scid5(
+        const char*     path,
+        scid_database** out_database);
+
+
+    SCID_API scid_error
+    scid_database_open_scid5(
+        const char*     path,
+        scid_database** out_database);
+
+
+    SCID_API scid_error
+    scid_database_open_scid5_read_only(
+        const char*     path,
+        scid_database** out_database);
+
+
+    SCID_API scid_error
+    scid_database_close(scid_database* database);
+
+
+    SCID_API void
+    scid_database_free(scid_database* database);
+
+
+    SCID_API scid_error
+    scid_database_is_open(
+        const scid_database* database,
+        int*                 out_is_open);
+
+
+    SCID_API scid_error
+    scid_database_filename_get(
+        const scid_database* database,
+        char*                out_text,
+        size_t               out_text_capacity,
+        size_t*              out_text_size);
+
+
+    SCID_API scid_error
+    scid_database_type_get(
+        const scid_database* database,
+        char*                out_text,
+        size_t               out_text_capacity,
+        size_t*              out_text_size);
+
+
+    SCID_API scid_error
+    scid_database_read_only_get(
+        const scid_database* database,
+        int*                 out_read_only);
+
+
+    SCID_API scid_error
+    scid_database_filter_create(
+        scid_database* database,
+        char*          out_filter_id,
+        size_t         out_filter_id_capacity,
+        size_t*        out_filter_id_size);
+
+
+    SCID_API scid_error
+    scid_database_filter_delete(
+        scid_database* database,
+        const char*    filter_id);
+
+
+    SCID_API scid_error
+    scid_database_filter_fill(
+        scid_database* database,
+        const char*    filter_id,
+        unsigned       value);
+
+
+    SCID_API scid_error
+    scid_database_filter_value_set(
+        scid_database* database,
+        const char*    filter_id,
+        size_t         game_index,
+        unsigned       value);
+
+
+    SCID_API scid_error
+    scid_database_filter_value_get(
+        const scid_database* database,
+        const char*          filter_id,
+        size_t               game_index,
+        unsigned*            out_value);
+
+
+    SCID_API scid_error
+    scid_database_filter_count_get(
+        const scid_database* database,
+        const char*          filter_id,
+        size_t*              out_count);
+
+
+    SCID_API scid_error
+    scid_database_filter_game_at_get(
+        const scid_database* database,
+        const char*          filter_id,
+        size_t               index,
+        size_t*              out_game_index);
+
+
+    SCID_API scid_error
+    scid_database_game_list_get(
+        const scid_database* database,
+        const char*          filter_id,
+        const char*          sort_criteria,
+        size_t               start,
+        size_t               count,
+        size_t*              out_game_indexes,
+        size_t               out_game_indexes_capacity,
+        size_t*              out_game_indexes_count);
+
+
+    SCID_API scid_error
+    scid_database_game_sorted_position_get(
+        const scid_database* database,
+        const char*          filter_id,
+        const char*          sort_criteria,
+        size_t               game_index,
+        size_t*              out_position);
+
+
+    SCID_API scid_error
+    scid_database_save(scid_database* database);
+
+
+    SCID_API scid_error
+    scid_database_metadata_get(
+        const scid_database* database,
+        const char*          key,
+        char*                out_text,
+        size_t               out_text_capacity,
+        size_t*              out_text_size);
+
+
+    SCID_API scid_error
+    scid_database_metadata_set(
+        scid_database* database,
+        const char*    key,
+        const char*    value);
+
+
+    SCID_API scid_error
+    scid_database_metadata_count_get(
+        const scid_database* database,
+        size_t*              out_count);
+
+
+    SCID_API scid_error
+    scid_database_metadata_at_get(
+        const scid_database* database,
+        size_t               index,
+        char*                out_key,
+        size_t               out_key_capacity,
+        size_t*              out_key_size,
+        char*                out_value,
+        size_t               out_value_capacity,
+        size_t*              out_value_size);
+
+
+    SCID_API scid_error
+    scid_database_stats_date_range_get(
+        const scid_database* database,
+        char*                out_min_date,
+        size_t               out_min_date_capacity,
+        size_t*              out_min_date_size,
+        char*                out_max_date,
+        size_t               out_max_date_capacity,
+        size_t*              out_max_date_size);
+
+
+    SCID_API scid_error
+    scid_database_stats_result_count_get(
+        const scid_database* database,
+        const char*          result,
+        size_t*              out_count);
+
+
+    SCID_API scid_error
+    scid_database_game_count_get(
+        const scid_database* database,
+        size_t*              out_count);
+
+
+    SCID_API scid_error
+    scid_database_import_pgn(
+        scid_database* database,
+        const char*    pgn,
+        size_t         pgn_size,
+        char*          out_diagnostic,
+        size_t         out_diagnostic_capacity,
+        size_t*        out_diagnostic_size,
+        size_t*        out_imported_count);
+
+
+    SCID_API scid_error
+    scid_database_game_add(
+        scid_database*   database,
+        const scid_game* game,
+        const char*      flags);
+
+
+    SCID_API scid_error
+    scid_database_game_replace(
+        scid_database*   database,
+        size_t           index,
+        const scid_game* game,
+        const char*      flags);
+
+
+    SCID_API scid_error
+    scid_database_game_delete(
+        scid_database* database,
+        size_t         index);
+
+
+    SCID_API scid_error
+    scid_database_game_undelete(
+        scid_database* database,
+        size_t         index);
+
+
+    SCID_API scid_error
+    scid_database_game_get(
+        const scid_database* database,
+        size_t               index,
+        scid_game**          out_game,
+        char*                out_flags,
+        size_t               out_flags_capacity,
+        size_t*              out_flags_size);
+
+
+    SCID_API scid_error
+    scid_database_game_export_pgn(
+        const scid_database* database,
+        size_t               index,
+        char*                out_text,
+        size_t               out_text_capacity,
+        size_t*              out_text_size);
+
+
+    SCID_API scid_error
+    scid_database_game_tag_get(
+        const scid_database* database,
+        size_t               index,
+        const char*          name,
+        char*                out_text,
+        size_t               out_text_capacity,
+        size_t*              out_text_size);
+
+
+    SCID_API scid_error
+    scid_database_game_halfmove_count_get(
+        const scid_database* database,
+        size_t               index,
+        size_t*              out_count);
+
+
+    SCID_API scid_error
+    scid_database_game_number_get(
+        const scid_database* database,
+        size_t               index,
+        size_t*              out_number);
+
+
+    SCID_API scid_error
+    scid_database_game_deleted_get(
+        const scid_database* database,
+        size_t               index,
+        int*                 out_deleted);
+
+
+    SCID_API scid_error
+    scid_database_game_result_get(
+        const scid_database* database,
+        size_t               index,
+        char*                out_text,
+        size_t               out_text_capacity,
+        size_t*              out_text_size);
+
+
+    SCID_API scid_error
+    scid_database_game_eco_get(
+        const scid_database* database,
+        size_t               index,
+        scid_eco_code*       out_code);
+
+
+    SCID_API scid_error
+    scid_database_game_date_get(
+        const scid_database* database,
+        size_t               index,
+        char*                out_text,
+        size_t               out_text_capacity,
+        size_t*              out_text_size);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
