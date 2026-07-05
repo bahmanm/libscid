@@ -8,6 +8,13 @@ include( GNUInstallDirs )
 
 set(
     SCID_PUBLIC_HEADERS
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/_platform.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/eco.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/game.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/movespec.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/position.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/primitives.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/scid.h" )
 
 set( SCID_LIBRARY_TYPE "" )
@@ -18,7 +25,13 @@ endif()
 add_library(
     scid
     ${SCID_LIBRARY_TYPE}
-    src/scid.cpp )
+    src/database.cpp
+    src/eco.cpp
+    src/game.cpp
+    src/movespec.cpp
+    src/position.cpp
+    src/primitives.cpp
+    src/support.cpp )
 add_library(
     LibScid::LibScid
     ALIAS scid )
@@ -49,6 +62,8 @@ endif()
 
 target_include_directories(
     scid
+    PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/include"
     PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>" )

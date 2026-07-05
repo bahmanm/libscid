@@ -48,6 +48,7 @@ if( PROJECT_IS_TOP_LEVEL )
     include( cmake/qc/clang-tidy.cmake )
     include( cmake/qc/cppcheck.cmake )
     include( cmake/qc/format.cmake )
+    include( cmake/qc/include-cleaner.cmake )
 endif()
 
 add_subdirectory( src/internal/core )
