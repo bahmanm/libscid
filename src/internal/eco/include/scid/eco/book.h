@@ -82,10 +82,10 @@ namespace scid::eco
                     std::unique_ptr<char[]> comment;
 
                     BookData(
-                        char* compact,
-                        char* comm)
-                        : compactStr(compact),
-                          comment(comm)
+                        std::unique_ptr<char[]> compact,
+                        std::unique_ptr<char[]> comm)
+                        : compactStr(std::move(compact)),
+                          comment(std::move(comm))
                     {}
             };
 

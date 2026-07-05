@@ -300,6 +300,13 @@ namespace scid::spelling
             };
             typedef std::vector<Idx>::const_iterator IdxIt;
 
+            struct ConstructionToken
+            {
+                private:
+                    ConstructionToken() = default;
+                    friend class SpellChecker;
+            };
+
             NameNormalizer           general_[scid::database::NUM_NAME_TYPES];
             std::string              excludeChars_[scid::database::NUM_NAME_TYPES];
             std::vector<Idx>         idx_[scid::database::NUM_NAME_TYPES];
@@ -311,6 +318,9 @@ namespace scid::spelling
             friend class SpellingLoader;
 
         public:
+            explicit SpellChecker(ConstructionToken)
+            {}
+
             /**
              * Loads a spelling file into a new spell checker.
              *
@@ -423,7 +433,6 @@ namespace scid::spelling
             numCorrectNames(const scid::database::nameT& nt) const;
 
         private:
-            SpellChecker() = default;
             SpellChecker(const SpellChecker&) = delete;
             SpellChecker&
             operator=(const SpellChecker&) = delete;
