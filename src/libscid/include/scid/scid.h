@@ -38,11 +38,13 @@ extern "C"
         SCID_ERROR_BUFFER_FULL = 601
     };
 
-    typedef enum scid_colour
+    typedef int scid_colour;
+
+    enum
     {
         SCID_WHITE = 0,
         SCID_BLACK = 1
-    } scid_colour;
+    };
 
     typedef unsigned scid_square;
 
@@ -91,11 +93,13 @@ extern "C"
         SCID_ECO_STRING_CAPACITY = 6
     };
 
-    typedef enum scid_eco_format
+    typedef int scid_eco_format;
+
+    enum
     {
         SCID_ECO_FORMAT_BASIC = 0,
         SCID_ECO_FORMAT_EXTENDED = 1
-    } scid_eco_format;
+    };
 
     typedef struct scid_position scid_position;
 
@@ -109,12 +113,14 @@ extern "C"
 
     typedef struct scid_database scid_database;
 
-    typedef enum scid_game_merge_moves_mode
+    typedef int scid_game_merge_moves_mode;
+
+    enum
     {
         SCID_GAME_MERGE_MOVES_APPEND = 0,
         SCID_GAME_MERGE_MOVES_INSERT_VARIATION = 1,
         SCID_GAME_MERGE_MOVES_REPLACE = 2
-    } scid_game_merge_moves_mode;
+    };
 
 
     SCID_API scid_error

@@ -13,6 +13,7 @@ project(
 
 include( GNUInstallDirs )
 include( cmake/test/runtime-dlls.cmake )
+include( cmake/qc/sanitisers.cmake )
 
 set( LIBSCID_SOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" )
 
@@ -44,9 +45,9 @@ if( PROJECT_IS_TOP_LEVEL )
         set( BUILD_TESTING OFF CACHE BOOL "Build tests" )
     endif()
     include( CTest )
-    include( cmake/clang-tidy.cmake )
-    include( cmake/cppcheck.cmake )
-    include( cmake/format.cmake )
+    include( cmake/qc/clang-tidy.cmake )
+    include( cmake/qc/cppcheck.cmake )
+    include( cmake/qc/format.cmake )
 endif()
 
 add_subdirectory( src/internal/core )

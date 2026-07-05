@@ -54,9 +54,7 @@ test_eco(void)
 
     assert(scid_eco_code_from_string(NULL, &code) == SCID_ERROR_BAD_ARG);
     assert(scid_eco_code_from_string("B20", NULL) == SCID_ERROR_BAD_ARG);
-    assert(
-        scid_eco_code_to_string(code, (scid_eco_format)99, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
+    assert(scid_eco_code_to_string(code, 99, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
     assert(
         scid_eco_code_to_string(code, SCID_ECO_FORMAT_EXTENDED, text, sizeof(text), NULL) ==
         SCID_ERROR_BAD_ARG);
