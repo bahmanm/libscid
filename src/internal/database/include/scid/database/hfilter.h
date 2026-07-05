@@ -108,8 +108,13 @@ namespace scid::database
                 }
                 else if (size < size_)
                 {
-                    auto* data = data_.get();
-                    nonzero_ = size - static_cast<gamenumT>(std::count(data, data + size, 0));
+                    gamenumT zeroCount = 0;
+                    for (gamenumT i = 0; i < size; ++i)
+                    {
+                        if (data_[i] == 0)
+                            ++zeroCount;
+                    }
+                    nonzero_ = size - zeroCount;
                 }
                 else if (size > size_)
                 {
@@ -125,8 +130,8 @@ namespace scid::database
                         val = 1;
                         nonzero_ = size;
                     }
-                    auto* data = data_.get();
-                    std::fill(data + size_, data + size, val);
+                    for (gamenumT i = size_; i < size; ++i)
+                        data_[i] = val;
                 }
                 size_ = size;
             }
@@ -170,9 +175,9 @@ namespace scid::database
                 else if (value != 1)
                 {
                     allocate(size_);
-                    auto* data = data_.get();
-                    std::fill(data, data + size_, 1);
-                    data[index] = value;
+                    for (gamenumT i = 0; i < size_; ++i)
+                        data_[i] = 1;
+                    data_[index] = value;
                     if (value == 0)
                         --nonzero_;
                 }
@@ -198,8 +203,8 @@ namespace scid::database
                     {
                         allocate(size_);
                     }
-                    auto* data = data_.get();
-                    std::fill(data, data + size_, value);
+                    for (gamenumT i = 0; i < size_; ++i)
+                        data_[i] = value;
                     nonzero_ = (value == 0) ? 0 : size_;
                 }
             }
