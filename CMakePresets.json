@@ -30,6 +30,18 @@
       }
     },
     {
+      "name": "sanitisers",
+      "displayName": "Sanitisers",
+      "description": "Debug build with AddressSanitizer and UndefinedBehaviorSanitizer enabled.",
+      "binaryDir": "${sourceDir}/_build/sanitisers",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON",
+        "LIBSCID_INSTALL": "OFF",
+        "LIBSCID_SANITISERS": "address,undefined"
+      }
+    },
+    {
       "name": "package",
       "displayName": "Package",
       "description": "Release build configured for portable SDK archive packaging.",
@@ -73,6 +85,10 @@
       "targets": [
         "clang-tidy"
       ]
+    },
+    {
+      "name": "sanitisers",
+      "configurePreset": "sanitisers"
     },
     {
       "name": "package",

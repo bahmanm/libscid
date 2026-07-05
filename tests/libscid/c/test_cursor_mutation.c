@@ -213,6 +213,8 @@ test_game_merge_moves(void)
     next_cursor = NULL;
 
     source = create_source_game_from_cursor_san(cursor, "Nf3");
+    assert(scid_game_merge_moves(game, cursor, source, 99, &next_cursor) == SCID_ERROR_BAD_ARG);
+    assert(next_cursor == NULL);
     assert(
         scid_game_merge_moves(game, cursor, source, SCID_GAME_MERGE_MOVES_APPEND, &next_cursor) ==
         SCID_OK);

@@ -13,6 +13,7 @@ project(
 
 include( GNUInstallDirs )
 include( cmake/test/runtime-dlls.cmake )
+include( cmake/sanitisers.cmake )
 
 set( LIBSCID_SOURCE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" )
 
