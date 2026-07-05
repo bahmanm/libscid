@@ -45,7 +45,7 @@ namespace scid::database
             std::vector<std::string> filenames_;
             Filebuf                  idxfile_;
             FilebufAppend            gfile_;
-            char                     gamecache_[1ULL << 17];
+            char                     gamecache_[1ULL << 17] = {};
             gamenumT                 seqWrite_ = 0;
 
             struct

@@ -288,7 +288,7 @@ namespace scid::spelling
             struct Idx
             {
                     std::string alias;
-                    int32_t     idx;
+                    int32_t     idx = 0;
 
                     Idx();
                     Idx(const std::string& a,

@@ -323,7 +323,7 @@ namespace scid::core::pgn
         /** Internal flattened movetext entry passed to encode_movetext_entry(). */
         struct MovetextEntry
         {
-                MovetextEntryKind    kind;
+                MovetextEntryKind    kind = MovetextEntryKind::Move;
                 std::string_view     san;
                 std::string_view     comment;
                 std::span<const Nag> nags;

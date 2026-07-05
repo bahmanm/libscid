@@ -2,6 +2,7 @@
  * Position regressions that depend only on libscid-core.
  */
 
+#include "scid/core/dstring.h"
 #include "scid/core/position.h"
 
 #include <cstring>
@@ -29,6 +30,22 @@ namespace
     }
 
 } // namespace
+
+TEST(
+    Test_PositionConstruction,
+    DefaultInitialisesAuxiliaryState)
+{
+    scid::core::Position pos;
+
+    EXPECT_EQ(0, pos.PieceCount(scid::core::WQ));
+    EXPECT_EQ(0, pos.RankCount(scid::core::WQ, scid::core::RANK_1));
+    EXPECT_EQ(0, pos.FyleCount(scid::core::WQ, scid::core::D_FYLE));
+    EXPECT_EQ(0, pos.LeftDiagCount(scid::core::WQ, scid::core::square_LeftDiag(scid::core::D1)));
+    EXPECT_EQ(0, pos.RightDiagCount(scid::core::WQ, scid::core::square_RightDiag(scid::core::D1)));
+    EXPECT_EQ(0, pos.SquareColorCount(scid::core::WQ, scid::core::WHITE));
+    EXPECT_EQ(0, pos.GetCastlingFlags());
+    EXPECT_FALSE(pos.isChess960());
+}
 
 TEST(
     Test_PositionSAN,
@@ -252,4 +269,24 @@ TEST(
             EXPECT_STREQ(buf, expected.c_str());
         }
     }
+}
+
+TEST(
+    Test_PositionHtml,
+    WritesStyleSpecificBoardImages)
+{
+    scid::core::Position pos = scid::core::Position::getStdStart();
+    scid::core::DString  html;
+
+    pos.DumpHtmlBoard(&html, 1, nullptr);
+    std::string text = html.Data();
+
+    EXPECT_NE(std::string::npos, text.find("width=36 height=35 src=\"bitmaps2/wbr.gif\""));
+    EXPECT_EQ(std::string::npos, text.find("width=40"));
+
+    html.Clear();
+    pos.DumpHtmlBoard(&html, 99, nullptr);
+    text = html.Data();
+
+    EXPECT_NE(std::string::npos, text.find("width=40 height=40 src=\"bitmaps/wbr.gif\""));
 }

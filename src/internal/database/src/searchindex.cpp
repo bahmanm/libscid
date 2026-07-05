@@ -315,16 +315,13 @@ namespace scid::database
                 }
         };
 
-        class SearchRangeGamenum : public SearchRange<gamenumT>
+        class SearchRangeGamenum : public StrRange
         {
             public:
                 SearchRangeGamenum(
                     const scidBaseT* base,
                     const char*      range)
-                    : SearchRange<gamenumT>(
-                          base,
-                          range,
-                          0)
+                    : StrRange(range)
                 {
                     // Set up game number range:
                     // Note that a negative number means a count from the end,
@@ -345,15 +342,13 @@ namespace scid::database
                 bool
                 operator()(gamenumT gnum) const
                 {
-                    if (static_cast<long>(gnum) < min_ || static_cast<long>(gnum) > max_)
-                        return false;
-                    return true;
+                    return inRange(static_cast<long>(gnum));
                 }
         };
 
-        class SearchRangeElo : public SearchRange<scid::core::ratingT>
+        class SearchRangeElo : public StrRange
         {
-            protected:
+                const scidBaseT* base_;
                 scid::core::ratingT (IndexEntry::*fElo1_)() const;
                 scid::core::ratingT (IndexEntry::*fElo2_)() const;
 
@@ -363,10 +358,8 @@ namespace scid::database
                     const char*      range,
                     scid::core::ratingT (IndexEntry::*f1)() const,
                     scid::core::ratingT (IndexEntry::*f2)() const = 0)
-                    : SearchRange<scid::core::ratingT>(
-                          base,
-                          range,
-                          0),
+                    : StrRange(range),
+                      base_(base),
                       fElo1_(f1),
                       fElo2_(f2)
                 {}
@@ -376,28 +369,28 @@ namespace scid::database
                 operator()(gamenumT gnum) const
                 {
                     long v1 = (base_->getIndexEntry(gnum)->*fElo1_)();
-                    long v2 = min_;
-                    if (fElo2_ != 0)
-                        v2 = (base_->getIndexEntry(gnum)->*fElo2_)();
-                    if (v1 < min_ || v1 > max_ || v2 < min_ || v2 > max_)
+                    if (!inRange(v1))
                         return false;
-                    return true;
+                    return fElo2_ == 0 || inRange((base_->getIndexEntry(gnum)->*fElo2_)());
                 }
         };
 
-        class SearchRangeEloDiff : public SearchRangeElo
+        class SearchRangeEloDiff : public StrRange
         {
+                const scidBaseT* base_;
+                scid::core::ratingT (IndexEntry::*fElo1_)() const;
+                scid::core::ratingT (IndexEntry::*fElo2_)() const;
+
             public:
                 SearchRangeEloDiff(
                     const scidBaseT* base,
                     const char*      range,
                     scid::core::ratingT (IndexEntry::*f1)() const,
                     scid::core::ratingT (IndexEntry::*f2)() const)
-                    : SearchRangeElo(
-                          base,
-                          range,
-                          f1,
-                          f2)
+                    : StrRange(range),
+                      base_(base),
+                      fElo1_(f1),
+                      fElo2_(f2)
                 {}
 
 
@@ -406,10 +399,7 @@ namespace scid::database
                 {
                     long v1 = (base_->getIndexEntry(gnum)->*fElo1_)();
                     long v2 = (base_->getIndexEntry(gnum)->*fElo2_)();
-                    long v = v1 - v2;
-                    if (v < min_ || v > max_)
-                        return false;
-                    return true;
+                    return inRange(v1 - v2);
                 }
         };
 

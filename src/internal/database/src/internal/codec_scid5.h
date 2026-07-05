@@ -167,7 +167,7 @@ namespace scid::database
             FilebufAppend nbfile_;
             Filebuf       idxfile_;
             gamenumT      idx_seqwrite_ = 0;
-            char          gcache_[1ULL << 17];
+            char          gcache_[1ULL << 17] = {};
 
             enum : unsigned long long
             {
