@@ -3335,11 +3335,11 @@ namespace scid::core
 
     struct htmlStyleT
     {
-            const char* dir;         // directory containing images.
-            uint        width;       // width value specified in <img> tag.
-            uint        height;      // height value specified in <img> tag.
-            bool        transparent; // True if the style uses transparent images,
-                                     // with square colors set by "bgcolor".
+            const char* dir = nullptr;       // directory containing images.
+            uint        width = 0;           // width value specified in <img> tag.
+            uint        height = 0;          // height value specified in <img> tag.
+            bool        transparent = false; // True if the style uses transparent images,
+                                             // with square colors set by "bgcolor".
     };
 
     void
@@ -3350,13 +3350,10 @@ namespace scid::core
         bool        flip)
     {
         const uint HTML_DIAG_STYLES = 2;
-        htmlStyleT hs[HTML_DIAG_STYLES];
-        hs[0].dir = "bitmaps";
-        hs[0].width = 40;
-        hs[0].height = 40;
-        hs[1].dir = "bitmaps2";
-        hs[1].width = 36;
-        hs[1].height = 35;
+        htmlStyleT hs[HTML_DIAG_STYLES] = {
+            {"bitmaps", 40, 40, false},
+            {"bitmaps2", 36, 35, false},
+        };
         if (style >= HTML_DIAG_STYLES)
         {
             style = 0;
