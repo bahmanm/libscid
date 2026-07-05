@@ -512,9 +512,9 @@ namespace scid::database
                 const auto nComments = (counts >> 4) & 0x0F;
                 const auto nNags = (counts >> 8) & 0x0F;
 
-                const auto chess960 = ie.isChessStd() ? 0 : 1;
-                const auto rtypes_result = (ie.GetWhiteRatingType() << 5) |
-                                           (ie.GetBlackRatingType() << 2) | ie.GetResult();
+                const auto     chess960 = ie.isChessStd() ? 0 : 1;
+                const auto     rtypes_result = (ie.GetWhiteRatingType() << 5) |
+                                               (ie.GetBlackRatingType() << 2) | ie.GetResult();
                 auto           home_pawn = ie.GetHomePawnData();
                 const uint32_t home_pawn_count = *home_pawn++;
                 encode_uint32(buf + 0, pack(nComments, 4, ie.GetWhite()));

@@ -209,7 +209,7 @@ namespace scid::database
                     uint8_t       board_[64];
                     MaterialCount mt_;
                     PieceList     pieces_;
-                    uint8_t       castlingRook_[2]
+                    uint8_t castlingRook_[2]
                                          [2]; // [scid::core::WHITE|scid::core::BLACK][long|short]
                                               // the idx of the rooks that can castle. 0 if none
 
@@ -456,7 +456,7 @@ namespace scid::database
 
                         auto       isOccupied = [this](auto sq) { return board_[sq] != EMPTY_SQ_; };
                         const auto enemyKingSq = getKingSquare(scid::core::color_Flip(lastCol));
-                        bool       direct_check = (lastPt != scid::core::KING) &&
+                        bool direct_check = (lastPt != scid::core::KING) &&
                                             scid::core::move_predicates::attack(
                                                 lastTo, enemyKingSq, lastCol, lastPt, isOccupied);
                         if (direct_check || // Look for a discovered check
@@ -674,7 +674,7 @@ namespace scid::database
                 const auto mt_count = FastBoard::countMaterial(board);
                 int        ply = 1;
                 auto       less_material = [](const MaterialCount& a, const MaterialCount& b,
-                                        const scid::core::colorT color, const auto move) {
+                                              const scid::core::colorT color, const auto move) {
                     if (!move)
                         return true;
 
