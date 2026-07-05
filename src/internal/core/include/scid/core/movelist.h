@@ -34,29 +34,29 @@ namespace scid::core
     struct MoveAction
     {
             /** Origin square, or the same square as the destination for a null move. */
-            squareT from;
+            squareT from = NULL_SQUARE;
             /** Destination square, or rook square for resolved castling. */
-            squareT to;
+            squareT to = NULL_SQUARE;
             /** Promotion piece type, or EMPTY for a non-promotion. */
-            pieceT promote;
+            pieceT promote = EMPTY;
             /** Moving piece, including colour. */
-            pieceT movingPiece : 7;
+            pieceT movingPiece : 7 = EMPTY;
             /** True when the action is castling. */
-            pieceT castling : 1;
+            pieceT castling : 1 = 0;
             /** Pre-move index of the moving piece in Position's piece list. */
-            byte pieceNum;
+            byte pieceNum = 0;
             /** Pre-move index of the captured piece, when any. */
-            byte capturedNum;
+            byte capturedNum = 0;
             /** Captured piece, including colour, or EMPTY. */
-            pieceT capturedPiece;
+            pieceT capturedPiece = EMPTY;
             /** Captured square; differs from the destination only for en-passant captures. */
-            squareT capturedSquare;
+            squareT capturedSquare = NULL_SQUARE;
             /** Castling rights before the action was applied. */
-            byte castleFlags;
+            byte castleFlags = 0;
             /** En-passant target before the action was applied. */
-            squareT epSquare;
+            squareT epSquare = NULL_SQUARE;
             /** Halfmove clock before the action was applied. */
-            ushort oldHalfMoveClock;
+            ushort oldHalfMoveClock = 0;
 
             /** Returns true when the action is a null move. */
             bool
@@ -116,7 +116,7 @@ namespace scid::core
     struct ScoredMove : public MoveAction
     {
             /** Higher scores are sorted before lower scores. */
-            std::int32_t score;
+            std::int32_t score = 0;
 
             /** Orders moves by descending score. */
             bool
@@ -135,7 +135,10 @@ namespace scid::core
      */
     class MoveList
     {
-            uint       ListSize = 0;
+            uint ListSize = 0;
+            // Backing storage is filled slot-by-slot by emplace_back() and
+            // push_back(); avoid zeroing all entries on every construction.
+            // cppcheck-suppress uninitMemberVarNoCtor
             ScoredMove Moves[MAX_LEGAL_MOVES];
 
         public:

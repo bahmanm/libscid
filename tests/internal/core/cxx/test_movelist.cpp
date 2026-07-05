@@ -21,6 +21,32 @@ namespace
 
     TEST(
         MoveListTest,
+        DefaultInitialisesMoveRecords)
+    {
+        MoveAction action{};
+
+        EXPECT_EQ(NULL_SQUARE, action.from);
+        EXPECT_EQ(NULL_SQUARE, action.to);
+        EXPECT_EQ(EMPTY, action.promote);
+        EXPECT_EQ(EMPTY, action.movingPiece);
+        EXPECT_EQ(0, action.castling);
+        EXPECT_EQ(0, action.pieceNum);
+        EXPECT_EQ(0, action.capturedNum);
+        EXPECT_EQ(EMPTY, action.capturedPiece);
+        EXPECT_EQ(NULL_SQUARE, action.capturedSquare);
+        EXPECT_EQ(0, action.castleFlags);
+        EXPECT_EQ(NULL_SQUARE, action.epSquare);
+        EXPECT_EQ(0, action.oldHalfMoveClock);
+
+        ScoredMove scored{};
+
+        EXPECT_EQ(NULL_SQUARE, scored.from);
+        EXPECT_EQ(EMPTY, scored.movingPiece);
+        EXPECT_EQ(0, scored.score);
+    }
+
+    TEST(
+        MoveListTest,
         DetectsNullMoves)
     {
         MoveAction move{};
@@ -118,7 +144,9 @@ namespace
         EXPECT_EQ(1U, moves.Size());
         EXPECT_EQ(moves.begin() + 1, moves.end());
         EXPECT_EQ(0, first.score);
-        EXPECT_EQ(0, first.from);
+        EXPECT_EQ(NULL_SQUARE, first.from);
+        EXPECT_EQ(NULL_SQUARE, first.to);
+        EXPECT_EQ(EMPTY, first.promote);
 
         first.from = E2;
         first.to = E4;
