@@ -67,7 +67,7 @@ namespace scid::database
             /** Required file, or the parser's wildcard value. */
             scid::core::fyleT fyleMatch;
             /** Match polarity and parser flags; zero means the pattern must not occur. */
-            scid::core::byte flag; // 0 means this pattern must not occur.
+            scid::core::byte flag = 0; // 0 means this pattern must not occur.
     };
 
     /**
