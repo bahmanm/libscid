@@ -2324,7 +2324,6 @@ namespace scid::core
             {
                 *c++ = '=';
                 *c++ = piece_Char(action.promote);
-                p = piece_Type(action.promote);
             }
         }
         else if (p == KING)
