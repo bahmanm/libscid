@@ -15,6 +15,10 @@ set(
     "warning"
     CACHE STRING "Comma-separated cppcheck check classes enabled by the cppcheck target." )
 
+set( LIBSCID_CPPCHECK_EXITCODE_SUPPRESSIONS
+     "${CMAKE_BINARY_DIR}/cppcheck-exitcode-suppressions.txt" )
+file( WRITE "${LIBSCID_CPPCHECK_EXITCODE_SUPPRESSIONS}" "" )
+
 add_custom_target(
     cppcheck
     COMMAND
@@ -22,7 +26,7 @@ add_custom_target(
         "--project=${CMAKE_BINARY_DIR}/compile_commands.json"
         "--enable=${LIBSCID_CPPCHECK_ENABLE}"
         --error-exitcode=1
-        "--exitcode-suppressions=${PROJECT_SOURCE_DIR}/cmake/cppcheck-exitcode-suppressions.txt"
+        "--exitcode-suppressions=${LIBSCID_CPPCHECK_EXITCODE_SUPPRESSIONS}"
         --inline-suppr
         --quiet
         --suppress=missingIncludeSystem
