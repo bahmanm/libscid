@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "libscid"
+version = "0.0.0"
+description = "Python bindings for libscid."
+requires-python = ">=3.10"
+license = "GPL-2.0-only"
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Games/Entertainment :: Board Games",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "tox>=4.0",
+    "tox-uv>=1.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/libscid"]
+
+[tool.pytest.ini_options]
+testpaths = ["../../../tests/bindings/python"]
+pythonpath = ["src"]
