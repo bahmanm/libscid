@@ -9,9 +9,14 @@ from ._position import Position
 
 
 class Game:
-    def __init__(self):
-        self._native = load_library()
-        self._handle = self._native.create_blank_game()
+    def __init__(self, position: Position | None = None):
+        if position is None:
+            self._native = load_library()
+            self._handle = self._native.create_blank_game()
+            return
+
+        self._native = position._native
+        self._handle = self._native.create_blank_game(position._handle)
 
     @classmethod
     def from_pgn(cls, pgn: str | bytes) -> "Game":
@@ -62,7 +67,8 @@ class Game:
         return self._native.game_to_pgn(self._handle, options)
 
     def _dispose(self) -> None:
-        if self._handle:
+        handle = getattr(self, "_handle", None)
+        if handle:
             self._native.free_game(self._handle)
             self._handle = ctypes.c_void_p()
 

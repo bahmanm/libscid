@@ -9,24 +9,35 @@ from ._types import PgnOptionsProtocol
 
 
 class NativeGameMixin:
-    def create_blank_game(self) -> ctypes.c_void_p:
-        position = ctypes.c_void_p()
+    def create_blank_game(
+        self, position: ctypes.c_void_p | None = None
+    ) -> ctypes.c_void_p:
         game = ctypes.c_void_p()
 
-        self._check(
-            "scid_position_create_from_fen",
-            self._lib.scid_position_create_from_fen(
-                STANDARD_FEN, ctypes.byref(position)
-            ),
-        )
-        try:
+        if position is not None:
             self._check(
                 "scid_game_create_blank",
                 self._lib.scid_game_create_blank(position, ctypes.byref(game)),
             )
             return game
+
+        standard_position = ctypes.c_void_p()
+        self._check(
+            "scid_position_create_from_fen",
+            self._lib.scid_position_create_from_fen(
+                STANDARD_FEN, ctypes.byref(standard_position)
+            ),
+        )
+        try:
+            self._check(
+                "scid_game_create_blank",
+                self._lib.scid_game_create_blank(
+                    standard_position, ctypes.byref(game)
+                ),
+            )
+            return game
         finally:
-            self._lib.scid_position_free(position)
+            self._lib.scid_position_free(standard_position)
 
     def create_game_from_pgn(self, pgn: str | bytes) -> ctypes.c_void_p:
         pgn_bytes = encode(pgn)

@@ -6,9 +6,11 @@ STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 
 def _game_from_position(position: libscid.Position, movetext: str) -> libscid.Game:
-    return libscid.Game.from_pgn(
-        f'[SetUp "1"]\n[FEN "{position.fen}"]\n\n{movetext}'
-    )
+    game = libscid.Game(position=position)
+    cursor = game.create_cursor()
+    for san in movetext.split():
+        cursor = cursor.append_move(san)
+    return game
 
 
 def test_game_can_create_cursor():
@@ -365,7 +367,7 @@ def test_cursor_truncate_then_append_move_replaces_suffix():
 
 def test_cursor_append_game_returns_cursor_after_source_moves():
     cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().to_game_end()
-    source = _game_from_position(cursor.position, "2. Nf3 *")
+    source = _game_from_position(cursor.position, "Nf3")
 
     appended = cursor.append_game(source)
 
@@ -374,7 +376,7 @@ def test_cursor_append_game_returns_cursor_after_source_moves():
 
 def test_cursor_append_game_requires_line_end():
     cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
-    source = _game_from_position(cursor.position, "1... c5 *")
+    source = _game_from_position(cursor.position, "c5")
 
     with pytest.raises(ValueError, match="append_game requires cursor at line end"):
         cursor.append_game(source)
@@ -383,7 +385,7 @@ def test_cursor_append_game_requires_line_end():
 def test_cursor_add_variation_then_append_game_updates_variation_count():
     cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
     variation = cursor.add_variation()
-    source = _game_from_position(variation.position, "1... c5 *")
+    source = _game_from_position(variation.position, "c5")
 
     variation.append_game(source)
 
@@ -393,7 +395,7 @@ def test_cursor_add_variation_then_append_game_updates_variation_count():
 def test_cursor_add_variation_then_append_game_stays_in_variation():
     cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
     variation = cursor.add_variation()
-    source = _game_from_position(variation.position, "1... c5 *")
+    source = _game_from_position(variation.position, "c5")
 
     appended = variation.append_game(source)
 
@@ -402,7 +404,7 @@ def test_cursor_add_variation_then_append_game_stays_in_variation():
 
 def test_cursor_truncate_then_append_game_returns_cursor_after_source_moves():
     cursor = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *").create_cursor().next()
-    source = _game_from_position(cursor.position, "1... c5 *")
+    source = _game_from_position(cursor.position, "c5")
 
     replaced = cursor.truncate().append_game(source)
 
@@ -412,7 +414,7 @@ def test_cursor_truncate_then_append_game_returns_cursor_after_source_moves():
 def test_cursor_truncate_then_append_game_replaces_suffix():
     game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *")
     cursor = game.create_cursor().next()
-    source = _game_from_position(cursor.position, "1... c5 *")
+    source = _game_from_position(cursor.position, "c5")
 
     cursor.truncate().append_game(source)
 
