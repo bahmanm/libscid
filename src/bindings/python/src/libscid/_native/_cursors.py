@@ -38,6 +38,13 @@ class NativeCursorMixin:
     def cursor_to_game_end(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p:
         return self._cursor_result("scid_game_cursor_to_end", cursor)
 
+    def cursor_to_main_line_offset(
+        self, cursor: ctypes.c_void_p, offset: int
+    ) -> ctypes.c_void_p | None:
+        return self._cursor_navigation_result(
+            "scid_game_cursor_to_ply", cursor, offset
+        )
+
     def cursor_enter_variation(
         self, cursor: ctypes.c_void_p, index: int
     ) -> ctypes.c_void_p | None:

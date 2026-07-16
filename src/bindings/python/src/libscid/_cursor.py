@@ -52,6 +52,11 @@ class Cursor:
             self._native.cursor_to_game_end(self._handle),
         )
 
+    def to_main_line_offset(self, offset: int) -> "Cursor | None":
+        return self._from_optional_handle(
+            self._native.cursor_to_main_line_offset(self._handle, offset)
+        )
+
     def enter_variation(self, index: int) -> "Cursor | None":
         return self._from_optional_handle(
             self._native.cursor_enter_variation(self._handle, index)

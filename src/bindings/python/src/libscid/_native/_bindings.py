@@ -93,6 +93,10 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     bind("scid_game_cursor_to_start", [ctypes.c_void_p, c_void_p_p])
     bind("scid_game_cursor_to_end", [ctypes.c_void_p, c_void_p_p])
     bind(
+        "scid_game_cursor_to_ply",
+        [ctypes.c_void_p, ctypes.c_size_t, c_int_p, c_void_p_p],
+    )
+    bind(
         "scid_game_cursor_variation_enter",
         [ctypes.c_void_p, ctypes.c_size_t, c_int_p, c_void_p_p],
     )

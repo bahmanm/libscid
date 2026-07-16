@@ -126,6 +126,45 @@ def test_cursor_to_game_end_uses_main_line_from_variation():
     assert variation.to_game_end().previous_move_san == "e5"
 
 
+def test_cursor_to_main_line_offset_returns_start_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert cursor.to_main_line_offset(0).previous_move_san is None
+
+
+def test_cursor_to_main_line_offset_returns_cursor_after_offset_moves():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.to_main_line_offset(1).previous_move_san == "e4"
+
+
+def test_cursor_to_main_line_offset_can_return_line_end_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.to_main_line_offset(2).next_move_san is None
+
+
+def test_cursor_to_main_line_offset_does_not_mutate_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    cursor.to_main_line_offset(1)
+
+    assert cursor.previous_move_san is None
+
+
+def test_cursor_to_main_line_offset_returns_none_for_missing_offset():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.to_main_line_offset(3) is None
+
+
+def test_cursor_to_main_line_offset_uses_main_line_from_variation():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    assert variation.to_main_line_offset(2).previous_move_san == "e5"
+
+
 def test_cursor_enter_variation_returns_new_cursor():
     cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
 
