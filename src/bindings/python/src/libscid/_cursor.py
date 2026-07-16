@@ -97,6 +97,13 @@ class Cursor:
             self._native.cursor_truncate(self._game._handle, self._handle),
         )
 
+    def truncate_before(self) -> "Cursor":
+        return self._from_handle(
+            self._native,
+            self._game,
+            self._native.cursor_truncate_before(self._game._handle, self._handle),
+        )
+
     def _from_optional_handle(self, handle: ctypes.c_void_p | None) -> "Cursor | None":
         if handle is None:
             return None
