@@ -20,6 +20,25 @@ class NativeLibrary:
         self._lib = ctypes.CDLL(str(self.library_path))
         self._bind_functions()
 
+    def create_blank_game(self) -> ctypes.c_void_p:
+        position = ctypes.c_void_p()
+        game = ctypes.c_void_p()
+
+        self._check(
+            "scid_position_create_from_fen",
+            self._lib.scid_position_create_from_fen(
+                STANDARD_FEN, ctypes.byref(position)
+            ),
+        )
+        try:
+            self._check(
+                "scid_game_create_blank",
+                self._lib.scid_game_create_blank(position, ctypes.byref(game)),
+            )
+            return game
+        finally:
+            self._lib.scid_position_free(position)
+
     def create_game_from_pgn(self, pgn: str | bytes) -> ctypes.c_void_p:
         pgn_bytes = encode(pgn)
         position = ctypes.c_void_p()
@@ -224,6 +243,12 @@ class NativeLibrary:
             c_size_t_p,
         ]
         self._lib.scid_game_create.restype = ctypes.c_ushort
+
+        self._lib.scid_game_create_blank.argtypes = [
+            ctypes.c_void_p,
+            c_void_p_p,
+        ]
+        self._lib.scid_game_create_blank.restype = ctypes.c_ushort
 
         self._lib.scid_game_free.argtypes = [ctypes.c_void_p]
         self._lib.scid_game_free.restype = None

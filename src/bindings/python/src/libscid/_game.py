@@ -7,14 +7,21 @@ from ._pgn import PgnOptions
 
 
 class Game:
-    def __init__(self, native: NativeLibrary, handle: ctypes.c_void_p):
-        self._native = native
-        self._handle = handle
+    def __init__(self):
+        self._native = load_library()
+        self._handle = self._native.create_blank_game()
 
     @classmethod
     def from_pgn(cls, pgn: str | bytes) -> "Game":
         native = load_library()
-        return cls(native, native.create_game_from_pgn(pgn))
+        return cls._from_handle(native, native.create_game_from_pgn(pgn))
+
+    @classmethod
+    def _from_handle(cls, native: NativeLibrary, handle: ctypes.c_void_p) -> "Game":
+        game = cls.__new__(cls)
+        game._native = native
+        game._handle = handle
+        return game
 
     @property
     def mainline_halfmove_count(self) -> int:
