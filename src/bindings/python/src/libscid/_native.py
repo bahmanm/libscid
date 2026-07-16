@@ -191,6 +191,28 @@ class NativeLibrary:
             "scid_game_cursor_variation_exit", cursor
         )
 
+    def cursor_add_variation(
+        self,
+        game: ctypes.c_void_p,
+        cursor: ctypes.c_void_p,
+        preceding_comment: str | bytes = "",
+    ) -> ctypes.c_void_p | None:
+        added = ctypes.c_int()
+        variation_cursor = ctypes.c_void_p()
+        self._check(
+            "scid_game_cursor_variation_add",
+            self._lib.scid_game_cursor_variation_add(
+                game,
+                cursor,
+                encode(preceding_comment),
+                ctypes.byref(added),
+                ctypes.byref(variation_cursor),
+            ),
+        )
+        if not added.value:
+            return None
+        return variation_cursor
+
     def cursor_previous_move_san(self, cursor: ctypes.c_void_p) -> str:
         return self._string_result("scid_game_cursor_previous_move_san_get", cursor)
 
@@ -688,6 +710,15 @@ class NativeLibrary:
             c_void_p_p,
         ]
         self._lib.scid_game_cursor_variation_exit.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_variation_add.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+            ctypes.POINTER(ctypes.c_int),
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_variation_add.restype = ctypes.c_ushort
 
         self._lib.scid_game_cursor_previous_move_san_get.argtypes = [
             ctypes.c_void_p,

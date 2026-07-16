@@ -62,6 +62,15 @@ class Cursor:
             self._native.cursor_exit_variation(self._handle)
         )
 
+    def add_variation(
+        self, preceding_comment: str | bytes = ""
+    ) -> "Cursor | None":
+        return self._from_optional_handle(
+            self._native.cursor_add_variation(
+                self._game._handle, self._handle, preceding_comment
+            )
+        )
+
     def _from_optional_handle(self, handle: ctypes.c_void_p | None) -> "Cursor | None":
         if handle is None:
             return None
