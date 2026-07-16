@@ -2,49 +2,26 @@ from __future__ import annotations
 
 import ctypes
 import os
-import platform
 from pathlib import Path
-from typing import Final, Protocol
 
-
-SCID_OK: Final = 0
-SCID_ERROR_BUFFER_FULL: Final = 601
-
-_STANDARD_FEN: Final = (
-    b"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-)
-
-
-class _PgnOptions(Protocol):
-    symbolic_nags: bool
-    supplemental_tags: bool
-    comments: bool
-    variations: bool
-    line_width: int | None
-
-
-class LibScidError(RuntimeError):
-    def __init__(self, function: str, code: int, diagnostic: str | None = None):
-        message = f"{function} failed with scid_error {code}"
-        if diagnostic:
-            message = f"{message}: {diagnostic}"
-        super().__init__(message)
-        self.function = function
-        self.code = code
-        self.diagnostic = diagnostic
+from ._native_constants import SCID_ERROR_BUFFER_FULL, SCID_OK, STANDARD_FEN
+from ._native_errors import LibScidError
+from ._native_loader import enable_windows_dll_search_dirs, find_library
+from ._native_text import decode_buffer, encode
+from ._native_types import PgnOptionsProtocol
 
 
 class NativeLibrary:
     def __init__(self, library_path: str | os.PathLike[str] | None = None):
         self.library_path = (
-            Path(library_path).resolve() if library_path else _find_library().resolve()
+            Path(library_path).resolve() if library_path else find_library().resolve()
         )
-        _enable_windows_dll_search_dirs(self.library_path)
+        enable_windows_dll_search_dirs(self.library_path)
         self._lib = ctypes.CDLL(str(self.library_path))
         self._bind_functions()
 
     def create_game_from_pgn(self, pgn: str | bytes) -> ctypes.c_void_p:
-        pgn_bytes = _encode(pgn)
+        pgn_bytes = encode(pgn)
         position = ctypes.c_void_p()
         game = ctypes.c_void_p()
         diagnostic = ctypes.create_string_buffer(4096)
@@ -53,7 +30,7 @@ class NativeLibrary:
         self._check(
             "scid_position_create_from_fen",
             self._lib.scid_position_create_from_fen(
-                _STANDARD_FEN, ctypes.byref(position)
+                STANDARD_FEN, ctypes.byref(position)
             ),
         )
         try:
@@ -70,7 +47,7 @@ class NativeLibrary:
                 raise LibScidError(
                     "scid_game_create",
                     error,
-                    _decode_buffer(diagnostic, diagnostic_size.value),
+                    decode_buffer(diagnostic, diagnostic_size.value),
                 )
             return game
         finally:
@@ -90,14 +67,14 @@ class NativeLibrary:
         return count.value
 
     def game_get_tag(self, game: ctypes.c_void_p, name: str | bytes) -> str:
-        return self._string_result("scid_game_tag_get", game, _encode(name))
+        return self._string_result("scid_game_tag_get", game, encode(name))
 
     def game_set_tag(
         self, game: ctypes.c_void_p, name: str | bytes, value: str | bytes
     ) -> None:
         self._check(
             "scid_game_tag_set",
-            self._lib.scid_game_tag_set(game, _encode(name), _encode(value)),
+            self._lib.scid_game_tag_set(game, encode(name), encode(value)),
         )
 
     def game_tag_count(self, game: ctypes.c_void_p) -> int:
@@ -128,8 +105,8 @@ class NativeLibrary:
             )
             if error == SCID_OK:
                 return (
-                    _decode_buffer(name, name_size.value),
-                    _decode_buffer(value, value_size.value),
+                    decode_buffer(name, name_size.value),
+                    decode_buffer(value, value_size.value),
                 )
             if error != SCID_ERROR_BUFFER_FULL:
                 raise LibScidError("scid_game_tag_at_get", error)
@@ -147,13 +124,13 @@ class NativeLibrary:
         self._check(
             "scid_game_tag_remove",
             self._lib.scid_game_tag_remove(
-                game, _encode(name), ctypes.byref(removed)
+                game, encode(name), ctypes.byref(removed)
             ),
         )
         return bool(removed.value)
 
     def game_to_pgn(
-        self, game: ctypes.c_void_p, options: _PgnOptions | None = None
+        self, game: ctypes.c_void_p, options: PgnOptionsProtocol | None = None
     ) -> str:
         if options is None:
             return self._string_result("scid_game_to_pgn", game, None)
@@ -164,7 +141,7 @@ class NativeLibrary:
         finally:
             self._lib.scid_game_pgn_options_free(native_options)
 
-    def _create_pgn_options(self, options: _PgnOptions) -> ctypes.c_void_p:
+    def _create_pgn_options(self, options: PgnOptionsProtocol) -> ctypes.c_void_p:
         native_options = ctypes.c_void_p()
         self._check(
             "scid_game_pgn_options_create",
@@ -219,7 +196,7 @@ class NativeLibrary:
             output_size = ctypes.c_size_t()
             error = function(*args, output, capacity, ctypes.byref(output_size))
             if error == SCID_OK:
-                return _decode_buffer(output, output_size.value)
+                return decode_buffer(output, output_size.value)
             if error != SCID_ERROR_BUFFER_FULL:
                 raise LibScidError(function_name, error)
             capacity *= 2
@@ -346,78 +323,3 @@ class NativeLibrary:
 
 def load_library(library_path: str | os.PathLike[str] | None = None) -> NativeLibrary:
     return NativeLibrary(library_path)
-
-
-def _find_library() -> Path:
-    env_path = os.environ.get("LIBSCID_LIBRARY")
-    if env_path:
-        return Path(env_path)
-
-    root = _repository_root()
-    name = _library_name()
-    candidates = [
-        root / "_build" / "src" / "libscid" / name,
-        root / "_build" / "release" / "src" / "libscid" / name,
-        root / "_build" / "current-install" / "lib" / name,
-        root / "_build-shared" / "src" / "libscid" / name,
-        root / "_build-shared" / "src" / "libscid" / "Release" / name,
-        root / "install" / "libscid" / "lib" / name,
-        root / "install" / "libscid" / "bin" / name,
-    ]
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
-
-    raise FileNotFoundError(
-        "Could not find libscid shared library. Set LIBSCID_LIBRARY to the "
-        "absolute path of libscid.dylib, libscid.so, or scid.dll."
-    )
-
-
-def _repository_root() -> Path:
-    for parent in Path(__file__).resolve().parents:
-        if (parent / "CMakeLists.txt").exists() and (parent / "src/libscid").exists():
-            return parent
-    raise FileNotFoundError(
-        "Could not infer the libscid repository root. Set LIBSCID_LIBRARY to "
-        "the absolute path of libscid.dylib, libscid.so, or scid.dll."
-    )
-
-
-def _library_name() -> str:
-    system = platform.system()
-    if system == "Darwin":
-        return "libscid.dylib"
-    if system == "Windows":
-        return "scid.dll"
-    return "libscid.so"
-
-
-def _enable_windows_dll_search_dirs(library_path: Path) -> None:
-    if platform.system() != "Windows" or not hasattr(os, "add_dll_directory"):
-        return
-
-    directories = [library_path.parent]
-    root = _repository_root()
-    for build_dir in ["_build-shared", "_build"]:
-        for relative in [
-            ("lib", "Release"),
-            ("src", "libscid", "Release"),
-        ]:
-            directories.append(root / build_dir / Path(*relative))
-
-    seen: set[Path] = set()
-    for directory in directories:
-        if directory.exists() and directory not in seen:
-            os.add_dll_directory(str(directory))
-            seen.add(directory)
-
-
-def _encode(value: str | bytes) -> bytes:
-    if isinstance(value, bytes):
-        return value
-    return value.encode("utf-8")
-
-
-def _decode_buffer(buffer: ctypes.Array[ctypes.c_char], size: int) -> str:
-    return bytes(buffer.raw[:size]).decode("utf-8")
