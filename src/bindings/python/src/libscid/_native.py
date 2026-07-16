@@ -178,6 +178,20 @@ class NativeLibrary:
     def cursor_next_move_san(self, cursor: ctypes.c_void_p) -> str:
         return self._string_result("scid_game_cursor_next_move_san_get", cursor)
 
+    def cursor_previous_move_nags(self, cursor: ctypes.c_void_p) -> tuple[int, ...]:
+        return self._cursor_nags_result(
+            "scid_game_cursor_previous_move_nag_count_get",
+            "scid_game_cursor_previous_move_nag_at_get",
+            cursor,
+        )
+
+    def cursor_next_move_nags(self, cursor: ctypes.c_void_p) -> tuple[int, ...]:
+        return self._cursor_nags_result(
+            "scid_game_cursor_next_move_nag_count_get",
+            "scid_game_cursor_next_move_nag_at_get",
+            cursor,
+        )
+
     def cursor_comment(self, cursor: ctypes.c_void_p) -> str:
         return self._string_result("scid_game_cursor_comment_get", cursor)
 
@@ -353,6 +367,24 @@ class NativeLibrary:
         if not moved.value:
             return None
         return next_cursor
+
+    def _cursor_nags_result(
+        self,
+        count_function_name: str,
+        at_function_name: str,
+        cursor: ctypes.c_void_p,
+    ) -> tuple[int, ...]:
+        count = self._cursor_size_result(count_function_name, cursor)
+        at_function = getattr(self._lib, at_function_name)
+        nags = []
+        for index in range(count):
+            nag = ctypes.c_ubyte()
+            self._check(
+                at_function_name,
+                at_function(cursor, index, ctypes.byref(nag)),
+            )
+            nags.append(nag.value)
+        return tuple(nags)
 
     def _string_result(self, function_name: str, *args: object) -> str:
         function = getattr(self._lib, function_name)
@@ -564,6 +596,34 @@ class NativeLibrary:
             c_size_t_p,
         ]
         self._lib.scid_game_cursor_next_move_san_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_previous_move_nag_count_get.argtypes = [
+            ctypes.c_void_p,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_cursor_previous_move_nag_count_get.restype = (
+            ctypes.c_ushort
+        )
+
+        self._lib.scid_game_cursor_previous_move_nag_at_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.POINTER(ctypes.c_ubyte),
+        ]
+        self._lib.scid_game_cursor_previous_move_nag_at_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_next_move_nag_count_get.argtypes = [
+            ctypes.c_void_p,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_cursor_next_move_nag_count_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_next_move_nag_at_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.POINTER(ctypes.c_ubyte),
+        ]
+        self._lib.scid_game_cursor_next_move_nag_at_get.restype = ctypes.c_ushort
 
         self._lib.scid_game_cursor_comment_get.argtypes = [
             ctypes.c_void_p,

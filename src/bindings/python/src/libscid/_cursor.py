@@ -65,6 +65,18 @@ class Cursor:
         return self._native.cursor_next_move_san(self._handle)
 
     @property
+    def previous_move_nags(self) -> tuple[int, ...] | None:
+        if self.is_line_start:
+            return None
+        return self._native.cursor_previous_move_nags(self._handle)
+
+    @property
+    def next_move_nags(self) -> tuple[int, ...] | None:
+        if self.is_line_end:
+            return None
+        return self._native.cursor_next_move_nags(self._handle)
+
+    @property
     def comment(self) -> str | None:
         if self.is_line_start:
             return None
