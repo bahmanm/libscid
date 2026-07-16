@@ -4,7 +4,7 @@ import ctypes
 import os
 import platform
 from pathlib import Path
-from typing import Final
+from typing import Final, Protocol
 
 
 SCID_OK: Final = 0
@@ -13,6 +13,14 @@ SCID_ERROR_BUFFER_FULL: Final = 601
 _STANDARD_FEN: Final = (
     b"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 )
+
+
+class _PgnOptions(Protocol):
+    symbolic_nags: bool
+    supplemental_tags: bool
+    comments: bool
+    variations: bool
+    line_width: int | None
 
 
 class LibScidError(RuntimeError):
@@ -81,8 +89,60 @@ class NativeLibrary:
         )
         return count.value
 
-    def game_to_pgn(self, game: ctypes.c_void_p) -> str:
-        return self._string_result("scid_game_to_pgn", game, None)
+    def game_to_pgn(
+        self, game: ctypes.c_void_p, options: _PgnOptions | None = None
+    ) -> str:
+        if options is None:
+            return self._string_result("scid_game_to_pgn", game, None)
+
+        native_options = self._create_pgn_options(options)
+        try:
+            return self._string_result("scid_game_to_pgn", game, native_options)
+        finally:
+            self._lib.scid_game_pgn_options_free(native_options)
+
+    def _create_pgn_options(self, options: _PgnOptions) -> ctypes.c_void_p:
+        native_options = ctypes.c_void_p()
+        self._check(
+            "scid_game_pgn_options_create",
+            self._lib.scid_game_pgn_options_create(ctypes.byref(native_options)),
+        )
+        try:
+            self._check(
+                "scid_game_pgn_options_symbolic_nags_set",
+                self._lib.scid_game_pgn_options_symbolic_nags_set(
+                    native_options, int(options.symbolic_nags)
+                ),
+            )
+            self._check(
+                "scid_game_pgn_options_supplemental_tags_set",
+                self._lib.scid_game_pgn_options_supplemental_tags_set(
+                    native_options, int(options.supplemental_tags)
+                ),
+            )
+            self._check(
+                "scid_game_pgn_options_comments_set",
+                self._lib.scid_game_pgn_options_comments_set(
+                    native_options, int(options.comments)
+                ),
+            )
+            self._check(
+                "scid_game_pgn_options_variations_set",
+                self._lib.scid_game_pgn_options_variations_set(
+                    native_options, int(options.variations)
+                ),
+            )
+            self._check(
+                "scid_game_pgn_options_line_width_set",
+                self._lib.scid_game_pgn_options_line_width_set(
+                    native_options,
+                    0 if options.line_width is None else options.line_width,
+                ),
+            )
+        except Exception:
+            self._lib.scid_game_pgn_options_free(native_options)
+            raise
+        return native_options
 
     def _check(self, function: str, error: int) -> None:
         if error != SCID_OK:
@@ -127,6 +187,42 @@ class NativeLibrary:
 
         self._lib.scid_game_free.argtypes = [ctypes.c_void_p]
         self._lib.scid_game_free.restype = None
+
+        self._lib.scid_game_pgn_options_create.argtypes = [c_void_p_p]
+        self._lib.scid_game_pgn_options_create.restype = ctypes.c_ushort
+
+        self._lib.scid_game_pgn_options_free.argtypes = [ctypes.c_void_p]
+        self._lib.scid_game_pgn_options_free.restype = None
+
+        self._lib.scid_game_pgn_options_symbolic_nags_set.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_int,
+        ]
+        self._lib.scid_game_pgn_options_symbolic_nags_set.restype = ctypes.c_ushort
+
+        self._lib.scid_game_pgn_options_supplemental_tags_set.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_int,
+        ]
+        self._lib.scid_game_pgn_options_supplemental_tags_set.restype = ctypes.c_ushort
+
+        self._lib.scid_game_pgn_options_comments_set.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_int,
+        ]
+        self._lib.scid_game_pgn_options_comments_set.restype = ctypes.c_ushort
+
+        self._lib.scid_game_pgn_options_variations_set.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_int,
+        ]
+        self._lib.scid_game_pgn_options_variations_set.restype = ctypes.c_ushort
+
+        self._lib.scid_game_pgn_options_line_width_set.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_uint,
+        ]
+        self._lib.scid_game_pgn_options_line_width_set.restype = ctypes.c_ushort
 
         self._lib.scid_game_mainline_halfmove_count_get.argtypes = [
             ctypes.c_void_p,

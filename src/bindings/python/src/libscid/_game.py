@@ -3,6 +3,7 @@ from __future__ import annotations
 import ctypes
 
 from ._native import NativeLibrary, load_library
+from ._pgn import PgnOptions
 
 
 class Game:
@@ -19,8 +20,8 @@ class Game:
     def mainline_halfmove_count(self) -> int:
         return self._native.game_mainline_halfmove_count(self._handle)
 
-    def to_pgn(self) -> str:
-        return self._native.game_to_pgn(self._handle)
+    def to_pgn(self, options: PgnOptions | None = None) -> str:
+        return self._native.game_to_pgn(self._handle, options)
 
     def _dispose(self) -> None:
         if self._handle:

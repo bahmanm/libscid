@@ -2,7 +2,8 @@
 
 from ._game import Game
 from ._native import LibScidError
+from ._pgn import PgnOptions
 
 __version__ = "0.0.0"
 
-__all__ = ["Game", "LibScidError", "__version__"]
+__all__ = ["Game", "LibScidError", "PgnOptions", "__version__"]
