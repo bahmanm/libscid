@@ -5,7 +5,6 @@
 *.so
 *.obj
 *.d
-Makefile
 Makefile.bak
 
 *~
