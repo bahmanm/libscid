@@ -3,7 +3,7 @@
 from ._cursor import Cursor
 from ._game import Game
 from ._nag import Nag
-from ._native_errors import LibScidError
+from ._native import LibScidError
 from ._pgn import PgnOptions
 from ._position import Position
 
