@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ctypes
 
+from ._cursor import Cursor
 from ._native import NativeLibrary, load_library
 from ._pgn import PgnOptions
 from ._position import Position
@@ -51,6 +52,11 @@ class Game:
 
     def get_tags(self) -> tuple[tuple[str, str], ...]:
         return self._native.game_get_tags(self._handle)
+
+    def create_cursor(self) -> Cursor:
+        return Cursor._from_handle(
+            self._native, self, self._native.game_create_cursor(self._handle)
+        )
 
     def to_pgn(self, options: PgnOptions | None = None) -> str:
         return self._native.game_to_pgn(self._handle, options)

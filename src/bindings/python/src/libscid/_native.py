@@ -78,6 +78,9 @@ class NativeLibrary:
     def free_position(self, position: ctypes.c_void_p) -> None:
         self._lib.scid_position_free(position)
 
+    def free_cursor(self, cursor: ctypes.c_void_p) -> None:
+        self._lib.scid_game_cursor_free(cursor)
+
     def position_to_fen(self, position: ctypes.c_void_p) -> str:
         return self._string_result("scid_position_to_fen", position)
 
@@ -109,6 +112,44 @@ class NativeLibrary:
             self._check(
                 "scid_game_final_position_get",
                 self._lib.scid_game_final_position_get(game, position),
+            )
+            return position
+        except Exception:
+            self._lib.scid_position_free(position)
+            raise
+
+    def game_create_cursor(self, game: ctypes.c_void_p) -> ctypes.c_void_p:
+        cursor = ctypes.c_void_p()
+        self._check(
+            "scid_game_cursor_create",
+            self._lib.scid_game_cursor_create(game, ctypes.byref(cursor)),
+        )
+        return cursor
+
+    def game_clone_cursor(
+        self, game: ctypes.c_void_p, cursor: ctypes.c_void_p
+    ) -> ctypes.c_void_p:
+        clone = ctypes.c_void_p()
+        self._check(
+            "scid_game_cursor_clone",
+            self._lib.scid_game_cursor_clone(game, cursor, ctypes.byref(clone)),
+        )
+        return clone
+
+    def cursor_ply(self, cursor: ctypes.c_void_p) -> int:
+        ply = ctypes.c_size_t()
+        self._check(
+            "scid_game_cursor_ply_get",
+            self._lib.scid_game_cursor_ply_get(cursor, ctypes.byref(ply)),
+        )
+        return ply.value
+
+    def cursor_position(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p:
+        position = self._create_standard_position()
+        try:
+            self._check(
+                "scid_game_cursor_position_get",
+                self._lib.scid_game_cursor_position_get(cursor, position),
             )
             return position
         except Exception:
@@ -354,6 +395,34 @@ class NativeLibrary:
             ctypes.c_void_p,
         ]
         self._lib.scid_game_final_position_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_create.argtypes = [
+            ctypes.c_void_p,
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_create.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_clone.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_clone.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_free.argtypes = [ctypes.c_void_p]
+        self._lib.scid_game_cursor_free.restype = None
+
+        self._lib.scid_game_cursor_ply_get.argtypes = [
+            ctypes.c_void_p,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_cursor_ply_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_position_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+        ]
+        self._lib.scid_game_cursor_position_get.restype = ctypes.c_ushort
 
         self._lib.scid_game_tag_get.argtypes = [
             ctypes.c_void_p,
