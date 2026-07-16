@@ -84,6 +84,19 @@ class NativeLibrary:
     def position_to_fen(self, position: ctypes.c_void_p) -> str:
         return self._string_result("scid_position_to_fen", position)
 
+    def nag_from_string(self, text: str | bytes) -> int:
+        nag = ctypes.c_ubyte()
+        self._check(
+            "scid_nag_create_from_string",
+            self._lib.scid_nag_create_from_string(encode(text), ctypes.byref(nag)),
+        )
+        return nag.value
+
+    def nag_to_string(self, nag: int, symbolic: bool = False) -> str:
+        return self._string_result(
+            "scid_nag_to_string", ctypes.c_ubyte(nag), int(symbolic)
+        )
+
     def game_mainline_move_count(self, game: ctypes.c_void_p) -> int:
         count = ctypes.c_size_t()
         self._check(
@@ -447,6 +460,21 @@ class NativeLibrary:
             c_size_t_p,
         ]
         self._lib.scid_position_to_fen.restype = ctypes.c_ushort
+
+        self._lib.scid_nag_create_from_string.argtypes = [
+            ctypes.c_char_p,
+            ctypes.POINTER(ctypes.c_ubyte),
+        ]
+        self._lib.scid_nag_create_from_string.restype = ctypes.c_ushort
+
+        self._lib.scid_nag_to_string.argtypes = [
+            ctypes.c_ubyte,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ]
+        self._lib.scid_nag_to_string.restype = ctypes.c_ushort
 
         self._lib.scid_game_create.argtypes = [
             ctypes.c_void_p,

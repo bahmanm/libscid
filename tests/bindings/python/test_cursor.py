@@ -233,19 +233,19 @@ def test_cursor_next_move_uci_reads_variation_line():
 def test_cursor_exposes_next_move_nags():
     cursor = libscid.Game.from_pgn("1. e4 $1 e5 *").create_cursor()
 
-    assert cursor.next_move_nags == (1,)
+    assert cursor.next_move_nags == (libscid.Nag(1),)
 
 
 def test_cursor_exposes_previous_move_nags():
     cursor = libscid.Game.from_pgn("1. e4 $1 e5 *").create_cursor().next()
 
-    assert cursor.previous_move_nags == (1,)
+    assert cursor.previous_move_nags == (libscid.Nag(1),)
 
 
 def test_cursor_move_nags_preserve_order():
     cursor = libscid.Game.from_pgn("1. e4 $1 $146 e5 *").create_cursor()
 
-    assert cursor.next_move_nags == (1, 146)
+    assert cursor.next_move_nags == (libscid.Nag(1), libscid.Nag(146))
 
 
 def test_cursor_next_move_nags_returns_none_at_line_end():

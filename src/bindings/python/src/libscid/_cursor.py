@@ -3,6 +3,7 @@ from __future__ import annotations
 import ctypes
 from typing import Any
 
+from ._nag import Nag
 from ._native import NativeLibrary
 from ._position import Position
 
@@ -91,16 +92,20 @@ class Cursor:
         return self._native.cursor_next_move_uci(self._handle)
 
     @property
-    def previous_move_nags(self) -> tuple[int, ...] | None:
+    def previous_move_nags(self) -> tuple[Nag, ...] | None:
         if self.is_line_start:
             return None
-        return self._native.cursor_previous_move_nags(self._handle)
+        return tuple(
+            Nag(code) for code in self._native.cursor_previous_move_nags(self._handle)
+        )
 
     @property
-    def next_move_nags(self) -> tuple[int, ...] | None:
+    def next_move_nags(self) -> tuple[Nag, ...] | None:
         if self.is_line_end:
             return None
-        return self._native.cursor_next_move_nags(self._handle)
+        return tuple(
+            Nag(code) for code in self._native.cursor_next_move_nags(self._handle)
+        )
 
     @property
     def comment(self) -> str | None:
