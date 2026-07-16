@@ -119,6 +119,12 @@ class Cursor:
             return None
         return self._native.cursor_comment(self._handle)
 
+    def set_comment(self, comment: str | bytes) -> None:
+        self._native.cursor_set_comment(self._game._handle, self._handle, comment)
+
+    def remove_comment(self) -> None:
+        self.set_comment("")
+
     @property
     def variation_count(self) -> int:
         return self._native.cursor_variation_count(self._handle)

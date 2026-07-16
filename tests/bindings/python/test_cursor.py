@@ -312,6 +312,48 @@ def test_cursor_comment_preserves_empty_comment():
     assert cursor.comment == ""
 
 
+def test_cursor_set_comment_updates_initial_comment():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    cursor.set_comment("Before game")
+
+    assert cursor.preceding_comment == "Before game"
+
+
+def test_cursor_set_comment_updates_previous_move_comment():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    cursor.set_comment("King pawn")
+
+    assert cursor.comment == "King pawn"
+
+
+def test_cursor_set_comment_updates_variation_initial_comment():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    variation.set_comment("Queen pawn")
+
+    assert variation.preceding_comment == "Queen pawn"
+
+
+def test_cursor_remove_comment_removes_comment():
+    cursor = libscid.Game.from_pgn("1. e4 {King pawn} e5 *").create_cursor().next()
+
+    cursor.remove_comment()
+
+    assert cursor.comment == ""
+
+
+def test_cursor_set_comment_is_visible_in_pgn_output():
+    game = libscid.Game.from_pgn("1. e4 e5 *")
+    cursor = game.create_cursor().next()
+
+    cursor.set_comment("King pawn")
+
+    assert "{King pawn}" in game.to_pgn()
+
+
 def test_cursor_exposes_variation_count():
     cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
 

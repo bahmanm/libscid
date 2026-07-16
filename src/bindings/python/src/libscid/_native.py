@@ -222,6 +222,16 @@ class NativeLibrary:
     def cursor_comment(self, cursor: ctypes.c_void_p) -> str:
         return self._string_result("scid_game_cursor_comment_get", cursor)
 
+    def cursor_set_comment(
+        self, game: ctypes.c_void_p, cursor: ctypes.c_void_p, comment: str | bytes
+    ) -> None:
+        self._check(
+            "scid_game_cursor_comment_set",
+            self._lib.scid_game_cursor_comment_set(
+                game, cursor, encode(comment)
+            ),
+        )
+
     def cursor_position(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p:
         position = self._create_standard_position()
         try:
@@ -720,6 +730,13 @@ class NativeLibrary:
             c_size_t_p,
         ]
         self._lib.scid_game_cursor_comment_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_comment_set.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+        ]
+        self._lib.scid_game_cursor_comment_set.restype = ctypes.c_ushort
 
         self._lib.scid_game_tag_get.argtypes = [
             ctypes.c_void_p,
