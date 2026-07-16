@@ -75,6 +75,12 @@ class NativeLibrary:
     def free_game(self, game: ctypes.c_void_p) -> None:
         self._lib.scid_game_free(game)
 
+    def free_position(self, position: ctypes.c_void_p) -> None:
+        self._lib.scid_position_free(position)
+
+    def position_to_fen(self, position: ctypes.c_void_p) -> str:
+        return self._string_result("scid_position_to_fen", position)
+
     def game_mainline_halfmove_count(self, game: ctypes.c_void_p) -> int:
         count = ctypes.c_size_t()
         self._check(
@@ -84,6 +90,30 @@ class NativeLibrary:
             ),
         )
         return count.value
+
+    def game_start_position(self, game: ctypes.c_void_p) -> ctypes.c_void_p:
+        position = self._create_standard_position()
+        try:
+            self._check(
+                "scid_game_start_position_get",
+                self._lib.scid_game_start_position_get(game, position),
+            )
+            return position
+        except Exception:
+            self._lib.scid_position_free(position)
+            raise
+
+    def game_final_position(self, game: ctypes.c_void_p) -> ctypes.c_void_p:
+        position = self._create_standard_position()
+        try:
+            self._check(
+                "scid_game_final_position_get",
+                self._lib.scid_game_final_position_get(game, position),
+            )
+            return position
+        except Exception:
+            self._lib.scid_position_free(position)
+            raise
 
     def game_get_tag(self, game: ctypes.c_void_p, name: str | bytes) -> str:
         return self._string_result("scid_game_tag_get", game, encode(name))
@@ -207,6 +237,16 @@ class NativeLibrary:
         if error != SCID_OK:
             raise LibScidError(function, error)
 
+    def _create_standard_position(self) -> ctypes.c_void_p:
+        position = ctypes.c_void_p()
+        self._check(
+            "scid_position_create_from_fen",
+            self._lib.scid_position_create_from_fen(
+                STANDARD_FEN, ctypes.byref(position)
+            ),
+        )
+        return position
+
     def _string_result(self, function_name: str, *args: object) -> str:
         function = getattr(self._lib, function_name)
         capacity = 1024
@@ -232,6 +272,14 @@ class NativeLibrary:
 
         self._lib.scid_position_free.argtypes = [ctypes.c_void_p]
         self._lib.scid_position_free.restype = None
+
+        self._lib.scid_position_to_fen.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ]
+        self._lib.scid_position_to_fen.restype = ctypes.c_ushort
 
         self._lib.scid_game_create.argtypes = [
             ctypes.c_void_p,
@@ -294,6 +342,18 @@ class NativeLibrary:
             c_size_t_p,
         ]
         self._lib.scid_game_mainline_halfmove_count_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_start_position_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+        ]
+        self._lib.scid_game_start_position_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_final_position_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+        ]
+        self._lib.scid_game_final_position_get.restype = ctypes.c_ushort
 
         self._lib.scid_game_tag_get.argtypes = [
             ctypes.c_void_p,

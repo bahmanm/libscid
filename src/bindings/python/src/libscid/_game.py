@@ -4,6 +4,7 @@ import ctypes
 
 from ._native import NativeLibrary, load_library
 from ._pgn import PgnOptions
+from ._position import Position
 
 
 class Game:
@@ -26,6 +27,18 @@ class Game:
     @property
     def mainline_halfmove_count(self) -> int:
         return self._native.game_mainline_halfmove_count(self._handle)
+
+    @property
+    def start_position(self) -> Position:
+        return Position._from_handle(
+            self._native, self._native.game_start_position(self._handle)
+        )
+
+    @property
+    def end_position(self) -> Position:
+        return Position._from_handle(
+            self._native, self._native.game_final_position(self._handle)
+        )
 
     def get_tag(self, name: str | bytes) -> str:
         return self._native.game_get_tag(self._handle, name)
