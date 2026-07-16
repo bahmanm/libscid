@@ -36,6 +36,34 @@ class Cursor:
         return self._native.cursor_ply(self._handle)
 
     @property
+    def variation_count(self) -> int:
+        return self._native.cursor_variation_count(self._handle)
+
+    @property
+    def variation_depth(self) -> int:
+        return self._native.cursor_variation_depth(self._handle)
+
+    @property
+    def variation_index(self) -> int:
+        return self._native.cursor_variation_index(self._handle)
+
+    @property
+    def is_main_line(self) -> bool:
+        return self.variation_depth == 0
+
+    @property
+    def is_variation_line(self) -> bool:
+        return self.variation_depth > 0
+
+    @property
+    def is_line_start(self) -> bool:
+        return self._native.cursor_is_line_start(self._handle)
+
+    @property
+    def is_line_end(self) -> bool:
+        return self._native.cursor_is_line_end(self._handle)
+
+    @property
     def position(self) -> Position:
         return Position._from_handle(
             self._native, self._native.cursor_position(self._handle)

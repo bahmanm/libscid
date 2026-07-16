@@ -137,12 +137,22 @@ class NativeLibrary:
         return clone
 
     def cursor_ply(self, cursor: ctypes.c_void_p) -> int:
-        ply = ctypes.c_size_t()
-        self._check(
-            "scid_game_cursor_ply_get",
-            self._lib.scid_game_cursor_ply_get(cursor, ctypes.byref(ply)),
-        )
-        return ply.value
+        return self._cursor_size_result("scid_game_cursor_ply_get", cursor)
+
+    def cursor_variation_count(self, cursor: ctypes.c_void_p) -> int:
+        return self._cursor_size_result("scid_game_cursor_variation_count_get", cursor)
+
+    def cursor_variation_depth(self, cursor: ctypes.c_void_p) -> int:
+        return self._cursor_size_result("scid_game_cursor_variation_depth_get", cursor)
+
+    def cursor_variation_index(self, cursor: ctypes.c_void_p) -> int:
+        return self._cursor_size_result("scid_game_cursor_variation_index_get", cursor)
+
+    def cursor_is_line_start(self, cursor: ctypes.c_void_p) -> bool:
+        return self._cursor_bool_result("scid_game_cursor_is_line_start", cursor)
+
+    def cursor_is_line_end(self, cursor: ctypes.c_void_p) -> bool:
+        return self._cursor_bool_result("scid_game_cursor_is_line_end", cursor)
 
     def cursor_position(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p:
         position = self._create_standard_position()
@@ -288,6 +298,18 @@ class NativeLibrary:
         )
         return position
 
+    def _cursor_size_result(self, function_name: str, cursor: ctypes.c_void_p) -> int:
+        value = ctypes.c_size_t()
+        function = getattr(self._lib, function_name)
+        self._check(function_name, function(cursor, ctypes.byref(value)))
+        return value.value
+
+    def _cursor_bool_result(self, function_name: str, cursor: ctypes.c_void_p) -> bool:
+        value = ctypes.c_int()
+        function = getattr(self._lib, function_name)
+        self._check(function_name, function(cursor, ctypes.byref(value)))
+        return bool(value.value)
+
     def _string_result(self, function_name: str, *args: object) -> str:
         function = getattr(self._lib, function_name)
         capacity = 1024
@@ -418,11 +440,41 @@ class NativeLibrary:
         ]
         self._lib.scid_game_cursor_ply_get.restype = ctypes.c_ushort
 
+        self._lib.scid_game_cursor_variation_count_get.argtypes = [
+            ctypes.c_void_p,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_cursor_variation_count_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_variation_depth_get.argtypes = [
+            ctypes.c_void_p,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_cursor_variation_depth_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_variation_index_get.argtypes = [
+            ctypes.c_void_p,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_cursor_variation_index_get.restype = ctypes.c_ushort
+
         self._lib.scid_game_cursor_position_get.argtypes = [
             ctypes.c_void_p,
             ctypes.c_void_p,
         ]
         self._lib.scid_game_cursor_position_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_is_line_start.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_int),
+        ]
+        self._lib.scid_game_cursor_is_line_start.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_is_line_end.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_int),
+        ]
+        self._lib.scid_game_cursor_is_line_end.restype = ctypes.c_ushort
 
         self._lib.scid_game_tag_get.argtypes = [
             ctypes.c_void_p,
