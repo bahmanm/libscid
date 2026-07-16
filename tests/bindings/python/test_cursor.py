@@ -198,6 +198,38 @@ def test_cursor_next_move_san_reads_variation_line():
     assert cursor.enter_variation(0).next_move_san == "d4"
 
 
+def test_cursor_exposes_next_move_uci():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.next_move_uci == "e2e4"
+
+
+def test_cursor_exposes_previous_move_uci():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert cursor.previous_move_uci == "e2e4"
+
+
+def test_cursor_next_move_uci_returns_none_at_line_end():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+    cursor = cursor.next()
+    cursor = cursor.next()
+
+    assert cursor.next_move_uci is None
+
+
+def test_cursor_previous_move_uci_returns_none_at_line_start():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.previous_move_uci is None
+
+
+def test_cursor_next_move_uci_reads_variation_line():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+
+    assert cursor.enter_variation(0).next_move_uci == "d2d4"
+
+
 def test_cursor_exposes_next_move_nags():
     cursor = libscid.Game.from_pgn("1. e4 $1 e5 *").create_cursor()
 

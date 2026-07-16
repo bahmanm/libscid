@@ -8,7 +8,7 @@ from ._native_constants import SCID_ERROR_BUFFER_FULL, SCID_OK, STANDARD_FEN
 from ._native_errors import LibScidError
 from ._native_loader import enable_windows_dll_search_dirs, find_library
 from ._native_text import decode_buffer, encode
-from ._native_types import PgnOptionsProtocol
+from ._native_types import PgnOptionsProtocol, ScidMoveSpec
 
 
 class NativeLibrary:
@@ -183,6 +183,14 @@ class NativeLibrary:
 
     def cursor_next_move_san(self, cursor: ctypes.c_void_p) -> str:
         return self._string_result("scid_game_cursor_next_move_san_get", cursor)
+
+    def cursor_previous_move_uci(self, cursor: ctypes.c_void_p) -> str:
+        return self._cursor_move_uci(
+            "scid_game_cursor_previous_movespec_get", cursor
+        )
+
+    def cursor_next_move_uci(self, cursor: ctypes.c_void_p) -> str:
+        return self._cursor_move_uci("scid_game_cursor_next_movespec_get", cursor)
 
     def cursor_previous_move_nags(self, cursor: ctypes.c_void_p) -> tuple[int, ...]:
         return self._cursor_nags_result(
@@ -399,6 +407,12 @@ class NativeLibrary:
             )
             nags.append(nag.value)
         return tuple(nags)
+
+    def _cursor_move_uci(self, function_name: str, cursor: ctypes.c_void_p) -> str:
+        move = ScidMoveSpec()
+        function = getattr(self._lib, function_name)
+        self._check(function_name, function(cursor, ctypes.byref(move)))
+        return self._string_result("scid_movespec_to_uci", move)
 
     def _string_result(self, function_name: str, *args: object) -> str:
         function = getattr(self._lib, function_name)
@@ -622,6 +636,26 @@ class NativeLibrary:
             c_size_t_p,
         ]
         self._lib.scid_game_cursor_next_move_san_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_previous_movespec_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ScidMoveSpec),
+        ]
+        self._lib.scid_game_cursor_previous_movespec_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_next_movespec_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ScidMoveSpec),
+        ]
+        self._lib.scid_game_cursor_next_movespec_get.restype = ctypes.c_ushort
+
+        self._lib.scid_movespec_to_uci.argtypes = [
+            ScidMoveSpec,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ]
+        self._lib.scid_movespec_to_uci.restype = ctypes.c_ushort
 
         self._lib.scid_game_cursor_previous_move_nag_count_get.argtypes = [
             ctypes.c_void_p,
