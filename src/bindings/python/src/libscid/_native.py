@@ -89,6 +89,69 @@ class NativeLibrary:
         )
         return count.value
 
+    def game_get_tag(self, game: ctypes.c_void_p, name: str | bytes) -> str:
+        return self._string_result("scid_game_tag_get", game, _encode(name))
+
+    def game_set_tag(
+        self, game: ctypes.c_void_p, name: str | bytes, value: str | bytes
+    ) -> None:
+        self._check(
+            "scid_game_tag_set",
+            self._lib.scid_game_tag_set(game, _encode(name), _encode(value)),
+        )
+
+    def game_tag_count(self, game: ctypes.c_void_p) -> int:
+        count = ctypes.c_size_t()
+        self._check(
+            "scid_game_tag_count_get",
+            self._lib.scid_game_tag_count_get(game, ctypes.byref(count)),
+        )
+        return count.value
+
+    def game_tag_at(self, game: ctypes.c_void_p, index: int) -> tuple[str, str]:
+        name_capacity = 1024
+        value_capacity = 1024
+        while True:
+            name = ctypes.create_string_buffer(name_capacity)
+            name_size = ctypes.c_size_t()
+            value = ctypes.create_string_buffer(value_capacity)
+            value_size = ctypes.c_size_t()
+            error = self._lib.scid_game_tag_at_get(
+                game,
+                index,
+                name,
+                name_capacity,
+                ctypes.byref(name_size),
+                value,
+                value_capacity,
+                ctypes.byref(value_size),
+            )
+            if error == SCID_OK:
+                return (
+                    _decode_buffer(name, name_size.value),
+                    _decode_buffer(value, value_size.value),
+                )
+            if error != SCID_ERROR_BUFFER_FULL:
+                raise LibScidError("scid_game_tag_at_get", error)
+            name_capacity = max(name_capacity * 2, name_size.value + 1)
+            value_capacity = max(value_capacity * 2, value_size.value + 1)
+
+    def game_get_tags(self, game: ctypes.c_void_p) -> tuple[tuple[str, str], ...]:
+        return tuple(
+            self.game_tag_at(game, index)
+            for index in range(self.game_tag_count(game))
+        )
+
+    def game_remove_tag(self, game: ctypes.c_void_p, name: str | bytes) -> bool:
+        removed = ctypes.c_int()
+        self._check(
+            "scid_game_tag_remove",
+            self._lib.scid_game_tag_remove(
+                game, _encode(name), ctypes.byref(removed)
+            ),
+        )
+        return bool(removed.value)
+
     def game_to_pgn(
         self, game: ctypes.c_void_p, options: _PgnOptions | None = None
     ) -> str:
@@ -229,6 +292,47 @@ class NativeLibrary:
             c_size_t_p,
         ]
         self._lib.scid_game_mainline_halfmove_count_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_tag_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_tag_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_tag_set.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+            ctypes.c_char_p,
+        ]
+        self._lib.scid_game_tag_set.restype = ctypes.c_ushort
+
+        self._lib.scid_game_tag_count_get.argtypes = [
+            ctypes.c_void_p,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_tag_count_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_tag_at_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_tag_at_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_tag_remove.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+            ctypes.POINTER(ctypes.c_int),
+        ]
+        self._lib.scid_game_tag_remove.restype = ctypes.c_ushort
 
         self._lib.scid_game_to_pgn.argtypes = [
             ctypes.c_void_p,

@@ -20,6 +20,18 @@ class Game:
     def mainline_halfmove_count(self) -> int:
         return self._native.game_mainline_halfmove_count(self._handle)
 
+    def get_tag(self, name: str | bytes) -> str:
+        return self._native.game_get_tag(self._handle, name)
+
+    def set_tag(self, name: str | bytes, value: str | bytes) -> None:
+        self._native.game_set_tag(self._handle, name, value)
+
+    def remove_tag(self, name: str | bytes) -> bool:
+        return self._native.game_remove_tag(self._handle, name)
+
+    def get_tags(self) -> tuple[tuple[str, str], ...]:
+        return self._native.game_get_tags(self._handle)
+
     def to_pgn(self, options: PgnOptions | None = None) -> str:
         return self._native.game_to_pgn(self._handle, options)
 
