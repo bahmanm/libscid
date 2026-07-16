@@ -231,6 +231,24 @@ class NativeLibrary:
             return None
         return parent_cursor
 
+    def cursor_promote_variation_to_first(
+        self, game: ctypes.c_void_p, cursor: ctypes.c_void_p
+    ) -> ctypes.c_void_p | None:
+        promoted = ctypes.c_int()
+        promoted_cursor = ctypes.c_void_p()
+        self._check(
+            "scid_game_cursor_variation_promote_to_first",
+            self._lib.scid_game_cursor_variation_promote_to_first(
+                game,
+                cursor,
+                ctypes.byref(promoted),
+                ctypes.byref(promoted_cursor),
+            ),
+        )
+        if not promoted.value:
+            return None
+        return promoted_cursor
+
     def cursor_previous_move_san(self, cursor: ctypes.c_void_p) -> str:
         return self._string_result("scid_game_cursor_previous_move_san_get", cursor)
 
@@ -745,6 +763,16 @@ class NativeLibrary:
             c_void_p_p,
         ]
         self._lib.scid_game_cursor_variation_delete.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_variation_promote_to_first.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_int),
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_variation_promote_to_first.restype = (
+            ctypes.c_ushort
+        )
 
         self._lib.scid_game_cursor_previous_move_san_get.argtypes = [
             ctypes.c_void_p,

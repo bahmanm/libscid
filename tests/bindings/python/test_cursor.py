@@ -211,6 +211,43 @@ def test_cursor_remove_variation_returns_none_on_main_line():
     assert cursor.remove_variation() is None
 
 
+def test_cursor_promote_variation_to_first_returns_new_cursor():
+    cursor = libscid.Game.from_pgn(
+        "1. e4 ({Queen} 1. d4 d5) ({English} 1. c4 c5) e5 *"
+    ).create_cursor()
+    variation = cursor.enter_variation(1)
+
+    assert isinstance(variation.promote_variation_to_first(), libscid.Cursor)
+
+
+def test_cursor_promote_variation_to_first_updates_variation_index():
+    cursor = libscid.Game.from_pgn(
+        "1. e4 ({Queen} 1. d4 d5) ({English} 1. c4 c5) e5 *"
+    ).create_cursor()
+    variation = cursor.enter_variation(1)
+
+    promoted = variation.promote_variation_to_first()
+
+    assert promoted.variation_index == 0
+
+
+def test_cursor_promote_variation_to_first_updates_variation_order():
+    cursor = libscid.Game.from_pgn(
+        "1. e4 ({Queen} 1. d4 d5) ({English} 1. c4 c5) e5 *"
+    ).create_cursor()
+    variation = cursor.enter_variation(1)
+
+    parent = variation.promote_variation_to_first().exit_variation()
+
+    assert parent.enter_variation(0).preceding_comment == "English"
+
+
+def test_cursor_promote_variation_to_first_returns_none_on_main_line():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.promote_variation_to_first() is None
+
+
 def test_cursor_exit_variation_returns_parent_cursor():
     cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
     variation = cursor.enter_variation(0)
