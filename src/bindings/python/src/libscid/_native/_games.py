@@ -39,19 +39,23 @@ class NativeGameMixin:
         finally:
             self._lib.scid_position_free(standard_position)
 
-    def create_game_from_pgn(self, pgn: str | bytes) -> ctypes.c_void_p:
+    def create_game_from_pgn(
+        self, pgn: str | bytes, position: ctypes.c_void_p | None = None
+    ) -> ctypes.c_void_p:
         pgn_bytes = encode(pgn)
-        position = ctypes.c_void_p()
+        owns_position = position is None
         game = ctypes.c_void_p()
         diagnostic = ctypes.create_string_buffer(4096)
         diagnostic_size = ctypes.c_size_t()
 
-        self._check(
-            "scid_position_create_from_fen",
-            self._lib.scid_position_create_from_fen(
-                STANDARD_FEN, ctypes.byref(position)
-            ),
-        )
+        if position is None:
+            position = ctypes.c_void_p()
+            self._check(
+                "scid_position_create_from_fen",
+                self._lib.scid_position_create_from_fen(
+                    STANDARD_FEN, ctypes.byref(position)
+                ),
+            )
         try:
             error = self._lib.scid_game_create(
                 position,
@@ -70,7 +74,8 @@ class NativeGameMixin:
                 )
             return game
         finally:
-            self._lib.scid_position_free(position)
+            if owns_position:
+                self._lib.scid_position_free(position)
 
     def game_mainline_move_count(self, game: ctypes.c_void_p) -> int:
         count = ctypes.c_size_t()

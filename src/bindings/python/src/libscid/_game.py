@@ -19,9 +19,15 @@ class Game:
         self._handle = self._native.create_blank_game(position._handle)
 
     @classmethod
-    def from_pgn(cls, pgn: str | bytes) -> "Game":
-        native = load_library()
-        return cls._from_handle(native, native.create_game_from_pgn(pgn))
+    def from_pgn(cls, pgn: str | bytes, position: Position | None = None) -> "Game":
+        if position is None:
+            native = load_library()
+            return cls._from_handle(native, native.create_game_from_pgn(pgn))
+
+        native = position._native
+        return cls._from_handle(
+            native, native.create_game_from_pgn(pgn, position._handle)
+        )
 
     @classmethod
     def _from_handle(cls, native: NativeLibrary, handle: ctypes.c_void_p) -> "Game":
