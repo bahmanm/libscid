@@ -6,6 +6,16 @@ from ._text import encode
 
 
 class NativePrimitiveMixin:
+    def create_position_from_fen(self, fen: str | bytes) -> ctypes.c_void_p:
+        position = ctypes.c_void_p()
+        self._check(
+            "scid_position_create_from_fen",
+            self._lib.scid_position_create_from_fen(
+                encode(fen), ctypes.byref(position)
+            ),
+        )
+        return position
+
     def position_to_fen(self, position: ctypes.c_void_p) -> str:
         return self._string_result("scid_position_to_fen", position)
 
