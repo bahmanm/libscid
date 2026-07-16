@@ -213,6 +213,24 @@ class NativeLibrary:
             return None
         return variation_cursor
 
+    def cursor_remove_variation(
+        self, game: ctypes.c_void_p, cursor: ctypes.c_void_p
+    ) -> ctypes.c_void_p | None:
+        removed = ctypes.c_int()
+        parent_cursor = ctypes.c_void_p()
+        self._check(
+            "scid_game_cursor_variation_delete",
+            self._lib.scid_game_cursor_variation_delete(
+                game,
+                cursor,
+                ctypes.byref(removed),
+                ctypes.byref(parent_cursor),
+            ),
+        )
+        if not removed.value:
+            return None
+        return parent_cursor
+
     def cursor_previous_move_san(self, cursor: ctypes.c_void_p) -> str:
         return self._string_result("scid_game_cursor_previous_move_san_get", cursor)
 
@@ -719,6 +737,14 @@ class NativeLibrary:
             c_void_p_p,
         ]
         self._lib.scid_game_cursor_variation_add.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_variation_delete.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_int),
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_variation_delete.restype = ctypes.c_ushort
 
         self._lib.scid_game_cursor_previous_move_san_get.argtypes = [
             ctypes.c_void_p,

@@ -71,6 +71,11 @@ class Cursor:
             )
         )
 
+    def remove_variation(self) -> "Cursor | None":
+        return self._from_optional_handle(
+            self._native.cursor_remove_variation(self._game._handle, self._handle)
+        )
+
     def _from_optional_handle(self, handle: ctypes.c_void_p | None) -> "Cursor | None":
         if handle is None:
             return None

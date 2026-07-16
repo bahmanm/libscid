@@ -178,6 +178,39 @@ def test_cursor_add_variation_returns_none_at_line_end():
     assert cursor.add_variation() is None
 
 
+def test_cursor_remove_variation_returns_parent_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    assert variation.remove_variation().is_main_line is True
+
+
+def test_cursor_remove_variation_updates_variation_count():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    parent = variation.remove_variation()
+
+    assert parent.variation_count == 0
+
+
+def test_cursor_remove_variation_removes_current_variation():
+    cursor = libscid.Game.from_pgn(
+        "1. e4 ({Queen} 1. d4 d5) ({English} 1. c4 c5) e5 *"
+    ).create_cursor()
+    variation = cursor.enter_variation(1)
+
+    parent = variation.remove_variation()
+
+    assert parent.enter_variation(0).preceding_comment == "Queen"
+
+
+def test_cursor_remove_variation_returns_none_on_main_line():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.remove_variation() is None
+
+
 def test_cursor_exit_variation_returns_parent_cursor():
     cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
     variation = cursor.enter_variation(0)
