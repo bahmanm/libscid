@@ -1,5 +1,8 @@
-"""Python package for libscid bindings."""
+"""Python bindings for libscid."""
 
-__all__ = ["__version__"]
+from ._game import Game
+from ._native import LibScidError
 
 __version__ = "0.0.0"
+
+__all__ = ["Game", "LibScidError", "__version__"]
