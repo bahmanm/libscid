@@ -71,6 +71,53 @@ def test_cursor_previous_returns_none_at_line_start():
     assert cursor.previous() is None
 
 
+def test_cursor_to_game_start_returns_new_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert isinstance(cursor.to_game_start(), libscid.Cursor)
+
+
+def test_cursor_to_game_start_returns_start_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert cursor.to_game_start().previous_move_san is None
+
+
+def test_cursor_to_game_start_does_not_mutate_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    cursor.to_game_start()
+
+    assert cursor.previous_move_san == "e4"
+
+
+def test_cursor_to_game_end_returns_new_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert isinstance(cursor.to_game_end(), libscid.Cursor)
+
+
+def test_cursor_to_game_end_returns_end_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.to_game_end().next_move_san is None
+
+
+def test_cursor_to_game_end_does_not_mutate_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    cursor.to_game_end()
+
+    assert cursor.next_move_san == "e4"
+
+
+def test_cursor_to_game_end_uses_main_line_from_variation():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    assert variation.to_game_end().previous_move_san == "e5"
+
+
 def test_cursor_enter_variation_returns_new_cursor():
     cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
 

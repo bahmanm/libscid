@@ -37,6 +37,20 @@ class Cursor:
     def previous(self) -> "Cursor | None":
         return self._from_optional_handle(self._native.cursor_previous(self._handle))
 
+    def to_game_start(self) -> "Cursor":
+        return self._from_handle(
+            self._native,
+            self._game,
+            self._native.cursor_to_game_start(self._handle),
+        )
+
+    def to_game_end(self) -> "Cursor":
+        return self._from_handle(
+            self._native,
+            self._game,
+            self._native.cursor_to_game_end(self._handle),
+        )
+
     def enter_variation(self, index: int) -> "Cursor | None":
         return self._from_optional_handle(
             self._native.cursor_enter_variation(self._handle, index)
