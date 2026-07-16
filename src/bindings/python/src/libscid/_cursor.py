@@ -125,6 +125,22 @@ class Cursor:
     def remove_comment(self) -> None:
         self.set_comment("")
 
+    def add_nag(self, nag: Nag) -> bool:
+        return self._native.cursor_add_nag(self._game._handle, self._handle, nag.code)
+
+    def remove_move_nag(self) -> bool:
+        return self._native.cursor_remove_nag(
+            self._game._handle, self._handle, move_nag=True
+        )
+
+    def remove_position_nag(self) -> bool:
+        return self._native.cursor_remove_nag(
+            self._game._handle, self._handle, move_nag=False
+        )
+
+    def remove_nags(self) -> None:
+        self._native.cursor_remove_nags(self._game._handle, self._handle)
+
     @property
     def variation_count(self) -> int:
         return self._native.cursor_variation_count(self._handle)

@@ -268,6 +268,93 @@ def test_cursor_next_move_nags_preserve_empty_nags():
     assert cursor.next_move_nags == ()
 
 
+def test_cursor_add_nag_returns_true_when_added():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert cursor.add_nag(libscid.Nag(1)) is True
+
+
+def test_cursor_add_nag_updates_previous_move_nags():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    cursor.add_nag(libscid.Nag(1))
+
+    assert cursor.previous_move_nags == (libscid.Nag(1),)
+
+
+def test_cursor_add_nag_returns_false_at_line_start():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.add_nag(libscid.Nag(1)) is False
+
+
+def test_cursor_add_nag_returns_false_for_zero_nag():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert cursor.add_nag(libscid.Nag(0)) is False
+
+
+def test_cursor_add_nag_replaces_move_nag():
+    cursor = libscid.Game.from_pgn("1. e4 $1 e5 *").create_cursor().next()
+
+    cursor.add_nag(libscid.Nag(3))
+
+    assert cursor.previous_move_nags == (libscid.Nag(3),)
+
+
+def test_cursor_add_nag_replaces_position_nag():
+    cursor = libscid.Game.from_pgn("1. e4 $10 e5 *").create_cursor().next()
+
+    cursor.add_nag(libscid.Nag(14))
+
+    assert cursor.previous_move_nags == (libscid.Nag(14),)
+
+
+def test_cursor_remove_move_nag_removes_move_nag():
+    cursor = libscid.Game.from_pgn("1. e4 $1 $10 e5 *").create_cursor().next()
+
+    cursor.remove_move_nag()
+
+    assert cursor.previous_move_nags == (libscid.Nag(10),)
+
+
+def test_cursor_remove_move_nag_returns_false_without_move_nag():
+    cursor = libscid.Game.from_pgn("1. e4 $10 e5 *").create_cursor().next()
+
+    assert cursor.remove_move_nag() is False
+
+
+def test_cursor_remove_position_nag_removes_position_nag():
+    cursor = libscid.Game.from_pgn("1. e4 $1 $10 e5 *").create_cursor().next()
+
+    cursor.remove_position_nag()
+
+    assert cursor.previous_move_nags == (libscid.Nag(1),)
+
+
+def test_cursor_remove_position_nag_returns_false_without_position_nag():
+    cursor = libscid.Game.from_pgn("1. e4 $1 e5 *").create_cursor().next()
+
+    assert cursor.remove_position_nag() is False
+
+
+def test_cursor_remove_nags_removes_all_nags():
+    cursor = libscid.Game.from_pgn("1. e4 $1 $10 e5 *").create_cursor().next()
+
+    cursor.remove_nags()
+
+    assert cursor.previous_move_nags == ()
+
+
+def test_cursor_add_nag_is_visible_in_pgn_output():
+    game = libscid.Game.from_pgn("1. e4 e5 *")
+    cursor = game.create_cursor().next()
+
+    cursor.add_nag(libscid.Nag(1))
+
+    assert "$1" in game.to_pgn()
+
+
 def test_cursor_preceding_comment_reads_initial_comment():
     cursor = libscid.Game.from_pgn("{Before game} 1. e4 e5 *").create_cursor()
 

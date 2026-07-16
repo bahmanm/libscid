@@ -227,9 +227,39 @@ class NativeLibrary:
     ) -> None:
         self._check(
             "scid_game_cursor_comment_set",
-            self._lib.scid_game_cursor_comment_set(
-                game, cursor, encode(comment)
+            self._lib.scid_game_cursor_comment_set(game, cursor, encode(comment)),
+        )
+
+    def cursor_add_nag(
+        self, game: ctypes.c_void_p, cursor: ctypes.c_void_p, nag: int
+    ) -> bool:
+        added = ctypes.c_int()
+        self._check(
+            "scid_game_cursor_nag_add",
+            self._lib.scid_game_cursor_nag_add(
+                game, cursor, ctypes.c_ubyte(nag), ctypes.byref(added)
             ),
+        )
+        return bool(added.value)
+
+    def cursor_remove_nag(
+        self, game: ctypes.c_void_p, cursor: ctypes.c_void_p, move_nag: bool
+    ) -> bool:
+        removed = ctypes.c_int()
+        self._check(
+            "scid_game_cursor_nag_remove",
+            self._lib.scid_game_cursor_nag_remove(
+                game, cursor, int(move_nag), ctypes.byref(removed)
+            ),
+        )
+        return bool(removed.value)
+
+    def cursor_remove_nags(
+        self, game: ctypes.c_void_p, cursor: ctypes.c_void_p
+    ) -> None:
+        self._check(
+            "scid_game_cursor_nag_clear",
+            self._lib.scid_game_cursor_nag_clear(game, cursor),
         )
 
     def cursor_position(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p:
@@ -737,6 +767,28 @@ class NativeLibrary:
             ctypes.c_char_p,
         ]
         self._lib.scid_game_cursor_comment_set.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_nag_add.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.c_ubyte,
+            ctypes.POINTER(ctypes.c_int),
+        ]
+        self._lib.scid_game_cursor_nag_add.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_nag_remove.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.c_int,
+            ctypes.POINTER(ctypes.c_int),
+        ]
+        self._lib.scid_game_cursor_nag_remove.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_nag_clear.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+        ]
+        self._lib.scid_game_cursor_nag_clear.restype = ctypes.c_ushort
 
         self._lib.scid_game_tag_get.argtypes = [
             ctypes.c_void_p,
