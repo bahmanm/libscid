@@ -62,6 +62,13 @@ class Cursor:
             self._native.cursor_exit_variation(self._handle)
         )
 
+    def add_move(self, san: str | bytes) -> "Cursor":
+        return self._from_handle(
+            self._native,
+            self._game,
+            self._native.cursor_add_move(self._game._handle, self._handle, san),
+        )
+
     def add_variation(
         self, preceding_comment: str | bytes = ""
     ) -> "Cursor | None":

@@ -32,6 +32,14 @@ def bind_functions(lib: ctypes.CDLL) -> None:
         "scid_nag_to_string",
         [ctypes.c_ubyte, ctypes.c_int, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
     )
+    bind(
+        "scid_movespec_create_from_san",
+        [ctypes.c_void_p, ctypes.c_char_p, ctypes.POINTER(ScidMoveSpec)],
+    )
+    bind(
+        "scid_movespec_to_uci",
+        [ScidMoveSpec, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
+    )
 
     bind(
         "scid_game_create",
@@ -86,6 +94,10 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     )
     bind("scid_game_cursor_variation_exit", [ctypes.c_void_p, c_int_p, c_void_p_p])
     bind(
+        "scid_game_cursor_move_add",
+        [ctypes.c_void_p, ctypes.c_void_p, ScidMoveSpec, c_void_p_p],
+    )
+    bind(
         "scid_game_cursor_variation_add",
         [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_char_p, c_int_p, c_void_p_p],
     )
@@ -121,10 +133,6 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     bind(
         "scid_game_cursor_next_movespec_get",
         [ctypes.c_void_p, ctypes.POINTER(ScidMoveSpec)],
-    )
-    bind(
-        "scid_movespec_to_uci",
-        [ScidMoveSpec, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
     )
     bind("scid_game_cursor_previous_move_nag_count_get", [ctypes.c_void_p, c_size_t_p])
     bind(

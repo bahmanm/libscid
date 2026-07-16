@@ -310,6 +310,46 @@ def test_cursor_exit_variation_returns_none_on_main_line():
     assert cursor.exit_variation() is None
 
 
+def test_cursor_add_move_returns_new_cursor():
+    cursor = libscid.Game().create_cursor()
+
+    assert isinstance(cursor.add_move("e4"), libscid.Cursor)
+
+
+def test_cursor_add_move_returns_cursor_after_added_move():
+    cursor = libscid.Game().create_cursor()
+
+    added = cursor.add_move("e4")
+
+    assert added.previous_move_san == "e4"
+
+
+def test_cursor_add_move_updates_game():
+    game = libscid.Game()
+
+    game.create_cursor().add_move("e4")
+
+    assert game.mainline_move_count == 1
+
+
+def test_cursor_add_move_truncates_following_moves():
+    game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *")
+    cursor = game.create_cursor().next()
+
+    cursor.add_move("c5")
+
+    assert game.mainline_move_count == 2
+
+
+def test_cursor_add_move_rejects_illegal_san():
+    cursor = libscid.Game().create_cursor()
+
+    with pytest.raises(libscid.LibScidError) as raised:
+        cursor.add_move("e5")
+
+    assert raised.value.function == "scid_movespec_create_from_san"
+
+
 def test_cursor_truncate_returns_new_cursor():
     cursor = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *").create_cursor().next()
 

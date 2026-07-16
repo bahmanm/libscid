@@ -3,6 +3,7 @@ from __future__ import annotations
 import ctypes
 
 from ._text import encode
+from ._types import ScidMoveSpec
 
 
 class NativeCursorMixin:
@@ -47,6 +48,30 @@ class NativeCursorMixin:
         return self._cursor_navigation_result(
             "scid_game_cursor_variation_exit", cursor
         )
+
+    def cursor_add_move(
+        self, game: ctypes.c_void_p, cursor: ctypes.c_void_p, san: str | bytes
+    ) -> ctypes.c_void_p:
+        position = self.cursor_position(cursor)
+        move = ScidMoveSpec()
+        try:
+            self._check(
+                "scid_movespec_create_from_san",
+                self._lib.scid_movespec_create_from_san(
+                    position, encode(san), ctypes.byref(move)
+                ),
+            )
+        finally:
+            self._lib.scid_position_free(position)
+
+        next_cursor = ctypes.c_void_p()
+        self._check(
+            "scid_game_cursor_move_add",
+            self._lib.scid_game_cursor_move_add(
+                game, cursor, move, ctypes.byref(next_cursor)
+            ),
+        )
+        return next_cursor
 
     def cursor_add_variation(
         self,
