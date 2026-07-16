@@ -8,10 +8,10 @@ def _parse_invalid_pgn_error() -> libscid.LibScidError:
     return raised.value
 
 
-def test_parse_simple_pgn_exposes_mainline_halfmove_count():
+def test_parse_simple_pgn_exposes_mainline_move_count():
     game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 Nc6 *")
 
-    assert game.mainline_halfmove_count == 4
+    assert game.mainline_move_count == 4
 
 
 def test_parse_simple_pgn_can_export_movetext():

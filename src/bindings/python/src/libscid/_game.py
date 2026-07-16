@@ -26,8 +26,8 @@ class Game:
         return game
 
     @property
-    def mainline_halfmove_count(self) -> int:
-        return self._native.game_mainline_halfmove_count(self._handle)
+    def mainline_move_count(self) -> int:
+        return self._native.game_mainline_move_count(self._handle)
 
     @property
     def start_position(self) -> Position:

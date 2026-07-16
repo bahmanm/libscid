@@ -23,10 +23,10 @@ def test_cursor_next_returns_new_cursor():
     assert isinstance(cursor.next(), libscid.Cursor)
 
 
-def test_cursor_next_advances_to_next_ply():
+def test_cursor_next_advances_to_next_move():
     cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
 
-    assert cursor.next().ply_number == 1
+    assert cursor.next().previous_move_san == "e4"
 
 
 def test_cursor_next_does_not_mutate_cursor():
@@ -34,7 +34,7 @@ def test_cursor_next_does_not_mutate_cursor():
 
     cursor.next()
 
-    assert cursor.ply_number == 0
+    assert cursor.previous_move_san is None
 
 
 def test_cursor_next_returns_none_at_line_end():
@@ -51,10 +51,10 @@ def test_cursor_previous_returns_new_cursor():
     assert isinstance(cursor.previous(), libscid.Cursor)
 
 
-def test_cursor_previous_returns_previous_ply():
+def test_cursor_previous_returns_cursor_before_previous_move():
     cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
 
-    assert cursor.previous().ply_number == 0
+    assert cursor.previous().next_move_san == "e4"
 
 
 def test_cursor_previous_does_not_mutate_cursor():
@@ -62,7 +62,7 @@ def test_cursor_previous_does_not_mutate_cursor():
 
     cursor.previous()
 
-    assert cursor.ply_number == 1
+    assert cursor.previous_move_san == "e4"
 
 
 def test_cursor_previous_returns_none_at_line_start():
@@ -151,10 +151,48 @@ def test_cursor_next_move_san_reads_variation_line():
     assert cursor.enter_variation(0).next_move_san == "d4"
 
 
-def test_cursor_exposes_ply_number():
+def test_cursor_preceding_comment_reads_initial_comment():
+    cursor = libscid.Game.from_pgn("{Before game} 1. e4 e5 *").create_cursor()
+
+    assert cursor.preceding_comment == "Before game"
+
+
+def test_cursor_preceding_comment_reads_variation_initial_comment():
+    cursor = libscid.Game.from_pgn(
+        "1. e4 ({Branch} 1. d4 d5) e5 *"
+    ).create_cursor()
+
+    assert cursor.enter_variation(0).preceding_comment == "Branch"
+
+
+def test_cursor_preceding_comment_returns_none_after_line_start():
+    cursor = libscid.Game.from_pgn("1. e4 {King pawn} e5 *").create_cursor().next()
+
+    assert cursor.preceding_comment is None
+
+
+def test_cursor_preceding_comment_preserves_empty_comment():
     cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
 
-    assert cursor.ply_number == 0
+    assert cursor.preceding_comment == ""
+
+
+def test_cursor_comment_reads_previous_move_comment():
+    cursor = libscid.Game.from_pgn("1. e4 {King pawn} e5 *").create_cursor().next()
+
+    assert cursor.comment == "King pawn"
+
+
+def test_cursor_comment_returns_none_at_line_start():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.comment is None
+
+
+def test_cursor_comment_preserves_empty_comment():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert cursor.comment == ""
 
 
 def test_cursor_exposes_variation_count():

@@ -84,7 +84,7 @@ class NativeLibrary:
     def position_to_fen(self, position: ctypes.c_void_p) -> str:
         return self._string_result("scid_position_to_fen", position)
 
-    def game_mainline_halfmove_count(self, game: ctypes.c_void_p) -> int:
+    def game_mainline_move_count(self, game: ctypes.c_void_p) -> int:
         count = ctypes.c_size_t()
         self._check(
             "scid_game_mainline_halfmove_count_get",
@@ -177,6 +177,9 @@ class NativeLibrary:
 
     def cursor_next_move_san(self, cursor: ctypes.c_void_p) -> str:
         return self._string_result("scid_game_cursor_next_move_san_get", cursor)
+
+    def cursor_comment(self, cursor: ctypes.c_void_p) -> str:
+        return self._string_result("scid_game_cursor_comment_get", cursor)
 
     def cursor_position(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p:
         position = self._create_standard_position()
@@ -561,6 +564,14 @@ class NativeLibrary:
             c_size_t_p,
         ]
         self._lib.scid_game_cursor_next_move_san_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_comment_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_cursor_comment_get.restype = ctypes.c_ushort
 
         self._lib.scid_game_tag_get.argtypes = [
             ctypes.c_void_p,

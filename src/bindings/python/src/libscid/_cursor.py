@@ -65,8 +65,16 @@ class Cursor:
         return self._native.cursor_next_move_san(self._handle)
 
     @property
-    def ply_number(self) -> int:
-        return self._native.cursor_ply(self._handle)
+    def comment(self) -> str | None:
+        if self.is_line_start:
+            return None
+        return self._native.cursor_comment(self._handle)
+
+    @property
+    def preceding_comment(self) -> str | None:
+        if not self.is_line_start:
+            return None
+        return self._native.cursor_comment(self._handle)
 
     @property
     def variation_count(self) -> int:
