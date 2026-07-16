@@ -154,6 +154,30 @@ class NativeLibrary:
     def cursor_is_line_end(self, cursor: ctypes.c_void_p) -> bool:
         return self._cursor_bool_result("scid_game_cursor_is_line_end", cursor)
 
+    def cursor_next(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p | None:
+        return self._cursor_navigation_result("scid_game_cursor_next", cursor)
+
+    def cursor_previous(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p | None:
+        return self._cursor_navigation_result("scid_game_cursor_previous", cursor)
+
+    def cursor_enter_variation(
+        self, cursor: ctypes.c_void_p, index: int
+    ) -> ctypes.c_void_p | None:
+        return self._cursor_navigation_result(
+            "scid_game_cursor_variation_enter", cursor, index
+        )
+
+    def cursor_exit_variation(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p | None:
+        return self._cursor_navigation_result(
+            "scid_game_cursor_variation_exit", cursor
+        )
+
+    def cursor_previous_move_san(self, cursor: ctypes.c_void_p) -> str:
+        return self._string_result("scid_game_cursor_previous_move_san_get", cursor)
+
+    def cursor_next_move_san(self, cursor: ctypes.c_void_p) -> str:
+        return self._string_result("scid_game_cursor_next_move_san_get", cursor)
+
     def cursor_position(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p:
         position = self._create_standard_position()
         try:
@@ -309,6 +333,23 @@ class NativeLibrary:
         function = getattr(self._lib, function_name)
         self._check(function_name, function(cursor, ctypes.byref(value)))
         return bool(value.value)
+
+    def _cursor_navigation_result(
+        self,
+        function_name: str,
+        cursor: ctypes.c_void_p,
+        *args: object,
+    ) -> ctypes.c_void_p | None:
+        moved = ctypes.c_int()
+        next_cursor = ctypes.c_void_p()
+        function = getattr(self._lib, function_name)
+        self._check(
+            function_name,
+            function(cursor, *args, ctypes.byref(moved), ctypes.byref(next_cursor)),
+        )
+        if not moved.value:
+            return None
+        return next_cursor
 
     def _string_result(self, function_name: str, *args: object) -> str:
         function = getattr(self._lib, function_name)
@@ -475,6 +516,51 @@ class NativeLibrary:
             ctypes.POINTER(ctypes.c_int),
         ]
         self._lib.scid_game_cursor_is_line_end.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_next.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_int),
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_next.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_previous.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_int),
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_previous.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_variation_enter.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.POINTER(ctypes.c_int),
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_variation_enter.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_variation_exit.argtypes = [
+            ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_int),
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_variation_exit.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_previous_move_san_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_cursor_previous_move_san_get.restype = ctypes.c_ushort
+
+        self._lib.scid_game_cursor_next_move_san_get.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ]
+        self._lib.scid_game_cursor_next_move_san_get.restype = ctypes.c_ushort
 
         self._lib.scid_game_tag_get.argtypes = [
             ctypes.c_void_p,

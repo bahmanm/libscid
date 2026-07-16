@@ -17,10 +17,144 @@ def test_cursor_can_clone():
     assert isinstance(cursor.clone(), libscid.Cursor)
 
 
-def test_cursor_exposes_ply():
+def test_cursor_next_returns_new_cursor():
     cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
 
-    assert cursor.ply == 0
+    assert isinstance(cursor.next(), libscid.Cursor)
+
+
+def test_cursor_next_advances_to_next_ply():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.next().ply_number == 1
+
+
+def test_cursor_next_does_not_mutate_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    cursor.next()
+
+    assert cursor.ply_number == 0
+
+
+def test_cursor_next_returns_none_at_line_end():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+    cursor = cursor.next()
+    cursor = cursor.next()
+
+    assert cursor.next() is None
+
+
+def test_cursor_previous_returns_new_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert isinstance(cursor.previous(), libscid.Cursor)
+
+
+def test_cursor_previous_returns_previous_ply():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert cursor.previous().ply_number == 0
+
+
+def test_cursor_previous_does_not_mutate_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    cursor.previous()
+
+    assert cursor.ply_number == 1
+
+
+def test_cursor_previous_returns_none_at_line_start():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.previous() is None
+
+
+def test_cursor_enter_variation_returns_new_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+
+    assert isinstance(cursor.enter_variation(0), libscid.Cursor)
+
+
+def test_cursor_enter_variation_enters_variation_line():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+
+    assert cursor.enter_variation(0).is_variation_line is True
+
+
+def test_cursor_enter_variation_does_not_mutate_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+
+    cursor.enter_variation(0)
+
+    assert cursor.is_main_line is True
+
+
+def test_cursor_enter_variation_returns_none_for_missing_variation():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.enter_variation(0) is None
+
+
+def test_cursor_exit_variation_returns_parent_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    assert variation.exit_variation().is_main_line is True
+
+
+def test_cursor_exit_variation_does_not_mutate_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    variation.exit_variation()
+
+    assert variation.is_variation_line is True
+
+
+def test_cursor_exit_variation_returns_none_on_main_line():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.exit_variation() is None
+
+
+def test_cursor_exposes_next_move_san():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.next_move_san == "e4"
+
+
+def test_cursor_exposes_previous_move_san():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    assert cursor.previous_move_san == "e4"
+
+
+def test_cursor_next_move_san_returns_none_at_line_end():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+    cursor = cursor.next()
+    cursor = cursor.next()
+
+    assert cursor.next_move_san is None
+
+
+def test_cursor_previous_move_san_returns_none_at_line_start():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.previous_move_san is None
+
+
+def test_cursor_next_move_san_reads_variation_line():
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
+
+    assert cursor.enter_variation(0).next_move_san == "d4"
+
+
+def test_cursor_exposes_ply_number():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.ply_number == 0
 
 
 def test_cursor_exposes_variation_count():

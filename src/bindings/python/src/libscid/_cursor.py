@@ -31,8 +31,41 @@ class Cursor:
             self._native.game_clone_cursor(self._game._handle, self._handle),
         )
 
+    def next(self) -> "Cursor | None":
+        return self._from_optional_handle(self._native.cursor_next(self._handle))
+
+    def previous(self) -> "Cursor | None":
+        return self._from_optional_handle(self._native.cursor_previous(self._handle))
+
+    def enter_variation(self, index: int) -> "Cursor | None":
+        return self._from_optional_handle(
+            self._native.cursor_enter_variation(self._handle, index)
+        )
+
+    def exit_variation(self) -> "Cursor | None":
+        return self._from_optional_handle(
+            self._native.cursor_exit_variation(self._handle)
+        )
+
+    def _from_optional_handle(self, handle: ctypes.c_void_p | None) -> "Cursor | None":
+        if handle is None:
+            return None
+        return self._from_handle(self._native, self._game, handle)
+
     @property
-    def ply(self) -> int:
+    def previous_move_san(self) -> str | None:
+        if self.is_line_start:
+            return None
+        return self._native.cursor_previous_move_san(self._handle)
+
+    @property
+    def next_move_san(self) -> str | None:
+        if self.is_line_end:
+            return None
+        return self._native.cursor_next_move_san(self._handle)
+
+    @property
+    def ply_number(self) -> int:
         return self._native.cursor_ply(self._handle)
 
     @property
