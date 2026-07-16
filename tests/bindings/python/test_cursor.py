@@ -310,6 +310,48 @@ def test_cursor_exit_variation_returns_none_on_main_line():
     assert cursor.exit_variation() is None
 
 
+def test_cursor_truncate_returns_new_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *").create_cursor().next()
+
+    assert isinstance(cursor.truncate(), libscid.Cursor)
+
+
+def test_cursor_truncate_removes_following_mainline_moves():
+    game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *")
+    cursor = game.create_cursor().next()
+
+    cursor.truncate()
+
+    assert game.mainline_move_count == 1
+
+
+def test_cursor_truncate_returns_line_end_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *").create_cursor().next()
+
+    truncated = cursor.truncate()
+
+    assert truncated.next_move_san is None
+
+
+def test_cursor_truncate_is_visible_to_existing_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *").create_cursor().next()
+
+    cursor.truncate()
+
+    assert cursor.next_move_san is None
+
+
+def test_cursor_truncate_removes_following_variation_moves():
+    cursor = libscid.Game.from_pgn(
+        "1. e4 (1. d4 d5 2. c4) e5 *"
+    ).create_cursor()
+    variation = cursor.enter_variation(0).next()
+
+    truncated = variation.truncate()
+
+    assert truncated.next_move_san is None
+
+
 def test_cursor_exposes_next_move_san():
     cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
 

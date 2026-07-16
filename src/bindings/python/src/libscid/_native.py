@@ -267,6 +267,20 @@ class NativeLibrary:
             return None
         return mainline_cursor
 
+    def cursor_truncate(
+        self, game: ctypes.c_void_p, cursor: ctypes.c_void_p
+    ) -> ctypes.c_void_p:
+        truncated_cursor = ctypes.c_void_p()
+        self._check(
+            "scid_game_cursor_truncate",
+            self._lib.scid_game_cursor_truncate(
+                game,
+                cursor,
+                ctypes.byref(truncated_cursor),
+            ),
+        )
+        return truncated_cursor
+
     def cursor_previous_move_san(self, cursor: ctypes.c_void_p) -> str:
         return self._string_result("scid_game_cursor_previous_move_san_get", cursor)
 
@@ -801,6 +815,13 @@ class NativeLibrary:
         self._lib.scid_game_cursor_variation_promote_to_mainline.restype = (
             ctypes.c_ushort
         )
+
+        self._lib.scid_game_cursor_truncate.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            c_void_p_p,
+        ]
+        self._lib.scid_game_cursor_truncate.restype = ctypes.c_ushort
 
         self._lib.scid_game_cursor_previous_move_san_get.argtypes = [
             ctypes.c_void_p,
