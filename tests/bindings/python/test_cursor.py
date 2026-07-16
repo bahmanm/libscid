@@ -248,6 +248,46 @@ def test_cursor_promote_variation_to_first_returns_none_on_main_line():
     assert cursor.promote_variation_to_first() is None
 
 
+def test_cursor_promote_variation_to_mainline_returns_new_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 (1. c4 c5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    assert isinstance(variation.promote_variation_to_mainline(), libscid.Cursor)
+
+
+def test_cursor_promote_variation_to_mainline_returns_main_line_cursor():
+    cursor = libscid.Game.from_pgn("1. e4 (1. c4 c5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    promoted = variation.promote_variation_to_mainline()
+
+    assert promoted.is_main_line is True
+
+
+def test_cursor_promote_variation_to_mainline_uses_variation_as_main_line():
+    cursor = libscid.Game.from_pgn("1. e4 (1. c4 c5) e5 *").create_cursor()
+    variation = cursor.enter_variation(0)
+
+    promoted = variation.promote_variation_to_mainline()
+
+    assert promoted.next_move_san == "c4"
+
+
+def test_cursor_promote_variation_to_mainline_updates_pgn_output():
+    game = libscid.Game.from_pgn("1. e4 (1. c4 c5) e5 *")
+    variation = game.create_cursor().enter_variation(0)
+
+    variation.promote_variation_to_mainline()
+
+    assert "(1.e4 e5)" in game.to_pgn()
+
+
+def test_cursor_promote_variation_to_mainline_returns_none_on_main_line():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor()
+
+    assert cursor.promote_variation_to_mainline() is None
+
+
 def test_cursor_exit_variation_returns_parent_cursor():
     cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *").create_cursor()
     variation = cursor.enter_variation(0)
