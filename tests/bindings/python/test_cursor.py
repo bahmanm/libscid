@@ -5,6 +5,12 @@ import pytest
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 
+def _game_from_position(position: libscid.Position, movetext: str) -> libscid.Game:
+    return libscid.Game.from_pgn(
+        f'[SetUp "1"]\n[FEN "{position.fen}"]\n\n{movetext}'
+    )
+
+
 def test_game_can_create_cursor():
     game = libscid.Game.from_pgn("1. e4 e5 *")
 
@@ -310,44 +316,107 @@ def test_cursor_exit_variation_returns_none_on_main_line():
     assert cursor.exit_variation() is None
 
 
-def test_cursor_add_move_returns_new_cursor():
+def test_cursor_append_move_returns_new_cursor():
     cursor = libscid.Game().create_cursor()
 
-    assert isinstance(cursor.add_move("e4"), libscid.Cursor)
+    assert isinstance(cursor.append_move("e4"), libscid.Cursor)
 
 
-def test_cursor_add_move_returns_cursor_after_added_move():
+def test_cursor_append_move_returns_cursor_after_appended_move():
     cursor = libscid.Game().create_cursor()
 
-    added = cursor.add_move("e4")
+    appended = cursor.append_move("e4")
 
-    assert added.previous_move_san == "e4"
+    assert appended.previous_move_san == "e4"
 
 
-def test_cursor_add_move_updates_game():
+def test_cursor_append_move_updates_game():
     game = libscid.Game()
 
-    game.create_cursor().add_move("e4")
+    game.create_cursor().append_move("e4")
 
     assert game.mainline_move_count == 1
 
 
-def test_cursor_add_move_truncates_following_moves():
+def test_cursor_append_move_requires_line_end():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+
+    with pytest.raises(ValueError, match="append_move requires cursor at line end"):
+        cursor.append_move("c5")
+
+
+def test_cursor_append_move_rejects_illegal_san():
+    cursor = libscid.Game().create_cursor()
+
+    with pytest.raises(libscid.LibScidError) as raised:
+        cursor.append_move("e5")
+
+    assert raised.value.function == "scid_movespec_create_from_san"
+
+
+def test_cursor_truncate_then_append_move_replaces_suffix():
     game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *")
     cursor = game.create_cursor().next()
 
-    cursor.add_move("c5")
+    cursor.truncate().append_move("c5")
 
     assert game.mainline_move_count == 2
 
 
-def test_cursor_add_move_rejects_illegal_san():
-    cursor = libscid.Game().create_cursor()
+def test_cursor_append_game_returns_cursor_after_source_moves():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().to_game_end()
+    source = _game_from_position(cursor.position, "2. Nf3 *")
 
-    with pytest.raises(libscid.LibScidError) as raised:
-        cursor.add_move("e5")
+    appended = cursor.append_game(source)
 
-    assert raised.value.function == "scid_movespec_create_from_san"
+    assert appended.previous_move_san == "Nf3"
+
+
+def test_cursor_append_game_requires_line_end():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+    source = _game_from_position(cursor.position, "1... c5 *")
+
+    with pytest.raises(ValueError, match="append_game requires cursor at line end"):
+        cursor.append_game(source)
+
+
+def test_cursor_add_variation_then_append_game_updates_variation_count():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+    variation = cursor.add_variation()
+    source = _game_from_position(variation.position, "1... c5 *")
+
+    variation.append_game(source)
+
+    assert cursor.variation_count == 1
+
+
+def test_cursor_add_variation_then_append_game_stays_in_variation():
+    cursor = libscid.Game.from_pgn("1. e4 e5 *").create_cursor().next()
+    variation = cursor.add_variation()
+    source = _game_from_position(variation.position, "1... c5 *")
+
+    appended = variation.append_game(source)
+
+    assert appended.is_variation_line is True
+
+
+def test_cursor_truncate_then_append_game_returns_cursor_after_source_moves():
+    cursor = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *").create_cursor().next()
+    source = _game_from_position(cursor.position, "1... c5 *")
+
+    replaced = cursor.truncate().append_game(source)
+
+    assert replaced.previous_move_san == "c5"
+
+
+def test_cursor_truncate_then_append_game_replaces_suffix():
+    game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *")
+    cursor = game.create_cursor().next()
+    source = _game_from_position(cursor.position, "1... c5 *")
+
+    cursor.truncate().append_game(source)
+
+    assert game.mainline_move_count == 2
 
 
 def test_cursor_truncate_returns_new_cursor():

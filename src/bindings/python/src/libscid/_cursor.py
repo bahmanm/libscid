@@ -62,11 +62,22 @@ class Cursor:
             self._native.cursor_exit_variation(self._handle)
         )
 
-    def add_move(self, san: str | bytes) -> "Cursor":
+    def append_move(self, san: str | bytes) -> "Cursor":
+        self._require_line_end("append_move")
         return self._from_handle(
             self._native,
             self._game,
-            self._native.cursor_add_move(self._game._handle, self._handle, san),
+            self._native.cursor_append_move(self._game._handle, self._handle, san),
+        )
+
+    def append_game(self, source_game: Any) -> "Cursor":
+        self._require_line_end("append_game")
+        return self._from_handle(
+            self._native,
+            self._game,
+            self._native.cursor_append_game(
+                self._game._handle, self._handle, source_game._handle
+            ),
         )
 
     def add_variation(
@@ -115,6 +126,10 @@ class Cursor:
         if handle is None:
             return None
         return self._from_handle(self._native, self._game, handle)
+
+    def _require_line_end(self, method: str) -> None:
+        if not self.is_line_end:
+            raise ValueError(f"{method} requires cursor at line end")
 
     @property
     def previous_move_san(self) -> str | None:

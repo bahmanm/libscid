@@ -70,6 +70,10 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     bind("scid_game_mainline_halfmove_count_get", [ctypes.c_void_p, c_size_t_p])
     bind("scid_game_start_position_get", [ctypes.c_void_p, ctypes.c_void_p])
     bind("scid_game_final_position_get", [ctypes.c_void_p, ctypes.c_void_p])
+    bind(
+        "scid_game_merge_moves",
+        [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, c_void_p_p],
+    )
 
     bind("scid_game_cursor_create", [ctypes.c_void_p, c_void_p_p])
     bind(

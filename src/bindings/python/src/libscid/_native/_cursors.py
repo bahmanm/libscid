@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ctypes
 
+from ._constants import SCID_GAME_MERGE_MOVES_APPEND
 from ._text import encode
 from ._types import ScidMoveSpec
 
@@ -49,7 +50,7 @@ class NativeCursorMixin:
             "scid_game_cursor_variation_exit", cursor
         )
 
-    def cursor_add_move(
+    def cursor_append_move(
         self, game: ctypes.c_void_p, cursor: ctypes.c_void_p, san: str | bytes
     ) -> ctypes.c_void_p:
         position = self.cursor_position(cursor)
@@ -69,6 +70,25 @@ class NativeCursorMixin:
             "scid_game_cursor_move_add",
             self._lib.scid_game_cursor_move_add(
                 game, cursor, move, ctypes.byref(next_cursor)
+            ),
+        )
+        return next_cursor
+
+    def cursor_append_game(
+        self,
+        game: ctypes.c_void_p,
+        cursor: ctypes.c_void_p,
+        source_game: ctypes.c_void_p,
+    ) -> ctypes.c_void_p:
+        next_cursor = ctypes.c_void_p()
+        self._check(
+            "scid_game_merge_moves",
+            self._lib.scid_game_merge_moves(
+                game,
+                cursor,
+                source_game,
+                SCID_GAME_MERGE_MOVES_APPEND,
+                ctypes.byref(next_cursor),
             ),
         )
         return next_cursor
