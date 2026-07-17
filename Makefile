@@ -8,11 +8,11 @@ libscid.project.libscid := $(LIBSCID_ROOT)src/libscid/
 libscid.project.internal := $(LIBSCID_ROOT)src/internal/
 libscid.project.bindings.python := $(LIBSCID_ROOT)src/bindings/python/
 
-libscid.build.dir ?= $(LIBSCID_BUILD_ROOT)libscid/
-libscid.internal.build.dir ?= $(LIBSCID_BUILD_ROOT)internal/
-libscid.default.build.dir ?= $(LIBSCID_BUILD_ROOT)default/libscid/
-libscid.default.internal.build.dir ?= $(LIBSCID_BUILD_ROOT)default/internal/
-libscid.library := $(libscid.build.dir)src/libscid/$(libscid.library.name)
+libscid.build.dir ?= $(libscid.project.libscid)_build/
+libscid.internal.build.dir ?= $(libscid.project.internal)_build/
+libscid.default.build.dir ?= $(libscid.project.libscid)_build/default/
+libscid.default.internal.build.dir ?= $(libscid.project.internal)_build/default/
+libscid.library := $(libscid.build.dir)$(libscid.library.name)
 libscid.example.pgn.roundtrip := $(LIBSCID_ROOT)examples/libscid/000-python-bindings/pgn_roundtrip.py
 
 ####################################################################################################
@@ -108,6 +108,7 @@ ci-shared : test check-shared-compilation-database test-examples
 
 qc-format :
 	$(MAKE) -C $(libscid.project.internal) qc-format
+	$(MAKE) -C $(libscid.project.libscid) qc-format
 	$(MAKE) -C $(libscid.project.bindings.python) qc-format
 
 .PHONY : qc-format
@@ -116,6 +117,7 @@ qc-format :
 
 qc-static-analysis :
 	$(MAKE) -C $(libscid.project.internal) qc-static-analysis
+	$(MAKE) -C $(libscid.project.libscid) qc-static-analysis
 	$(MAKE) -C $(libscid.project.bindings.python) qc-static-analysis
 
 .PHONY : qc-static-analysis
@@ -124,6 +126,8 @@ qc-static-analysis :
 
 qc-dynamic-analysis :
 	$(MAKE) -C $(libscid.project.internal) qc-dynamic-analysis
+	$(MAKE) -C $(libscid.project.libscid) qc-dynamic-analysis
+	$(MAKE) -C $(libscid.project.bindings.python) qc-dynamic-analysis
 
 .PHONY : qc-dynamic-analysis
 

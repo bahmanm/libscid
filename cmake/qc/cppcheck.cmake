@@ -33,5 +33,5 @@ add_custom_target(
         --suppress=unmatchedSuppression
         "-i${CMAKE_BINARY_DIR}/_deps"
         "--template=gcc"
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    WORKING_DIRECTORY "${LIBSCID_SOURCE_ROOT}"
     COMMENT "Running cppcheck static analysis." )

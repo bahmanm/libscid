@@ -61,6 +61,7 @@ jobs:
           echo "LIBSCID_PACKAGE_VERSION_LABEL=$tag" >> "$GITHUB_ENV"
 
       - name: Configure
+        working-directory: src/libscid
         run: |
           cmake_args=(
             --preset package
@@ -80,6 +81,7 @@ jobs:
           cmake "${cmake_args[@]}"
 
       - name: Build
+        working-directory: src/libscid
         run: >
           cmake
           --build
@@ -87,16 +89,17 @@ jobs:
           --verbose
 
       - name: Package
+        working-directory: src/libscid
         run: >
           cpack
           --preset portable-tgz
 
       - name: Extract package
         run: |
-          archives=( _build/package/*.tar.gz )
+          archives=( src/libscid/_build/package/*.tar.gz )
           if [[ ${#archives[@]} -ne 1 ]]; then
-            echo "Expected exactly one .tar.gz in _build/package, found ${#archives[@]}." >&2
-            ls -la _build/package || true
+            echo "Expected exactly one .tar.gz in src/libscid/_build/package, found ${#archives[@]}." >&2
+            ls -la src/libscid/_build/package || true
             exit 1
           fi
 
@@ -190,6 +193,7 @@ jobs:
           "LIBSCID_PACKAGE_VERSION_LABEL=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Configure
+        working-directory: src/libscid
         run: >
           cmake
           --preset package
@@ -202,6 +206,7 @@ jobs:
           "-DLIBSCID_PACKAGE_PLATFORM=windows"
 
       - name: Build
+        working-directory: src/libscid
         run: >
           cmake
           --build
@@ -209,16 +214,17 @@ jobs:
           --verbose
 
       - name: Package
+        working-directory: src/libscid
         run: >
           cpack
           --preset portable-tgz
 
       - name: Extract package
         run: |
-          $archives = Get-ChildItem -Path "_build\\package" -Filter "*.tar.gz"
+          $archives = Get-ChildItem -Path "src\\libscid\\_build\\package" -Filter "*.tar.gz"
           if ($archives.Count -ne 1) {
-            Write-Error "Expected exactly one .tar.gz in _build\\package, found $($archives.Count)."
-            Get-ChildItem -Path "_build\\package" | Format-List
+            Write-Error "Expected exactly one .tar.gz in src\\libscid\\_build\\package, found $($archives.Count)."
+            Get-ChildItem -Path "src\\libscid\\_build\\package" | Format-List
             exit 1
           }
 

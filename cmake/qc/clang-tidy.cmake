@@ -32,5 +32,5 @@ add_custom_target(
         "${LIBSCID_RUN_CLANG_TIDY}"
         -p "${CMAKE_BINARY_DIR}"
         -quiet
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+    WORKING_DIRECTORY "${LIBSCID_SOURCE_ROOT}"
     COMMENT "Running clang-tidy static analysis." )

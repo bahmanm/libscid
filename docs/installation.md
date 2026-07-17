@@ -101,9 +101,10 @@ The package exports one CMake target:
 Configure, build and install with an explicit prefix:
 
 ```sh
-cmake -S . -B _build/release \
+cmake -S src/libscid -B _build/release \
     -DCMAKE_BUILD_TYPE=Release \
     -DLIBSCID_INSTALL=ON \
+    -DLIBSCID_SOURCE_ROOT="$PWD" \
     -DCMAKE_C_COMPILER=clang-20 \
     -DCMAKE_CXX_COMPILER=clang++-20 \
     -DCMAKE_INSTALL_PREFIX="$PWD/install/libscid"
@@ -116,10 +117,11 @@ To include generated API documentation in the install tree, enable docs and
 provide the documentation tools required by the build:
 
 ```sh
-cmake -S . -B _build/package \
+cmake -S src/libscid -B _build/package \
     -DCMAKE_BUILD_TYPE=Release \
     -DLIBSCID_INSTALL=ON \
     -DLIBSCID_BUILD_DOCS=ON \
+    -DLIBSCID_SOURCE_ROOT="$PWD" \
     -DCMAKE_C_COMPILER=clang-20 \
     -DCMAKE_CXX_COMPILER=clang++-20 \
     -DCMAKE_INSTALL_PREFIX="$PWD/install/libscid"
@@ -128,9 +130,12 @@ cmake --build _build/package
 cmake --install _build/package
 ```
 
-The repository also provides presets for local release and package builds:
+The libscid CMake project also provides presets for local release and package
+builds:
 
 ```sh
+cd src/libscid
+
 cmake --preset release
 cmake --build --preset release
 
@@ -144,21 +149,24 @@ cpack --preset portable-tgz
 Tests are disabled by default in top-level builds. Enable them explicitly:
 
 ```sh
-cmake -S . -B _build \
+cmake -S src/libscid -B _build \
     -DBUILD_TESTING=ON \
     -DLIBSCID_INSTALL=OFF \
+    -DLIBSCID_SOURCE_ROOT="$PWD" \
     -DCMAKE_C_COMPILER=clang-20 \
     -DCMAKE_CXX_COMPILER=clang++-20
 cmake --build _build
 ctest --test-dir _build --output-on-failure
 ```
 
-Top-level source builds generate a compilation database at
+Project-root source builds generate a compilation database at
 `<build-dir>/compile_commands.json` for static analysis tools.
 
 Run the relaxed cppcheck pass with the analysis preset:
 
 ```sh
+cd src/libscid
+
 cmake --preset analysis \
     -DCMAKE_C_COMPILER=clang-20 \
     -DCMAKE_CXX_COMPILER=clang++-20
@@ -183,8 +191,9 @@ Homebrew LLVM 20 paths:
 On Windows, configure with Ninja and `clang-cl` from the LLVM install:
 
 ```powershell
-cmake -S . -B _build -G Ninja `
+cmake -S src/libscid -B _build -G Ninja `
     -DBUILD_TESTING=ON `
+    "-DLIBSCID_SOURCE_ROOT=$($PWD.Path)" `
     "-DCMAKE_C_COMPILER=C:\Program Files\LLVM\bin\clang-cl.exe" `
     "-DCMAKE_CXX_COMPILER=C:\Program Files\LLVM\bin\clang-cl.exe"
 ```
@@ -204,8 +213,10 @@ The documentation site is generated with Doxygen. If Doxygen, Graphviz and
 PlantUML are installed:
 
 ```sh
+cd src/libscid
+
 cmake --preset docs
 cmake --build --preset docs
 ```
 
-The generated HTML is written under `_build/docs/doxygen/html`.
+The generated HTML is written under `src/libscid/_build/docs/doxygen/html`.

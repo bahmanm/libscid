@@ -34,12 +34,14 @@ jobs:
         uses: actions/configure-pages@v6
 
       - name: Configure
+        working-directory: src/libscid
         run: >
           cmake
           --preset docs
           -DLIBSCID_PLANTUML_JAR_PATH="$LIBSCID_PLANTUML_JAR_PATH"
 
       - name: Build documentation
+        working-directory: src/libscid
         run: >
           cmake
           --build
@@ -50,12 +52,12 @@ jobs:
         run: >
           test
           -f
-          _build/docs/doxygen/html/index.html
+          src/libscid/_build/docs/doxygen/html/index.html
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: _build/docs/doxygen/html
+          path: src/libscid/_build/docs/doxygen/html
 
   pages__deploy:
     needs: pages__build

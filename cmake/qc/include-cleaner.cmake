@@ -11,10 +11,25 @@ if( NOT LIBSCID_CLANG_INCLUDE_CLEANER )
     return()
 endif()
 
-file(
-    GLOB LIBSCID_INCLUDE_CLEANER_SOURCES
-    CONFIGURE_DEPENDS
-    "${PROJECT_SOURCE_DIR}/src/libscid/src/*.cpp" )
+set(
+    LIBSCID_INCLUDE_CLEANER_SOURCES
+    ""
+    CACHE STRING "Semicolon-separated C++ source files checked by the include-cleaner target." )
+
+if( NOT LIBSCID_INCLUDE_CLEANER_SOURCES )
+    file(
+        GLOB_RECURSE LIBSCID_INCLUDE_CLEANER_SOURCES
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cxx"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*/src/*.cc"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/*/src/*.cxx" )
+    list(
+        FILTER LIBSCID_INCLUDE_CLEANER_SOURCES
+        EXCLUDE REGEX
+        "/(_build[^/]*|build|CMakeFiles)/" )
+endif()
 
 set(
     LIBSCID_INCLUDE_CLEANER_IGNORE_HEADERS
@@ -35,8 +50,8 @@ add_custom_target(
         "-DLIBSCID_INCLUDE_CLEANER_BUILD_DIR=${CMAKE_BINARY_DIR}"
         "-DLIBSCID_INCLUDE_CLEANER_IGNORE_HEADERS=${LIBSCID_INCLUDE_CLEANER_IGNORE_HEADERS}"
         "-DLIBSCID_INCLUDE_CLEANER_SOURCES_FILE=${LIBSCID_INCLUDE_CLEANER_SOURCES_FILE}"
-        "-DLIBSCID_INCLUDE_CLEANER_WORKING_DIR=${PROJECT_SOURCE_DIR}"
-        -P "${PROJECT_SOURCE_DIR}/cmake/qc/include-cleaner-run.cmake"
-    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
-    COMMENT "Printing include-cleaner recommendations for libscid implementation files."
+        "-DLIBSCID_INCLUDE_CLEANER_WORKING_DIR=${LIBSCID_SOURCE_ROOT}"
+        -P "${LIBSCID_SOURCE_ROOT}/cmake/qc/include-cleaner-run.cmake"
+    WORKING_DIRECTORY "${LIBSCID_SOURCE_ROOT}"
+    COMMENT "Printing include-cleaner recommendations."
     VERBATIM )
