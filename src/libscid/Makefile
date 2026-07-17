@@ -58,6 +58,7 @@ release-package :
 	  "-DLIBSCID_VERSION=$(LIBSCID_RELEASE_VERSION)" \
 	  "-DLIBSCID_PACKAGE_VERSION_LABEL=$(LIBSCID_RELEASE_PACKAGE_VERSION_LABEL)" \
 	  "-DLIBSCID_PACKAGE_PLATFORM=$(LIBSCID_RELEASE_PLATFORM)" \
+	  $(libscid.cmake.plantuml.jar.path.arg) \
 	  $(libscid.cmake.c.compiler.arg) \
 	  $(libscid.cmake.cxx.compiler.arg) \
 	  $(LIBSCID_CMAKE_CONFIGURE_ARGS)

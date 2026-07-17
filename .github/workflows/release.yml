@@ -37,6 +37,8 @@ jobs:
       - name: Set up libscid toolchain
         uses: ./.github/actions/setup-libscid-toolchain
         with:
+          make: "true"
+          uv: "true"
           llvm: "true"
           docs: "true"
 
@@ -56,50 +58,20 @@ jobs:
             version="0.0.0"
           fi
 
-          echo "LIBSCID_PROJECT_VERSION=$version" >> "$GITHUB_ENV"
-          echo "LIBSCID_VERSION=$tag" >> "$GITHUB_ENV"
-          echo "LIBSCID_PACKAGE_VERSION_LABEL=$tag" >> "$GITHUB_ENV"
+          echo "LIBSCID_RELEASE_PROJECT_VERSION=$version" >> "$GITHUB_ENV"
+          echo "LIBSCID_RELEASE_VERSION=$tag" >> "$GITHUB_ENV"
+          echo "LIBSCID_RELEASE_PACKAGE_VERSION_LABEL=$tag" >> "$GITHUB_ENV"
+          echo "LIBSCID_RELEASE_PLATFORM=${{ matrix.asset_label }}" >> "$GITHUB_ENV"
 
-      - name: Configure
-        working-directory: src/libscid
-        run: |
-          cmake_args=(
-            --preset package
-            "-DCMAKE_C_COMPILER=$LIBSCID_C_COMPILER"
-            "-DCMAKE_CXX_COMPILER=$LIBSCID_CXX_COMPILER"
-            "-DLIBSCID_PROJECT_VERSION=$LIBSCID_PROJECT_VERSION"
-            "-DLIBSCID_VERSION=$LIBSCID_VERSION"
-            "-DLIBSCID_PACKAGE_VERSION_LABEL=$LIBSCID_PACKAGE_VERSION_LABEL"
-            "-DLIBSCID_PACKAGE_PLATFORM=${{ matrix.asset_label }}"
-            "-DLIBSCID_PLANTUML_JAR_PATH=$LIBSCID_PLANTUML_JAR_PATH"
-          )
-
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            cmake_args+=("-DCMAKE_OSX_SYSROOT=$SDKROOT")
-          fi
-
-          cmake "${cmake_args[@]}"
-
-      - name: Build
-        working-directory: src/libscid
-        run: >
-          cmake
-          --build
-          --preset package
-          --verbose
-
-      - name: Package
-        working-directory: src/libscid
-        run: >
-          cpack
-          --preset portable-tgz
+      - name: Release
+        run: make release
 
       - name: Extract package
         run: |
-          archives=( src/libscid/_build/package/*.tar.gz )
+          archives=( _release/*.tar.gz )
           if [[ ${#archives[@]} -ne 1 ]]; then
-            echo "Expected exactly one .tar.gz in src/libscid/_build/package, found ${#archives[@]}." >&2
-            ls -la src/libscid/_build/package || true
+            echo "Expected exactly one .tar.gz in _release, found ${#archives[@]}." >&2
+            ls -la _release || true
             exit 1
           fi
 
@@ -112,8 +84,6 @@ jobs:
           tar -xzf "$archive" -C "$install_root" --strip-components=1
 
           echo "PACKAGE_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
-          echo "ASSET_PATH=$archive" >> "$GITHUB_ENV"
-          echo "ASSET_NAME=$(basename "$archive" .tar.gz)" >> "$GITHUB_ENV"
 
       - name: Test examples against package
         run: |
@@ -141,11 +111,11 @@ jobs:
           fi
           ctest --test-dir "$examples_build_dir" --output-on-failure
 
-      - name: Upload archive
+      - name: Upload release artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ env.ASSET_NAME }}
-          path: ${{ env.ASSET_PATH }}
+          name: release__${{ matrix.asset_label }}
+          path: _release/*
           if-no-files-found: error
 
   release__windoze:
@@ -169,6 +139,8 @@ jobs:
       - name: Set up libscid toolchain
         uses: ./.github/actions/setup-libscid-toolchain
         with:
+          make: "true"
+          uv: "true"
           llvm: "true"
           docs: "true"
 
@@ -188,43 +160,20 @@ jobs:
             $version = "0.0.0"
           }
 
-          "LIBSCID_PROJECT_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_VERSION=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_PACKAGE_VERSION_LABEL=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_RELEASE_PROJECT_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_RELEASE_VERSION=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_RELEASE_PACKAGE_VERSION_LABEL=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "LIBSCID_RELEASE_PLATFORM=windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Configure
-        working-directory: src/libscid
-        run: >
-          cmake
-          --preset package
-          -G Ninja
-          "-DCMAKE_C_COMPILER=$env:LIBSCID_C_COMPILER"
-          "-DCMAKE_CXX_COMPILER=$env:LIBSCID_CXX_COMPILER"
-          "-DLIBSCID_PROJECT_VERSION=$env:LIBSCID_PROJECT_VERSION"
-          "-DLIBSCID_VERSION=$env:LIBSCID_VERSION"
-          "-DLIBSCID_PACKAGE_VERSION_LABEL=$env:LIBSCID_PACKAGE_VERSION_LABEL"
-          "-DLIBSCID_PACKAGE_PLATFORM=windows"
-
-      - name: Build
-        working-directory: src/libscid
-        run: >
-          cmake
-          --build
-          --preset package
-          --verbose
-
-      - name: Package
-        working-directory: src/libscid
-        run: >
-          cpack
-          --preset portable-tgz
+      - name: Release
+        run: make release
 
       - name: Extract package
         run: |
-          $archives = Get-ChildItem -Path "src\\libscid\\_build\\package" -Filter "*.tar.gz"
+          $archives = Get-ChildItem -Path "_release" -Filter "*.tar.gz"
           if ($archives.Count -ne 1) {
-            Write-Error "Expected exactly one .tar.gz in src\\libscid\\_build\\package, found $($archives.Count)."
-            Get-ChildItem -Path "src\\libscid\\_build\\package" | Format-List
+            Write-Error "Expected exactly one .tar.gz in _release, found $($archives.Count)."
+            Get-ChildItem -Path "_release" | Format-List
             exit 1
           }
 
@@ -237,8 +186,6 @@ jobs:
           tar -xzf $archive -C $installRoot --strip-components=1
 
           "PACKAGE_INSTALL_ROOT=$installRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "ASSET_PATH=$archive" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "ASSET_NAME=$($archives[0].BaseName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Test examples against package
         run: |
@@ -257,11 +204,11 @@ jobs:
           $env:Path = "$env:PACKAGE_INSTALL_ROOT\bin;$env:Path"
           ctest --test-dir $examplesBuildDir --output-on-failure
 
-      - name: Upload archive
+      - name: Upload release artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ env.ASSET_NAME }}
-          path: ${{ env.ASSET_PATH }}
+          name: release__windoze
+          path: _release/*
           if-no-files-found: error
 
   release__publish-github-release:
@@ -284,6 +231,8 @@ jobs:
         with:
           name: libscid ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref_name, '-testing') }}
-          files: dist/*.tar.gz
+          files: |
+            dist/*.tar.gz
+            dist/*.whl
           fail_on_unmatched_files: true
           generate_release_notes: true
