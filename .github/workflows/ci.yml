@@ -9,11 +9,8 @@ on:
 permissions:
   contents: read
 
-env:
-  LIBSCID_WINDOWS_LLVM_VERSION: "20.1.4"
-
 jobs:
-  ci__unix:
+  ci__default:
     name: ci__${{ matrix.check_label }}
     runs-on: ${{ matrix.os }}
 
@@ -29,118 +26,29 @@ jobs:
             check_label: linux
           - os: macos-15
             check_label: macos
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Install LLVM toolchain
-        run: |
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            sudo apt-get update
-            sudo apt-get install --yes clang-20 clang-tools-20
-            echo "LIBSCID_C_COMPILER=clang-20" >> "$GITHUB_ENV"
-            echo "LIBSCID_CXX_COMPILER=clang++-20" >> "$GITHUB_ENV"
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            brew install llvm@20
-            llvm_prefix="$(brew --prefix llvm@20)"
-            sdkroot="$(xcrun --show-sdk-path)"
-            echo "$llvm_prefix/bin" >> "$GITHUB_PATH"
-            echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
-            echo "LIBSCID_C_COMPILER=$llvm_prefix/bin/clang" >> "$GITHUB_ENV"
-            echo "LIBSCID_CXX_COMPILER=$llvm_prefix/bin/clang++" >> "$GITHUB_ENV"
-          fi
-
-      - name: Configure
-        run: |
-          cmake_args=(
-            -S .
-            -B _build
-            -DBUILD_TESTING=ON
-            -DCMAKE_BUILD_TYPE=Release
-            "-DCMAKE_C_COMPILER=$LIBSCID_C_COMPILER"
-            "-DCMAKE_CXX_COMPILER=$LIBSCID_CXX_COMPILER"
-          )
-
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            cmake_args+=("-DCMAKE_OSX_SYSROOT=$SDKROOT")
-          fi
-
-          cmake "${cmake_args[@]}"
-
-      - name: Check compilation database
-        run: test -s _build/compile_commands.json
-
-      - name: Build
-        run: >
-          cmake
-          --build _build
-          --config Release
-          --verbose
-
-      - name: Test
-        run: >
-          ctest
-          --test-dir _build
-          -C Release
-          --output-on-failure
-
-  ci__windoze:
-    name: ci__windoze
-    runs-on: windows-2022
-
-    defaults:
-      run:
-        shell: pwsh
+          - os: windows-2022
+            check_label: windoze
 
     steps:
       - uses: actions/checkout@v7
 
       - name: Set up MSVC
+        if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Install LLVM toolchain
-        run: |
-          choco install llvm --version="$env:LIBSCID_WINDOWS_LLVM_VERSION" --yes --no-progress
-          choco install ninja --yes --no-progress
+      - name: Set up libscid toolchain
+        uses: ./.github/actions/setup-libscid-toolchain
+        with:
+          make: "true"
+          llvm: "true"
 
-          $llvmBin = "C:\Program Files\LLVM\bin"
-          "PATH=$llvmBin;$env:Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_C_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_CXX_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Verify GNU Make
+        run: make --version
 
-      - name: Configure
-        run: >
-          cmake
-          -S .
-          -B _build
-          -G Ninja
-          -DBUILD_TESTING=ON
-          -DCMAKE_BUILD_TYPE=Release
-          "-DCMAKE_C_COMPILER=$env:LIBSCID_C_COMPILER"
-          "-DCMAKE_CXX_COMPILER=$env:LIBSCID_CXX_COMPILER"
+      - name: Run default Make CI
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose ci-default
 
-      - name: Check compilation database
-        run: |
-          if (-not (Test-Path _build/compile_commands.json)) {
-            throw "Missing _build/compile_commands.json."
-          }
-          if ((Get-Item _build/compile_commands.json).Length -eq 0) {
-            throw "_build/compile_commands.json is empty."
-          }
-
-      - name: Build
-        run: >
-          cmake
-          --build _build
-          --verbose
-
-      - name: Test
-        run: >
-          ctest
-          --test-dir _build
-          --output-on-failure
-
-  ci__unix-shared:
+  ci__shared:
     name: ci__${{ matrix.check_label }}-shared
     runs-on: ${{ matrix.os }}
 
@@ -156,83 +64,8 @@ jobs:
             check_label: linux
           - os: macos-15
             check_label: macos
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-
-      - name: Install LLVM toolchain
-        run: |
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            sudo apt-get update
-            sudo apt-get install --yes clang-20 clang-tools-20
-            echo "LIBSCID_C_COMPILER=clang-20" >> "$GITHUB_ENV"
-            echo "LIBSCID_CXX_COMPILER=clang++-20" >> "$GITHUB_ENV"
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            brew install llvm@20
-            llvm_prefix="$(brew --prefix llvm@20)"
-            sdkroot="$(xcrun --show-sdk-path)"
-            echo "$llvm_prefix/bin" >> "$GITHUB_PATH"
-            echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
-            echo "LIBSCID_C_COMPILER=$llvm_prefix/bin/clang" >> "$GITHUB_ENV"
-            echo "LIBSCID_CXX_COMPILER=$llvm_prefix/bin/clang++" >> "$GITHUB_ENV"
-          fi
-
-      - name: Configure
-        run: |
-          cmake_args=(
-            -S .
-            -B _build-shared
-            -DBUILD_SHARED_LIBS=ON
-            -DBUILD_TESTING=ON
-            -DCMAKE_BUILD_TYPE=Release
-            "-DCMAKE_C_COMPILER=$LIBSCID_C_COMPILER"
-            "-DCMAKE_CXX_COMPILER=$LIBSCID_CXX_COMPILER"
-          )
-
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            cmake_args+=("-DCMAKE_OSX_SYSROOT=$SDKROOT")
-          fi
-
-          cmake "${cmake_args[@]}"
-
-      - name: Check compilation database
-        run: test -s _build-shared/compile_commands.json
-
-      - name: Build
-        run: >
-          cmake
-          --build _build-shared
-          --config Release
-          --verbose
-
-      - name: Test
-        run: >
-          ctest
-          --test-dir _build-shared
-          -C Release
-          --output-on-failure
-
-      - name: Test Python examples
-        run: |
-          library_name="libscid.so"
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            library_name="libscid.dylib"
-          fi
-
-          python examples/libscid/000-python-bindings/pgn_roundtrip.py \
-            --library "_build-shared/src/libscid/${library_name}"
-
-  ci__windoze-shared:
-    name: ci__windoze-shared
-    runs-on: windows-2022
-
-    defaults:
-      run:
-        shell: pwsh
+          - os: windows-2022
+            check_label: windoze
 
     steps:
       - uses: actions/checkout@v7
@@ -242,53 +75,18 @@ jobs:
           python-version: "3.x"
 
       - name: Set up MSVC
+        if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Install LLVM toolchain
-        run: |
-          choco install llvm --version="$env:LIBSCID_WINDOWS_LLVM_VERSION" --yes --no-progress
-          choco install ninja --yes --no-progress
+      - name: Set up libscid toolchain
+        uses: ./.github/actions/setup-libscid-toolchain
+        with:
+          make: "true"
+          uv: "true"
+          llvm: "true"
 
-          $llvmBin = "C:\Program Files\LLVM\bin"
-          "PATH=$llvmBin;$env:Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_C_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_CXX_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Verify GNU Make
+        run: make --version
 
-      - name: Configure
-        run: >
-          cmake
-          -S .
-          -B _build-shared
-          -G Ninja
-          -DBUILD_SHARED_LIBS=ON
-          -DBUILD_TESTING=ON
-          -DCMAKE_BUILD_TYPE=Release
-          "-DCMAKE_C_COMPILER=$env:LIBSCID_C_COMPILER"
-          "-DCMAKE_CXX_COMPILER=$env:LIBSCID_CXX_COMPILER"
-
-      - name: Check compilation database
-        run: |
-          if (-not (Test-Path _build-shared/compile_commands.json)) {
-            throw "Missing _build-shared/compile_commands.json."
-          }
-          if ((Get-Item _build-shared/compile_commands.json).Length -eq 0) {
-            throw "_build-shared/compile_commands.json is empty."
-          }
-
-      - name: Build
-        run: >
-          cmake
-          --build _build-shared
-          --verbose
-
-      - name: Test
-        run: >
-          ctest
-          --test-dir _build-shared
-          --output-on-failure
-
-      - name: Test Python examples
-        run: >
-          python
-          examples/libscid/000-python-bindings/pgn_roundtrip.py
-          --library _build-shared/src/libscid/scid.dll
+      - name: Run shared Make CI
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose ci-shared

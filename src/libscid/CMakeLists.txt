@@ -1,10 +1,21 @@
 cmake_minimum_required( VERSION 3.28 )
 
+if( DEFINED LIBSCID_VERSION AND LIBSCID_VERSION MATCHES "^[0-9]+(\\.[0-9]+)?(\\.[0-9]+)?(\\.[0-9]+)?$" )
+    unset( LIBSCID_VERSION CACHE )
+    unset( LIBSCID_VERSION )
+endif()
+set( LIBSCID_PROJECT_VERSION "0.0.0" CACHE STRING "Numeric libscid version used for CMake package compatibility." )
+
 project(
     libscid
+    VERSION "${LIBSCID_PROJECT_VERSION}"
     LANGUAGES C CXX )
 
-include( GNUInstallDirs )
+include( "${LIBSCID_SOURCE_ROOT}/etc/cmake/project.cmake" )
+
+if( NOT TARGET LibScidInternal::Core )
+    add_subdirectory( "${LIBSCID_SOURCE_ROOT}/src/internal" "${CMAKE_CURRENT_BINARY_DIR}/_deps/libscid-internal" )
+endif()
 
 set(
     SCID_PUBLIC_HEADERS
@@ -108,4 +119,13 @@ if( BUILD_TESTING )
     set_tests_properties(
         libscid_c_test
         PROPERTIES LABELS "c;libscid" )
+endif()
+
+if( LIBSCID_BUILD_DOCS )
+    include( "${LIBSCID_SOURCE_ROOT}/etc/cmake/docs.cmake" )
+endif()
+
+if( LIBSCID_INSTALL )
+    include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake/install/main.cmake" )
+    include( "${CMAKE_CURRENT_SOURCE_DIR}/cmake/package/cpack.cmake" )
 endif()

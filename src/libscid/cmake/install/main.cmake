@@ -41,18 +41,18 @@ install(
 
 install(
     FILES
-        "${PROJECT_SOURCE_DIR}/COPYING"
-        "${PROJECT_SOURCE_DIR}/README.md"
+        "${LIBSCID_SOURCE_ROOT}/COPYING"
+        "${LIBSCID_SOURCE_ROOT}/README.md"
     DESTINATION "${LIBSCID_INSTALL_DOCDIR}" )
 
 install(
-    FILES "${PROJECT_SOURCE_DIR}/examples/CMakeLists.txt"
+    FILES "${LIBSCID_SOURCE_ROOT}/examples/CMakeLists.txt"
     DESTINATION "${LIBSCID_INSTALL_DOCDIR}/examples" )
 
 install(
     DIRECTORY
-        "${PROJECT_SOURCE_DIR}/examples/libscid"
-        "${PROJECT_SOURCE_DIR}/examples/fixtures"
+        "${LIBSCID_SOURCE_ROOT}/examples/libscid"
+        "${LIBSCID_SOURCE_ROOT}/examples/fixtures"
     DESTINATION "${LIBSCID_INSTALL_DOCDIR}/examples" )
 
 if( LIBSCID_BUILD_DOCS )

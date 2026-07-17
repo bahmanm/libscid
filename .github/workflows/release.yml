@@ -9,9 +9,6 @@ on:
 permissions:
   contents: write
 
-env:
-  LIBSCID_WINDOWS_LLVM_VERSION: "20.1.4"
-
 jobs:
   release__unix:
     name: release__${{ matrix.asset_label }}
@@ -37,33 +34,11 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install documentation tools
-        run: |
-          if [[ "$RUNNER_OS" == "Linux" ]]; then
-            sudo apt-get update
-            sudo apt-get install --yes clang-20 clang-tools-20 default-jre doxygen graphviz plantuml
-            plantuml_jar="$(dpkg -L plantuml | awk '/\/plantuml\.jar$/ { print; exit }')"
-            echo "LIBSCID_C_COMPILER=clang-20" >> "$GITHUB_ENV"
-            echo "LIBSCID_CXX_COMPILER=clang++-20" >> "$GITHUB_ENV"
-          elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            brew update
-            brew install doxygen graphviz plantuml llvm@20
-            llvm_prefix="$(brew --prefix llvm@20)"
-            sdkroot="$(xcrun --show-sdk-path)"
-            plantuml_jar="$(brew --prefix plantuml)/libexec/plantuml.jar"
-            echo "$llvm_prefix/bin" >> "$GITHUB_PATH"
-            echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
-            echo "LIBSCID_C_COMPILER=$llvm_prefix/bin/clang" >> "$GITHUB_ENV"
-            echo "LIBSCID_CXX_COMPILER=$llvm_prefix/bin/clang++" >> "$GITHUB_ENV"
-          else
-            plantuml_jar=""
-          fi
-
-          if [[ -n "$plantuml_jar" && -f "$plantuml_jar" ]]; then
-            echo "LIBSCID_PLANTUML_JAR_PATH=$plantuml_jar" >> "$GITHUB_ENV"
-          else
-            echo "LIBSCID_PLANTUML_JAR_PATH=" >> "$GITHUB_ENV"
-          fi
+      - name: Set up libscid toolchain
+        uses: ./.github/actions/setup-libscid-toolchain
+        with:
+          llvm: "true"
+          docs: "true"
 
       - name: Set release identity
         run: |
@@ -86,6 +61,7 @@ jobs:
           echo "LIBSCID_PACKAGE_VERSION_LABEL=$tag" >> "$GITHUB_ENV"
 
       - name: Configure
+        working-directory: src/libscid
         run: |
           cmake_args=(
             --preset package
@@ -105,6 +81,7 @@ jobs:
           cmake "${cmake_args[@]}"
 
       - name: Build
+        working-directory: src/libscid
         run: >
           cmake
           --build
@@ -112,16 +89,17 @@ jobs:
           --verbose
 
       - name: Package
+        working-directory: src/libscid
         run: >
           cpack
           --preset portable-tgz
 
       - name: Extract package
         run: |
-          archives=( _build/package/*.tar.gz )
+          archives=( src/libscid/_build/package/*.tar.gz )
           if [[ ${#archives[@]} -ne 1 ]]; then
-            echo "Expected exactly one .tar.gz in _build/package, found ${#archives[@]}." >&2
-            ls -la _build/package || true
+            echo "Expected exactly one .tar.gz in src/libscid/_build/package, found ${#archives[@]}." >&2
+            ls -la src/libscid/_build/package || true
             exit 1
           fi
 
@@ -188,21 +166,11 @@ jobs:
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
-      - name: Install LLVM toolchain
-        run: |
-          choco install llvm --version="$env:LIBSCID_WINDOWS_LLVM_VERSION" --yes --no-progress
-          choco install ninja --yes --no-progress
-
-          $llvmBin = "C:\Program Files\LLVM\bin"
-          "PATH=$llvmBin;$env:Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_C_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_CXX_COMPILER=$llvmBin\clang-cl.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: Install documentation tools
-        run: |
-          choco install doxygen.install graphviz --yes --no-progress
-          $env:Path += ";C:\Program Files\doxygen\bin;C:\Program Files\Graphviz\bin"
-          "PATH=$env:Path" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      - name: Set up libscid toolchain
+        uses: ./.github/actions/setup-libscid-toolchain
+        with:
+          llvm: "true"
+          docs: "true"
 
       - name: Set release identity
         run: |
@@ -225,6 +193,7 @@ jobs:
           "LIBSCID_PACKAGE_VERSION_LABEL=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Configure
+        working-directory: src/libscid
         run: >
           cmake
           --preset package
@@ -237,6 +206,7 @@ jobs:
           "-DLIBSCID_PACKAGE_PLATFORM=windows"
 
       - name: Build
+        working-directory: src/libscid
         run: >
           cmake
           --build
@@ -244,16 +214,17 @@ jobs:
           --verbose
 
       - name: Package
+        working-directory: src/libscid
         run: >
           cpack
           --preset portable-tgz
 
       - name: Extract package
         run: |
-          $archives = Get-ChildItem -Path "_build\\package" -Filter "*.tar.gz"
+          $archives = Get-ChildItem -Path "src\\libscid\\_build\\package" -Filter "*.tar.gz"
           if ($archives.Count -ne 1) {
-            Write-Error "Expected exactly one .tar.gz in _build\\package, found $($archives.Count)."
-            Get-ChildItem -Path "_build\\package" | Format-List
+            Write-Error "Expected exactly one .tar.gz in src\\libscid\\_build\\package, found $($archives.Count)."
+            Get-ChildItem -Path "src\\libscid\\_build\\package" | Format-List
             exit 1
           }
 

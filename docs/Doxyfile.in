@@ -1,21 +1,21 @@
 PROJECT_NAME           = "libscid"
 PROJECT_BRIEF          = "Chess applications made easy."
 PROJECT_NUMBER         = "@LIBSCID_VERSION@"
-PROJECT_LOGO           = "@PROJECT_SOURCE_DIR@/docs/assets/img/libscid-tiny.png"
+PROJECT_LOGO           = "@LIBSCID_SOURCE_ROOT@/docs/assets/img/libscid-tiny.png"
 
 OUTPUT_DIRECTORY       = "@LIBSCID_DOXYGEN_OUTPUT_DIR@"
 CREATE_SUBDIRS         = NO
 
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@"
+STRIP_FROM_PATH        = "@LIBSCID_SOURCE_ROOT@"
 CASE_SENSE_NAMES       = YES
 
-INPUT                  = "@PROJECT_SOURCE_DIR@/docs/index.md" \
-                         "@PROJECT_SOURCE_DIR@/docs/api-surface.md" \
-                         "@PROJECT_SOURCE_DIR@/docs/quick-start.md" \
-                         "@PROJECT_SOURCE_DIR@/docs/installation.md" \
-                         "@PROJECT_SOURCE_DIR@/docs/examples-recipes.md" \
-                         "@PROJECT_SOURCE_DIR@/src/libscid/include/scid"
+INPUT                  = "@LIBSCID_SOURCE_ROOT@/docs/index.md" \
+                         "@LIBSCID_SOURCE_ROOT@/docs/api-surface.md" \
+                         "@LIBSCID_SOURCE_ROOT@/docs/quick-start.md" \
+                         "@LIBSCID_SOURCE_ROOT@/docs/installation.md" \
+                         "@LIBSCID_SOURCE_ROOT@/docs/examples-recipes.md" \
+                         "@LIBSCID_SOURCE_ROOT@/src/libscid/include/scid"
 FILE_PATTERNS          = *.h \
                          *.md \
                          *.dox
@@ -23,7 +23,7 @@ RECURSIVE              = YES
 EXCLUDE                =
 
 MARKDOWN_SUPPORT       = YES
-USE_MDFILE_AS_MAINPAGE = "@PROJECT_SOURCE_DIR@/docs/index.md"
+USE_MDFILE_AS_MAINPAGE = "@LIBSCID_SOURCE_ROOT@/docs/index.md"
 
 EXTRACT_ALL            = NO
 EXTRACT_PRIVATE        = NO
@@ -35,9 +35,9 @@ HIDE_UNDOC_CLASSES     = NO
 
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
-HTML_EXTRA_STYLESHEET  = "@PROJECT_SOURCE_DIR@/docs/doxygen/libscid.css"
-HTML_EXTRA_FILES       = "@PROJECT_SOURCE_DIR@/docs/assets/img/libscid-tiny.png" \
-                         "@PROJECT_SOURCE_DIR@/docs/assets/img/libscid-16x10.png"
+HTML_EXTRA_STYLESHEET  = "@LIBSCID_SOURCE_ROOT@/docs/doxygen/libscid.css"
+HTML_EXTRA_FILES       = "@LIBSCID_SOURCE_ROOT@/docs/assets/img/libscid-tiny.png" \
+                         "@LIBSCID_SOURCE_ROOT@/docs/assets/img/libscid-16x10.png"
 HTML_DYNAMIC_SECTIONS  = YES
 GENERATE_TREEVIEW      = YES
 DISABLE_INDEX          = NO
