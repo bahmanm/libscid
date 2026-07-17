@@ -13,7 +13,7 @@ configure :
 	  -B $(LIBSCID_BUILD_DIR) \
 	  $(libscid.cmake.generator.arg) \
 	  -DBUILD_TESTING=ON \
-	  -DBUILD_SHARED_LIBS=ON \
+	  $(libscid.cmake.shared.libs.arg) \
 	  -DLIBSCID_INSTALL=OFF \
 	  -DCMAKE_BUILD_TYPE=$(LIBSCID_CMAKE_BUILD_TYPE) \
 	  $(if $(LIBSCID_CMAKE_C_COMPILER),"-DCMAKE_C_COMPILER=$(LIBSCID_CMAKE_C_COMPILER)") \
