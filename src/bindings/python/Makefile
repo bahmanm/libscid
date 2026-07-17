@@ -10,11 +10,6 @@ LIBSCID_PYTHON_RELEASE_VERIFY_DIR ?= $(libscid.project.dir)_build/release-verify
 LIBSCID_PYTHON_RELEASE_ARTIFACT_DIR ?= $(LIBSCID_RELEASE_ROOT)
 LIBSCID_PYTHON_RELEASE_VERSION ?= $(LIBSCID_RELEASE_PROJECT_VERSION)
 LIBSCID_UV_FLAGS ?= --system-certs
-libscid.python.venv.bin := $(libscid.project.dir).venv/bin
-libscid.python.venv.python := $(libscid.python.venv.bin)/python
-LIBSCID_RUFF ?= $(if $(wildcard $(libscid.python.venv.bin)/ruff),$(libscid.python.venv.bin)/ruff,ruff)
-LIBSCID_PYRIGHT ?= $(if $(wildcard $(libscid.python.venv.bin)/pyright),$(libscid.python.venv.bin)/pyright,pyright)
-LIBSCID_PYRIGHT_FLAGS ?= $(if $(wildcard $(libscid.python.venv.python)),--pythonpath $(libscid.python.venv.python))
 libscid.python.qc.paths := src ../../../tests/bindings/python hatch_build.py
 
 ####################################################################################################
@@ -83,15 +78,15 @@ release-verify : release
 ####################################################################################################
 
 qc-format :
-	$(LIBSCID_RUFF) format --check $(libscid.python.qc.paths)
-	$(LIBSCID_RUFF) check $(libscid.python.qc.paths)
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff format --check $(libscid.python.qc.paths)
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff check $(libscid.python.qc.paths)
 
 .PHONY : qc-format
 
 ####################################################################################################
 
 qc-static-analysis :
-	$(LIBSCID_PYRIGHT) $(LIBSCID_PYRIGHT_FLAGS)
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run pyright
 
 .PHONY : qc-static-analysis
 
