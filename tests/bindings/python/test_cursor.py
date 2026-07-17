@@ -1,6 +1,6 @@
-import libscid
 import pytest
 
+import libscid
 
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -492,9 +492,7 @@ def test_cursor_truncate_is_visible_to_existing_cursor():
 
 
 def test_cursor_truncate_removes_following_variation_moves():
-    cursor = libscid.Game.from_pgn(
-        "1. e4 (1. d4 d5 2. c4) e5 *"
-    ).create_cursor()
+    cursor = libscid.Game.from_pgn("1. e4 (1. d4 d5 2. c4) e5 *").create_cursor()
     variation = cursor.enter_variation(0).next()
 
     truncated = variation.truncate()
@@ -534,9 +532,7 @@ def test_cursor_truncate_before_keeps_following_mainline_moves():
 
 
 def test_cursor_truncate_before_promotes_variation_suffix_to_mainline():
-    cursor = libscid.Game.from_pgn(
-        "1. e4 (1. c4 c5) e5 *"
-    ).create_cursor()
+    cursor = libscid.Game.from_pgn("1. e4 (1. c4 c5) e5 *").create_cursor()
     variation = cursor.enter_variation(0).next()
 
     truncated = variation.truncate_before()
@@ -740,9 +736,7 @@ def test_cursor_preceding_comment_reads_initial_comment():
 
 
 def test_cursor_preceding_comment_reads_variation_initial_comment():
-    cursor = libscid.Game.from_pgn(
-        "1. e4 ({Branch} 1. d4 d5) e5 *"
-    ).create_cursor()
+    cursor = libscid.Game.from_pgn("1. e4 ({Branch} 1. d4 d5) e5 *").create_cursor()
 
     assert cursor.enter_variation(0).preceding_comment == "Branch"
 

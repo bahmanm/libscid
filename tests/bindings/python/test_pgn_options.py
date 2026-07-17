@@ -1,6 +1,6 @@
-import libscid
 import pytest
 
+import libscid
 
 ANNOTATED_PGN = """[Event "Options"]
 [Site "Internet"]

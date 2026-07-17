@@ -1,7 +1,8 @@
 from dataclasses import FrozenInstanceError
 
-import libscid
 import pytest
+
+import libscid
 
 
 def test_nag_constructor_reads_symbolic_nag():

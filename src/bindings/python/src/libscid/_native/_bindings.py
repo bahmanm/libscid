@@ -198,5 +198,11 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     bind("scid_game_tag_remove", [ctypes.c_void_p, ctypes.c_char_p, c_int_p])
     bind(
         "scid_game_to_pgn",
-        [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
+        [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ],
     )

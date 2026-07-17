@@ -9,6 +9,9 @@ from ._position import Position
 
 
 class Game:
+    _native: NativeLibrary
+    _handle: ctypes.c_void_p
+
     def __init__(self, position: Position | None = None):
         if position is None:
             self._native = load_library()
@@ -19,7 +22,7 @@ class Game:
         self._handle = self._native.create_blank_game(position._handle)
 
     @classmethod
-    def from_pgn(cls, pgn: str | bytes, position: Position | None = None) -> "Game":
+    def from_pgn(cls, pgn: str | bytes, position: Position | None = None) -> Game:
         if position is None:
             native = load_library()
             return cls._from_handle(native, native.create_game_from_pgn(pgn))
@@ -30,7 +33,7 @@ class Game:
         )
 
     @classmethod
-    def _from_handle(cls, native: NativeLibrary, handle: ctypes.c_void_p) -> "Game":
+    def _from_handle(cls, native: NativeLibrary, handle: ctypes.c_void_p) -> Game:
         game = cls.__new__(cls)
         game._native = native
         game._handle = handle

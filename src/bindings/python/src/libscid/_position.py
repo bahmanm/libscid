@@ -6,16 +6,19 @@ from ._native import NativeLibrary, load_library
 
 
 class Position:
+    _native: NativeLibrary
+    _handle: ctypes.c_void_p
+
     def __init__(self):
         raise TypeError("Position objects are returned by libscid APIs")
 
     @classmethod
-    def from_fen(cls, fen: str | bytes) -> "Position":
+    def from_fen(cls, fen: str | bytes) -> Position:
         native = load_library()
         return cls._from_handle(native, native.create_position_from_fen(fen))
 
     @classmethod
-    def _from_handle(cls, native: NativeLibrary, handle: ctypes.c_void_p) -> "Position":
+    def _from_handle(cls, native: NativeLibrary, handle: ctypes.c_void_p) -> Position:
         position = cls.__new__(cls)
         position._native = native
         position._handle = handle

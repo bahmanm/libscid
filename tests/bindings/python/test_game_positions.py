@@ -1,6 +1,6 @@
-import libscid
 import pytest
 
+import libscid
 
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
@@ -33,5 +33,7 @@ def test_position_from_fen_rejects_invalid_fen():
 
 
 def test_position_is_returned_by_libscid_apis():
-    with pytest.raises(TypeError, match="Position objects are returned by libscid APIs"):
+    with pytest.raises(
+        TypeError, match="Position objects are returned by libscid APIs"
+    ):
         libscid.Position()
