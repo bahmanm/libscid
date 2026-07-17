@@ -25,17 +25,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install documentation tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes default-jre doxygen graphviz plantuml
-          plantuml_jar="$(dpkg -L plantuml | awk '/\/plantuml\.jar$/ { print; exit }')"
-          if [[ -z "$plantuml_jar" ]]; then
-            echo "Could not find plantuml.jar in the plantuml package." >&2
-            dpkg -L plantuml >&2
-            exit 1
-          fi
-          echo "LIBSCID_PLANTUML_JAR_PATH=$plantuml_jar" >> "$GITHUB_ENV"
+      - name: Set up libscid documentation tools
+        uses: ./.github/actions/setup-libscid-toolchain
+        with:
+          docs: "true"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

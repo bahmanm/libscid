@@ -1,0 +1,130 @@
+name: Set up libscid toolchain
+description: Install runner-local tools and export libscid compiler/documentation environment.
+
+inputs:
+  make:
+    description: Install GNU Make.
+    default: "false"
+  uv:
+    description: Install uv with the active Python.
+    default: "false"
+  llvm:
+    description: Install LLVM and export libscid compiler variables.
+    default: "false"
+  docs:
+    description: Install documentation tools and export PlantUML settings where available.
+    default: "false"
+  clang_format:
+    description: Install clang-format.
+    default: "false"
+  clang_tidy:
+    description: Install clang-tidy.
+    default: "false"
+  cppcheck:
+    description: Install cppcheck.
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Install GNU Make
+      if: ${{ inputs.make == 'true' }}
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt-get update
+          sudo apt-get install --yes make
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew install make
+          echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          choco install make --yes --no-progress
+        fi
+
+    - name: Install uv
+      if: ${{ inputs.uv == 'true' }}
+      shell: bash
+      run: python -m pip install uv
+
+    - name: Install LLVM toolchain
+      if: ${{ inputs.llvm == 'true' }}
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt-get update
+          sudo apt-get install --yes clang-20 clang-tools-20
+          echo "LIBSCID_C_COMPILER=clang-20" >> "$GITHUB_ENV"
+          echo "LIBSCID_CXX_COMPILER=clang++-20" >> "$GITHUB_ENV"
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew install llvm@20
+          llvm_prefix="$(brew --prefix llvm@20)"
+          sdkroot="$(xcrun --show-sdk-path)"
+          echo "$llvm_prefix/bin" >> "$GITHUB_PATH"
+          echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
+          echo "LIBSCID_C_COMPILER=$llvm_prefix/bin/clang" >> "$GITHUB_ENV"
+          echo "LIBSCID_CXX_COMPILER=$llvm_prefix/bin/clang++" >> "$GITHUB_ENV"
+          echo "LIBSCID_CMAKE_CONFIGURE_ARGS=-DCMAKE_OSX_SYSROOT=$sdkroot" >> "$GITHUB_ENV"
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          choco upgrade llvm --yes --no-progress
+          choco install ninja --yes --no-progress
+          echo "C:\\Program Files\\LLVM\\bin" >> "$GITHUB_PATH"
+          echo "LIBSCID_C_COMPILER=C:\\Program Files\\LLVM\\bin\\clang-cl.exe" >> "$GITHUB_ENV"
+          echo "LIBSCID_CXX_COMPILER=C:\\Program Files\\LLVM\\bin\\clang-cl.exe" >> "$GITHUB_ENV"
+          echo "LIBSCID_CMAKE_GENERATOR=Ninja" >> "$GITHUB_ENV"
+        fi
+
+    - name: Install documentation tools
+      if: ${{ inputs.docs == 'true' }}
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt-get update
+          sudo apt-get install --yes default-jre doxygen graphviz plantuml
+          plantuml_jar="$(dpkg -L plantuml | awk '/\/plantuml\.jar$/ { print; exit }')"
+        elif [[ "$RUNNER_OS" == "macOS" ]]; then
+          brew install doxygen graphviz plantuml
+          plantuml_jar="$(brew --prefix plantuml)/libexec/plantuml.jar"
+        elif [[ "$RUNNER_OS" == "Windows" ]]; then
+          choco install doxygen.install graphviz --yes --no-progress
+          echo "C:\\Program Files\\doxygen\\bin" >> "$GITHUB_PATH"
+          echo "C:\\Program Files\\Graphviz\\bin" >> "$GITHUB_PATH"
+          plantuml_jar=""
+        else
+          plantuml_jar=""
+        fi
+
+        if [[ -n "$plantuml_jar" && -f "$plantuml_jar" ]]; then
+          echo "LIBSCID_PLANTUML_JAR_PATH=$plantuml_jar" >> "$GITHUB_ENV"
+        elif [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" ]]; then
+          echo "Could not find plantuml.jar." >&2
+          exit 1
+        else
+          echo "LIBSCID_PLANTUML_JAR_PATH=" >> "$GITHUB_ENV"
+        fi
+
+    - name: Install clang-format
+      if: ${{ inputs.clang_format == 'true' }}
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt-get update
+          sudo apt-get install --yes clang-format-20
+        fi
+
+    - name: Install clang-tidy
+      if: ${{ inputs.clang_tidy == 'true' }}
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt-get update
+          sudo apt-get install --yes clang-tidy-20
+        fi
+
+    - name: Install cppcheck
+      if: ${{ inputs.cppcheck == 'true' }}
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+          sudo apt-get update
+          sudo apt-get install --yes cppcheck
+        fi

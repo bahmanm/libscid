@@ -21,10 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install clang-format
-        run: >
-          sudo apt-get update
-          && sudo apt-get install --yes clang-20 clang-format-20 clang-tools-20
+      - name: Set up libscid toolchain
+        uses: ./.github/actions/setup-libscid-toolchain
+        with:
+          llvm: "true"
+          clang_format: "true"
 
       - name: Configure
         run: >
@@ -52,10 +53,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install static analysis tools
-        run: >
-          sudo apt-get update
-          && sudo apt-get install --yes clang-20 clang-tools-20 cppcheck
+      - name: Set up libscid toolchain
+        uses: ./.github/actions/setup-libscid-toolchain
+        with:
+          llvm: "true"
+          cppcheck: "true"
 
       - name: Configure
         run: >
@@ -82,10 +84,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install static analysis tools
-        run: >
-          sudo apt-get update
-          && sudo apt-get install --yes clang-20 clang-tidy-20 clang-tools-20
+      - name: Set up libscid toolchain
+        uses: ./.github/actions/setup-libscid-toolchain
+        with:
+          llvm: "true"
+          clang_tidy: "true"
 
       - name: Configure
         run: >
@@ -112,10 +115,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install compiler
-        run: >
-          sudo apt-get update
-          && sudo apt-get install --yes clang-20 clang-tools-20
+      - name: Set up libscid toolchain
+        uses: ./.github/actions/setup-libscid-toolchain
+        with:
+          llvm: "true"
 
       - name: Configure
         run: >
