@@ -51,7 +51,7 @@ add_custom_target(
         "-DLIBSCID_INCLUDE_CLEANER_IGNORE_HEADERS=${LIBSCID_INCLUDE_CLEANER_IGNORE_HEADERS}"
         "-DLIBSCID_INCLUDE_CLEANER_SOURCES_FILE=${LIBSCID_INCLUDE_CLEANER_SOURCES_FILE}"
         "-DLIBSCID_INCLUDE_CLEANER_WORKING_DIR=${LIBSCID_SOURCE_ROOT}"
-        -P "${LIBSCID_SOURCE_ROOT}/cmake/qc/include-cleaner-run.cmake"
+        -P "${LIBSCID_SOURCE_ROOT}/etc/cmake/qc/include-cleaner-run.cmake"
     WORKING_DIRECTORY "${LIBSCID_SOURCE_ROOT}"
     COMMENT "Printing include-cleaner recommendations."
     VERBATIM )

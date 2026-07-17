@@ -11,7 +11,7 @@ project(
     VERSION "${LIBSCID_PROJECT_VERSION}"
     LANGUAGES C CXX )
 
-include( "${LIBSCID_SOURCE_ROOT}/cmake/project.cmake" )
+include( "${LIBSCID_SOURCE_ROOT}/etc/cmake/project.cmake" )
 
 if( NOT TARGET LibScidInternal::Core )
     add_subdirectory( "${LIBSCID_SOURCE_ROOT}/src/internal" "${CMAKE_CURRENT_BINARY_DIR}/_deps/libscid-internal" )
@@ -122,7 +122,7 @@ if( BUILD_TESTING )
 endif()
 
 if( LIBSCID_BUILD_DOCS )
-    include( "${LIBSCID_SOURCE_ROOT}/cmake/docs.cmake" )
+    include( "${LIBSCID_SOURCE_ROOT}/etc/cmake/docs.cmake" )
 endif()
 
 if( LIBSCID_INSTALL )

@@ -1,4 +1,4 @@
-# Build with: docker build --platform linux/amd64 -t libscid-qc:ubuntu-24.04 -f cmake/qc/qc.Dockerfile .
+# Build with: docker build --platform linux/amd64 -t libscid-qc:ubuntu-24.04 -f etc/cmake/qc/qc.Dockerfile .
 
 FROM ubuntu:24.04
 

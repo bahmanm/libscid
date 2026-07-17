@@ -1,6 +1,6 @@
 export LIBSCID_ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-include $(LIBSCID_ROOT)mk/common.mk
+include $(LIBSCID_ROOT)etc/make/common.mk
 
 ####################################################################################################
 

@@ -1,7 +1,7 @@
 libscid.project.dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 export LIBSCID_ROOT ?= $(abspath $(libscid.project.dir)../../..)/
 
-include $(LIBSCID_ROOT)mk/common.mk
+include $(LIBSCID_ROOT)etc/make/common.mk
 
 ####################################################################################################
 

@@ -11,7 +11,7 @@ project(
     VERSION "${LIBSCID_PROJECT_VERSION}"
     LANGUAGES CXX )
 
-include( "${LIBSCID_SOURCE_ROOT}/cmake/project.cmake" )
+include( "${LIBSCID_SOURCE_ROOT}/etc/cmake/project.cmake" )
 
 add_subdirectory( core )
 add_subdirectory( eco )
