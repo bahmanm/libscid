@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "libscid"
-version = "0.0.0"
 description = "Python bindings for libscid."
 requires-python = ">=3.10"
 license = "GPL-2.0-only"
+dynamic = ["version"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
@@ -27,6 +27,17 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/libscid"]
+artifacts = [
+    "src/libscid/_native/*.dll",
+    "src/libscid/_native/*.dylib",
+    "src/libscid/_native/*.so",
+]
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "hatch_build.py"
+
+[tool.hatch.metadata.hooks.custom]
+path = "hatch_build.py"
 
 [tool.pytest.ini_options]
 testpaths = ["../../../tests/bindings/python"]

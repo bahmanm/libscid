@@ -13,6 +13,7 @@ libscid.internal.build.dir ?= $(libscid.project.internal)_build/
 libscid.default.build.dir ?= $(libscid.project.libscid)_build/default/
 libscid.default.internal.build.dir ?= $(libscid.project.internal)_build/default/
 libscid.library := $(libscid.build.dir)$(libscid.library.name)
+libscid.release.library := $(libscid.project.libscid)_build/release/$(libscid.library.name)
 libscid.example.pgn.roundtrip := $(LIBSCID_ROOT)examples/libscid/000-python-bindings/pgn_roundtrip.py
 
 ####################################################################################################
@@ -48,8 +49,36 @@ clean :
 	$(MAKE) -C $(libscid.project.internal) clean LIBSCID_BUILD_DIR=$(libscid.internal.build.dir)
 	$(MAKE) -C $(libscid.project.libscid) clean LIBSCID_BUILD_DIR=$(libscid.build.dir)
 	$(MAKE) -C $(libscid.project.bindings.python) clean
+	-rm -rf $(LIBSCID_RELEASE_ROOT)
 
 .PHONY : clean
+
+####################################################################################################
+
+release-libscid :
+	$(MAKE) -C $(libscid.project.libscid) release
+
+.PHONY : release-libscid
+
+####################################################################################################
+
+release-python :
+	$(MAKE) -C $(libscid.project.bindings.python) release LIBSCID_LIBRARY=$(libscid.release.library)
+
+.PHONY : release-python
+
+####################################################################################################
+
+release : release-libscid release-python
+
+.PHONY : release
+
+####################################################################################################
+
+release-verify :
+	$(MAKE) -C $(libscid.project.bindings.python) release-verify LIBSCID_LIBRARY=$(libscid.release.library)
+
+.PHONY : release-verify
 
 ####################################################################################################
 

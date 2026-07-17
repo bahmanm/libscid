@@ -14,9 +14,11 @@ def _candidate_library_names() -> tuple[str, ...]:
 
 
 def _candidate_directories() -> tuple[Path, ...]:
+    native_dir = Path(__file__).resolve().parent
     package_dir = Path(__file__).resolve().parents[1]
     source_root = package_dir.parents[4]
     return (
+        native_dir,
         package_dir,
         source_root / "_build" / "release" / "src" / "libscid",
         source_root / "_build" / "debug" / "src" / "libscid",
