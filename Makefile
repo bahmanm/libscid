@@ -1,6 +1,6 @@
 export LIBSCID_ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-include $(LIBSCID_ROOT)Makefile.conf
+include $(LIBSCID_ROOT)mk/common.mk
 
 ####################################################################################################
 
@@ -103,5 +103,34 @@ ci-default : test-default check-default-compilation-database
 ci-shared : test check-shared-compilation-database test-examples
 
 .PHONY : ci-shared
+
+####################################################################################################
+
+qc-format :
+	$(MAKE) -C $(libscid.project.internal) qc-format
+	$(MAKE) -C $(libscid.project.bindings.python) qc-format
+
+.PHONY : qc-format
+
+####################################################################################################
+
+qc-static-analysis :
+	$(MAKE) -C $(libscid.project.internal) qc-static-analysis
+	$(MAKE) -C $(libscid.project.bindings.python) qc-static-analysis
+
+.PHONY : qc-static-analysis
+
+####################################################################################################
+
+qc-dynamic-analysis :
+	$(MAKE) -C $(libscid.project.internal) qc-dynamic-analysis
+
+.PHONY : qc-dynamic-analysis
+
+####################################################################################################
+
+qc-all : qc-format qc-static-analysis qc-dynamic-analysis
+
+.PHONY : qc-all
 
 ####################################################################################################

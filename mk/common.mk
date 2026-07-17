@@ -7,6 +7,7 @@ SHELL := bash
 LIBSCID_BUILD_ROOT ?= $(LIBSCID_ROOT)_build/
 
 LIBSCID_CMAKE ?= cmake
+LIBSCID_CPACK ?= cpack
 LIBSCID_CTEST ?= ctest
 LIBSCID_UV ?= uv
 LIBSCID_TOX ?= tox
@@ -22,6 +23,8 @@ LIBSCID_CMAKE_CXX_COMPILER ?= $(LIBSCID_CXX_COMPILER)
 
 libscid.cmake.generator.arg := $(if $(LIBSCID_CMAKE_GENERATOR),-G "$(LIBSCID_CMAKE_GENERATOR)")
 libscid.cmake.shared.libs.arg := $(if $(LIBSCID_CMAKE_SHARED_LIBS),-DBUILD_SHARED_LIBS=$(LIBSCID_CMAKE_SHARED_LIBS))
+libscid.cmake.c.compiler.arg := $(if $(LIBSCID_CMAKE_C_COMPILER),"-DCMAKE_C_COMPILER=$(LIBSCID_CMAKE_C_COMPILER)")
+libscid.cmake.cxx.compiler.arg := $(if $(LIBSCID_CMAKE_CXX_COMPILER),"-DCMAKE_CXX_COMPILER=$(LIBSCID_CMAKE_CXX_COMPILER)")
 
 ####################################################################################################
 

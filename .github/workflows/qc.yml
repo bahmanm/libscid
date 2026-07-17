@@ -24,26 +24,15 @@ jobs:
       - name: Set up libscid toolchain
         uses: ./.github/actions/setup-libscid-toolchain
         with:
+          make: "true"
           llvm: "true"
           clang_format: "true"
 
-      - name: Configure
-        run: >
-          cmake
-          -S .
-          -B _build/format
-          -DCMAKE_C_COMPILER=clang-20
-          -DCMAKE_CXX_COMPILER=clang++-20
-
       - name: Check formatting
-        run: >
-          cmake
-          --build _build/format
-          --target format-check
-          --verbose
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose qc-format
 
-  qc__cppcheck:
-    name: qc__cppcheck
+  qc__static-analysis:
+    name: qc__static-analysis
     runs-on: ubuntu-24.04
 
     defaults:
@@ -56,56 +45,16 @@ jobs:
       - name: Set up libscid toolchain
         uses: ./.github/actions/setup-libscid-toolchain
         with:
+          make: "true"
           llvm: "true"
           cppcheck: "true"
-
-      - name: Configure
-        run: >
-          cmake
-          --preset analysis
-          -DCMAKE_C_COMPILER=clang-20
-          -DCMAKE_CXX_COMPILER=clang++-20
-
-      - name: Run cppcheck
-        run: >
-          cmake
-          --build
-          --preset cppcheck
-          --verbose
-
-  qc__clang-tidy:
-    name: qc__clang-tidy
-    runs-on: ubuntu-24.04
-
-    defaults:
-      run:
-        shell: bash -euo pipefail {0}
-
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Set up libscid toolchain
-        uses: ./.github/actions/setup-libscid-toolchain
-        with:
-          llvm: "true"
           clang_tidy: "true"
 
-      - name: Configure
-        run: >
-          cmake
-          --preset analysis
-          -DCMAKE_C_COMPILER=clang-20
-          -DCMAKE_CXX_COMPILER=clang++-20
+      - name: Run static analysis
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose qc-static-analysis
 
-      - name: Run clang-tidy
-        run: >
-          cmake
-          --build
-          --preset clang-tidy
-          --verbose
-
-  qc__sanitisers:
-    name: qc__sanitisers
+  qc__dynamic-analysis:
+    name: qc__dynamic-analysis
     runs-on: ubuntu-24.04
 
     defaults:
@@ -118,27 +67,8 @@ jobs:
       - name: Set up libscid toolchain
         uses: ./.github/actions/setup-libscid-toolchain
         with:
+          make: "true"
           llvm: "true"
 
-      - name: Configure
-        run: >
-          cmake
-          --preset sanitisers
-          -DCMAKE_C_COMPILER=clang-20
-          -DCMAKE_CXX_COMPILER=clang++-20
-
-      - name: Build
-        run: >
-          cmake
-          --build
-          --preset sanitisers
-          --verbose
-
-      - name: Run tests
-        env:
-          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
-          UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
-        run: >
-          ctest
-          --test-dir _build/sanitisers
-          --output-on-failure
+      - name: Run dynamic analysis
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose qc-dynamic-analysis
