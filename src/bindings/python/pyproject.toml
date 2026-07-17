@@ -20,7 +20,10 @@ classifiers = [
 
 [dependency-groups]
 dev = [
+    "hatchling>=1.27",
+    "pyright>=1.1",
     "pytest>=8.0",
+    "ruff>=0.14",
     "tox>=4.0",
     "tox-uv>=1.0",
 ]
@@ -42,3 +45,30 @@ path = "hatch_build.py"
 [tool.pytest.ini_options]
 testpaths = ["../../../tests/bindings/python"]
 pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 88
+src = ["src", "../../../tests/bindings/python"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+    "SIM",
+]
+
+[tool.pyright]
+include = ["src", "hatch_build.py"]
+exclude = [
+    "**/__pycache__",
+    ".tox",
+    ".venv",
+    "_build",
+    "build",
+    "dist",
+]
+pythonVersion = "3.10"
+typeCheckingMode = "basic"

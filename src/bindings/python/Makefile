@@ -9,25 +9,27 @@ LIBSCID_PYTHON_RELEASE_LIBRARY ?= $(if $(LIBSCID_LIBRARY),$(LIBSCID_LIBRARY),$(L
 LIBSCID_PYTHON_RELEASE_VERIFY_DIR ?= $(libscid.project.dir)_build/release-verify/
 LIBSCID_PYTHON_RELEASE_ARTIFACT_DIR ?= $(LIBSCID_RELEASE_ROOT)
 LIBSCID_PYTHON_RELEASE_VERSION ?= $(LIBSCID_RELEASE_PROJECT_VERSION)
+LIBSCID_UV_FLAGS ?= --system-certs
+libscid.python.qc.paths := src ../../../tests/bindings/python hatch_build.py
 
 ####################################################################################################
 
 configure :
-	$(LIBSCID_UV) sync --group dev
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) sync --group dev
 
 .PHONY : configure
 
 ####################################################################################################
 
 build : configure
-	$(LIBSCID_UV) build
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build
 
 .PHONY : build
 
 ####################################################################################################
 
 test : configure
-	$(LIBSCID_UV) run $(LIBSCID_TOX)
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run $(LIBSCID_TOX)
 
 .PHONY : test
 
@@ -53,7 +55,7 @@ release-native-library :
 
 release : release-native-library
 	rm -rf dist
-	LIBSCID_PYTHON_VERSION=$(LIBSCID_PYTHON_RELEASE_VERSION) $(LIBSCID_UV) build --wheel
+	LIBSCID_PYTHON_VERSION=$(LIBSCID_PYTHON_RELEASE_VERSION) $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build --wheel
 	mkdir -p $(LIBSCID_PYTHON_RELEASE_ARTIFACT_DIR)
 	rm -f $(LIBSCID_PYTHON_RELEASE_ARTIFACT_DIR)/libscid-*.whl
 	cp dist/*.whl $(LIBSCID_PYTHON_RELEASE_ARTIFACT_DIR)
@@ -65,8 +67,8 @@ release : release-native-library
 release-verify : release
 	wheel=$$(ls -1 dist/*.whl | tail -n 1); \
 	rm -rf $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR); \
-	$(LIBSCID_UV) venv $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR); \
-	$(LIBSCID_UV) pip install --python $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR)$(libscid.venv.python) "$$wheel"; \
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) venv $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR); \
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) pip install --python $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR)$(libscid.venv.python) "$$wheel"; \
 	cd $(LIBSCID_ROOT); \
 	env -u LIBSCID_LIBRARY $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR)$(libscid.venv.python) -c \
 	  "import libscid; game = libscid.Game.from_pgn('1. e4 e5 *'); assert game.mainline_move_count == 2"
@@ -76,12 +78,15 @@ release-verify : release
 ####################################################################################################
 
 qc-format :
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff format --check $(libscid.python.qc.paths)
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff check $(libscid.python.qc.paths)
 
 .PHONY : qc-format
 
 ####################################################################################################
 
 qc-static-analysis :
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run pyright
 
 .PHONY : qc-static-analysis
 

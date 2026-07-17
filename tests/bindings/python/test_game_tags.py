@@ -1,6 +1,6 @@
-import libscid
 import pytest
 
+import libscid
 
 TAGGED_PGN = """[Event "Friendly"]
 [Site "Toronto"]

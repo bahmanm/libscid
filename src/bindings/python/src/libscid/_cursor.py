@@ -9,6 +9,10 @@ from ._position import Position
 
 
 class Cursor:
+    _native: NativeLibrary
+    _game: Any
+    _handle: ctypes.c_void_p
+
     def __init__(self):
         raise TypeError("Cursor objects are returned by libscid APIs")
 
@@ -18,56 +22,56 @@ class Cursor:
         native: NativeLibrary,
         game: Any,
         handle: ctypes.c_void_p,
-    ) -> "Cursor":
+    ) -> Cursor:
         cursor = cls.__new__(cls)
         cursor._native = native
         cursor._game = game
         cursor._handle = handle
         return cursor
 
-    def clone(self) -> "Cursor":
+    def clone(self) -> Cursor:
         return self._from_handle(
             self._native,
             self._game,
             self._native.game_clone_cursor(self._game._handle, self._handle),
         )
 
-    def next(self) -> "Cursor | None":
+    def next(self) -> Cursor | None:
         return self._from_optional_handle(self._native.cursor_next(self._handle))
 
-    def previous(self) -> "Cursor | None":
+    def previous(self) -> Cursor | None:
         return self._from_optional_handle(self._native.cursor_previous(self._handle))
 
-    def to_game_start(self) -> "Cursor":
+    def to_game_start(self) -> Cursor:
         return self._from_handle(
             self._native,
             self._game,
             self._native.cursor_to_game_start(self._handle),
         )
 
-    def to_game_end(self) -> "Cursor":
+    def to_game_end(self) -> Cursor:
         return self._from_handle(
             self._native,
             self._game,
             self._native.cursor_to_game_end(self._handle),
         )
 
-    def to_main_line_offset(self, offset: int) -> "Cursor | None":
+    def to_main_line_offset(self, offset: int) -> Cursor | None:
         return self._from_optional_handle(
             self._native.cursor_to_main_line_offset(self._handle, offset)
         )
 
-    def enter_variation(self, index: int) -> "Cursor | None":
+    def enter_variation(self, index: int) -> Cursor | None:
         return self._from_optional_handle(
             self._native.cursor_enter_variation(self._handle, index)
         )
 
-    def exit_variation(self) -> "Cursor | None":
+    def exit_variation(self) -> Cursor | None:
         return self._from_optional_handle(
             self._native.cursor_exit_variation(self._handle)
         )
 
-    def append_move(self, san: str | bytes) -> "Cursor":
+    def append_move(self, san: str | bytes) -> Cursor:
         self._require_line_end("append_move")
         return self._from_handle(
             self._native,
@@ -75,7 +79,7 @@ class Cursor:
             self._native.cursor_append_move(self._game._handle, self._handle, san),
         )
 
-    def append_game(self, source_game: Any) -> "Cursor":
+    def append_game(self, source_game: Any) -> Cursor:
         self._require_line_end("append_game")
         return self._from_handle(
             self._native,
@@ -85,49 +89,47 @@ class Cursor:
             ),
         )
 
-    def add_variation(
-        self, preceding_comment: str | bytes = ""
-    ) -> "Cursor | None":
+    def add_variation(self, preceding_comment: str | bytes = "") -> Cursor | None:
         return self._from_optional_handle(
             self._native.cursor_add_variation(
                 self._game._handle, self._handle, preceding_comment
             )
         )
 
-    def remove_variation(self) -> "Cursor | None":
+    def remove_variation(self) -> Cursor | None:
         return self._from_optional_handle(
             self._native.cursor_remove_variation(self._game._handle, self._handle)
         )
 
-    def promote_variation_to_first(self) -> "Cursor | None":
+    def promote_variation_to_first(self) -> Cursor | None:
         return self._from_optional_handle(
             self._native.cursor_promote_variation_to_first(
                 self._game._handle, self._handle
             )
         )
 
-    def promote_variation_to_mainline(self) -> "Cursor | None":
+    def promote_variation_to_mainline(self) -> Cursor | None:
         return self._from_optional_handle(
             self._native.cursor_promote_variation_to_mainline(
                 self._game._handle, self._handle
             )
         )
 
-    def truncate(self) -> "Cursor":
+    def truncate(self) -> Cursor:
         return self._from_handle(
             self._native,
             self._game,
             self._native.cursor_truncate(self._game._handle, self._handle),
         )
 
-    def truncate_before(self) -> "Cursor":
+    def truncate_before(self) -> Cursor:
         return self._from_handle(
             self._native,
             self._game,
             self._native.cursor_truncate_before(self._game._handle, self._handle),
         )
 
-    def _from_optional_handle(self, handle: ctypes.c_void_p | None) -> "Cursor | None":
+    def _from_optional_handle(self, handle: ctypes.c_void_p | None) -> Cursor | None:
         if handle is None:
             return None
         return self._from_handle(self._native, self._game, handle)

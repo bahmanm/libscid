@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 
-from ._base import NativeLibraryBase
 from ._cursors import NativeCursorMixin
 from ._errors import LibScidError
 from ._games import NativeGameMixin
@@ -13,7 +12,6 @@ class NativeLibrary(
     NativeCursorMixin,
     NativeGameMixin,
     NativePrimitiveMixin,
-    NativeLibraryBase,
 ):
     pass
 

@@ -14,8 +14,17 @@ class ScidMoveSpec(ctypes.Structure):
 
 
 class PgnOptionsProtocol(Protocol):
-    symbolic_nags: bool
-    supplemental_tags: bool
-    comments: bool
-    variations: bool
-    line_width: int | None
+    @property
+    def symbolic_nags(self) -> bool: ...
+
+    @property
+    def supplemental_tags(self) -> bool: ...
+
+    @property
+    def comments(self) -> bool: ...
+
+    @property
+    def variations(self) -> bool: ...
+
+    @property
+    def line_width(self) -> int | None: ...

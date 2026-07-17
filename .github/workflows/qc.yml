@@ -21,10 +21,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
       - name: Set up libscid toolchain
         uses: ./.github/actions/setup-libscid-toolchain
         with:
           make: "true"
+          uv: "true"
           llvm: "true"
           clang_format: "true"
 
@@ -42,10 +47,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
       - name: Set up libscid toolchain
         uses: ./.github/actions/setup-libscid-toolchain
         with:
           make: "true"
+          uv: "true"
           llvm: "true"
           cppcheck: "true"
           clang_tidy: "true"

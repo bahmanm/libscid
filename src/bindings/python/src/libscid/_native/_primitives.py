@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import ctypes
 
+from ._base import NativeLibraryBase
 from ._text import encode
 
 
-class NativePrimitiveMixin:
+class NativePrimitiveMixin(NativeLibraryBase):
     def create_position_from_fen(self, fen: str | bytes) -> ctypes.c_void_p:
         position = ctypes.c_void_p()
         self._check(

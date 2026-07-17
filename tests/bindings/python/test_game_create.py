@@ -22,9 +22,7 @@ def test_game_constructor_can_create_blank_game_from_position():
 
 
 def test_game_constructor_can_create_blank_game_from_fen_position():
-    position = libscid.Position.from_fen(
-        "8/K7/8/8/7k/8/8/8 w - - 45 25"
-    )
+    position = libscid.Position.from_fen("8/K7/8/8/7k/8/8/8 w - - 45 25")
 
     game = libscid.Game(position=position)
 

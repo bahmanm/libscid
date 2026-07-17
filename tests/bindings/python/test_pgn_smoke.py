@@ -1,5 +1,6 @@
-import libscid
 import pytest
+
+import libscid
 
 
 def _parse_invalid_pgn_error() -> libscid.LibScidError:
@@ -31,9 +32,7 @@ def test_parse_simple_pgn_can_export_result_marker():
 
 
 def test_parse_pgn_can_start_from_position():
-    position = libscid.Position.from_fen(
-        "8/K7/8/8/7k/8/8/8 w - - 45 25"
-    )
+    position = libscid.Position.from_fen("8/K7/8/8/7k/8/8/8 w - - 45 25")
 
     game = libscid.Game.from_pgn("25. Kb7 *", position=position)
 

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import ctypes
 
+from ._base import NativeLibraryBase
 from ._constants import SCID_GAME_MERGE_MOVES_APPEND
 from ._text import encode
 from ._types import ScidMoveSpec
 
 
-class NativeCursorMixin:
+class NativeCursorMixin(NativeLibraryBase):
     def cursor_ply(self, cursor: ctypes.c_void_p) -> int:
         return self._cursor_size_result("scid_game_cursor_ply_get", cursor)
 
@@ -41,9 +42,7 @@ class NativeCursorMixin:
     def cursor_to_main_line_offset(
         self, cursor: ctypes.c_void_p, offset: int
     ) -> ctypes.c_void_p | None:
-        return self._cursor_navigation_result(
-            "scid_game_cursor_to_ply", cursor, offset
-        )
+        return self._cursor_navigation_result("scid_game_cursor_to_ply", cursor, offset)
 
     def cursor_enter_variation(
         self, cursor: ctypes.c_void_p, index: int
@@ -53,9 +52,7 @@ class NativeCursorMixin:
         )
 
     def cursor_exit_variation(self, cursor: ctypes.c_void_p) -> ctypes.c_void_p | None:
-        return self._cursor_navigation_result(
-            "scid_game_cursor_variation_exit", cursor
-        )
+        return self._cursor_navigation_result("scid_game_cursor_variation_exit", cursor)
 
     def cursor_append_move(
         self, game: ctypes.c_void_p, cursor: ctypes.c_void_p, san: str | bytes
@@ -211,9 +208,7 @@ class NativeCursorMixin:
         return self._string_result("scid_game_cursor_next_move_san_get", cursor)
 
     def cursor_previous_move_uci(self, cursor: ctypes.c_void_p) -> str:
-        return self._cursor_move_uci(
-            "scid_game_cursor_previous_movespec_get", cursor
-        )
+        return self._cursor_move_uci("scid_game_cursor_previous_movespec_get", cursor)
 
     def cursor_next_move_uci(self, cursor: ctypes.c_void_p) -> str:
         return self._cursor_move_uci("scid_game_cursor_next_movespec_get", cursor)

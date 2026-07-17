@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import ctypes
 
+from ._base import NativeLibraryBase
 from ._constants import SCID_ERROR_BUFFER_FULL, SCID_OK, STANDARD_FEN
 from ._errors import LibScidError
 from ._text import decode_buffer, encode
 from ._types import PgnOptionsProtocol
 
 
-class NativeGameMixin:
+class NativeGameMixin(NativeLibraryBase):
     def create_blank_game(
         self, position: ctypes.c_void_p | None = None
     ) -> ctypes.c_void_p:
@@ -31,9 +32,7 @@ class NativeGameMixin:
         try:
             self._check(
                 "scid_game_create_blank",
-                self._lib.scid_game_create_blank(
-                    standard_position, ctypes.byref(game)
-                ),
+                self._lib.scid_game_create_blank(standard_position, ctypes.byref(game)),
             )
             return game
         finally:
@@ -81,9 +80,7 @@ class NativeGameMixin:
         count = ctypes.c_size_t()
         self._check(
             "scid_game_mainline_halfmove_count_get",
-            self._lib.scid_game_mainline_halfmove_count_get(
-                game, ctypes.byref(count)
-            ),
+            self._lib.scid_game_mainline_halfmove_count_get(game, ctypes.byref(count)),
         )
         return count.value
 
@@ -178,17 +175,14 @@ class NativeGameMixin:
 
     def game_get_tags(self, game: ctypes.c_void_p) -> tuple[tuple[str, str], ...]:
         return tuple(
-            self.game_tag_at(game, index)
-            for index in range(self.game_tag_count(game))
+            self.game_tag_at(game, index) for index in range(self.game_tag_count(game))
         )
 
     def game_remove_tag(self, game: ctypes.c_void_p, name: str | bytes) -> bool:
         removed = ctypes.c_int()
         self._check(
             "scid_game_tag_remove",
-            self._lib.scid_game_tag_remove(
-                game, encode(name), ctypes.byref(removed)
-            ),
+            self._lib.scid_game_tag_remove(game, encode(name), ctypes.byref(removed)),
         )
         return bool(removed.value)
 
