@@ -34,7 +34,7 @@ jobs:
           clang_format: "true"
 
       - name: Check formatting
-        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose qc-format
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose libscid.qc-format
 
   qc__static-analysis:
     name: qc__static-analysis
@@ -61,7 +61,7 @@ jobs:
           clang_tidy: "true"
 
       - name: Run static analysis
-        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose qc-static-analysis
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose libscid.qc-static-analysis
 
   qc__dynamic-analysis:
     name: qc__dynamic-analysis
@@ -81,4 +81,4 @@ jobs:
           llvm: "true"
 
       - name: Run dynamic analysis
-        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose qc-dynamic-analysis
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose libscid.qc-dynamic-analysis

@@ -1,169 +1,110 @@
-export LIBSCID_ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+.DEFAULT_GOAL := libscid.test
 
-include $(LIBSCID_ROOT)etc/make/common.mk
-
-####################################################################################################
-
-libscid.project.libscid := $(LIBSCID_ROOT)src/libscid/
-libscid.project.internal := $(LIBSCID_ROOT)src/internal/
-libscid.project.bindings.python := $(LIBSCID_ROOT)src/bindings/python/
-
-libscid.build.dir ?= $(libscid.project.libscid)_build/
-libscid.internal.build.dir ?= $(libscid.project.internal)_build/
-libscid.default.build.dir ?= $(libscid.project.libscid)_build/default/
-libscid.default.internal.build.dir ?= $(libscid.project.internal)_build/default/
-libscid.library := $(libscid.build.dir)$(libscid.library.name)
-libscid.release.library := $(libscid.project.libscid)_build/release/$(libscid.library.name)
-libscid.example.pgn.roundtrip := $(LIBSCID_ROOT)examples/libscid/000-python-bindings/pgn_roundtrip.py
+libscid.__component.names := internal library python
+libscid.__component.srcdir := \
+  $(ROOT)src/internal \
+  $(ROOT)src/libscid \
+  $(ROOT)src/bindings/python
+libscid.__qc.stages := format static-analysis dynamic-analysis
+libscid.__example.pgn.roundtrip := $(ROOT)examples/libscid/000-python-bindings/pgn_roundtrip.py
 
 ####################################################################################################
 
-configure :
-	$(MAKE) -C $(libscid.project.internal) configure LIBSCID_BUILD_DIR=$(libscid.internal.build.dir)
-	$(MAKE) -C $(libscid.project.libscid) configure LIBSCID_BUILD_DIR=$(libscid.build.dir)
-	$(MAKE) -C $(libscid.project.bindings.python) configure
-
-.PHONY : configure
+include $(ROOT)etc/make/common.mk
+include $(libscid.__component.srcdir:%=%/Makefile)
 
 ####################################################################################################
 
-build :
-	$(MAKE) -C $(libscid.project.internal) build LIBSCID_BUILD_DIR=$(libscid.internal.build.dir)
-	$(MAKE) -C $(libscid.project.libscid) build LIBSCID_BUILD_DIR=$(libscid.build.dir)
-	$(MAKE) -C $(libscid.project.bindings.python) build
+libscid.python.test : libscid.library.build
+libscid.python.test : export LIBSCID_LIBRARY := $(libscid.library.artifact)
 
-.PHONY : build
-
-####################################################################################################
-
-test :
-	$(MAKE) -C $(libscid.project.internal) test LIBSCID_BUILD_DIR=$(libscid.internal.build.dir)
-	$(MAKE) -C $(libscid.project.libscid) test LIBSCID_BUILD_DIR=$(libscid.build.dir)
-	$(MAKE) -C $(libscid.project.bindings.python) test LIBSCID_LIBRARY=$(libscid.library)
-
-.PHONY : test
+libscid.python.release : libscid.library.release-library
+libscid.python.release : export LIBSCID_LIBRARY := $(libscid.library.release.artifact)
 
 ####################################################################################################
 
-clean :
-	$(MAKE) -C $(libscid.project.internal) clean LIBSCID_BUILD_DIR=$(libscid.internal.build.dir)
-	$(MAKE) -C $(libscid.project.libscid) clean LIBSCID_BUILD_DIR=$(libscid.build.dir)
-	$(MAKE) -C $(libscid.project.bindings.python) clean
+libscid.configure : $(libscid.__component.names:%=libscid.%.configure)
+
+.PHONY : libscid.configure
+
+####################################################################################################
+
+libscid.build : $(libscid.__component.names:%=libscid.%.build)
+
+.PHONY : libscid.build
+
+####################################################################################################
+
+libscid.test : $(libscid.__component.names:%=libscid.%.test)
+
+.PHONY : libscid.test
+
+####################################################################################################
+
+libscid.clean : $(libscid.__component.names:%=libscid.%.clean)
 	-rm -rf $(LIBSCID_RELEASE_ROOT)
 
-.PHONY : clean
+.PHONY : libscid.clean
 
 ####################################################################################################
 
-release-libscid :
-	$(MAKE) -C $(libscid.project.libscid) release
+libscid.release-library : libscid.library.release-library
 
-.PHONY : release-libscid
-
-####################################################################################################
-
-release-python :
-	$(MAKE) -C $(libscid.project.bindings.python) release LIBSCID_LIBRARY=$(libscid.release.library)
-
-.PHONY : release-python
+.PHONY : libscid.release-library
 
 ####################################################################################################
 
-release : release-libscid release-python
+libscid.release-package : libscid.library.release-package
 
-.PHONY : release
-
-####################################################################################################
-
-release-verify :
-	$(MAKE) -C $(libscid.project.bindings.python) release-verify LIBSCID_LIBRARY=$(libscid.release.library)
-
-.PHONY : release-verify
+.PHONY : libscid.release-package
 
 ####################################################################################################
 
-ci : ci-shared
+libscid.release-libscid : libscid.library.release
 
-.PHONY : ci
-
-####################################################################################################
-
-test-default :
-	$(MAKE) -C $(libscid.project.internal) test \
-	  LIBSCID_BUILD_DIR=$(libscid.default.internal.build.dir) \
-	  LIBSCID_CMAKE_SHARED_LIBS=OFF
-	$(MAKE) -C $(libscid.project.libscid) test \
-	  LIBSCID_BUILD_DIR=$(libscid.default.build.dir) \
-	  LIBSCID_CMAKE_SHARED_LIBS=OFF
-
-.PHONY : test-default
+.PHONY : libscid.release-libscid
 
 ####################################################################################################
 
-check-default-compilation-database : test-default
-	test -s $(libscid.default.internal.build.dir)compile_commands.json
-	test -s $(libscid.default.build.dir)compile_commands.json
+libscid.release-python : libscid.python.release
 
-.PHONY : check-default-compilation-database
+.PHONY : libscid.release-python
 
 ####################################################################################################
 
-check-shared-compilation-database : test
-	test -s $(libscid.internal.build.dir)compile_commands.json
-	test -s $(libscid.build.dir)compile_commands.json
+libscid.release : $(libscid.__component.names:%=libscid.%.release)
 
-.PHONY : check-shared-compilation-database
+.PHONY : libscid.release
 
 ####################################################################################################
 
-test-examples : test
-	$(LIBSCID_PYTHON) $(libscid.example.pgn.roundtrip) --library $(libscid.library)
+libscid.test-examples : libscid.test
+	$(LIBSCID_PYTHON) $(libscid.__example.pgn.roundtrip) --library $(libscid.library.artifact)
 
-.PHONY : test-examples
-
-####################################################################################################
-
-ci-default : test-default check-default-compilation-database
-
-.PHONY : ci-default
+.PHONY : libscid.test-examples
 
 ####################################################################################################
 
-ci-shared : test check-shared-compilation-database test-examples
+libscid.qc-format : $(libscid.__component.names:%=libscid.%.qc-format)
 
-.PHONY : ci-shared
-
-####################################################################################################
-
-qc-format :
-	$(MAKE) -C $(libscid.project.internal) qc-format
-	$(MAKE) -C $(libscid.project.libscid) qc-format
-	$(MAKE) -C $(libscid.project.bindings.python) qc-format
-
-.PHONY : qc-format
+.PHONY : libscid.qc-format
 
 ####################################################################################################
 
-qc-static-analysis :
-	$(MAKE) -C $(libscid.project.internal) qc-static-analysis
-	$(MAKE) -C $(libscid.project.libscid) qc-static-analysis
-	$(MAKE) -C $(libscid.project.bindings.python) qc-static-analysis
+libscid.qc-static-analysis : $(libscid.__component.names:%=libscid.%.qc-static-analysis)
 
-.PHONY : qc-static-analysis
+.PHONY : libscid.qc-static-analysis
 
 ####################################################################################################
 
-qc-dynamic-analysis :
-	$(MAKE) -C $(libscid.project.internal) qc-dynamic-analysis
-	$(MAKE) -C $(libscid.project.libscid) qc-dynamic-analysis
-	$(MAKE) -C $(libscid.project.bindings.python) qc-dynamic-analysis
+libscid.qc-dynamic-analysis : $(libscid.__component.names:%=libscid.%.qc-dynamic-analysis)
 
-.PHONY : qc-dynamic-analysis
+.PHONY : libscid.qc-dynamic-analysis
 
 ####################################################################################################
 
-qc-all : qc-format qc-static-analysis qc-dynamic-analysis
+libscid.qc-all : $(libscid.__qc.stages:%=libscid.qc-%)
 
-.PHONY : qc-all
+.PHONY : libscid.qc-all
 
 ####################################################################################################

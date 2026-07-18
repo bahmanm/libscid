@@ -1,105 +1,124 @@
-libscid.project.dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-export LIBSCID_ROOT ?= $(abspath $(libscid.project.dir)../../..)/
+.DEFAULT_GOAL := libscid.python.test
 
-include $(LIBSCID_ROOT)etc/make/common.mk
+libscid.python.__makefile := $(lastword $(MAKEFILE_LIST))
+libscid.python.__project.dir := $(dir $(abspath $(libscid.python.__makefile)))
+export ROOT ?= $(abspath $(libscid.python.__project.dir)../../..)/
 
-libscid.python.native.dir := $(libscid.project.dir)src/libscid/_native/
-libscid.python.bundled.library := $(libscid.python.native.dir)$(libscid.library.name)
-LIBSCID_PYTHON_RELEASE_LIBRARY ?= $(if $(LIBSCID_LIBRARY),$(LIBSCID_LIBRARY),$(LIBSCID_ROOT)src/libscid/_build/release/$(libscid.library.name))
-LIBSCID_PYTHON_RELEASE_VERIFY_DIR ?= $(libscid.project.dir)_build/release-verify/
-LIBSCID_PYTHON_RELEASE_ARTIFACT_DIR ?= $(LIBSCID_RELEASE_ROOT)
-LIBSCID_PYTHON_RELEASE_VERSION ?= $(LIBSCID_RELEASE_PROJECT_VERSION)
+include $(ROOT)etc/make/common.mk
+
+libscid.python.__native.dir := $(libscid.python.__project.dir)src/libscid/_native/
+libscid.python.__bundled.library := $(libscid.python.__native.dir)$(libscid.__library.name)
+libscid.python.__release.library ?= $(if $(LIBSCID_LIBRARY),$(LIBSCID_LIBRARY),$(ROOT)src/libscid/_build/release/$(libscid.__library.name))
+libscid.python.__release.smoke-test.dir ?= $(libscid.python.__project.dir)_build/release-smoke-test/
+libscid.python.__release.artifact.dir ?= $(LIBSCID_RELEASE_ROOT)
+libscid.python.__release.version ?= $(LIBSCID_RELEASE_PROJECT_VERSION)
 LIBSCID_UV_FLAGS ?= --system-certs
-libscid.python.qc.paths := src ../../../tests/bindings/python hatch_build.py
+libscid.python.__qc.paths := src ../../../tests/bindings/python hatch_build.py
 
 ####################################################################################################
 
-configure :
-	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) sync --group dev
+libscid.python.configure :
+	cd $(libscid.python.__project.dir) \
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) sync --group dev
 
-.PHONY : configure
-
-####################################################################################################
-
-build : configure
-	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build
-
-.PHONY : build
+.PHONY : libscid.python.configure
 
 ####################################################################################################
 
-test : configure
-	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run $(LIBSCID_TOX)
+libscid.python.build : libscid.python.configure
+	cd $(libscid.python.__project.dir) \
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build
 
-.PHONY : test
-
-####################################################################################################
-
-clean :
-	-rm -rf .tox .venv build dist *.egg-info
-	-rm -f src/libscid/_native/*.dll src/libscid/_native/*.dylib src/libscid/_native/*.so
-
-.PHONY : clean
+.PHONY : libscid.python.build
 
 ####################################################################################################
 
-release-native-library :
-	$(if $(LIBSCID_LIBRARY),,$(MAKE) -C $(LIBSCID_ROOT)src/libscid release-library)
-	test -f $(LIBSCID_PYTHON_RELEASE_LIBRARY)
-	mkdir -p $(libscid.python.native.dir)
-	cp $(LIBSCID_PYTHON_RELEASE_LIBRARY) $(libscid.python.bundled.library)
+libscid.python.test : libscid.python.configure
+	cd $(libscid.python.__project.dir) \
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run $(LIBSCID_TOX)
 
-.PHONY : release-native-library
+.PHONY : libscid.python.test
 
 ####################################################################################################
 
-release : release-native-library
-	rm -rf dist
-	LIBSCID_PYTHON_VERSION=$(LIBSCID_PYTHON_RELEASE_VERSION) $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build --wheel
-	mkdir -p $(LIBSCID_PYTHON_RELEASE_ARTIFACT_DIR)
-	rm -f $(LIBSCID_PYTHON_RELEASE_ARTIFACT_DIR)/libscid-*.whl
-	cp dist/*.whl $(LIBSCID_PYTHON_RELEASE_ARTIFACT_DIR)
+libscid.python.clean :
+	-rm -rf $(libscid.python.__project.dir).tox $(libscid.python.__project.dir).venv
+	-rm -rf $(libscid.python.__project.dir)build $(libscid.python.__project.dir)dist
+	-rm -rf $(libscid.python.__project.dir)*.egg-info
+	-rm -f $(libscid.python.__native.dir)*.dll $(libscid.python.__native.dir)*.dylib $(libscid.python.__native.dir)*.so
 
-.PHONY : release
+.PHONY : libscid.python.clean
 
 ####################################################################################################
 
-release-verify : release
-	wheel=$$(ls -1 dist/*.whl | tail -n 1); \
-	rm -rf $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR); \
-	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) venv $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR); \
-	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) pip install --python $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR)$(libscid.venv.python) "$$wheel"; \
-	cd $(LIBSCID_ROOT); \
-	env -u LIBSCID_LIBRARY $(LIBSCID_PYTHON_RELEASE_VERIFY_DIR)$(libscid.venv.python) -c \
+libscid.python.__release-native-library : $(libscid.python.__release.library)
+	mkdir -p $(libscid.python.__native.dir)
+	cp $(libscid.python.__release.library) $(libscid.python.__bundled.library)
+
+.PHONY : libscid.python.__release-native-library
+
+####################################################################################################
+
+libscid.python.__release-wheel : libscid.python.__release-native-library
+	cd $(libscid.python.__project.dir) \
+	&& rm -rf dist \
+	&& LIBSCID_PYTHON_VERSION=$(libscid.python.__release.version) $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build --wheel
+	mkdir -p $(libscid.python.__release.artifact.dir)
+	rm -f $(libscid.python.__release.artifact.dir)/libscid-*.whl
+	cp $(libscid.python.__project.dir)dist/*.whl $(libscid.python.__release.artifact.dir)
+
+.PHONY : libscid.python.__release-wheel
+
+####################################################################################################
+
+libscid.python.__release-smoke-test : libscid.python.__release-wheel
+	shopt -s nullglob; \
+	wheels=( "$(libscid.python.__project.dir)"dist/*.whl ); \
+	[[ $${#wheels[@]} -gt 0 ]]; \
+	wheel="$${wheels[$$(($${#wheels[@]} - 1))]}"; \
+	rm -rf $(libscid.python.__release.smoke-test.dir); \
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) venv $(libscid.python.__release.smoke-test.dir); \
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) pip install --python $(libscid.python.__release.smoke-test.dir)$(libscid.__venv.python) "$$wheel"; \
+	cd $(ROOT); \
+	unset LIBSCID_LIBRARY; \
+	$(libscid.python.__release.smoke-test.dir)$(libscid.__venv.python) -c \
 	  "import libscid; game = libscid.Game.from_pgn('1. e4 e5 *'); assert game.mainline_move_count == 2"
 
-.PHONY : release-verify
+.PHONY : libscid.python.__release-smoke-test
 
 ####################################################################################################
 
-qc-format :
-	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff format --check $(libscid.python.qc.paths)
-	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff check $(libscid.python.qc.paths)
+libscid.python.release : libscid.python.__release-wheel libscid.python.__release-smoke-test
 
-.PHONY : qc-format
+.PHONY : libscid.python.release
 
 ####################################################################################################
 
-qc-static-analysis :
-	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run pyright
+libscid.python.qc-format :
+	cd $(libscid.python.__project.dir) \
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff format --check $(libscid.python.__qc.paths) \
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff check $(libscid.python.__qc.paths)
 
-.PHONY : qc-static-analysis
-
-####################################################################################################
-
-qc-dynamic-analysis :
-
-.PHONY : qc-dynamic-analysis
+.PHONY : libscid.python.qc-format
 
 ####################################################################################################
 
-qc-all : qc-format qc-static-analysis qc-dynamic-analysis
+libscid.python.qc-static-analysis :
+	cd $(libscid.python.__project.dir) \
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run pyright
 
-.PHONY : qc-all
+.PHONY : libscid.python.qc-static-analysis
+
+####################################################################################################
+
+libscid.python.qc-dynamic-analysis :
+
+.PHONY : libscid.python.qc-dynamic-analysis
+
+####################################################################################################
+
+libscid.python.qc-all : libscid.python.qc-format libscid.python.qc-static-analysis libscid.python.qc-dynamic-analysis
+
+.PHONY : libscid.python.qc-all
 
 ####################################################################################################

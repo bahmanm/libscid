@@ -64,52 +64,7 @@ jobs:
           echo "LIBSCID_RELEASE_PLATFORM=${{ matrix.asset_label }}" >> "$GITHUB_ENV"
 
       - name: Release
-        run: make release
-
-      - name: Extract package
-        run: |
-          archives=( _release/*.tar.gz )
-          if [[ ${#archives[@]} -ne 1 ]]; then
-            echo "Expected exactly one .tar.gz in _release, found ${#archives[@]}." >&2
-            ls -la _release || true
-            exit 1
-          fi
-
-          archive="${archives[0]}"
-          extract_root="${RUNNER_TEMP}/libscid-package"
-          install_root="$extract_root/install"
-
-          rm -rf "$extract_root"
-          mkdir -p "$install_root"
-          tar -xzf "$archive" -C "$install_root" --strip-components=1
-
-          echo "PACKAGE_INSTALL_ROOT=$install_root" >> "$GITHUB_ENV"
-
-      - name: Test examples against package
-        run: |
-          examples_build_dir="${RUNNER_TEMP}/libscid-package-examples"
-
-          rm -rf "$examples_build_dir"
-          cmake_args=(
-            -S "$PACKAGE_INSTALL_ROOT/share/doc/libscid/examples"
-            -B "$examples_build_dir"
-            "-DCMAKE_PREFIX_PATH=$PACKAGE_INSTALL_ROOT"
-            "-DCMAKE_C_COMPILER=$LIBSCID_C_COMPILER"
-            "-DCMAKE_CXX_COMPILER=$LIBSCID_CXX_COMPILER"
-          )
-
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            cmake_args+=("-DCMAKE_OSX_SYSROOT=$SDKROOT")
-          fi
-
-          cmake "${cmake_args[@]}"
-          cmake --build "$examples_build_dir" --verbose
-          if [[ "$RUNNER_OS" == "macOS" ]]; then
-            export DYLD_LIBRARY_PATH="$PACKAGE_INSTALL_ROOT/lib:${DYLD_LIBRARY_PATH:-}"
-          else
-            export LD_LIBRARY_PATH="$PACKAGE_INSTALL_ROOT/lib:${LD_LIBRARY_PATH:-}"
-          fi
-          ctest --test-dir "$examples_build_dir" --output-on-failure
+        run: make libscid.release
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v7
@@ -166,43 +121,7 @@ jobs:
           "LIBSCID_RELEASE_PLATFORM=windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Release
-        run: make release
-
-      - name: Extract package
-        run: |
-          $archives = Get-ChildItem -Path "_release" -Filter "*.tar.gz"
-          if ($archives.Count -ne 1) {
-            Write-Error "Expected exactly one .tar.gz in _release, found $($archives.Count)."
-            Get-ChildItem -Path "_release" | Format-List
-            exit 1
-          }
-
-          $archive = $archives[0].FullName
-          $extractRoot = Join-Path $env:RUNNER_TEMP "libscid-package"
-          $installRoot = Join-Path $extractRoot "install"
-
-          Remove-Item -Recurse -Force -ErrorAction Ignore $extractRoot
-          New-Item -ItemType Directory -Force -Path $installRoot | Out-Null
-          tar -xzf $archive -C $installRoot --strip-components=1
-
-          "PACKAGE_INSTALL_ROOT=$installRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: Test examples against package
-        run: |
-          $examplesBuildDir = Join-Path $env:RUNNER_TEMP "libscid-package-examples"
-          $examplesSourceDir = Join-Path $env:PACKAGE_INSTALL_ROOT "share/doc/libscid/examples"
-
-          Remove-Item -Recurse -Force -ErrorAction Ignore $examplesBuildDir
-          cmake `
-            -S $examplesSourceDir `
-            -B $examplesBuildDir `
-            -G Ninja `
-            "-DCMAKE_PREFIX_PATH=$env:PACKAGE_INSTALL_ROOT" `
-            "-DCMAKE_C_COMPILER=$env:LIBSCID_C_COMPILER" `
-            "-DCMAKE_CXX_COMPILER=$env:LIBSCID_CXX_COMPILER"
-          cmake --build $examplesBuildDir --verbose
-          $env:Path = "$env:PACKAGE_INSTALL_ROOT\bin;$env:Path"
-          ctest --test-dir $examplesBuildDir --output-on-failure
+        run: make libscid.release
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v7
