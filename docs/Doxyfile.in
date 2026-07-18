@@ -15,7 +15,7 @@ INPUT                  = "@LIBSCID_SOURCE_ROOT@/docs/index.md" \
                          "@LIBSCID_SOURCE_ROOT@/docs/quick-start.md" \
                          "@LIBSCID_SOURCE_ROOT@/docs/installation.md" \
                          "@LIBSCID_SOURCE_ROOT@/docs/examples-recipes.md" \
-                         "@LIBSCID_SOURCE_ROOT@/src/libscid/include/scid"
+                         "@LIBSCID_SOURCE_ROOT@/capi/include/scid"
 FILE_PATTERNS          = *.h \
                          *.md \
                          *.dox

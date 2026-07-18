@@ -2,7 +2,7 @@
 
 libscid.internal.__makefile := $(lastword $(MAKEFILE_LIST))
 libscid.internal.__project.dir := $(dir $(abspath $(libscid.internal.__makefile)))
-export ROOT ?= $(abspath $(libscid.internal.__project.dir)../..)/
+export ROOT ?= $(abspath $(libscid.internal.__project.dir)..)/
 
 include $(ROOT)etc/make/common.mk
 

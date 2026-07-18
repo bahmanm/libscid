@@ -101,7 +101,7 @@ if( BUILD_TESTING )
     file(
         GLOB SCID_CORE_TEST_SOURCES
         CONFIGURE_DEPENDS
-        "${LIBSCID_SOURCE_ROOT}/tests/internal/core/cxx/*.cpp" )
+        "${LIBSCID_SOURCE_ROOT}/internal/tests/core/cxx/*.cpp" )
     add_executable(
         scid_tests_core_cpp
         ${SCID_CORE_TEST_SOURCES} )

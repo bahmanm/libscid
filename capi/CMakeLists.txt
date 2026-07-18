@@ -14,7 +14,7 @@ project(
 include( "${LIBSCID_SOURCE_ROOT}/etc/cmake/project.cmake" )
 
 if( NOT TARGET LibScidInternal::Core )
-    add_subdirectory( "${LIBSCID_SOURCE_ROOT}/src/internal" "${CMAKE_CURRENT_BINARY_DIR}/_deps/libscid-internal" )
+    add_subdirectory( "${LIBSCID_SOURCE_ROOT}/internal" "${CMAKE_CURRENT_BINARY_DIR}/_deps/libscid-internal" )
 endif()
 
 set(
@@ -93,18 +93,18 @@ endif()
 if( BUILD_TESTING )
     add_executable(
         scid_tests_c
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_cursor.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_cursor_mutation.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_database.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_eco.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_game.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_libscid.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_movespec.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_nag.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_piece.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_position.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_pgn_contract.c"
-        "${LIBSCID_SOURCE_ROOT}/tests/libscid/c/test_square.c" )
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_cursor.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_cursor_mutation.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_eco.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_game.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_libscid.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_movespec.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_nag.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_piece.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_position.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_pgn_contract.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_square.c" )
     target_link_libraries(
         scid_tests_c
         PRIVATE LibScid::LibScid )
@@ -118,7 +118,7 @@ if( BUILD_TESTING )
         COMMAND scid_tests_c )
     set_tests_properties(
         libscid_c_test
-        PROPERTIES LABELS "c;libscid" )
+        PROPERTIES LABELS "c;capi" )
 endif()
 
 if( LIBSCID_BUILD_DOCS )

@@ -46,7 +46,7 @@ jobs:
         run: make --version
 
       - name: Run default CMake component tests
-        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose libscid.internal.default.test libscid.library.default.test
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose libscid.internal.default.test libscid.capi.default.test
 
   ci__shared:
     name: ci__${{ matrix.check_label }}-shared

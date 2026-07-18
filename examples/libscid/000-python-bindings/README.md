@@ -8,8 +8,7 @@ the default PGN options.
 Build the shared library first:
 
 ```sh
-cmake -S . -B _build-shared -DBUILD_SHARED_LIBS=ON
-cmake --build _build-shared
+make libscid.capi.build
 ```
 
 Then run:
