@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+append_shell_words() {
+  local -n target="$1"
+  local words="$2"
+
+  [[ -n "$words" ]] || return 0
+
+  local -a parsed=()
+  eval "parsed=( $words )"
+  target+=( "${parsed[@]}" )
+}
+
+: "${ROOT:?}"
+: "${LIBSCID_CAPI_DIR:?}"
+: "${LIBSCID_CAPI_RELEASE_PACKAGE_BUILD_DIR:?}"
+: "${LIBSCID_CAPI_RELEASE_BUILD_DOCS:?}"
+: "${LIBSCID_CAPI_RELEASE_ARTEFACT_DIR:?}"
+: "${LIBSCID_CMAKE:=cmake}"
+: "${LIBSCID_CPACK:=cpack}"
+: "${LIBSCID_RELEASE_PROJECT_VERSION:?}"
+: "${LIBSCID_RELEASE_VERSION:?}"
+: "${LIBSCID_RELEASE_PACKAGE_VERSION_LABEL:?}"
+: "${LIBSCID_RELEASE_PLATFORM:?}"
+
+cmake_args=(
+  -S "$LIBSCID_CAPI_DIR"
+  -B "$LIBSCID_CAPI_RELEASE_PACKAGE_BUILD_DIR"
+)
+
+[[ -z "${LIBSCID_CMAKE_GENERATOR:-}" ]] || cmake_args+=( -G "$LIBSCID_CMAKE_GENERATOR" )
+
+cmake_args+=(
+  -DBUILD_TESTING=OFF
+  -DBUILD_SHARED_LIBS=ON
+  -DLIBSCID_INSTALL=ON
+  "-DLIBSCID_BUILD_DOCS=$LIBSCID_CAPI_RELEASE_BUILD_DOCS"
+  "-DLIBSCID_SOURCE_ROOT=$ROOT"
+  -DCMAKE_BUILD_TYPE=Release
+  "-DLIBSCID_PROJECT_VERSION=$LIBSCID_RELEASE_PROJECT_VERSION"
+  "-DLIBSCID_VERSION=$LIBSCID_RELEASE_VERSION"
+  "-DLIBSCID_PACKAGE_VERSION_LABEL=$LIBSCID_RELEASE_PACKAGE_VERSION_LABEL"
+  "-DLIBSCID_PACKAGE_PLATFORM=$LIBSCID_RELEASE_PLATFORM"
+)
+
+[[ -z "${LIBSCID_PLANTUML_JAR_PATH:-}" ]] || cmake_args+=( "-DLIBSCID_PLANTUML_JAR_PATH=$LIBSCID_PLANTUML_JAR_PATH" )
+[[ -z "${LIBSCID_CMAKE_C_COMPILER:-}" ]] || cmake_args+=( "-DCMAKE_C_COMPILER=$LIBSCID_CMAKE_C_COMPILER" )
+[[ -z "${LIBSCID_CMAKE_CXX_COMPILER:-}" ]] || cmake_args+=( "-DCMAKE_CXX_COMPILER=$LIBSCID_CMAKE_CXX_COMPILER" )
+append_shell_words cmake_args "${LIBSCID_CMAKE_CONFIGURE_ARGS:-}"
+
+"$LIBSCID_CMAKE" "${cmake_args[@]}"
+
+cmake_build_args=(
+  --build "$LIBSCID_CAPI_RELEASE_PACKAGE_BUILD_DIR"
+  --config Release
+)
+append_shell_words cmake_build_args "${LIBSCID_CMAKE_BUILD_ARGS:-}"
+
+"$LIBSCID_CMAKE" "${cmake_build_args[@]}"
+
+rm -f "$LIBSCID_CAPI_RELEASE_PACKAGE_BUILD_DIR"*.tar.gz
+"$LIBSCID_CPACK" \
+  --config "${LIBSCID_CAPI_RELEASE_PACKAGE_BUILD_DIR}CPackConfig.cmake" \
+  -G TGZ
+mkdir -p "$LIBSCID_CAPI_RELEASE_ARTEFACT_DIR"
+rm -f "$LIBSCID_CAPI_RELEASE_ARTEFACT_DIR"/libscid__*.tar.gz
+cp "$LIBSCID_CAPI_RELEASE_PACKAGE_BUILD_DIR"*.tar.gz "$LIBSCID_CAPI_RELEASE_ARTEFACT_DIR"

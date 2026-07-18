@@ -10,7 +10,7 @@ libscid.python.__native.dir := $(libscid.python.__project.dir)src/libscid/_nativ
 libscid.python.__bundled.library := $(libscid.python.__native.dir)$(libscid.__library.name)
 libscid.python.__release.library ?= $(if $(LIBSCID_LIBRARY),$(LIBSCID_LIBRARY),$(ROOT)capi/_build/release/$(libscid.__library.name))
 libscid.python.__release.smoke-test.dir ?= $(libscid.python.__project.dir)_build/release-smoke-test/
-libscid.python.__release.artifact.dir ?= $(LIBSCID_RELEASE_ROOT)
+libscid.python.__release.artefact.dir ?= $(LIBSCID_RELEASE_ROOT)
 libscid.python.__release.version ?= $(LIBSCID_RELEASE_PROJECT_VERSION)
 LIBSCID_UV_FLAGS ?= --system-certs
 libscid.python.__qc.paths := src tests hatch_build.py
@@ -63,9 +63,9 @@ libscid.python.__release-wheel : libscid.python.__release-native-library
 	cd $(libscid.python.__project.dir) \
 	&& rm -rf dist \
 	&& LIBSCID_PYTHON_VERSION=$(libscid.python.__release.version) $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build --wheel
-	mkdir -p $(libscid.python.__release.artifact.dir)
-	rm -f $(libscid.python.__release.artifact.dir)/libscid-*.whl
-	cp $(libscid.python.__project.dir)dist/*.whl $(libscid.python.__release.artifact.dir)
+	mkdir -p $(libscid.python.__release.artefact.dir)
+	rm -f $(libscid.python.__release.artefact.dir)/libscid-*.whl
+	cp $(libscid.python.__project.dir)dist/*.whl $(libscid.python.__release.artefact.dir)
 
 .PHONY : libscid.python.__release-wheel
 

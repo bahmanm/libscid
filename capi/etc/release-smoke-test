@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+append_shell_words() {
+  local -n target="$1"
+  local words="$2"
+
+  [[ -n "$words" ]] || return 0
+
+  local -a parsed=()
+  eval "parsed=( $words )"
+  target+=( "${parsed[@]}" )
+}
+
+: "${LIBSCID_CAPI_RELEASE_ARTEFACT_DIR:?}"
+: "${LIBSCID_CAPI_RELEASE_SMOKE_TEST_DIR:?}"
+: "${LIBSCID_HOST_SYSTEM:?}"
+: "${LIBSCID_CMAKE:=cmake}"
+: "${LIBSCID_CTEST:=ctest}"
+
+shopt -s nullglob
+archives=( "$LIBSCID_CAPI_RELEASE_ARTEFACT_DIR"/libscid__*.tar.gz )
+[[ ${#archives[@]} -eq 1 ]]
+
+archive="${archives[0]}"
+extract_root="${LIBSCID_CAPI_RELEASE_SMOKE_TEST_DIR}package"
+install_root="$extract_root/install"
+examples_build_dir="${LIBSCID_CAPI_RELEASE_SMOKE_TEST_DIR}examples"
+
+rm -rf "$LIBSCID_CAPI_RELEASE_SMOKE_TEST_DIR"
+mkdir -p "$install_root"
+
+tar_args=( -xzf "$archive" -C "$install_root" --strip-components=1 )
+case "$LIBSCID_HOST_SYSTEM" in
+  MINGW*|MSYS*|CYGWIN*) tar_args=( --force-local "${tar_args[@]}" ) ;;
+esac
+tar "${tar_args[@]}"
+
+cmake_args=(
+  -S "$install_root/share/doc/libscid/examples"
+  -B "$examples_build_dir"
+  "-DCMAKE_PREFIX_PATH=$install_root"
+)
+
+[[ -z "${LIBSCID_CMAKE_GENERATOR:-}" ]] || cmake_args+=( -G "$LIBSCID_CMAKE_GENERATOR" )
+[[ -z "${LIBSCID_CMAKE_C_COMPILER:-}" ]] || cmake_args+=( "-DCMAKE_C_COMPILER=$LIBSCID_CMAKE_C_COMPILER" )
+[[ -z "${LIBSCID_CMAKE_CXX_COMPILER:-}" ]] || cmake_args+=( "-DCMAKE_CXX_COMPILER=$LIBSCID_CMAKE_CXX_COMPILER" )
+append_shell_words cmake_args "${LIBSCID_CMAKE_CONFIGURE_ARGS:-}"
+
+"$LIBSCID_CMAKE" "${cmake_args[@]}"
+
+cmake_build_args=( --build "$examples_build_dir" )
+append_shell_words cmake_build_args "${LIBSCID_CMAKE_BUILD_ARGS:-}"
+"$LIBSCID_CMAKE" "${cmake_build_args[@]}"
+
+case "$LIBSCID_HOST_SYSTEM" in
+  Darwin) export DYLD_LIBRARY_PATH="$install_root/lib:${DYLD_LIBRARY_PATH:-}" ;;
+  MINGW*|MSYS*|CYGWIN*) export PATH="$install_root/bin:$PATH" ;;
+  *) export LD_LIBRARY_PATH="$install_root/lib:${LD_LIBRARY_PATH:-}" ;;
+esac
+
+"$LIBSCID_CTEST" --test-dir "$examples_build_dir" --output-on-failure
