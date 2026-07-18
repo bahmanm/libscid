@@ -1,11 +1,10 @@
 SHELL := bash
 .SHELLFLAGS := -euo pipefail -c
-.DEFAULT_GOAL := test
 
 ####################################################################################################
 
-LIBSCID_BUILD_ROOT ?= $(LIBSCID_ROOT)_build/
-LIBSCID_RELEASE_ROOT ?= $(LIBSCID_ROOT)_release/
+LIBSCID_BUILD_ROOT ?= $(ROOT)_build/
+LIBSCID_RELEASE_ROOT ?= $(ROOT)_release/
 
 LIBSCID_CMAKE ?= cmake
 LIBSCID_CPACK ?= cpack
@@ -28,25 +27,24 @@ LIBSCID_RELEASE_VERSION ?= snapshot
 LIBSCID_RELEASE_PACKAGE_VERSION_LABEL ?= $(LIBSCID_RELEASE_VERSION)
 LIBSCID_RELEASE_PLATFORM ?= local
 
-libscid.cmake.generator.arg := $(if $(LIBSCID_CMAKE_GENERATOR),-G "$(LIBSCID_CMAKE_GENERATOR)")
-libscid.cmake.shared.libs.arg := $(if $(LIBSCID_CMAKE_SHARED_LIBS),-DBUILD_SHARED_LIBS=$(LIBSCID_CMAKE_SHARED_LIBS))
-libscid.cmake.c.compiler.arg := $(if $(LIBSCID_CMAKE_C_COMPILER),"-DCMAKE_C_COMPILER=$(LIBSCID_CMAKE_C_COMPILER)")
-libscid.cmake.cxx.compiler.arg := $(if $(LIBSCID_CMAKE_CXX_COMPILER),"-DCMAKE_CXX_COMPILER=$(LIBSCID_CMAKE_CXX_COMPILER)")
-libscid.cmake.plantuml.jar.path.arg := $(if $(LIBSCID_PLANTUML_JAR_PATH),"-DLIBSCID_PLANTUML_JAR_PATH=$(LIBSCID_PLANTUML_JAR_PATH)")
+libscid.cmake.__generator.arg := $(if $(LIBSCID_CMAKE_GENERATOR),-G "$(LIBSCID_CMAKE_GENERATOR)")
+libscid.cmake.__c.compiler.arg := $(if $(LIBSCID_CMAKE_C_COMPILER),"-DCMAKE_C_COMPILER=$(LIBSCID_CMAKE_C_COMPILER)")
+libscid.cmake.__cxx.compiler.arg := $(if $(LIBSCID_CMAKE_CXX_COMPILER),"-DCMAKE_CXX_COMPILER=$(LIBSCID_CMAKE_CXX_COMPILER)")
+libscid.cmake.__plantuml.jar.path.arg := $(if $(LIBSCID_PLANTUML_JAR_PATH),"-DLIBSCID_PLANTUML_JAR_PATH=$(LIBSCID_PLANTUML_JAR_PATH)")
 
 ####################################################################################################
 
-libscid.host.system := $(shell uname -s 2>/dev/null || echo Windows)
+libscid.__host.system := $(shell uname -s 2>/dev/null || echo Windows)
 
-ifeq ($(libscid.host.system),Darwin)
-libscid.library.name := libscid.dylib
-libscid.venv.python := bin/python
-else ifneq ($(filter MINGW% MSYS% CYGWIN%,$(libscid.host.system)),)
-libscid.library.name := scid.dll
-libscid.venv.python := Scripts/python.exe
+ifeq ($(libscid.__host.system),Darwin)
+libscid.__library.name := libscid.dylib
+libscid.__venv.python := bin/python
+else ifneq ($(filter MINGW% MSYS% CYGWIN%,$(libscid.__host.system)),)
+libscid.__library.name := scid.dll
+libscid.__venv.python := Scripts/python.exe
 else
-libscid.library.name := libscid.so
-libscid.venv.python := bin/python
+libscid.__library.name := libscid.so
+libscid.__venv.python := bin/python
 endif
 
 ####################################################################################################

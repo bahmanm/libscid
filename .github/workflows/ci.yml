@@ -45,8 +45,8 @@ jobs:
       - name: Verify GNU Make
         run: make --version
 
-      - name: Run default Make CI
-        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose ci-default
+      - name: Run default CMake component tests
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose libscid.internal.default.test libscid.library.default.test
 
   ci__shared:
     name: ci__${{ matrix.check_label }}-shared
@@ -88,5 +88,5 @@ jobs:
       - name: Verify GNU Make
         run: make --version
 
-      - name: Run shared Make CI
-        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose ci-shared
+      - name: Run shared tests
+        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose libscid.test-examples
