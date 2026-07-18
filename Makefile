@@ -2,18 +2,14 @@
 
 export ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
-libscid.__component.names := internal capi python
-libscid.__component.srcdir := \
-  $(ROOT)internal \
-  $(ROOT)capi \
-  $(ROOT)python
+libscid.__components := internal capi python
 libscid.__qc.stages := format static-analysis dynamic-analysis
 libscid.__example.pgn.roundtrip := $(ROOT)examples/libscid/000-python-bindings/pgn_roundtrip.py
 
 ####################################################################################################
 
 include $(ROOT)etc/make/common.mk
-include $(libscid.__component.srcdir:%=%/Makefile)
+include $(libscid.__components:%=$(ROOT)%/Makefile)
 
 ####################################################################################################
 
@@ -25,32 +21,32 @@ libscid.python.release : export LIBSCID_LIBRARY := $(libscid.capi.release.artifa
 
 ####################################################################################################
 
-libscid.configure : $(libscid.__component.names:%=libscid.%.configure)
+libscid.configure : $(libscid.__components:%=libscid.%.configure)
 
 .PHONY : libscid.configure
 
 ####################################################################################################
 
-libscid.build : $(libscid.__component.names:%=libscid.%.build)
+libscid.build : $(libscid.__components:%=libscid.%.build)
 
 .PHONY : libscid.build
 
 ####################################################################################################
 
-libscid.test : $(libscid.__component.names:%=libscid.%.test)
+libscid.test : $(libscid.__components:%=libscid.%.test)
 
 .PHONY : libscid.test
 
 ####################################################################################################
 
-libscid.clean : $(libscid.__component.names:%=libscid.%.clean)
+libscid.clean : $(libscid.__components:%=libscid.%.clean)
 	-rm -rf $(LIBSCID_RELEASE_ROOT)
 
 .PHONY : libscid.clean
 
 ####################################################################################################
 
-libscid.release : $(libscid.__component.names:%=libscid.%.release)
+libscid.release : $(libscid.__components:%=libscid.%.release)
 
 .PHONY : libscid.release
 
@@ -63,19 +59,19 @@ libscid.test-examples : libscid.test
 
 ####################################################################################################
 
-libscid.qc-format : $(libscid.__component.names:%=libscid.%.qc-format)
+libscid.qc-format : $(libscid.__components:%=libscid.%.qc-format)
 
 .PHONY : libscid.qc-format
 
 ####################################################################################################
 
-libscid.qc-static-analysis : $(libscid.__component.names:%=libscid.%.qc-static-analysis)
+libscid.qc-static-analysis : $(libscid.__components:%=libscid.%.qc-static-analysis)
 
 .PHONY : libscid.qc-static-analysis
 
 ####################################################################################################
 
-libscid.qc-dynamic-analysis : $(libscid.__component.names:%=libscid.%.qc-dynamic-analysis)
+libscid.qc-dynamic-analysis : $(libscid.__components:%=libscid.%.qc-dynamic-analysis)
 
 .PHONY : libscid.qc-dynamic-analysis
 
