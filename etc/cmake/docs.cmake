@@ -9,7 +9,7 @@ set( LIBSCID_DOXYGEN_INPUT_DIRS
     "${LIBSCID_SOURCE_ROOT}/docs/quick-start.md"
     "${LIBSCID_SOURCE_ROOT}/docs/installation.md"
     "${LIBSCID_SOURCE_ROOT}/docs/examples-recipes.md"
-    "${LIBSCID_SOURCE_ROOT}/src/libscid/include/scid" )
+    "${LIBSCID_SOURCE_ROOT}/capi/include/scid" )
 set( LIBSCID_PLANTUML_DIAGRAM_DIR "${LIBSCID_SOURCE_ROOT}/docs/diagrams" )
 
 configure_file(

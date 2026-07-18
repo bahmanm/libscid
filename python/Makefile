@@ -2,18 +2,18 @@
 
 libscid.python.__makefile := $(lastword $(MAKEFILE_LIST))
 libscid.python.__project.dir := $(dir $(abspath $(libscid.python.__makefile)))
-export ROOT ?= $(abspath $(libscid.python.__project.dir)../../..)/
+export ROOT ?= $(abspath $(libscid.python.__project.dir)..)/
 
 include $(ROOT)etc/make/common.mk
 
 libscid.python.__native.dir := $(libscid.python.__project.dir)src/libscid/_native/
 libscid.python.__bundled.library := $(libscid.python.__native.dir)$(libscid.__library.name)
-libscid.python.__release.library ?= $(if $(LIBSCID_LIBRARY),$(LIBSCID_LIBRARY),$(ROOT)src/libscid/_build/release/$(libscid.__library.name))
+libscid.python.__release.library ?= $(if $(LIBSCID_LIBRARY),$(LIBSCID_LIBRARY),$(ROOT)capi/_build/release/$(libscid.__library.name))
 libscid.python.__release.smoke-test.dir ?= $(libscid.python.__project.dir)_build/release-smoke-test/
 libscid.python.__release.artifact.dir ?= $(LIBSCID_RELEASE_ROOT)
 libscid.python.__release.version ?= $(LIBSCID_RELEASE_PROJECT_VERSION)
 LIBSCID_UV_FLAGS ?= --system-certs
-libscid.python.__qc.paths := src ../../../tests/bindings/python hatch_build.py
+libscid.python.__qc.paths := src tests hatch_build.py
 
 ####################################################################################################
 

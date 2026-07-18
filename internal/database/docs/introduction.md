@@ -43,7 +43,7 @@ The library is organised around three layers:
 
 3. Concrete codecs
    The concrete codecs implement memory, PGN, SCID4 and SCID5 storage. These
-   classes live under `src/internal` and are not intended as consumer-facing API.
+   classes live under `internal` and are not intended as consumer-facing API.
 
 # 4. Important Types
 

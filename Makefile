@@ -1,10 +1,12 @@
 .DEFAULT_GOAL := libscid.test
 
-libscid.__component.names := internal library python
+export ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
+
+libscid.__component.names := internal capi python
 libscid.__component.srcdir := \
-  $(ROOT)src/internal \
-  $(ROOT)src/libscid \
-  $(ROOT)src/bindings/python
+  $(ROOT)internal \
+  $(ROOT)capi \
+  $(ROOT)python
 libscid.__qc.stages := format static-analysis dynamic-analysis
 libscid.__example.pgn.roundtrip := $(ROOT)examples/libscid/000-python-bindings/pgn_roundtrip.py
 
@@ -15,11 +17,11 @@ include $(libscid.__component.srcdir:%=%/Makefile)
 
 ####################################################################################################
 
-libscid.python.test : libscid.library.build
-libscid.python.test : export LIBSCID_LIBRARY := $(libscid.library.artifact)
+libscid.python.test : libscid.capi.build
+libscid.python.test : export LIBSCID_LIBRARY := $(libscid.capi.artifact)
 
-libscid.python.release : libscid.library.release-library
-libscid.python.release : export LIBSCID_LIBRARY := $(libscid.library.release.artifact)
+libscid.python.release : libscid.capi.release-library
+libscid.python.release : export LIBSCID_LIBRARY := $(libscid.capi.release.artifact)
 
 ####################################################################################################
 
@@ -48,30 +50,6 @@ libscid.clean : $(libscid.__component.names:%=libscid.%.clean)
 
 ####################################################################################################
 
-libscid.release-library : libscid.library.release-library
-
-.PHONY : libscid.release-library
-
-####################################################################################################
-
-libscid.release-package : libscid.library.release-package
-
-.PHONY : libscid.release-package
-
-####################################################################################################
-
-libscid.release-libscid : libscid.library.release
-
-.PHONY : libscid.release-libscid
-
-####################################################################################################
-
-libscid.release-python : libscid.python.release
-
-.PHONY : libscid.release-python
-
-####################################################################################################
-
 libscid.release : $(libscid.__component.names:%=libscid.%.release)
 
 .PHONY : libscid.release
@@ -79,7 +57,7 @@ libscid.release : $(libscid.__component.names:%=libscid.%.release)
 ####################################################################################################
 
 libscid.test-examples : libscid.test
-	$(LIBSCID_PYTHON) $(libscid.__example.pgn.roundtrip) --library $(libscid.library.artifact)
+	$(LIBSCID_PYTHON) $(libscid.__example.pgn.roundtrip) --library $(libscid.capi.artifact)
 
 .PHONY : libscid.test-examples
 

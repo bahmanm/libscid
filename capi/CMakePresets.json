@@ -16,7 +16,7 @@
         "BUILD_TESTING": "OFF",
         "BUILD_SHARED_LIBS": "ON",
         "LIBSCID_INSTALL": "ON",
-        "LIBSCID_SOURCE_ROOT": "${sourceDir}/../.."
+        "LIBSCID_SOURCE_ROOT": "${sourceDir}/.."
       }
     },
     {
@@ -28,7 +28,7 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "BUILD_TESTING": "OFF",
         "LIBSCID_INSTALL": "OFF",
-        "LIBSCID_SOURCE_ROOT": "${sourceDir}/../.."
+        "LIBSCID_SOURCE_ROOT": "${sourceDir}/.."
       }
     },
     {
@@ -41,7 +41,7 @@
         "BUILD_TESTING": "ON",
         "LIBSCID_INSTALL": "OFF",
         "LIBSCID_SANITISERS": "address,undefined",
-        "LIBSCID_SOURCE_ROOT": "${sourceDir}/../.."
+        "LIBSCID_SOURCE_ROOT": "${sourceDir}/.."
       }
     },
     {
@@ -55,7 +55,7 @@
         "BUILD_SHARED_LIBS": "ON",
         "LIBSCID_INSTALL": "ON",
         "LIBSCID_BUILD_DOCS": "ON",
-        "LIBSCID_SOURCE_ROOT": "${sourceDir}/../.."
+        "LIBSCID_SOURCE_ROOT": "${sourceDir}/.."
       }
     },
     {
@@ -68,7 +68,7 @@
         "BUILD_TESTING": "OFF",
         "LIBSCID_BUILD_DOCS": "ON",
         "LIBSCID_INSTALL": "OFF",
-        "LIBSCID_SOURCE_ROOT": "${sourceDir}/../.."
+        "LIBSCID_SOURCE_ROOT": "${sourceDir}/.."
       }
     }
   ],

@@ -187,10 +187,10 @@ def find_library() -> Path:
     root = Path(__file__).resolve().parents[3]
     name = _library_name()
     candidates = [
-        root / "_build-shared" / "src" / "libscid" / name,
-        root / "_build-shared" / "src" / "libscid" / "Release" / name,
-        root / "_build" / "src" / "libscid" / name,
-        root / "_build" / "src" / "libscid" / "Release" / name,
+        root / "capi" / "_build" / name,
+        root / "capi" / "_build" / "Release" / name,
+        root / "capi" / "_build" / "release" / name,
+        root / "capi" / "_build" / "release" / "Release" / name,
         root / "install" / "libscid" / "lib" / name,
         root / "install" / "libscid" / "bin" / name,
     ]
@@ -219,12 +219,13 @@ def _enable_windows_dll_search_dirs(library_path: Path) -> None:
 
     directories = [library_path.parent]
     root = Path(__file__).resolve().parents[3]
-    for build_dir in ["_build-shared", "_build"]:
-        for relative in [
-            ("lib", "Release"),
-            ("src", "libscid", "Release"),
-        ]:
-            directories.append(root / build_dir / Path(*relative))
+    for relative in [
+        ("capi", "_build"),
+        ("capi", "_build", "Release"),
+        ("capi", "_build", "release"),
+        ("capi", "_build", "release", "Release"),
+    ]:
+        directories.append(root / Path(*relative))
 
     seen: set[Path] = set()
     for directory in directories:

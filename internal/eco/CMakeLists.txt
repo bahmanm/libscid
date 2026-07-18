@@ -71,7 +71,7 @@ if( BUILD_TESTING )
     file(
         GLOB SCID_ECO_TEST_SOURCES
         CONFIGURE_DEPENDS
-        "${LIBSCID_SOURCE_ROOT}/tests/internal/eco/cxx/*.cpp" )
+        "${LIBSCID_SOURCE_ROOT}/internal/tests/eco/cxx/*.cpp" )
     add_executable(
         scid_tests_eco_cpp
         ${SCID_ECO_TEST_SOURCES} )

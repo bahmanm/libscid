@@ -74,7 +74,7 @@ if( BUILD_TESTING )
     file(
         GLOB SCID_SPELLING_TEST_SOURCES
         CONFIGURE_DEPENDS
-        "${LIBSCID_SOURCE_ROOT}/tests/internal/spelling/cxx/*.cpp" )
+        "${LIBSCID_SOURCE_ROOT}/internal/tests/spelling/cxx/*.cpp" )
     add_executable(
         scid_tests_spelling_cpp
         ${SCID_SPELLING_TEST_SOURCES} )
