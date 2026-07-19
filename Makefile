@@ -14,10 +14,10 @@ include $(libscid.__components:%=$(ROOT)%/Makefile)
 ####################################################################################################
 
 libscid.python.test : libscid.capi.build
-libscid.python.test : export LIBSCID_LIBRARY := $(libscid.capi.artifact)
+libscid.python.test : export LIBSCID_LIBRARY := $(libscid.capi.artefact)
 
 libscid.python.release : libscid.capi.release-library
-libscid.python.release : export LIBSCID_LIBRARY := $(libscid.capi.release.artifact)
+libscid.python.release : export LIBSCID_LIBRARY := $(libscid.capi.release.artefact)
 
 ####################################################################################################
 
@@ -53,7 +53,7 @@ libscid.release : $(libscid.__components:%=libscid.%.release)
 ####################################################################################################
 
 libscid.test-examples : libscid.test
-	$(LIBSCID_PYTHON) $(libscid.__example.pgn.roundtrip) --library $(libscid.capi.artifact)
+	$(LIBSCID_PYTHON) $(libscid.__example.pgn.roundtrip) --library $(libscid.capi.artefact)
 
 .PHONY : libscid.test-examples
 

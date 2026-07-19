@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+function append_shell_words
+{
+    local target="$1"
+    local words="$2"
+
+    if [[ -z "$words" ]]; then
+        return 0
+    fi
+
+    eval "$target+=( $words )"
+}
+
+: "${ROOT:?}"
+: "${LIBSCID_CAPI_DIR:?}"
+: "${LIBSCID_CAPI_RELEASE_BUILD_DIR:?}"
+: "${LIBSCID_CMAKE:=cmake}"
+: "${LIBSCID_RELEASE_PROJECT_VERSION:?}"
+: "${LIBSCID_RELEASE_VERSION:?}"
+
+cmake_args=(
+    -S "$LIBSCID_CAPI_DIR"
+    -B "$LIBSCID_CAPI_RELEASE_BUILD_DIR"
+)
+
+if [[ -n "${LIBSCID_CMAKE_GENERATOR:-}" ]]; then
+    cmake_args+=( -G "$LIBSCID_CMAKE_GENERATOR" )
+fi
+
+cmake_args+=(
+    -DBUILD_TESTING=OFF
+    -DBUILD_SHARED_LIBS=ON
+    -DLIBSCID_INSTALL=ON
+    "-DLIBSCID_SOURCE_ROOT=$ROOT"
+    -DCMAKE_BUILD_TYPE=Release
+    "-DLIBSCID_PROJECT_VERSION=$LIBSCID_RELEASE_PROJECT_VERSION"
+    "-DLIBSCID_VERSION=$LIBSCID_RELEASE_VERSION"
+)
+
+if [[ -n "${LIBSCID_CMAKE_C_COMPILER:-}" ]]; then
+    cmake_args+=( "-DCMAKE_C_COMPILER=$LIBSCID_CMAKE_C_COMPILER" )
+fi
+
+if [[ -n "${LIBSCID_CMAKE_CXX_COMPILER:-}" ]]; then
+    cmake_args+=( "-DCMAKE_CXX_COMPILER=$LIBSCID_CMAKE_CXX_COMPILER" )
+fi
+
+append_shell_words cmake_args "${LIBSCID_CMAKE_CONFIGURE_ARGS:-}"
+
+"$LIBSCID_CMAKE" "${cmake_args[@]}"
+
+cmake_build_args=(
+    --build "$LIBSCID_CAPI_RELEASE_BUILD_DIR"
+    --config Release
+    --target scid
+)
+
+append_shell_words cmake_build_args "${LIBSCID_CMAKE_BUILD_ARGS:-}"
+
+"$LIBSCID_CMAKE" "${cmake_build_args[@]}"

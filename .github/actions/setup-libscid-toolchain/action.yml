@@ -3,7 +3,7 @@ description: Install runner-local tools and export libscid compiler/documentatio
 
 inputs:
   make:
-    description: Install GNU Make.
+    description: Install GNU Make and bmakelib.
     default: "false"
   uv:
     description: Install uv with the active Python.
@@ -31,15 +31,99 @@ runs:
       if: ${{ inputs.make == 'true' }}
       shell: bash
       run: |
+        make_version=4.4.1
+
         if [[ "$RUNNER_OS" == "Linux" ]]; then
-          sudo apt-get update
-          sudo apt-get install --yes make
+            sudo apt-get update
+            sudo apt-get install --yes build-essential ca-certificates curl
+
+            build_dir="$(mktemp -d)"
+            curl -fsSL "https://ftp.gnu.org/gnu/make/make-${make_version}.tar.gz" \
+                -o "$build_dir/make.tar.gz"
+            tar -xzf "$build_dir/make.tar.gz" -C "$build_dir"
+
+            make_jobs="$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 2)"
+            cd "$build_dir/make-${make_version}"
+            ./configure --prefix=/usr/local
+            make -j"$make_jobs"
+            sudo make install
+
+            echo "/usr/local/bin" >> "$GITHUB_PATH"
+            export PATH="/usr/local/bin:$PATH"
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          brew install make
-          echo "$(brew --prefix make)/libexec/gnubin" >> "$GITHUB_PATH"
+            build_dir="$(mktemp -d)"
+            curl -fsSL "https://ftp.gnu.org/gnu/make/make-${make_version}.tar.gz" \
+                -o "$build_dir/make.tar.gz"
+            tar -xzf "$build_dir/make.tar.gz" -C "$build_dir"
+
+            make_jobs="$(sysctl -n hw.ncpu 2>/dev/null || echo 2)"
+            cd "$build_dir/make-${make_version}"
+            ./configure --prefix=/usr/local
+            make -j"$make_jobs"
+            sudo make install
+
+            echo "/usr/local/bin" >> "$GITHUB_PATH"
+            export PATH="/usr/local/bin:$PATH"
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          choco install make --yes --no-progress
+            choco install make --version="$make_version" --yes --no-progress
+            echo "C:\\ProgramData\\chocolatey\\bin" >> "$GITHUB_PATH"
+            export PATH="/c/ProgramData/chocolatey/bin:$PATH"
         fi
+
+        hash -r
+        make_version_line="$(make --version | head -n 1)"
+        echo "$make_version_line"
+
+        if [[ "$make_version_line" != "GNU Make ${make_version}"* ]]; then
+            echo "Expected GNU Make ${make_version}." >&2
+            exit 1
+        fi
+
+    - name: Install bmakelib
+      if: ${{ inputs.make == 'true' }}
+      shell: bash
+      run: |
+        bmakelib_version=0.8.0
+        build_dir="$(mktemp -d)"
+
+        curl -fsSL \
+            "https://github.com/bahmanm/bmakelib/releases/download/v${bmakelib_version}/bmakelib-${bmakelib_version}.tar.gz" \
+            -o "$build_dir/bmakelib.tar.gz"
+        tar -xzf "$build_dir/bmakelib.tar.gz" -C "$build_dir"
+
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+            prefix_posix="$(cygpath -u "$RUNNER_TEMP")/libscid-tools"
+            prefix_make="$(cygpath -m "$prefix_posix")"
+        else
+            prefix_posix=/usr/local
+            prefix_make=/usr/local
+        fi
+
+        source_dir="$build_dir/bmakelib-${bmakelib_version}/src"
+        install_dir="$prefix_posix/include/bmakelib"
+
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+            mkdir -p "$install_dir"
+            cp "$source_dir"/*.mk "$source_dir/VERSION" "$install_dir/"
+        else
+            sudo mkdir -p "$install_dir"
+            sudo cp "$source_dir"/*.mk "$source_dir/VERSION" "$install_dir/"
+        fi
+
+        bmakelib_mk="$prefix_make/include/bmakelib/bmakelib.mk"
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+            bmakelib_check_path="$(cygpath -u "$bmakelib_mk")"
+        else
+            bmakelib_check_path="$bmakelib_mk"
+        fi
+
+        if [[ ! -f "$bmakelib_check_path" ]]; then
+            echo "Could not install bmakelib at $bmakelib_mk." >&2
+            exit 1
+        fi
+
+        echo "LIBSCID_BMAKELIB=$bmakelib_mk" >> "$GITHUB_ENV"
+        echo "bmakelib ${bmakelib_version} installed at $bmakelib_mk"
 
     - name: Install uv
       if: ${{ inputs.uv == 'true' }}
@@ -51,26 +135,26 @@ runs:
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
-          sudo apt-get update
-          sudo apt-get install --yes clang-20 clang-tools-20
-          echo "LIBSCID_C_COMPILER=clang-20" >> "$GITHUB_ENV"
-          echo "LIBSCID_CXX_COMPILER=clang++-20" >> "$GITHUB_ENV"
+            sudo apt-get update
+            sudo apt-get install --yes clang-20 clang-tools-20
+            echo "LIBSCID_C_COMPILER=clang-20" >> "$GITHUB_ENV"
+            echo "LIBSCID_CXX_COMPILER=clang++-20" >> "$GITHUB_ENV"
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          brew install llvm@20
-          llvm_prefix="$(brew --prefix llvm@20)"
-          sdkroot="$(xcrun --show-sdk-path)"
-          echo "$llvm_prefix/bin" >> "$GITHUB_PATH"
-          echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
-          echo "LIBSCID_C_COMPILER=$llvm_prefix/bin/clang" >> "$GITHUB_ENV"
-          echo "LIBSCID_CXX_COMPILER=$llvm_prefix/bin/clang++" >> "$GITHUB_ENV"
-          echo "LIBSCID_CMAKE_CONFIGURE_ARGS=-DCMAKE_OSX_SYSROOT=$sdkroot" >> "$GITHUB_ENV"
+            brew install llvm@20
+            llvm_prefix="$(brew --prefix llvm@20)"
+            sdkroot="$(xcrun --show-sdk-path)"
+            echo "$llvm_prefix/bin" >> "$GITHUB_PATH"
+            echo "SDKROOT=$sdkroot" >> "$GITHUB_ENV"
+            echo "LIBSCID_C_COMPILER=$llvm_prefix/bin/clang" >> "$GITHUB_ENV"
+            echo "LIBSCID_CXX_COMPILER=$llvm_prefix/bin/clang++" >> "$GITHUB_ENV"
+            echo "LIBSCID_CMAKE_CONFIGURE_ARGS=-DCMAKE_OSX_SYSROOT=$sdkroot" >> "$GITHUB_ENV"
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          choco upgrade llvm --yes --no-progress
-          choco install ninja --yes --no-progress
-          echo "C:\\Program Files\\LLVM\\bin" >> "$GITHUB_PATH"
-          echo "LIBSCID_C_COMPILER=C:\\Program Files\\LLVM\\bin\\clang-cl.exe" >> "$GITHUB_ENV"
-          echo "LIBSCID_CXX_COMPILER=C:\\Program Files\\LLVM\\bin\\clang-cl.exe" >> "$GITHUB_ENV"
-          echo "LIBSCID_CMAKE_GENERATOR=Ninja" >> "$GITHUB_ENV"
+            choco upgrade llvm --yes --no-progress
+            choco install ninja --yes --no-progress
+            echo "C:\\Program Files\\LLVM\\bin" >> "$GITHUB_PATH"
+            echo "LIBSCID_C_COMPILER=C:\\Program Files\\LLVM\\bin\\clang-cl.exe" >> "$GITHUB_ENV"
+            echo "LIBSCID_CXX_COMPILER=C:\\Program Files\\LLVM\\bin\\clang-cl.exe" >> "$GITHUB_ENV"
+            echo "LIBSCID_CMAKE_GENERATOR=Ninja" >> "$GITHUB_ENV"
         fi
 
     - name: Install documentation tools
@@ -78,28 +162,28 @@ runs:
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
-          sudo apt-get update
-          sudo apt-get install --yes default-jre doxygen graphviz plantuml
-          plantuml_jar="$(dpkg -L plantuml | awk '/\/plantuml\.jar$/ { print; exit }')"
+            sudo apt-get update
+            sudo apt-get install --yes default-jre doxygen graphviz plantuml
+            plantuml_jar="$(dpkg -L plantuml | awk '/\/plantuml\.jar$/ { print; exit }')"
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
-          brew install doxygen graphviz plantuml
-          plantuml_jar="$(brew --prefix plantuml)/libexec/plantuml.jar"
+            brew install doxygen graphviz plantuml
+            plantuml_jar="$(brew --prefix plantuml)/libexec/plantuml.jar"
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
-          choco install doxygen.install graphviz --yes --no-progress
-          echo "C:\\Program Files\\doxygen\\bin" >> "$GITHUB_PATH"
-          echo "C:\\Program Files\\Graphviz\\bin" >> "$GITHUB_PATH"
-          plantuml_jar=""
+            choco install doxygen.install graphviz --yes --no-progress
+            echo "C:\\Program Files\\doxygen\\bin" >> "$GITHUB_PATH"
+            echo "C:\\Program Files\\Graphviz\\bin" >> "$GITHUB_PATH"
+            plantuml_jar=""
         else
-          plantuml_jar=""
+            plantuml_jar=""
         fi
 
         if [[ -n "$plantuml_jar" && -f "$plantuml_jar" ]]; then
-          echo "LIBSCID_PLANTUML_JAR_PATH=$plantuml_jar" >> "$GITHUB_ENV"
+            echo "LIBSCID_PLANTUML_JAR_PATH=$plantuml_jar" >> "$GITHUB_ENV"
         elif [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" ]]; then
-          echo "Could not find plantuml.jar." >&2
-          exit 1
+            echo "Could not find plantuml.jar." >&2
+            exit 1
         else
-          echo "LIBSCID_PLANTUML_JAR_PATH=" >> "$GITHUB_ENV"
+            echo "LIBSCID_PLANTUML_JAR_PATH=" >> "$GITHUB_ENV"
         fi
 
     - name: Install clang-format
@@ -107,8 +191,8 @@ runs:
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
-          sudo apt-get update
-          sudo apt-get install --yes clang-format-20
+            sudo apt-get update
+            sudo apt-get install --yes clang-format-20
         fi
 
     - name: Install clang-tidy
@@ -116,8 +200,8 @@ runs:
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
-          sudo apt-get update
-          sudo apt-get install --yes clang-tidy-20
+            sudo apt-get update
+            sudo apt-get install --yes clang-tidy-20
         fi
 
     - name: Install cppcheck
@@ -125,6 +209,6 @@ runs:
       shell: bash
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
-          sudo apt-get update
-          sudo apt-get install --yes cppcheck
+            sudo apt-get update
+            sudo apt-get install --yes cppcheck
         fi
