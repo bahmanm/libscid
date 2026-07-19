@@ -45,17 +45,17 @@ jobs:
       - name: Set release identity
         run: |
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            tag="${GITHUB_REF_NAME}"
-            version="${tag#v}"
-            version="${version%%-*}"
+              tag="${GITHUB_REF_NAME}"
+              version="${tag#v}"
+              version="${version%%-*}"
 
-            if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
-              echo "Tag '$tag' does not contain a CMake-compatible numeric version." >&2
-              exit 1
-            fi
+              if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
+                  echo "Tag '$tag' does not contain a CMake-compatible numeric version." >&2
+                  exit 1
+              fi
           else
-            tag="snapshot-${GITHUB_SHA::12}"
-            version="0.0.0"
+              tag="snapshot-${GITHUB_SHA::12}"
+              version="0.0.0"
           fi
 
           echo "LIBSCID_RELEASE_PROJECT_VERSION=$version" >> "$GITHUB_ENV"

@@ -37,6 +37,7 @@ libscid.cmake.__generator.arg := $(if $(LIBSCID_CMAKE_GENERATOR),-G "$(LIBSCID_C
 libscid.cmake.__c.compiler.arg := $(if $(LIBSCID_CMAKE_C_COMPILER),"-DCMAKE_C_COMPILER=$(LIBSCID_CMAKE_C_COMPILER)")
 libscid.cmake.__cxx.compiler.arg := $(if $(LIBSCID_CMAKE_CXX_COMPILER),"-DCMAKE_CXX_COMPILER=$(LIBSCID_CMAKE_CXX_COMPILER)")
 libscid.cmake.__plantuml.jar.path.arg := $(if $(LIBSCID_PLANTUML_JAR_PATH),"-DLIBSCID_PLANTUML_JAR_PATH=$(LIBSCID_PLANTUML_JAR_PATH)")
+libscid.__make.word.escape = $(subst :,\:,$(1))
 
 ####################################################################################################
 

@@ -35,11 +35,11 @@ $(eval $(call libscid.cmake.__project.rules,libscid.capi.default,libscid.capi))
 
 ####################################################################################################
 
-$(libscid.capi.artefact) : libscid.capi.build
+$(call libscid.__make.word.escape,$(libscid.capi.artefact)) : libscid.capi.build
 
 ####################################################################################################
 
-$(libscid.capi.release.artefact) : libscid.capi.release-library
+$(call libscid.__make.word.escape,$(libscid.capi.release.artefact)) : libscid.capi.release-library
 
 ####################################################################################################
 

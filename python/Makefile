@@ -51,7 +51,7 @@ libscid.python.clean :
 
 ####################################################################################################
 
-libscid.python.__release-native-library : $(libscid.python.__release.library)
+libscid.python.__release-native-library : $(call libscid.__make.word.escape,$(libscid.python.__release.library))
 	mkdir -p $(libscid.python.__native.dir)
 	cp $(libscid.python.__release.library) $(libscid.python.__bundled.library)
 
@@ -82,7 +82,7 @@ libscid.python.__release-smoke-test : libscid.python.__release-wheel
 	cd $(ROOT); \
 	unset LIBSCID_LIBRARY; \
 	$(libscid.python.__release.smoke-test.dir)$(libscid.__venv.python) -c \
-	  "import libscid; game = libscid.Game.from_pgn('1. e4 e5 *'); assert game.mainline_move_count == 2"
+	    "import libscid; game = libscid.Game.from_pgn('1. e4 e5 *'); assert game.mainline_move_count == 2"
 
 .PHONY : libscid.python.__release-smoke-test
 

@@ -33,14 +33,14 @@ define libscid.cmake.__project.rules
 ####################################################################################################
 
 $(1).__cmake.contract : \
-  bmakelib.default-if-blank( $(1).__build.dir,$$($(or $(2),$(1)).__project.dir)_build/ ) \
-  bmakelib.default-if-blank( $(1).__cmake.source.root,$$(ROOT) ) \
-  bmakelib.default-if-blank( $(1).__cmake.source.dir,$$($(or $(2),$(1)).__project.dir) ) \
+  bmakelib.default-if-blank( $(1).__build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/) ) \
+  bmakelib.default-if-blank( $(1).__cmake.source.root,$$(call libscid.__make.word.escape,$$(ROOT)) ) \
+  bmakelib.default-if-blank( $(1).__cmake.source.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)) ) \
   bmakelib.default-if-blank( $(1).__cmake.shared.libs,$$(LIBSCID_CMAKE_SHARED_LIBS) ) \
   bmakelib.default-if-blank( $(1).__cmake.install,OFF ) \
-  bmakelib.default-if-blank( $(1).__qc.format.build.dir,$$($(or $(2),$(1)).__project.dir)_build/format/ ) \
-  bmakelib.default-if-blank( $(1).__qc.analysis.build.dir,$$($(or $(2),$(1)).__project.dir)_build/analysis/ ) \
-  bmakelib.default-if-blank( $(1).__qc.dynamic-analysis.build.dir,$$($(or $(2),$(1)).__project.dir)_build/sanitisers/ ) \
+  bmakelib.default-if-blank( $(1).__qc.format.build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/format/) ) \
+  bmakelib.default-if-blank( $(1).__qc.analysis.build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/analysis/) ) \
+  bmakelib.default-if-blank( $(1).__qc.dynamic-analysis.build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/sanitisers/) ) \
   .WAIT \
   bmakelib.error-if-blank( \
     $(1).__build.dir \
@@ -60,17 +60,17 @@ $(1).__cmake.contract : \
 
 $(1).configure : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
-	  -S $$($(1).__cmake.source.dir) \
-	  -B $$($(1).__build.dir) \
-	  $$(libscid.cmake.__generator.arg) \
-	  -DBUILD_TESTING=ON \
-	  $$(if $$($(1).__cmake.shared.libs),-DBUILD_SHARED_LIBS=$$($(1).__cmake.shared.libs)) \
-	  -DLIBSCID_INSTALL=$$($(1).__cmake.install) \
-	  "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
-	  -DCMAKE_BUILD_TYPE=$$(LIBSCID_CMAKE_BUILD_TYPE) \
-	  $$(libscid.cmake.__c.compiler.arg) \
-	  $$(libscid.cmake.__cxx.compiler.arg) \
-	  $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
+	    -S $$($(1).__cmake.source.dir) \
+	    -B $$($(1).__build.dir) \
+	    $$(libscid.cmake.__generator.arg) \
+	    -DBUILD_TESTING=ON \
+	    $$(if $$($(1).__cmake.shared.libs),-DBUILD_SHARED_LIBS=$$($(1).__cmake.shared.libs)) \
+	    -DLIBSCID_INSTALL=$$($(1).__cmake.install) \
+	    "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
+	    -DCMAKE_BUILD_TYPE=$$(LIBSCID_CMAKE_BUILD_TYPE) \
+	    $$(libscid.cmake.__c.compiler.arg) \
+	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
 
 .PHONY : $(1).configure
 
@@ -78,10 +78,10 @@ $(1).configure : $(1).__cmake.contract
 
 $(1).build : $(1).configure
 	$$(LIBSCID_CMAKE) \
-	  --build $$($(1).__build.dir) \
-	  --config $$(LIBSCID_CMAKE_BUILD_TYPE) \
-	  $$(foreach target,$$($(1).__cmake.build.targets),--target $$(target)) \
-	  $$(LIBSCID_CMAKE_BUILD_ARGS)
+	    --build $$($(1).__build.dir) \
+	    --config $$(LIBSCID_CMAKE_BUILD_TYPE) \
+	    $$(foreach target,$$($(1).__cmake.build.targets),--target $$(target)) \
+	    $$(LIBSCID_CMAKE_BUILD_ARGS)
 
 .PHONY : $(1).build
 
@@ -89,10 +89,10 @@ $(1).build : $(1).configure
 
 $(1).test : $(1).build
 	$$(LIBSCID_CTEST) \
-	  --test-dir $$($(1).__build.dir) \
-	  -C $$(LIBSCID_CMAKE_BUILD_TYPE) \
-	  $$(if $$($(1).__cmake.test.labels),-L '$$($(1).__cmake.test.labels)') \
-	  --output-on-failure
+	    --test-dir $$($(1).__build.dir) \
+	    -C $$(LIBSCID_CMAKE_BUILD_TYPE) \
+	    $$(if $$($(1).__cmake.test.labels),-L '$$($(1).__cmake.test.labels)') \
+	    --output-on-failure
 
 .PHONY : $(1).test
 
@@ -107,17 +107,17 @@ $(1).clean : $(1).__cmake.contract
 
 $(1).qc-format : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
-	  -S $$($(1).__cmake.source.dir) \
-	  -B $$($(1).__qc.format.build.dir) \
-	  $$(libscid.cmake.__generator.arg) \
-	  $$(libscid.cmake.__c.compiler.arg) \
-	  $$(libscid.cmake.__cxx.compiler.arg) \
-	  "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
-	  $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
+	    -S $$($(1).__cmake.source.dir) \
+	    -B $$($(1).__qc.format.build.dir) \
+	    $$(libscid.cmake.__generator.arg) \
+	    $$(libscid.cmake.__c.compiler.arg) \
+	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
+	    $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
 	$$(LIBSCID_CMAKE) \
-	  --build $$($(1).__qc.format.build.dir) \
-	  --target format-check \
-	  $$(LIBSCID_CMAKE_BUILD_ARGS)
+	    --build $$($(1).__qc.format.build.dir) \
+	    --target format-check \
+	    $$(LIBSCID_CMAKE_BUILD_ARGS)
 
 .PHONY : $(1).qc-format
 
@@ -125,19 +125,19 @@ $(1).qc-format : $(1).__cmake.contract
 
 $(1).__qc-cppcheck : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
-	  -S $$($(1).__cmake.source.dir) \
-	  -B $$($(1).__qc.analysis.build.dir) \
-	  $$(libscid.cmake.__c.compiler.arg) \
-	  $$(libscid.cmake.__cxx.compiler.arg) \
-	  -DCMAKE_BUILD_TYPE=Debug \
-	  -DBUILD_TESTING=OFF \
-	  -DLIBSCID_INSTALL=OFF \
-	  "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
-	  $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
+	    -S $$($(1).__cmake.source.dir) \
+	    -B $$($(1).__qc.analysis.build.dir) \
+	    $$(libscid.cmake.__c.compiler.arg) \
+	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    -DCMAKE_BUILD_TYPE=Debug \
+	    -DBUILD_TESTING=OFF \
+	    -DLIBSCID_INSTALL=OFF \
+	    "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
+	    $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
 	$$(LIBSCID_CMAKE) \
-	  --build $$($(1).__qc.analysis.build.dir) \
-	  --target cppcheck \
-	  $$(LIBSCID_CMAKE_BUILD_ARGS)
+	    --build $$($(1).__qc.analysis.build.dir) \
+	    --target cppcheck \
+	    $$(LIBSCID_CMAKE_BUILD_ARGS)
 
 .PHONY : $(1).__qc-cppcheck
 
@@ -145,19 +145,19 @@ $(1).__qc-cppcheck : $(1).__cmake.contract
 
 $(1).__qc-tidy : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
-	  -S $$($(1).__cmake.source.dir) \
-	  -B $$($(1).__qc.analysis.build.dir) \
-	  $$(libscid.cmake.__c.compiler.arg) \
-	  $$(libscid.cmake.__cxx.compiler.arg) \
-	  -DCMAKE_BUILD_TYPE=Debug \
-	  -DBUILD_TESTING=OFF \
-	  -DLIBSCID_INSTALL=OFF \
-	  "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
-	  $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
+	    -S $$($(1).__cmake.source.dir) \
+	    -B $$($(1).__qc.analysis.build.dir) \
+	    $$(libscid.cmake.__c.compiler.arg) \
+	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    -DCMAKE_BUILD_TYPE=Debug \
+	    -DBUILD_TESTING=OFF \
+	    -DLIBSCID_INSTALL=OFF \
+	    "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
+	    $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
 	$$(LIBSCID_CMAKE) \
-	  --build $$($(1).__qc.analysis.build.dir) \
-	  --target clang-tidy \
-	  $$(LIBSCID_CMAKE_BUILD_ARGS)
+	    --build $$($(1).__qc.analysis.build.dir) \
+	    --target clang-tidy \
+	    $$(LIBSCID_CMAKE_BUILD_ARGS)
 
 .PHONY : $(1).__qc-tidy
 
@@ -171,24 +171,24 @@ $(1).qc-static-analysis : $(1).__qc-cppcheck $(1).__qc-tidy
 
 $(1).qc-dynamic-analysis : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
-	  -S $$($(1).__cmake.source.dir) \
-	  -B $$($(1).__qc.dynamic-analysis.build.dir) \
-	  $$(libscid.cmake.__c.compiler.arg) \
-	  $$(libscid.cmake.__cxx.compiler.arg) \
-	  -DCMAKE_BUILD_TYPE=Debug \
-	  -DBUILD_TESTING=ON \
-	  -DLIBSCID_INSTALL=OFF \
-	  -DLIBSCID_SANITISERS=address,undefined \
-	  "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
-	  $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
+	    -S $$($(1).__cmake.source.dir) \
+	    -B $$($(1).__qc.dynamic-analysis.build.dir) \
+	    $$(libscid.cmake.__c.compiler.arg) \
+	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    -DCMAKE_BUILD_TYPE=Debug \
+	    -DBUILD_TESTING=ON \
+	    -DLIBSCID_INSTALL=OFF \
+	    -DLIBSCID_SANITISERS=address,undefined \
+	    "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
+	    $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
 	$$(LIBSCID_CMAKE) \
-	  --build $$($(1).__qc.dynamic-analysis.build.dir) \
-	  $$(LIBSCID_CMAKE_BUILD_ARGS)
+	    --build $$($(1).__qc.dynamic-analysis.build.dir) \
+	    $$(LIBSCID_CMAKE_BUILD_ARGS)
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 \
 	UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 \
-	  $$(LIBSCID_CTEST) \
-	    --test-dir $$($(1).__qc.dynamic-analysis.build.dir) \
-	    --output-on-failure
+	    $$(LIBSCID_CTEST) \
+	        --test-dir $$($(1).__qc.dynamic-analysis.build.dir) \
+	        --output-on-failure
 
 .PHONY : $(1).qc-dynamic-analysis
 
