@@ -3,6 +3,12 @@ SHELL := bash
 
 ####################################################################################################
 
+LIBSCID_BMAKELIB ?= $(firstword $(wildcard $(HOME)/.local/include/bmakelib/bmakelib.mk) bmakelib/bmakelib.mk)
+
+include $(LIBSCID_BMAKELIB)
+
+####################################################################################################
+
 LIBSCID_BUILD_ROOT ?= $(ROOT)_build/
 LIBSCID_RELEASE_ROOT ?= $(ROOT)_release/
 

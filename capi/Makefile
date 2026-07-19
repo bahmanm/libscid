@@ -6,30 +6,17 @@ export ROOT ?= $(abspath $(libscid.capi.__project.dir)..)/
 
 include $(ROOT)etc/make/common.mk
 
-libscid.capi.__build.root ?= $(libscid.capi.__project.dir)_build/
-libscid.capi.__default.build.root ?= $(libscid.capi.__project.dir)_build/default/
-
-libscid.capi.__build.dir ?= $(libscid.capi.__build.root)
-libscid.capi.__cmake.source.root ?= $(ROOT)
-libscid.capi.__cmake.source.dir ?= $(libscid.capi.__project.dir)
+libscid.capi.__build.dir ?= $(libscid.capi.__project.dir)_build/
 libscid.capi.__cmake.build.targets := scid scid_tests_c
-libscid.capi.__cmake.test.labels := libscid
-libscid.capi.__cmake.shared.libs ?= $(LIBSCID_CMAKE_SHARED_LIBS)
-libscid.capi.__cmake.install := OFF
-libscid.capi.__qc.format.build.dir ?= $(libscid.capi.__build.root)format/
-libscid.capi.__qc.analysis.build.dir ?= $(libscid.capi.__build.root)analysis/
-libscid.capi.__qc.dynamic-analysis.build.dir ?= $(libscid.capi.__build.root)sanitisers/
+libscid.capi.__cmake.test.labels := capi
 
-libscid.capi.default.__build.dir ?= $(libscid.capi.__default.build.root)
-libscid.capi.default.__cmake.source.root ?= $(ROOT)
-libscid.capi.default.__cmake.source.dir ?= $(libscid.capi.__project.dir)
+libscid.capi.default.__build.dir ?= $(libscid.capi.__project.dir)_build/default/
 libscid.capi.default.__cmake.build.targets := $(libscid.capi.__cmake.build.targets)
 libscid.capi.default.__cmake.test.labels := $(libscid.capi.__cmake.test.labels)
 libscid.capi.default.__cmake.shared.libs := OFF
-libscid.capi.default.__cmake.install := OFF
-libscid.capi.default.__qc.format.build.dir ?= $(libscid.capi.__default.build.root)format/
-libscid.capi.default.__qc.analysis.build.dir ?= $(libscid.capi.__default.build.root)analysis/
-libscid.capi.default.__qc.dynamic-analysis.build.dir ?= $(libscid.capi.__default.build.root)sanitisers/
+libscid.capi.default.__qc.format.build.dir ?= $(libscid.capi.default.__build.dir)format/
+libscid.capi.default.__qc.analysis.build.dir ?= $(libscid.capi.default.__build.dir)analysis/
+libscid.capi.default.__qc.dynamic-analysis.build.dir ?= $(libscid.capi.default.__build.dir)sanitisers/
 
 libscid.capi.__release.build.dir ?= $(libscid.capi.__project.dir)_build/release/
 libscid.capi.__release.package.build.dir ?= $(libscid.capi.__project.dir)_build/package/
@@ -44,7 +31,7 @@ libscid.capi.release.artefact := $(libscid.capi.__release.build.dir)$(libscid.__
 include $(ROOT)etc/make/cmake.mk
 
 $(eval $(call libscid.cmake.__project.rules,libscid.capi))
-$(eval $(call libscid.cmake.__project.rules,libscid.capi.default))
+$(eval $(call libscid.cmake.__project.rules,libscid.capi.default,libscid.capi))
 
 ####################################################################################################
 

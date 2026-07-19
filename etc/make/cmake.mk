@@ -1,7 +1,64 @@
+####################################################################################################
+# $(call libscid.cmake.__project.rules,PROJECT[,BASE_PROJECT])
+#
+# Generates the standard CMake targets for `PROJECT`.
+#
+# PROJECT
+#   Namespaces generated targets and variables.  For example, `libscid.capi` generates
+#   `libscid.capi.configure`, `libscid.capi.build`, `libscid.capi.test`, and QC targets.
+#
+# BASE_PROJECT
+#   Optional source project used for defaults.  This is useful for project variants such as
+#   `libscid.capi.default`, which should generate its own targets but inherit source-directory and
+#   default build-directory conventions from `libscid.capi`.
+#
+# Required project variables:
+#   PROJECT.__cmake.build.targets
+#
+# Optional project variables with defaults:
+#   PROJECT.__build.dir                      BASE_PROJECT.__project.dir + _build/
+#   PROJECT.__cmake.source.root              $(ROOT)
+#   PROJECT.__cmake.source.dir               BASE_PROJECT.__project.dir
+#   PROJECT.__cmake.shared.libs              $(LIBSCID_CMAKE_SHARED_LIBS)
+#   PROJECT.__cmake.install                  OFF
+#   PROJECT.__qc.format.build.dir            BASE_PROJECT.__project.dir + _build/format/
+#   PROJECT.__qc.analysis.build.dir          BASE_PROJECT.__project.dir + _build/analysis/
+#   PROJECT.__qc.dynamic-analysis.build.dir  BASE_PROJECT.__project.dir + _build/sanitisers/
+#
+# Optional project variables without defaults:
+#   PROJECT.__cmake.test.labels
+####################################################################################################
+
 define libscid.cmake.__project.rules
 ####################################################################################################
 
-$(1).configure :
+$(1).__cmake.contract : \
+  bmakelib.default-if-blank( $(1).__build.dir,$$($(or $(2),$(1)).__project.dir)_build/ ) \
+  bmakelib.default-if-blank( $(1).__cmake.source.root,$$(ROOT) ) \
+  bmakelib.default-if-blank( $(1).__cmake.source.dir,$$($(or $(2),$(1)).__project.dir) ) \
+  bmakelib.default-if-blank( $(1).__cmake.shared.libs,$$(LIBSCID_CMAKE_SHARED_LIBS) ) \
+  bmakelib.default-if-blank( $(1).__cmake.install,OFF ) \
+  bmakelib.default-if-blank( $(1).__qc.format.build.dir,$$($(or $(2),$(1)).__project.dir)_build/format/ ) \
+  bmakelib.default-if-blank( $(1).__qc.analysis.build.dir,$$($(or $(2),$(1)).__project.dir)_build/analysis/ ) \
+  bmakelib.default-if-blank( $(1).__qc.dynamic-analysis.build.dir,$$($(or $(2),$(1)).__project.dir)_build/sanitisers/ ) \
+  .WAIT \
+  bmakelib.error-if-blank( \
+    $(1).__build.dir \
+    $(1).__cmake.source.root \
+    $(1).__cmake.source.dir \
+    $(1).__cmake.build.targets \
+    $(1).__cmake.shared.libs \
+    $(1).__cmake.install \
+    $(1).__qc.format.build.dir \
+    $(1).__qc.analysis.build.dir \
+    $(1).__qc.dynamic-analysis.build.dir \
+  )
+
+.PHONY : $(1).__cmake.contract
+
+####################################################################################################
+
+$(1).configure : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
 	  -S $$($(1).__cmake.source.dir) \
 	  -B $$($(1).__build.dir) \
@@ -41,14 +98,14 @@ $(1).test : $(1).build
 
 ####################################################################################################
 
-$(1).clean :
+$(1).clean : $(1).__cmake.contract
 	-rm -rf $$($(1).__build.dir)
 
 .PHONY : $(1).clean
 
 ####################################################################################################
 
-$(1).qc-format :
+$(1).qc-format : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
 	  -S $$($(1).__cmake.source.dir) \
 	  -B $$($(1).__qc.format.build.dir) \
@@ -66,7 +123,7 @@ $(1).qc-format :
 
 ####################################################################################################
 
-$(1).__qc-cppcheck :
+$(1).__qc-cppcheck : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
 	  -S $$($(1).__cmake.source.dir) \
 	  -B $$($(1).__qc.analysis.build.dir) \
@@ -86,7 +143,7 @@ $(1).__qc-cppcheck :
 
 ####################################################################################################
 
-$(1).__qc-tidy :
+$(1).__qc-tidy : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
 	  -S $$($(1).__cmake.source.dir) \
 	  -B $$($(1).__qc.analysis.build.dir) \
@@ -112,7 +169,7 @@ $(1).qc-static-analysis : $(1).__qc-cppcheck $(1).__qc-tidy
 
 ####################################################################################################
 
-$(1).qc-dynamic-analysis :
+$(1).qc-dynamic-analysis : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
 	  -S $$($(1).__cmake.source.dir) \
 	  -B $$($(1).__qc.dynamic-analysis.build.dir) \
