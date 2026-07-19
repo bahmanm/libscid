@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-function parse_shell_words
+function append_shell_words
 {
-    local words="$1"
+    local target="$1"
+    local words="$2"
 
-    parsed_shell_words=()
     if [[ -z "$words" ]]; then
         return 0
     fi
 
-    eval "parsed_shell_words=( $words )"
+    eval "$target+=( $words )"
 }
 
 : "${ROOT:?}"
@@ -47,8 +47,7 @@ if [[ -n "${LIBSCID_CMAKE_CXX_COMPILER:-}" ]]; then
     cmake_args+=( "-DCMAKE_CXX_COMPILER=$LIBSCID_CMAKE_CXX_COMPILER" )
 fi
 
-parse_shell_words "${LIBSCID_CMAKE_CONFIGURE_ARGS:-}"
-cmake_args+=( "${parsed_shell_words[@]}" )
+append_shell_words cmake_args "${LIBSCID_CMAKE_CONFIGURE_ARGS:-}"
 
 "$LIBSCID_CMAKE" "${cmake_args[@]}"
 
@@ -58,7 +57,6 @@ cmake_build_args=(
     --target scid
 )
 
-parse_shell_words "${LIBSCID_CMAKE_BUILD_ARGS:-}"
-cmake_build_args+=( "${parsed_shell_words[@]}" )
+append_shell_words cmake_build_args "${LIBSCID_CMAKE_BUILD_ARGS:-}"
 
 "$LIBSCID_CMAKE" "${cmake_build_args[@]}"
