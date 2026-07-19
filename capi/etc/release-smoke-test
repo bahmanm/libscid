@@ -13,6 +13,17 @@ function append_shell_words
     eval "$target+=( $words )"
 }
 
+function path_entry
+{
+    local path="$1"
+
+    if command -v cygpath >/dev/null 2>&1; then
+        cygpath -u "$path"
+    else
+        printf '%s\n' "$path"
+    fi
+}
+
 : "${LIBSCID_CAPI_RELEASE_ARTEFACT_DIR:?}"
 : "${LIBSCID_CAPI_RELEASE_SMOKE_TEST_DIR:?}"
 : "${LIBSCID_HOST_SYSTEM:?}"
@@ -65,13 +76,18 @@ cmake_build_args=( --build "$examples_build_dir" )
 append_shell_words cmake_build_args "${LIBSCID_CMAKE_BUILD_ARGS:-}"
 "$LIBSCID_CMAKE" "${cmake_build_args[@]}"
 
-export PATH="$install_root/bin:$PATH"
+runtime_bin_dir="$(path_entry "$install_root/bin")"
+export PATH="$runtime_bin_dir:$PATH"
 
 case "$LIBSCID_HOST_SYSTEM" in
     Darwin)
         export DYLD_LIBRARY_PATH="$install_root/lib:${DYLD_LIBRARY_PATH:-}"
         ;;
     MINGW*|MSYS*|CYGWIN*|Windows*|Windows_NT)
+        if [[ ! -f "$runtime_bin_dir/scid.dll" ]]; then
+            echo "Could not find scid.dll in $runtime_bin_dir." >&2
+            exit 1
+        fi
         ;;
     *)
         export LD_LIBRARY_PATH="$install_root/lib:${LD_LIBRARY_PATH:-}"
