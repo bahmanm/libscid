@@ -3,7 +3,7 @@ SHELL := bash
 
 ####################################################################################################
 
-LIBSCID_BMAKELIB ?= $(firstword $(wildcard $(HOME)/.local/include/bmakelib/bmakelib.mk) bmakelib/bmakelib.mk)
+LIBSCID_BMAKELIB ?= bmakelib/bmakelib.mk
 
 include $(LIBSCID_BMAKELIB)
 
