@@ -37,6 +37,12 @@ class Position:
     def fullmove_number(self) -> int:
         return self._native.position_fullmove_number(self._handle)
 
+    def apply_san(self, san: str | bytes) -> None:
+        self._native.position_apply_san(self._handle, san)
+
+    def apply_uci(self, uci: str | bytes) -> None:
+        self._native.position_apply_uci(self._handle, uci)
+
     def _dispose(self) -> None:
         handle = getattr(self, "_handle", None)
         if handle:

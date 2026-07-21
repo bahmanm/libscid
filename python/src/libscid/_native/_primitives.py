@@ -48,6 +48,18 @@ class NativePrimitiveMixin(NativeLibraryBase):
         )
         return fullmove_number.value
 
+    def position_apply_san(self, position: ctypes.c_void_p, san: str | bytes) -> None:
+        self._check(
+            "scid_position_apply_san",
+            self._lib.scid_position_apply_san(position, encode(san)),
+        )
+
+    def position_apply_uci(self, position: ctypes.c_void_p, uci: str | bytes) -> None:
+        self._check(
+            "scid_position_apply_uci",
+            self._lib.scid_position_apply_uci(position, encode(uci)),
+        )
+
     def nag_from_string(self, text: str | bytes) -> int:
         nag = ctypes.c_ubyte()
         self._check(

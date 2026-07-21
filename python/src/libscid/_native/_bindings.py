@@ -29,6 +29,8 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     )
     bind("scid_position_side_to_move_get", [ctypes.c_void_p, c_int_p])
     bind("scid_position_fullmove_number_get", [ctypes.c_void_p, c_uint_p])
+    bind("scid_position_apply_san", [ctypes.c_void_p, ctypes.c_char_p])
+    bind("scid_position_apply_uci", [ctypes.c_void_p, ctypes.c_char_p])
 
     bind("scid_nag_create_from_string", [ctypes.c_char_p, c_ubyte_p])
     bind(

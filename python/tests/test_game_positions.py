@@ -3,6 +3,9 @@ import pytest
 import libscid
 
 STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+AFTER_E4_FEN = (
+    "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+)
 
 
 def test_game_exposes_start_position():
@@ -32,9 +35,7 @@ def test_position_exposes_white_side_to_move():
 
 
 def test_position_exposes_black_side_to_move():
-    position = libscid.Position.from_fen(
-        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
-    )
+    position = libscid.Position.from_fen(AFTER_E4_FEN)
 
     assert position.side_to_move == "black"
 
@@ -50,6 +51,46 @@ def test_position_from_fen_rejects_invalid_fen():
         libscid.Position.from_fen("not-a-fen")
 
     assert raised.value.function == "scid_position_create_from_fen"
+
+
+def test_position_can_apply_san():
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    result = position.apply_san("e4")
+
+    assert result is None
+    assert position.fen == AFTER_E4_FEN
+    assert position.side_to_move == "black"
+
+
+def test_position_can_apply_uci():
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    result = position.apply_uci("e2e4")
+
+    assert result is None
+    assert position.fen == AFTER_E4_FEN
+    assert position.side_to_move == "black"
+
+
+def test_position_apply_san_rejects_invalid_move_without_mutating():
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    with pytest.raises(libscid.LibScidError) as raised:
+        position.apply_san("e5")
+
+    assert raised.value.function == "scid_position_apply_san"
+    assert position.fen == STANDARD_FEN
+
+
+def test_position_apply_uci_rejects_invalid_move_without_mutating():
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    with pytest.raises(libscid.LibScidError) as raised:
+        position.apply_uci("e7e5")
+
+    assert raised.value.function == "scid_position_apply_uci"
+    assert position.fen == STANDARD_FEN
 
 
 def test_position_is_returned_by_libscid_apis():
