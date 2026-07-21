@@ -4,6 +4,22 @@ SCID_ERROR_BUFFER_FULL = 6
 SCID_WHITE = 0
 SCID_BLACK = 1
 
+SCID_PIECE_SYMBOLS: dict[int, str | None] = {
+    0: None,
+    1: "K",
+    2: "Q",
+    3: "R",
+    4: "B",
+    5: "N",
+    6: "P",
+    9: "k",
+    10: "q",
+    11: "r",
+    12: "b",
+    13: "n",
+    14: "p",
+}
+
 
 SCID_GAME_MERGE_MOVES_APPEND = 0
 

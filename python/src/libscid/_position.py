@@ -37,6 +37,13 @@ class Position:
     def fullmove_number(self) -> int:
         return self._native.position_fullmove_number(self._handle)
 
+    @property
+    def halfmove_clock(self) -> int:
+        return self._native.position_halfmove_clock(self._handle)
+
+    def get_piece_at(self, square: str | bytes) -> str | None:
+        return self._native.position_piece_at(self._handle, square)
+
     def apply_san(self, san: str | bytes) -> None:
         self._native.position_apply_san(self._handle, san)
 
