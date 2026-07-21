@@ -9,6 +9,7 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     c_size_t_p = ctypes.POINTER(ctypes.c_size_t)
     c_void_p_p = ctypes.POINTER(ctypes.c_void_p)
     c_int_p = ctypes.POINTER(ctypes.c_int)
+    c_uint_p = ctypes.POINTER(ctypes.c_uint)
     c_ubyte_p = ctypes.POINTER(ctypes.c_ubyte)
 
     def bind(
@@ -26,6 +27,8 @@ def bind_functions(lib: ctypes.CDLL) -> None:
         "scid_position_to_fen",
         [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
     )
+    bind("scid_position_side_to_move_get", [ctypes.c_void_p, c_int_p])
+    bind("scid_position_fullmove_number_get", [ctypes.c_void_p, c_uint_p])
 
     bind("scid_nag_create_from_string", [ctypes.c_char_p, c_ubyte_p])
     bind(

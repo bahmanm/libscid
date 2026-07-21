@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ctypes
+from typing import Literal
 
 from ._native import NativeLibrary, load_library
 
@@ -27,6 +28,14 @@ class Position:
     @property
     def fen(self) -> str:
         return self._native.position_to_fen(self._handle)
+
+    @property
+    def side_to_move(self) -> Literal["white", "black"]:
+        return self._native.position_side_to_move(self._handle)
+
+    @property
+    def fullmove_number(self) -> int:
+        return self._native.position_fullmove_number(self._handle)
 
     def _dispose(self) -> None:
         handle = getattr(self, "_handle", None)

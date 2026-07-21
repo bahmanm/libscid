@@ -25,6 +25,26 @@ def test_position_can_be_created_from_fen():
     assert position.fen == STANDARD_FEN
 
 
+def test_position_exposes_white_side_to_move():
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    assert position.side_to_move == "white"
+
+
+def test_position_exposes_black_side_to_move():
+    position = libscid.Position.from_fen(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+    )
+
+    assert position.side_to_move == "black"
+
+
+def test_position_exposes_fullmove_number():
+    position = libscid.Position.from_fen("8/K7/8/8/7k/8/8/8 w - - 45 25")
+
+    assert position.fullmove_number == 25
+
+
 def test_position_from_fen_rejects_invalid_fen():
     with pytest.raises(libscid.LibScidError) as raised:
         libscid.Position.from_fen("not-a-fen")

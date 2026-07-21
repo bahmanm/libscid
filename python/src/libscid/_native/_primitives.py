@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import ctypes
+from typing import Literal
 
 from ._base import NativeLibraryBase
+from ._constants import SCID_BLACK, SCID_WHITE
 from ._text import encode
 
 
@@ -19,6 +21,32 @@ class NativePrimitiveMixin(NativeLibraryBase):
 
     def position_to_fen(self, position: ctypes.c_void_p) -> str:
         return self._string_result("scid_position_to_fen", position)
+
+    def position_side_to_move(
+        self, position: ctypes.c_void_p
+    ) -> Literal["white", "black"]:
+        side_to_move = ctypes.c_int()
+        self._check(
+            "scid_position_side_to_move_get",
+            self._lib.scid_position_side_to_move_get(
+                position, ctypes.byref(side_to_move)
+            ),
+        )
+        if side_to_move.value == SCID_WHITE:
+            return "white"
+        if side_to_move.value == SCID_BLACK:
+            return "black"
+        raise ValueError(f"unexpected side-to-move value: {side_to_move.value}")
+
+    def position_fullmove_number(self, position: ctypes.c_void_p) -> int:
+        fullmove_number = ctypes.c_uint()
+        self._check(
+            "scid_position_fullmove_number_get",
+            self._lib.scid_position_fullmove_number_get(
+                position, ctypes.byref(fullmove_number)
+            ),
+        )
+        return fullmove_number.value
 
     def nag_from_string(self, text: str | bytes) -> int:
         nag = ctypes.c_ubyte()
