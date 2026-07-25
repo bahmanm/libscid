@@ -6,6 +6,7 @@ from typing import Literal
 from ._base import NativeLibraryBase
 from ._constants import SCID_BLACK, SCID_PIECE_SYMBOLS, SCID_WHITE
 from ._text import encode
+from ._types import ScidMoveSpec
 
 
 class NativePrimitiveMixin(NativeLibraryBase):
@@ -81,6 +82,16 @@ class NativePrimitiveMixin(NativeLibraryBase):
             return SCID_PIECE_SYMBOLS[piece.value]
         except KeyError:
             raise ValueError(f"unexpected piece value: {piece.value}") from None
+
+    def position_to_san(self, position: ctypes.c_void_p, move: str | bytes) -> str:
+        movespec = ScidMoveSpec()
+        self._check(
+            "scid_movespec_create_from_san",
+            self._lib.scid_movespec_create_from_san(
+                position, encode(move), ctypes.byref(movespec)
+            ),
+        )
+        return self._string_result("scid_movespec_to_san", position, movespec)
 
     def position_apply_san(self, position: ctypes.c_void_p, san: str | bytes) -> None:
         self._check(

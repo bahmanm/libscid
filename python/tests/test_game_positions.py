@@ -85,6 +85,36 @@ def test_position_get_piece_at_rejects_invalid_square():
     assert raised.value.function == "scid_square_from_string"
 
 
+@pytest.mark.parametrize("move", ["e4", "e2e4", "e2-e4", "e2xe4", "Pe4", "e4+"])
+def test_position_to_san_canonicalizes_permissive_move_text(move: str):
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    assert position.to_san(move) == "e4"
+    assert position.fen == STANDARD_FEN
+
+
+def test_position_to_san_canonicalizes_promotion():
+    position = libscid.Position.from_fen("4k3/1P6/8/8/8/8/8/4K3 w - - 0 1")
+
+    assert position.to_san("b8Q") == "b8=Q+"
+
+
+def test_position_to_san_canonicalizes_castling():
+    position = libscid.Position.from_fen("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1")
+
+    assert position.to_san("OO") == "O-O"
+
+
+def test_position_to_san_rejects_invalid_move():
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    with pytest.raises(libscid.LibScidError) as raised:
+        position.to_san("not-a-move")
+
+    assert raised.value.function == "scid_movespec_create_from_san"
+    assert position.fen == STANDARD_FEN
+
+
 def test_position_from_fen_rejects_invalid_fen():
     with pytest.raises(libscid.LibScidError) as raised:
         libscid.Position.from_fen("not-a-fen")

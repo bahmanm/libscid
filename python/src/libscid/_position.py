@@ -44,6 +44,9 @@ class Position:
     def get_piece_at(self, square: str | bytes) -> str | None:
         return self._native.position_piece_at(self._handle, square)
 
+    def to_san(self, move: str | bytes) -> str:
+        return self._native.position_to_san(self._handle, move)
+
     def apply_san(self, san: str | bytes) -> None:
         self._native.position_apply_san(self._handle, san)
 

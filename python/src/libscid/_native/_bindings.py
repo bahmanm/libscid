@@ -49,6 +49,16 @@ def bind_functions(lib: ctypes.CDLL) -> None:
         "scid_movespec_to_uci",
         [ScidMoveSpec, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
     )
+    bind(
+        "scid_movespec_to_san",
+        [
+            ctypes.c_void_p,
+            ScidMoveSpec,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ],
+    )
 
     bind(
         "scid_game_create",
