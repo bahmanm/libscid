@@ -34,7 +34,12 @@ The C ABI keeps ownership and mutability explicit:
 Positions have both mutable and immutable styles. `scid_position_apply_san()`
 and `scid_position_apply_uci()` mutate a position in place;
 `scid_position_create_with_san()` and `scid_position_create_with_uci()` create a
-new position from an existing position and one legal move.
+new position from an existing position and one legal move. Legal moves are
+enumerated with `scid_position_legal_moves()`, which writes complete
+`scid_movespec` values into a caller-owned array. Callers can allocate
+`SCID_MAX_LEGAL_MOVES` entries for the full legal-move upper bound. If the array
+is too small, the function returns `SCID_ERROR_BUFFER_FULL` and writes zero
+moves.
 
 Game cursors are value objects bound to a particular game. Navigation functions
 do not mutate the input cursor; they construct a new cursor in an `out_...`

@@ -2,11 +2,16 @@
 #define SCID_MOVESPEC_H
 
 #include "scid/_platform.h"
-#include "scid/position.h"
+#include "scid/primitives.h"
 
 #ifdef __cplusplus
 extern "C"
 {
+#endif
+
+#ifndef SCID_POSITION_TYPEDEF
+#define SCID_POSITION_TYPEDEF
+    typedef struct scid_position scid_position;
 #endif
 
     typedef struct scid_movespec

@@ -6,6 +6,27 @@
 #include <stddef.h>
 #include <string.h>
 
+static int
+test_moves_include(
+    const scid_movespec* moves,
+    size_t               move_count,
+    scid_square          from,
+    scid_square          to,
+    scid_piece           promotion,
+    int                  is_castling)
+{
+    size_t i = 0;
+    for (i = 0; i < move_count; ++i)
+    {
+        if (moves[i].from == from && moves[i].to == to && moves[i].promotion == promotion &&
+            moves[i].is_castling == is_castling)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void
 test_position(void)
 {
@@ -13,6 +34,7 @@ test_position(void)
     const char*    custom_fen = "8/K7/8/8/7k/8/8/8 w - - 45 25";
     const char*    check_fen = "4k3/8/8/8/8/8/4q3/4K3 w - - 0 1";
     const char*    mate_fen = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
+    const char*    promotion_fen = "4k3/P7/8/8/8/8/8/4K3 w - - 0 1";
     scid_position* position = NULL;
     scid_position* next_position = NULL;
     scid_colour    side_to_move = SCID_WHITE;
@@ -21,6 +43,8 @@ test_position(void)
     scid_piece     piece = SCID_PIECE_NONE;
     unsigned       number = 0;
     size_t         fen_size = 0;
+    scid_movespec  moves[SCID_MAX_LEGAL_MOVES];
+    size_t         move_count = 999;
 
     assert(test_position_create_standard(&position) == SCID_OK);
     assert(position != NULL);
@@ -57,6 +81,26 @@ test_position(void)
 
     assert(scid_position_piece_at_get(position, 28, &piece) == SCID_OK);
     assert(piece == SCID_PIECE_NONE);
+
+    assert(
+        scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, &move_count) == SCID_OK);
+    assert(move_count == 20);
+    assert(test_moves_include(moves, move_count, 12, 28, SCID_PIECE_NONE, 0));
+    assert(test_moves_include(moves, move_count, 6, 21, SCID_PIECE_NONE, 0));
+    assert(!test_moves_include(moves, move_count, 12, 36, SCID_PIECE_NONE, 0));
+
+    move_count = 999;
+    assert(scid_position_legal_moves(position, moves, 19, &move_count) == SCID_ERROR_BUFFER_FULL);
+    assert(move_count == 0);
+
+    move_count = 999;
+    assert(
+        scid_position_legal_moves(position, NULL, SCID_MAX_LEGAL_MOVES, &move_count) ==
+        SCID_ERROR_BAD_ARG);
+    assert(move_count == 0);
+    assert(
+        scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, NULL) ==
+        SCID_ERROR_BAD_ARG);
 
     scid_position_free(position);
 
@@ -147,6 +191,19 @@ test_position(void)
     assert(truth == 1);
     assert(scid_position_is_checkmate(position, &truth) == SCID_OK);
     assert(truth == 1);
+    assert(
+        scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, &move_count) == SCID_OK);
+    assert(move_count == 0);
+    scid_position_free(position);
+
+    position = NULL;
+    assert(scid_position_create_from_fen(promotion_fen, &position) == SCID_OK);
+    assert(
+        scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, &move_count) == SCID_OK);
+    assert(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_QUEEN, 0));
+    assert(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_ROOK, 0));
+    assert(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_BISHOP, 0));
+    assert(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_KNIGHT, 0));
     scid_position_free(position);
 
     position = (scid_position*)1;
@@ -177,6 +234,9 @@ test_position(void)
     assert(scid_position_piece_at_get(NULL, 4, &piece) == SCID_ERROR_BAD_ARG);
     assert(scid_position_piece_at_get(position, 4, NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_position_piece_at_get(position, 64, &piece) == SCID_ERROR_BAD_ARG);
+    assert(
+        scid_position_legal_moves(NULL, moves, SCID_MAX_LEGAL_MOVES, &move_count) ==
+        SCID_ERROR_BAD_ARG);
 
     scid_position_free(next_position);
     scid_position_free(NULL);
