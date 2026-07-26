@@ -17,6 +17,7 @@
 #include "scid/database/scidbase.h"
 #include "scid/eco/book.h"
 #include "scid/eco/code.h"
+#include "scid/movespec.h"
 
 #include <array>
 #include <cctype>
@@ -29,6 +30,21 @@
 #include <vector>
 
 using namespace scid::libscid;
+
+namespace
+{
+
+    scid_movespec
+    movespec_from_action(const scid::core::MoveAction& move)
+    {
+        return {
+            move.from, move.to,
+            move.promote == scid::core::EMPTY ? SCID_PIECE_NONE
+                                              : static_cast<scid_piece>(move.promote),
+            move.isCastle() != 0 ? 1 : 0};
+    }
+
+} // namespace
 
 scid_error
 scid_position_create_from_fen(
@@ -230,6 +246,51 @@ scid_position_apply_uci(
     }
     catch (...)
     {
+        return SCID_ERROR;
+    }
+}
+
+
+scid_error
+scid_position_legal_moves(
+    const scid_position* position,
+    scid_movespec*       out_moves,
+    size_t               out_moves_capacity,
+    size_t*              out_moves_size)
+{
+    if (out_moves_size == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_moves_size = 0;
+    if (position == nullptr || out_moves == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        scid::core::MoveList moves;
+        const_cast<scid::core::Position&>(position->value).GenerateMoves(&moves);
+        const auto move_count = static_cast<size_t>(moves.Size());
+        if (out_moves_capacity < move_count)
+        {
+            return SCID_ERROR_BUFFER_FULL;
+        }
+
+        size_t written = 0;
+        for (auto& move : moves)
+        {
+            out_moves[written++] = movespec_from_action(move);
+        }
+
+        *out_moves_size = written;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_moves_size = 0;
         return SCID_ERROR;
     }
 }

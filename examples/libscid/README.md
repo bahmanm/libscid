@@ -7,7 +7,7 @@ This directory contains examples that use the C ABI from `libscid`.
 - `020-author-pgn/`: author a game and export with default and custom PGN options.
 - `030-nonstandard-start/`: create a blank game from a FEN start position and export it.
 - `040-navigate-pgn/`: navigate mainline moves and variations with immutable game cursors.
-- `050-position-and-moves/`: apply moves to a position and inspect the resulting state.
+- `050-position-and-moves/`: apply moves to a position, inspect the resulting state, and enumerate legal moves.
 - `060-mutate-pgn/`: edit move metadata and merge source-game moves into an existing game.
 - `070-eco-lookup/`: load an ECO book and classify a position.
 - `080-memory-database/`: create an in-memory database and list a filtered game.

@@ -2,7 +2,7 @@
 
 This example starts from the standard position through the C ABI, applies SAN
 and UCI moves, converts moves between SAN/UCI, prints FEN, and inspects side to
-move, move counters, and board contents.
+move, move counters, board contents, and legal moves.
 
 Install libscid first; see the installation guide:
 

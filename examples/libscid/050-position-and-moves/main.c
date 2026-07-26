@@ -28,6 +28,44 @@ text_equals(
 }
 
 
+static int
+print_legal_moves(scid_position* position)
+{
+    scid_movespec moves[SCID_MAX_LEGAL_MOVES];
+    char          san[32];
+    char          uci[8];
+    size_t        move_count = 0;
+    size_t        san_size = 0;
+    size_t        uci_size = 0;
+    size_t        i = 0;
+
+    if (!check(
+            scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, &move_count),
+            "scid_position_legal_moves"))
+    {
+        return 0;
+    }
+
+    printf("legal moves: %zu\n", move_count);
+    for (i = 0; i < move_count; ++i)
+    {
+        if (!check(
+                scid_movespec_to_san(position, moves[i], san, sizeof(san), &san_size),
+                "scid_movespec_to_san") ||
+            !check(
+                scid_movespec_to_uci(moves[i], uci, sizeof(uci), &uci_size),
+                "scid_movespec_to_uci"))
+        {
+            return 0;
+        }
+
+        printf("  %.*s (%.*s)\n", (int)san_size, san, (int)uci_size, uci);
+    }
+
+    return 1;
+}
+
+
 int
 main(void)
 {
@@ -119,6 +157,13 @@ main(void)
 
     printf("side to move: white\n");
     printf("piece on %.*s: white pawn\n", (int)text_size, text);
+
+    if (!print_legal_moves(position))
+    {
+        scid_position_free(next_position);
+        scid_position_free(position);
+        return 1;
+    }
 
     scid_position_free(next_position);
     scid_position_free(position);

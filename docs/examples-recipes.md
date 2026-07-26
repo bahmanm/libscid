@@ -32,8 +32,8 @@ The same examples are included in release archives under
   position with `scid_game_create_blank()` and export it.
 - `examples/libscid/040-navigate-pgn`: navigate mainline moves and variations
   with immutable game cursors.
-- `examples/libscid/050-position-and-moves`: apply moves to a position and
-  inspect the resulting state.
+- `examples/libscid/050-position-and-moves`: apply moves to a position, inspect
+  the resulting state, and enumerate legal moves.
 - `examples/libscid/060-mutate-pgn`: edit move metadata and merge a source
   game's moves as a variation in an existing PGN game with
   `scid_game_merge_moves()`.

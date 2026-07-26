@@ -2,6 +2,7 @@
 #define SCID_POSITION_H
 
 #include "scid/_platform.h"
+#include "scid/movespec.h"
 #include "scid/primitives.h"
 
 #ifdef __cplusplus
@@ -9,7 +10,15 @@ extern "C"
 {
 #endif
 
+#ifndef SCID_POSITION_TYPEDEF
+#define SCID_POSITION_TYPEDEF
     typedef struct scid_position scid_position;
+#endif
+
+    enum
+    {
+        SCID_MAX_LEGAL_MOVES = 256
+    };
 
 
     SCID_API scid_error
@@ -54,6 +63,14 @@ extern "C"
     scid_position_apply_uci(
         scid_position* position,
         const char*    uci);
+
+
+    SCID_API scid_error
+    scid_position_legal_moves(
+        const scid_position* position,
+        scid_movespec*       out_moves,
+        size_t               out_moves_capacity,
+        size_t*              out_moves_size);
 
 
     SCID_API scid_error

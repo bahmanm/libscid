@@ -4,7 +4,12 @@ import ctypes
 from typing import Literal
 
 from ._base import NativeLibraryBase
-from ._constants import SCID_BLACK, SCID_PIECE_SYMBOLS, SCID_WHITE
+from ._constants import (
+    SCID_BLACK,
+    SCID_MAX_LEGAL_MOVES,
+    SCID_PIECE_SYMBOLS,
+    SCID_WHITE,
+)
 from ._text import encode
 from ._types import ScidMoveSpec
 
@@ -98,6 +103,42 @@ class NativePrimitiveMixin(NativeLibraryBase):
             return SCID_PIECE_SYMBOLS[piece.value]
         except KeyError:
             raise ValueError(f"unexpected piece value: {piece.value}") from None
+
+    def position_legal_moves(
+        self, position: ctypes.c_void_p
+    ) -> tuple[ScidMoveSpec, ...]:
+        move_array_type = ScidMoveSpec * SCID_MAX_LEGAL_MOVES
+        moves = move_array_type()
+        move_count = ctypes.c_size_t()
+        self._check(
+            "scid_position_legal_moves",
+            self._lib.scid_position_legal_moves(
+                position,
+                moves,
+                SCID_MAX_LEGAL_MOVES,
+                ctypes.byref(move_count),
+            ),
+        )
+        return tuple(moves[index] for index in range(move_count.value))
+
+    def position_legal_moves_uci(self, position: ctypes.c_void_p) -> tuple[str, ...]:
+        return tuple(
+            self._string_result("scid_movespec_to_uci", move)
+            for move in self.position_legal_moves(position)
+        )
+
+    def position_move_metadata(
+        self, position: ctypes.c_void_p, move: str | bytes
+    ) -> tuple[ScidMoveSpec, str]:
+        movespec = ScidMoveSpec()
+        self._check(
+            "scid_movespec_create_from_san",
+            self._lib.scid_movespec_create_from_san(
+                position, encode(move), ctypes.byref(movespec)
+            ),
+        )
+        san = self._string_result("scid_movespec_to_san", position, movespec)
+        return movespec, san
 
     def position_to_san(self, position: ctypes.c_void_p, move: str | bytes) -> str:
         movespec = ScidMoveSpec()
