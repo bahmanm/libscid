@@ -4,6 +4,7 @@ from importlib.metadata import PackageNotFoundError, version
 
 from ._cursor import Cursor
 from ._game import Game
+from ._move_metadata import MoveMetadata
 from ._nag import Nag
 from ._native import LibScidError
 from ._pgn import PgnOptions
@@ -18,6 +19,7 @@ __all__ = [
     "Cursor",
     "Game",
     "LibScidError",
+    "MoveMetadata",
     "Nag",
     "PgnOptions",
     "Position",

@@ -37,6 +37,15 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     bind("scid_position_piece_at_get", [ctypes.c_void_p, ctypes.c_uint, c_uint_p])
     bind("scid_position_apply_san", [ctypes.c_void_p, ctypes.c_char_p])
     bind("scid_position_apply_uci", [ctypes.c_void_p, ctypes.c_char_p])
+    bind(
+        "scid_position_legal_moves",
+        [
+            ctypes.c_void_p,
+            ctypes.POINTER(ScidMoveSpec),
+            ctypes.c_size_t,
+            c_size_t_p,
+        ],
+    )
 
     bind("scid_nag_create_from_string", [ctypes.c_char_p, c_ubyte_p])
     bind(

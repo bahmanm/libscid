@@ -3,6 +3,7 @@ from __future__ import annotations
 import ctypes
 from typing import Literal
 
+from ._move_metadata import MoveMetadata
 from ._native import NativeLibrary, load_library
 
 
@@ -51,6 +52,23 @@ class Position:
 
     def get_piece_at(self, square: str | bytes) -> str | None:
         return self._native.position_piece_at(self._handle, square)
+
+    @property
+    def legal_moves(self) -> tuple[str, ...]:
+        return self._native.position_legal_moves_uci(self._handle)
+
+    def get_move_metadata(self, move: str | bytes) -> MoveMetadata:
+        movespec, san = self._native.position_move_metadata(self._handle, move)
+        metadata = MoveMetadata.NONE
+        if san.endswith("+") or san.endswith("#"):
+            metadata |= MoveMetadata.CHECK
+        if san.endswith("#"):
+            metadata |= MoveMetadata.CHECKMATE
+        if movespec.is_castling:
+            metadata |= MoveMetadata.CASTLING
+        if movespec.promotion != 0:
+            metadata |= MoveMetadata.PROMOTION
+        return metadata
 
     def to_san(self, move: str | bytes) -> str:
         return self._native.position_to_san(self._handle, move)

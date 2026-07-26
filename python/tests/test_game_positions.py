@@ -77,6 +77,58 @@ def test_position_exposes_is_checkmate_true_for_mated_position():
     assert position.is_checkmate is True
 
 
+def test_position_exposes_legal_moves_as_uci_strings():
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    assert len(position.legal_moves) == 20
+    assert "e2e4" in position.legal_moves
+    assert "g1f3" in position.legal_moves
+    assert "e2e5" not in position.legal_moves
+
+
+def test_position_move_metadata_reports_check():
+    position = libscid.Position.from_fen("4k3/8/8/8/8/8/3R4/4K3 w - - 0 1")
+
+    metadata = position.get_move_metadata("d2d8")
+
+    assert metadata & libscid.MoveMetadata.CHECK
+    assert not metadata & libscid.MoveMetadata.CHECKMATE
+
+
+def test_position_move_metadata_reports_checkmate():
+    position = libscid.Position.from_fen("7k/8/5KQ1/8/8/8/8/8 w - - 0 1")
+
+    metadata = position.get_move_metadata("g6g7")
+
+    assert metadata & libscid.MoveMetadata.CHECK
+    assert metadata & libscid.MoveMetadata.CHECKMATE
+
+
+def test_position_move_metadata_reports_castling():
+    position = libscid.Position.from_fen("r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1")
+
+    metadata = position.get_move_metadata("e1g1")
+
+    assert metadata & libscid.MoveMetadata.CASTLING
+
+
+def test_position_move_metadata_reports_promotion():
+    position = libscid.Position.from_fen("4k3/1P6/8/8/8/8/8/4K3 w - - 0 1")
+
+    metadata = position.get_move_metadata("b7b8q")
+
+    assert metadata & libscid.MoveMetadata.PROMOTION
+
+
+def test_position_move_metadata_rejects_invalid_move():
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    with pytest.raises(libscid.LibScidError) as raised:
+        position.get_move_metadata("e7e5")
+
+    assert raised.value.function == "scid_movespec_create_from_san"
+
+
 def test_position_get_piece_at_returns_white_piece_symbol():
     position = libscid.Position.from_fen(STANDARD_FEN)
 
