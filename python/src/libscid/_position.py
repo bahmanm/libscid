@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ctypes
+from typing import Literal
 
 from ._native import NativeLibrary, load_library
 
@@ -27,6 +28,38 @@ class Position:
     @property
     def fen(self) -> str:
         return self._native.position_to_fen(self._handle)
+
+    @property
+    def side_to_move(self) -> Literal["white", "black"]:
+        return self._native.position_side_to_move(self._handle)
+
+    @property
+    def fullmove_number(self) -> int:
+        return self._native.position_fullmove_number(self._handle)
+
+    @property
+    def halfmove_clock(self) -> int:
+        return self._native.position_halfmove_clock(self._handle)
+
+    @property
+    def is_check(self) -> bool:
+        return self._native.position_is_check(self._handle)
+
+    @property
+    def is_checkmate(self) -> bool:
+        return self._native.position_is_checkmate(self._handle)
+
+    def get_piece_at(self, square: str | bytes) -> str | None:
+        return self._native.position_piece_at(self._handle, square)
+
+    def to_san(self, move: str | bytes) -> str:
+        return self._native.position_to_san(self._handle, move)
+
+    def apply_san(self, san: str | bytes) -> None:
+        self._native.position_apply_san(self._handle, san)
+
+    def apply_uci(self, uci: str | bytes) -> None:
+        self._native.position_apply_uci(self._handle, uci)
 
     def _dispose(self) -> None:
         handle = getattr(self, "_handle", None)

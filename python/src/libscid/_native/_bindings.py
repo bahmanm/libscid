@@ -9,6 +9,7 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     c_size_t_p = ctypes.POINTER(ctypes.c_size_t)
     c_void_p_p = ctypes.POINTER(ctypes.c_void_p)
     c_int_p = ctypes.POINTER(ctypes.c_int)
+    c_uint_p = ctypes.POINTER(ctypes.c_uint)
     c_ubyte_p = ctypes.POINTER(ctypes.c_ubyte)
 
     def bind(
@@ -20,12 +21,22 @@ def bind_functions(lib: ctypes.CDLL) -> None:
         function.argtypes = argtypes
         function.restype = restype
 
+    bind("scid_square_from_string", [ctypes.c_char_p, c_uint_p])
+
     bind("scid_position_create_from_fen", [ctypes.c_char_p, c_void_p_p])
     bind("scid_position_free", [ctypes.c_void_p], None)
     bind(
         "scid_position_to_fen",
         [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
     )
+    bind("scid_position_side_to_move_get", [ctypes.c_void_p, c_int_p])
+    bind("scid_position_fullmove_number_get", [ctypes.c_void_p, c_uint_p])
+    bind("scid_position_halfmove_clock_get", [ctypes.c_void_p, c_uint_p])
+    bind("scid_position_is_check", [ctypes.c_void_p, c_int_p])
+    bind("scid_position_is_checkmate", [ctypes.c_void_p, c_int_p])
+    bind("scid_position_piece_at_get", [ctypes.c_void_p, ctypes.c_uint, c_uint_p])
+    bind("scid_position_apply_san", [ctypes.c_void_p, ctypes.c_char_p])
+    bind("scid_position_apply_uci", [ctypes.c_void_p, ctypes.c_char_p])
 
     bind("scid_nag_create_from_string", [ctypes.c_char_p, c_ubyte_p])
     bind(
@@ -39,6 +50,16 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     bind(
         "scid_movespec_to_uci",
         [ScidMoveSpec, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
+    )
+    bind(
+        "scid_movespec_to_san",
+        [
+            ctypes.c_void_p,
+            ScidMoveSpec,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ],
     )
 
     bind(
