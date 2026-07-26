@@ -32,6 +32,8 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     bind("scid_position_side_to_move_get", [ctypes.c_void_p, c_int_p])
     bind("scid_position_fullmove_number_get", [ctypes.c_void_p, c_uint_p])
     bind("scid_position_halfmove_clock_get", [ctypes.c_void_p, c_uint_p])
+    bind("scid_position_is_check", [ctypes.c_void_p, c_int_p])
+    bind("scid_position_is_checkmate", [ctypes.c_void_p, c_int_p])
     bind("scid_position_piece_at_get", [ctypes.c_void_p, ctypes.c_uint, c_uint_p])
     bind("scid_position_apply_san", [ctypes.c_void_p, ctypes.c_char_p])
     bind("scid_position_apply_uci", [ctypes.c_void_p, ctypes.c_char_p])

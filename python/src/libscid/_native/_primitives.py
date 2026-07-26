@@ -67,6 +67,22 @@ class NativePrimitiveMixin(NativeLibraryBase):
         )
         return halfmove_clock.value
 
+    def position_is_check(self, position: ctypes.c_void_p) -> bool:
+        is_check = ctypes.c_int()
+        self._check(
+            "scid_position_is_check",
+            self._lib.scid_position_is_check(position, ctypes.byref(is_check)),
+        )
+        return bool(is_check.value)
+
+    def position_is_checkmate(self, position: ctypes.c_void_p) -> bool:
+        is_checkmate = ctypes.c_int()
+        self._check(
+            "scid_position_is_checkmate",
+            self._lib.scid_position_is_checkmate(position, ctypes.byref(is_checkmate)),
+        )
+        return bool(is_checkmate.value)
+
     def position_piece_at(
         self, position: ctypes.c_void_p, square: str | bytes
     ) -> str | None:

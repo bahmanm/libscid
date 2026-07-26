@@ -41,6 +41,14 @@ class Position:
     def halfmove_clock(self) -> int:
         return self._native.position_halfmove_clock(self._handle)
 
+    @property
+    def is_check(self) -> bool:
+        return self._native.position_is_check(self._handle)
+
+    @property
+    def is_checkmate(self) -> bool:
+        return self._native.position_is_checkmate(self._handle)
+
     def get_piece_at(self, square: str | bytes) -> str | None:
         return self._native.position_piece_at(self._handle, square)
 
