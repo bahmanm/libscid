@@ -6,6 +6,7 @@ STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 AFTER_E4_FEN = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
 CHECK_FEN = "4k3/8/8/8/8/8/4q3/4K3 w - - 0 1"
 CHECKMATE_FEN = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3"
+STALEMATE_FEN = "7k/5Q2/6K1/8/8/8/8/8 b - - 0 1"
 
 
 def test_game_exposes_start_position():
@@ -75,6 +76,27 @@ def test_position_exposes_is_checkmate_true_for_mated_position():
 
     assert position.is_check is True
     assert position.is_checkmate is True
+
+
+def test_position_exposes_is_stalemate_false_for_start_position():
+    position = libscid.Position.from_fen(STANDARD_FEN)
+
+    assert position.is_stalemate is False
+
+
+def test_position_exposes_is_stalemate_false_for_mated_position():
+    position = libscid.Position.from_fen(CHECKMATE_FEN)
+
+    assert position.is_stalemate is False
+
+
+def test_position_exposes_is_stalemate_true_for_stalemated_position():
+    position = libscid.Position.from_fen(STALEMATE_FEN)
+
+    assert position.is_check is False
+    assert position.is_checkmate is False
+    assert position.legal_moves == ()
+    assert position.is_stalemate is True
 
 
 def test_position_exposes_legal_moves_as_uci_strings():

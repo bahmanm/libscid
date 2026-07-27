@@ -50,6 +50,10 @@ class Position:
     def is_checkmate(self) -> bool:
         return self._native.position_is_checkmate(self._handle)
 
+    @property
+    def is_stalemate(self) -> bool:
+        return not self.is_check and not self.legal_moves
+
     def get_piece_at(self, square: str | bytes) -> str | None:
         return self._native.position_piece_at(self._handle, square)
 
