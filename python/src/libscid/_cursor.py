@@ -3,6 +3,7 @@ from __future__ import annotations
 import ctypes
 from typing import Any
 
+from ._arbiter import Arbiter
 from ._nag import Nag
 from ._native import NativeLibrary
 from ._position import Position
@@ -137,6 +138,30 @@ class Cursor:
     def _require_line_end(self, method: str) -> None:
         if not self.is_line_end:
             raise ValueError(f"{method} requires cursor at line end")
+
+    def _path_move_uci(self) -> tuple[str, ...]:
+        cursor = self.clone()
+        moves = []
+        while True:
+            move = cursor.previous_move_uci
+            if move is not None:
+                moves.append(move)
+                previous = cursor.previous()
+                if previous is None:
+                    raise RuntimeError("Cursor previous move disappeared")
+                cursor = previous
+                continue
+
+            parent = cursor.exit_variation()
+            if parent is not None:
+                cursor = parent
+                continue
+
+            return tuple(reversed(moves))
+
+    @property
+    def arbiter(self) -> Arbiter:
+        return Arbiter(self)
 
     @property
     def previous_move_san(self) -> str | None:
