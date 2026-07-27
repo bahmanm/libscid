@@ -50,6 +50,21 @@ def test_game_rejects_invalid_result_tag():
         game.set_tag("Result", "bad-result")
 
 
+def test_game_from_pgn_keeps_unknown_result_for_checkmate_position():
+    game = libscid.Game.from_pgn("1. f3 e5 2. g4 Qh4# *")
+
+    assert game.end_position.is_checkmate is True
+    assert game.get_tag("Result") == "*"
+
+
+def test_game_from_pgn_keeps_recorded_result_for_non_terminal_position():
+    game = libscid.Game.from_pgn("1. e4 1-0")
+
+    assert game.end_position.is_checkmate is False
+    assert game.end_position.is_stalemate is False
+    assert game.get_tag("Result") == "1-0"
+
+
 def test_game_can_remove_supplemental_tag():
     game = libscid.Game.from_pgn(TAGGED_PGN)
     game.set_tag("ECO", "C20")
