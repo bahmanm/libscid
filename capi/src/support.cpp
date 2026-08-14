@@ -17,6 +17,7 @@
 #include "scid/eco/book.h"
 #include "scid/eco/code.h"
 
+#include <algorithm>
 #include <array>
 #include <cctype>
 #include <cstring>
@@ -566,39 +567,42 @@ namespace scid::libscid
 
 
     bool
-    filter_value_is_valid(unsigned value)
-    {
-        return value <= std::numeric_limits<scid::core::byte>::max();
-    }
-
-
-    bool
-    database_filter_id_is_builtin(std::string_view filter_id)
-    {
-        return filter_id == "all" || filter_id == "dbfilter";
-    }
-
-
-    bool
-    database_filter_id_is_mutable(std::string_view filter_id)
-    {
-        return filter_id != "all";
-    }
-
-
-    bool
     database_filter_get(
         const scid_database*     database,
-        const char*              filter_id,
+        scid_filter_id           filter_id,
         scid::database::HFilter* out_filter)
     {
-        if (database == nullptr || filter_id == nullptr || out_filter == nullptr ||
-            !database->value.isOpen())
+        if (database == nullptr || out_filter == nullptr || !database->value.isOpen())
         {
             return false;
         }
 
-        auto filter = database->value.getFilter(filter_id);
+        std::string_view filter_name;
+        if (filter_id == SCID_FILTER_ALL_GAMES)
+        {
+            filter_name = "all";
+        }
+        else if (filter_id == SCID_FILTER_PRIMARY)
+        {
+            filter_name = "dbfilter";
+        }
+        else if (filter_id > 0)
+        {
+            const auto it = std::find_if(
+                database->filters.begin(), database->filters.end(),
+                [filter_id](const auto& entry) { return entry.first == filter_id; });
+            if (it == database->filters.end())
+            {
+                return false;
+            }
+            filter_name = it->second;
+        }
+        else
+        {
+            return false;
+        }
+
+        auto filter = database->value.getFilter(filter_name);
         if (filter == nullptr)
         {
             return false;

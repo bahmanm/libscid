@@ -12,6 +12,14 @@ extern "C"
 
     typedef struct scid_database scid_database;
 
+    typedef int scid_filter_id;
+
+    enum
+    {
+        SCID_FILTER_ALL_GAMES = -1,
+        SCID_FILTER_PRIMARY = -2
+    };
+
     typedef void (*scid_progress_report_callback)(
         size_t      done,
         size_t      total,
@@ -93,75 +101,51 @@ extern "C"
 
     SCID_API scid_error
     scid_database_filter_create(
-        scid_database* database,
-        char*          out_filter_id,
-        size_t         out_filter_id_capacity,
-        size_t*        out_filter_id_size);
+        scid_database*  database,
+        scid_filter_id* out_filter_id);
 
 
     SCID_API scid_error
     scid_database_filter_delete(
         scid_database* database,
-        const char*    filter_id);
+        scid_filter_id filter_id);
 
 
     SCID_API scid_error
-    scid_database_filter_fill(
-        scid_database* database,
-        const char*    filter_id,
-        unsigned       value);
-
-
-    SCID_API scid_error
-    scid_database_filter_value_set(
-        scid_database* database,
-        const char*    filter_id,
-        size_t         game_index,
-        unsigned       value);
-
-
-    SCID_API scid_error
-    scid_database_filter_value_get(
+    scid_database_filter_game_count_get(
         const scid_database* database,
-        const char*          filter_id,
-        size_t               game_index,
-        unsigned*            out_value);
-
-
-    SCID_API scid_error
-    scid_database_filter_count_get(
-        const scid_database* database,
-        const char*          filter_id,
+        scid_filter_id       filter_id,
         size_t*              out_count);
 
 
     SCID_API scid_error
-    scid_database_filter_game_at_get(
+    scid_database_filter_game_indices_get(
         const scid_database* database,
-        const char*          filter_id,
-        size_t               index,
+        scid_filter_id       filter_id,
+        const char*          sort_criteria,
+        size_t               start_row,
+        size_t               row_count,
+        size_t*              out_game_indices,
+        size_t               out_game_indices_capacity,
+        size_t*              out_game_indices_count);
+
+
+    SCID_API scid_error
+    scid_database_filter_game_index_at_row_get(
+        const scid_database* database,
+        scid_filter_id       filter_id,
+        const char*          sort_criteria,
+        size_t               row,
         size_t*              out_game_index);
 
 
     SCID_API scid_error
-    scid_database_game_list_get(
+    scid_database_filter_game_row_for_index_get(
         const scid_database* database,
-        const char*          filter_id,
-        const char*          sort_criteria,
-        size_t               start,
-        size_t               count,
-        size_t*              out_game_indexes,
-        size_t               out_game_indexes_capacity,
-        size_t*              out_game_indexes_count);
-
-
-    SCID_API scid_error
-    scid_database_game_sorted_position_get(
-        const scid_database* database,
-        const char*          filter_id,
+        scid_filter_id       filter_id,
         const char*          sort_criteria,
         size_t               game_index,
-        size_t*              out_position);
+        size_t*              out_row);
 
 
     SCID_API scid_error

@@ -1,6 +1,7 @@
 #ifndef SCID_LIBSCID_SUPPORT_H
 #define SCID_LIBSCID_SUPPORT_H
 
+#include "scid/database.h"
 #include "scid/movespec.h"
 #include "scid/primitives.h"
 
@@ -151,18 +152,9 @@ namespace scid::libscid
     database_error_to_c(scid::core::errorT error);
 
     bool
-    filter_value_is_valid(unsigned value);
-
-    bool
-    database_filter_id_is_builtin(std::string_view filter_id);
-
-    bool
-    database_filter_id_is_mutable(std::string_view filter_id);
-
-    bool
     database_filter_get(
         const scid_database*     database,
-        const char*              filter_id,
+        scid_filter_id           filter_id,
         scid::database::HFilter* out_filter);
 
     scid_error
