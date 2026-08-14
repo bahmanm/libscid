@@ -24,6 +24,9 @@ class NativeLibraryBase:
     def free_game(self, game: ctypes.c_void_p) -> None:
         self._lib.scid_game_free(game)
 
+    def free_database(self, database: ctypes.c_void_p) -> None:
+        self._lib.scid_database_free(database)
+
     def free_position(self, position: ctypes.c_void_p) -> None:
         self._lib.scid_position_free(position)
 

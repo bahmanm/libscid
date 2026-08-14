@@ -1,0 +1,121 @@
+from __future__ import annotations
+
+import ctypes
+import os
+from collections.abc import Callable
+
+from ._base import NativeLibraryBase
+from ._constants import SCID_OK
+from ._errors import LibScidError
+from ._text import encode
+from ._types import NativeProgressReportCallback, NativeShouldCancelFn
+
+ProgressReportCallback = Callable[[int, int, str | None], None]
+ShouldCancelFn = Callable[[], bool]
+
+
+class NativeDatabaseMixin(NativeLibraryBase):
+    def open_pgn_database_read_only(
+        self,
+        path: str | os.PathLike[str],
+        progress_report_callback: ProgressReportCallback | None = None,
+        should_cancel: ShouldCancelFn | None = None,
+    ) -> ctypes.c_void_p:
+        database = ctypes.c_void_p()
+        callback_exception: BaseException | None = None
+
+        def report_progress(
+            done: int,
+            total: int,
+            message: bytes | None,
+            _user_data: ctypes.c_void_p,
+        ) -> None:
+            nonlocal callback_exception
+            if callback_exception is not None or progress_report_callback is None:
+                return
+            try:
+                progress_report_callback(
+                    done,
+                    total,
+                    None if message is None else message.decode("utf-8"),
+                )
+            except BaseException as exception:
+                callback_exception = exception
+
+        def cancellation_requested(_user_data: ctypes.c_void_p) -> int:
+            nonlocal callback_exception
+            if callback_exception is not None:
+                return 1
+            if should_cancel is None:
+                return 0
+            try:
+                return int(bool(should_cancel()))
+            except BaseException as exception:
+                callback_exception = exception
+                return 1
+
+        progress_callback = (
+            NativeProgressReportCallback(report_progress)
+            if progress_report_callback is not None
+            else NativeProgressReportCallback()
+        )
+        should_cancel_callback = (
+            NativeShouldCancelFn(cancellation_requested)
+            if progress_report_callback is not None or should_cancel is not None
+            else NativeShouldCancelFn()
+        )
+
+        error = self._lib.scid_database_open_pgn_read_only(
+            os.fsencode(path),
+            progress_callback,
+            None,
+            should_cancel_callback,
+            None,
+            ctypes.byref(database),
+        )
+        if callback_exception is not None:
+            if database:
+                self.free_database(database)
+            raise callback_exception
+        if error != SCID_OK:
+            raise LibScidError("scid_database_open_pgn_read_only", error)
+        return database
+
+    def close_database(self, database: ctypes.c_void_p) -> None:
+        self._check("scid_database_close", self._lib.scid_database_close(database))
+
+    def database_type(self, database: ctypes.c_void_p) -> str:
+        return self._string_result("scid_database_type_get", database)
+
+    def database_read_only(self, database: ctypes.c_void_p) -> bool:
+        read_only = ctypes.c_int()
+        self._check(
+            "scid_database_read_only_get",
+            self._lib.scid_database_read_only_get(database, ctypes.byref(read_only)),
+        )
+        return bool(read_only.value)
+
+    def database_game_count(self, database: ctypes.c_void_p) -> int:
+        count = ctypes.c_size_t()
+        self._check(
+            "scid_database_game_count_get",
+            self._lib.scid_database_game_count_get(database, ctypes.byref(count)),
+        )
+        return count.value
+
+    def database_game_tag(
+        self, database: ctypes.c_void_p, index: int, name: str | bytes
+    ) -> str:
+        return self._string_result(
+            "scid_database_game_tag_get", database, index, encode(name)
+        )
+
+    def database_game(self, database: ctypes.c_void_p, index: int) -> ctypes.c_void_p:
+        game = ctypes.c_void_p()
+        self._check(
+            "scid_database_game_get",
+            self._lib.scid_database_game_get(
+                database, index, ctypes.byref(game), None, 0, None
+            ),
+        )
+        return game

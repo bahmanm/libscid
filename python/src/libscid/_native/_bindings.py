@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import ctypes
 
-from ._types import ScidMoveSpec
+from ._types import (
+    NativeProgressReportCallback,
+    NativeShouldCancelFn,
+    ScidMoveSpec,
+)
 
 
 def bind_functions(lib: ctypes.CDLL) -> None:
@@ -85,6 +89,48 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     )
     bind("scid_game_create_blank", [ctypes.c_void_p, c_void_p_p])
     bind("scid_game_free", [ctypes.c_void_p], None)
+
+    bind("scid_database_free", [ctypes.c_void_p], None)
+    bind("scid_database_close", [ctypes.c_void_p])
+    bind(
+        "scid_database_open_pgn_read_only",
+        [
+            ctypes.c_char_p,
+            NativeProgressReportCallback,
+            ctypes.c_void_p,
+            NativeShouldCancelFn,
+            ctypes.c_void_p,
+            c_void_p_p,
+        ],
+    )
+    bind(
+        "scid_database_type_get",
+        [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
+    )
+    bind("scid_database_read_only_get", [ctypes.c_void_p, c_int_p])
+    bind("scid_database_game_count_get", [ctypes.c_void_p, c_size_t_p])
+    bind(
+        "scid_database_game_tag_get",
+        [
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            ctypes.c_char_p,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ],
+    )
+    bind(
+        "scid_database_game_get",
+        [
+            ctypes.c_void_p,
+            ctypes.c_size_t,
+            c_void_p_p,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ],
+    )
 
     bind("scid_game_pgn_options_create", [c_void_p_p])
     bind("scid_game_pgn_options_free", [ctypes.c_void_p], None)

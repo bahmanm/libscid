@@ -3,6 +3,7 @@
 from importlib.metadata import PackageNotFoundError, version
 
 from ._cursor import Cursor
+from ._database import Database
 from ._game import Game
 from ._move_metadata import MoveMetadata
 from ._nag import Nag
@@ -17,6 +18,7 @@ except PackageNotFoundError:
 
 __all__ = [
     "Cursor",
+    "Database",
     "Game",
     "LibScidError",
     "MoveMetadata",

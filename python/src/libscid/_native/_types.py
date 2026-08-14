@@ -3,6 +3,16 @@ from __future__ import annotations
 import ctypes
 from typing import Protocol
 
+NativeProgressReportCallback = ctypes.CFUNCTYPE(
+    None,
+    ctypes.c_size_t,
+    ctypes.c_size_t,
+    ctypes.c_char_p,
+    ctypes.c_void_p,
+)
+
+NativeShouldCancelFn = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p)
+
 
 class ScidMoveSpec(ctypes.Structure):
     _fields_ = [
