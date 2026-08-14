@@ -47,6 +47,86 @@ def test_database_get_game_materialises_game(tmp_path):
     assert game.mainline_move_count == 3
 
 
+def test_database_exposes_all_games_filter(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_pgn(path, 3)
+    database = libscid.Database.open_pgn_read_only(path)
+
+    assert isinstance(database.filters, libscid.DatabaseFilters)
+    assert database.filters is database.filters
+
+    filter_ = database.filters.all_games
+
+    assert isinstance(filter_, libscid.Filter)
+    assert filter_.game_count == 3
+    assert filter_.get_game_indices("N+", 0, 3) == (0, 1, 2)
+    assert filter_.get_game_indices("N+", 1, 2) == (1, 2)
+    assert filter_.get_game_indices() == (0, 1, 2)
+    assert filter_.get_game_index_at_row(2, "N+") == 2
+    assert filter_.get_game_row_for_index(2, "N+") == 2
+
+
+def test_database_exposes_primary_filter(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_pgn(path, 2)
+    database = libscid.Database.open_pgn_read_only(path)
+
+    filter_ = database.filters.primary
+
+    assert isinstance(filter_, libscid.Filter)
+    assert filter_.game_count == 2
+    assert filter_.get_game_indices("N+", 0, 2) == (0, 1)
+
+
+def test_database_can_create_filter(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_pgn(path, 2)
+    database = libscid.Database.open_pgn_read_only(path)
+
+    filter_ = database.filters.create()
+
+    assert isinstance(filter_, libscid.Filter)
+    assert filter_.game_count == 2
+    assert filter_.get_game_indices("N+", 0, 2) == (0, 1)
+
+
+def test_created_filter_can_be_deleted(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_pgn(path, 1)
+    database = libscid.Database.open_pgn_read_only(path)
+    filter_ = database.filters.create()
+
+    filter_.delete()
+
+    with pytest.raises(ValueError, match="filter has been deleted"):
+        _ = filter_.game_count
+
+
+def test_builtin_filters_cannot_be_deleted(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_pgn(path, 1)
+    database = libscid.Database.open_pgn_read_only(path)
+
+    with pytest.raises(ValueError, match="built-in filters cannot be deleted"):
+        database.filters.all_games.delete()
+
+
+def test_filter_rejects_negative_rows(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_pgn(path, 1)
+    database = libscid.Database.open_pgn_read_only(path)
+    filter_ = database.filters.all_games
+
+    with pytest.raises(ValueError, match="start_row must be non-negative"):
+        filter_.get_game_indices(start_row=-1)
+    with pytest.raises(ValueError, match="row_count must be non-negative"):
+        filter_.get_game_indices(row_count=-1)
+    with pytest.raises(ValueError, match="row must be non-negative"):
+        filter_.get_game_index_at_row(-1)
+    with pytest.raises(ValueError, match="game_index must be non-negative"):
+        filter_.get_game_row_for_index(-1)
+
+
 def test_database_open_pgn_read_only_reports_progress(tmp_path):
     path = tmp_path / "games.pgn"
     write_pgn(path, 2)

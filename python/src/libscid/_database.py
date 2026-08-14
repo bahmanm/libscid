@@ -4,6 +4,7 @@ import ctypes
 import os
 from collections.abc import Callable
 
+from ._database_filters import DatabaseFilters
 from ._game import Game
 from ._native import NativeLibrary, load_library
 
@@ -14,6 +15,7 @@ ShouldCancelFn = Callable[[], bool]
 class Database:
     _native: NativeLibrary
     _handle: ctypes.c_void_p
+    _filters: DatabaseFilters
 
     def __init__(self):
         raise TypeError("Database objects are returned by libscid APIs")
@@ -40,6 +42,7 @@ class Database:
         database = cls.__new__(cls)
         database._native = native
         database._handle = handle
+        database._filters = DatabaseFilters._from_database(native, database)
         return database
 
     @property
@@ -53,6 +56,10 @@ class Database:
     @property
     def game_count(self) -> int:
         return self._native.database_game_count(self._handle)
+
+    @property
+    def filters(self) -> DatabaseFilters:
+        return self._filters
 
     def get_tag(self, index: int, name: str | bytes) -> str:
         return self._native.database_game_tag(self._handle, index, name)

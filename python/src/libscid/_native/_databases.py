@@ -103,6 +103,97 @@ class NativeDatabaseMixin(NativeLibraryBase):
         )
         return count.value
 
+    def database_filter_create(self, database: ctypes.c_void_p) -> int:
+        filter_id = ctypes.c_int()
+        self._check(
+            "scid_database_filter_create",
+            self._lib.scid_database_filter_create(database, ctypes.byref(filter_id)),
+        )
+        return filter_id.value
+
+    def database_filter_delete(self, database: ctypes.c_void_p, filter_id: int) -> None:
+        self._check(
+            "scid_database_filter_delete",
+            self._lib.scid_database_filter_delete(database, filter_id),
+        )
+
+    def database_filter_game_count(
+        self, database: ctypes.c_void_p, filter_id: int
+    ) -> int:
+        count = ctypes.c_size_t()
+        self._check(
+            "scid_database_filter_game_count_get",
+            self._lib.scid_database_filter_game_count_get(
+                database, filter_id, ctypes.byref(count)
+            ),
+        )
+        return count.value
+
+    def database_filter_game_indices(
+        self,
+        database: ctypes.c_void_p,
+        filter_id: int,
+        sort_criteria: str | bytes,
+        start_row: int,
+        row_count: int,
+    ) -> tuple[int, ...]:
+        game_indices = (ctypes.c_size_t * row_count)()
+        game_indices_count = ctypes.c_size_t()
+        self._check(
+            "scid_database_filter_game_indices_get",
+            self._lib.scid_database_filter_game_indices_get(
+                database,
+                filter_id,
+                encode(sort_criteria),
+                start_row,
+                row_count,
+                game_indices,
+                row_count,
+                ctypes.byref(game_indices_count),
+            ),
+        )
+        return tuple(game_indices[index] for index in range(game_indices_count.value))
+
+    def database_filter_game_index_at_row(
+        self,
+        database: ctypes.c_void_p,
+        filter_id: int,
+        sort_criteria: str | bytes,
+        row: int,
+    ) -> int:
+        game_index = ctypes.c_size_t()
+        self._check(
+            "scid_database_filter_game_index_at_row_get",
+            self._lib.scid_database_filter_game_index_at_row_get(
+                database,
+                filter_id,
+                encode(sort_criteria),
+                row,
+                ctypes.byref(game_index),
+            ),
+        )
+        return game_index.value
+
+    def database_filter_game_row_for_index(
+        self,
+        database: ctypes.c_void_p,
+        filter_id: int,
+        sort_criteria: str | bytes,
+        game_index: int,
+    ) -> int:
+        row = ctypes.c_size_t()
+        self._check(
+            "scid_database_filter_game_row_for_index_get",
+            self._lib.scid_database_filter_game_row_for_index_get(
+                database,
+                filter_id,
+                encode(sort_criteria),
+                game_index,
+                ctypes.byref(row),
+            ),
+        )
+        return row.value
+
     def database_game_tag(
         self, database: ctypes.c_void_p, index: int, name: str | bytes
     ) -> str:

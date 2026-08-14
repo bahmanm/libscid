@@ -15,6 +15,8 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     c_int_p = ctypes.POINTER(ctypes.c_int)
     c_uint_p = ctypes.POINTER(ctypes.c_uint)
     c_ubyte_p = ctypes.POINTER(ctypes.c_ubyte)
+    scid_filter_id = ctypes.c_int
+    scid_filter_id_p = ctypes.POINTER(scid_filter_id)
 
     def bind(
         name: str,
@@ -109,6 +111,33 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     )
     bind("scid_database_read_only_get", [ctypes.c_void_p, c_int_p])
     bind("scid_database_game_count_get", [ctypes.c_void_p, c_size_t_p])
+    bind("scid_database_filter_create", [ctypes.c_void_p, scid_filter_id_p])
+    bind("scid_database_filter_delete", [ctypes.c_void_p, scid_filter_id])
+    bind(
+        "scid_database_filter_game_count_get",
+        [ctypes.c_void_p, scid_filter_id, c_size_t_p],
+    )
+    bind(
+        "scid_database_filter_game_indices_get",
+        [
+            ctypes.c_void_p,
+            scid_filter_id,
+            ctypes.c_char_p,
+            ctypes.c_size_t,
+            ctypes.c_size_t,
+            c_size_t_p,
+            ctypes.c_size_t,
+            c_size_t_p,
+        ],
+    )
+    bind(
+        "scid_database_filter_game_index_at_row_get",
+        [ctypes.c_void_p, scid_filter_id, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
+    )
+    bind(
+        "scid_database_filter_game_row_for_index_get",
+        [ctypes.c_void_p, scid_filter_id, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
+    )
     bind(
         "scid_database_game_tag_get",
         [
