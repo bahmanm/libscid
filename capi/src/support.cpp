@@ -549,6 +549,8 @@ namespace scid::libscid
         {
             case scid::core::OK:
                 return SCID_OK;
+            case scid::core::ERROR_UserCancel:
+                return SCID_ERROR_USER_CANCEL;
             case scid::core::ERROR_BadArg:
                 return SCID_ERROR_BAD_ARG;
             case scid::core::ERROR_FileOpen:
@@ -609,10 +611,11 @@ namespace scid::libscid
 
     scid_error
     database_open(
-        std::string_view          db_type,
-        scid::database::fileModeT mode,
-        const char*               path,
-        scid_database**           out_database)
+        std::string_view                db_type,
+        scid::database::fileModeT       mode,
+        const char*                     path,
+        scid_database**                 out_database,
+        const scid::database::Progress* progress)
     {
         if (path == nullptr || out_database == nullptr)
         {
@@ -621,8 +624,10 @@ namespace scid::libscid
 
         try
         {
-            auto*      database = new scid_database;
-            const auto error = database->value.open(db_type, mode, path);
+            const scid::database::Progress default_progress;
+            const auto& selected_progress = progress == nullptr ? default_progress : *progress;
+            auto*       database = new scid_database;
+            const auto  error = database->value.open(db_type, mode, path, selected_progress);
             if (error != scid::core::OK)
             {
                 delete database;

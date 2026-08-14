@@ -14,6 +14,7 @@ extern "C"
     {
         SCID_OK = 0,
         SCID_ERROR = 1,
+        SCID_ERROR_USER_CANCEL = 2,
         SCID_ERROR_BAD_ARG = 3,
 
         SCID_ERROR_FILE_OPEN = 101,

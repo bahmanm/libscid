@@ -167,10 +167,11 @@ namespace scid::libscid
 
     scid_error
     database_open(
-        std::string_view          db_type,
-        scid::database::fileModeT mode,
-        const char*               path,
-        scid_database**           out_database);
+        std::string_view                db_type,
+        scid::database::fileModeT       mode,
+        const char*                     path,
+        scid_database**                 out_database,
+        const scid::database::Progress* progress = nullptr);
 
     scid_error
     result_from_string(

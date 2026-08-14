@@ -12,6 +12,14 @@ extern "C"
 
     typedef struct scid_database scid_database;
 
+    typedef void (*scid_progress_report_callback)(
+        size_t      done,
+        size_t      total,
+        const char* message,
+        void*       user_data);
+
+    typedef int (*scid_should_cancel_fn)(void* user_data);
+
 
     SCID_API scid_error
     scid_database_create_memory(
@@ -35,6 +43,16 @@ extern "C"
     scid_database_open_scid5_read_only(
         const char*     path,
         scid_database** out_database);
+
+
+    SCID_API scid_error
+    scid_database_open_pgn_read_only(
+        const char*                   path,
+        scid_progress_report_callback progress_report,
+        void*                         progress_report_user_data,
+        scid_should_cancel_fn         should_cancel,
+        void*                         should_cancel_user_data,
+        scid_database**               out_database);
 
 
     SCID_API scid_error

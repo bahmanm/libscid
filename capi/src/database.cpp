@@ -22,6 +22,44 @@
 
 using namespace scid::libscid;
 
+namespace
+{
+
+    class DatabaseOpenProgress final : public scid::database::Progress::Impl
+    {
+            scid_progress_report_callback progress_report_;
+            void*                         progress_report_user_data_;
+            scid_should_cancel_fn         should_cancel_;
+            void*                         should_cancel_user_data_;
+
+        public:
+            DatabaseOpenProgress(
+                scid_progress_report_callback progress_report,
+                void*                         progress_report_user_data,
+                scid_should_cancel_fn         should_cancel,
+                void*                         should_cancel_user_data)
+                : progress_report_(progress_report),
+                  progress_report_user_data_(progress_report_user_data),
+                  should_cancel_(should_cancel),
+                  should_cancel_user_data_(should_cancel_user_data)
+            {}
+
+            bool
+            report(
+                size_t      done,
+                size_t      total,
+                const char* message) final
+            {
+                if (progress_report_)
+                {
+                    progress_report_(done, total, message, progress_report_user_data_);
+                }
+                return !should_cancel_ || !should_cancel_(should_cancel_user_data_);
+            }
+    };
+
+} // namespace
+
 scid_error
 scid_database_create_memory(
     const char*     name,
@@ -55,6 +93,21 @@ scid_database_open_scid5_read_only(
     scid_database** out_database)
 {
     return database_open("SCID5", scid::database::FMODE_ReadOnly, path, out_database);
+}
+
+
+scid_error
+scid_database_open_pgn_read_only(
+    const char*                   path,
+    scid_progress_report_callback progress_report,
+    void*                         progress_report_user_data,
+    scid_should_cancel_fn         should_cancel,
+    void*                         should_cancel_user_data,
+    scid_database**               out_database)
+{
+    scid::database::Progress progress(new DatabaseOpenProgress(
+        progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+    return database_open("PGN", scid::database::FMODE_ReadOnly, path, out_database, &progress);
 }
 
 
