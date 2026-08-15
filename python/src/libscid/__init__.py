@@ -5,6 +5,7 @@ from importlib.metadata import PackageNotFoundError, version
 from ._cursor import Cursor
 from ._database import Database
 from ._database_filters import DatabaseFilters
+from ._database_search import DatabaseSearch
 from ._filter import Filter
 from ._game import Game
 from ._move_metadata import MoveMetadata
@@ -22,6 +23,7 @@ __all__ = [
     "Cursor",
     "Database",
     "DatabaseFilters",
+    "DatabaseSearch",
     "Filter",
     "Game",
     "LibScidError",

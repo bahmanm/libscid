@@ -6,6 +6,7 @@ from ._types import (
     NativeProgressReportCallback,
     NativeShouldCancelFn,
     ScidMoveSpec,
+    ScidSearchHeaderCriteria,
 )
 
 
@@ -137,6 +138,19 @@ def bind_functions(lib: ctypes.CDLL) -> None:
     bind(
         "scid_database_filter_game_row_for_index_get",
         [ctypes.c_void_p, scid_filter_id, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
+    )
+    bind(
+        "scid_database_search_headers",
+        [
+            ctypes.c_void_p,
+            scid_filter_id,
+            scid_filter_id,
+            ctypes.POINTER(ScidSearchHeaderCriteria),
+            NativeProgressReportCallback,
+            ctypes.c_void_p,
+            NativeShouldCancelFn,
+            ctypes.c_void_p,
+        ],
     )
     bind(
         "scid_database_game_tag_get",

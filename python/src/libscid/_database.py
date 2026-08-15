@@ -5,6 +5,7 @@ import os
 from collections.abc import Callable
 
 from ._database_filters import DatabaseFilters
+from ._database_search import DatabaseSearch
 from ._game import Game
 from ._native import NativeLibrary, load_library
 
@@ -16,6 +17,7 @@ class Database:
     _native: NativeLibrary
     _handle: ctypes.c_void_p
     _filters: DatabaseFilters
+    _search: DatabaseSearch
 
     def __init__(self):
         raise TypeError("Database objects are returned by libscid APIs")
@@ -43,6 +45,7 @@ class Database:
         database._native = native
         database._handle = handle
         database._filters = DatabaseFilters._from_database(native, database)
+        database._search = DatabaseSearch._from_database(native, database)
         return database
 
     @property
@@ -60,6 +63,10 @@ class Database:
     @property
     def filters(self) -> DatabaseFilters:
         return self._filters
+
+    @property
+    def search(self) -> DatabaseSearch:
+        return self._search
 
     def get_tag(self, index: int, name: str | bytes) -> str:
         return self._native.database_game_tag(self._handle, index, name)

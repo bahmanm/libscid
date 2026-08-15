@@ -8,7 +8,11 @@ from ._base import NativeLibraryBase
 from ._constants import SCID_OK
 from ._errors import LibScidError
 from ._text import encode
-from ._types import NativeProgressReportCallback, NativeShouldCancelFn
+from ._types import (
+    NativeProgressReportCallback,
+    NativeShouldCancelFn,
+    ScidSearchHeaderCriteria,
+)
 
 ProgressReportCallback = Callable[[int, int, str | None], None]
 ShouldCancelFn = Callable[[], bool]
@@ -193,6 +197,72 @@ class NativeDatabaseMixin(NativeLibraryBase):
             ),
         )
         return row.value
+
+    def database_search_headers(
+        self,
+        database: ctypes.c_void_p,
+        source_filter_id: int,
+        destination_filter_id: int,
+        criteria: ScidSearchHeaderCriteria,
+        progress_report_callback: ProgressReportCallback | None = None,
+        should_cancel_fn: ShouldCancelFn | None = None,
+    ) -> None:
+        callback_exception: BaseException | None = None
+
+        def report_progress(
+            done: int,
+            total: int,
+            message: bytes | None,
+            _user_data: ctypes.c_void_p,
+        ) -> None:
+            nonlocal callback_exception
+            if callback_exception is not None or progress_report_callback is None:
+                return
+            try:
+                progress_report_callback(
+                    done,
+                    total,
+                    None if message is None else message.decode("utf-8"),
+                )
+            except BaseException as exception:
+                callback_exception = exception
+
+        def cancellation_requested(_user_data: ctypes.c_void_p) -> int:
+            nonlocal callback_exception
+            if callback_exception is not None:
+                return 1
+            if should_cancel_fn is None:
+                return 0
+            try:
+                return int(bool(should_cancel_fn()))
+            except BaseException as exception:
+                callback_exception = exception
+                return 1
+
+        progress_callback = (
+            NativeProgressReportCallback(report_progress)
+            if progress_report_callback is not None
+            else NativeProgressReportCallback()
+        )
+        should_cancel_callback = (
+            NativeShouldCancelFn(cancellation_requested)
+            if progress_report_callback is not None or should_cancel_fn is not None
+            else NativeShouldCancelFn()
+        )
+
+        error = self._lib.scid_database_search_headers(
+            database,
+            source_filter_id,
+            destination_filter_id,
+            ctypes.byref(criteria),
+            progress_callback,
+            None,
+            should_cancel_callback,
+            None,
+        )
+        if callback_exception is not None:
+            raise callback_exception
+        self._check("scid_database_search_headers", error)
 
     def database_game_tag(
         self, database: ctypes.c_void_p, index: int, name: str | bytes
