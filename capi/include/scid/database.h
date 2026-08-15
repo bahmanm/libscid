@@ -28,6 +28,43 @@ extern "C"
 
     typedef int (*scid_should_cancel_fn)(void* user_data);
 
+    typedef struct scid_search_header_criteria
+    {
+            const char* player;
+            const char* white;
+            const char* black;
+            const char* event;
+            const char* site;
+            const char* site_country;
+            const char* round;
+
+            const char* date_min;
+            const char* date_max;
+            const char* event_date_min;
+            const char* event_date_max;
+
+            const char* eco_min;
+            const char* eco_max;
+
+            const char* result;
+
+            size_t game_number_min;
+            size_t game_number_max;
+            size_t halfmove_count_min;
+            size_t halfmove_count_max;
+
+            size_t white_elo_min;
+            size_t white_elo_max;
+            size_t black_elo_min;
+            size_t black_elo_max;
+            int    elo_difference_min;
+            int    elo_difference_max;
+
+            int has_variations;
+            int has_comments;
+            int has_nags;
+    } scid_search_header_criteria;
+
 
     SCID_API scid_error
     scid_database_create_memory(
@@ -146,6 +183,18 @@ extern "C"
         const char*          sort_criteria,
         size_t               game_index,
         size_t*              out_row);
+
+
+    SCID_API scid_error
+    scid_database_search_headers(
+        scid_database*                     database,
+        scid_filter_id                     source_filter_id,
+        scid_filter_id                     destination_filter_id,
+        const scid_search_header_criteria* criteria,
+        scid_progress_report_callback      progress_report,
+        void*                              progress_report_user_data,
+        scid_should_cancel_fn              should_cancel,
+        void*                              should_cancel_user_data);
 
 
     SCID_API scid_error

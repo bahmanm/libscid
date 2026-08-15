@@ -37,11 +37,13 @@ add_library(
     scid
     ${SCID_LIBRARY_TYPE}
     src/database.cpp
+    src/database_search.cpp
     src/eco.cpp
     src/game.cpp
     src/movespec.cpp
     src/position.cpp
     src/primitives.cpp
+    src/progress.cpp
     src/support.cpp )
 add_library(
     LibScid::LibScid

@@ -171,6 +171,7 @@ test_database(void)
     scid_eco_code               expected_eco_code = 0;
     scid_filter_id              filter_id = 0;
     scid_filter_id              filter_id_two = 0;
+    scid_search_header_criteria header_search = {0};
     int                         is_open = 0;
     int                         read_only = 99;
     int                         deleted = 99;
@@ -398,6 +399,79 @@ test_database(void)
     assert(filter_id != filter_id_two);
     assert(scid_database_filter_game_count_get(database, filter_id_two, &count) == SCID_OK);
     assert(count == 4);
+
+    header_search.white = "Gamma";
+    assert(
+        scid_database_search_headers(
+            database, SCID_FILTER_ALL_GAMES, filter_id, &header_search, NULL, NULL, NULL, NULL) ==
+        SCID_OK);
+    assert(scid_database_filter_game_count_get(database, filter_id, &count) == SCID_OK);
+    assert(count == 1);
+    assert(
+        scid_database_filter_game_indices_get(
+            database, filter_id, "d+", 0, 1, game_indexes, 4, &list_count) == SCID_OK);
+    assert(list_count == 1);
+    assert(game_indexes[0] == 1);
+
+    memset(&header_search, 0, sizeof(header_search));
+    header_search.result = "0-1";
+    assert(
+        scid_database_search_headers(
+            database, SCID_FILTER_ALL_GAMES, filter_id_two, &header_search, progress_report,
+            &progress, NULL, NULL) == SCID_OK);
+    assert(progress.calls > 0);
+    assert(scid_database_filter_game_count_get(database, filter_id_two, &count) == SCID_OK);
+    assert(count == 2);
+
+    memset(&header_search, 0, sizeof(header_search));
+    header_search.result = "1-0, 1/2-1/2";
+    assert(
+        scid_database_search_headers(
+            database, SCID_FILTER_ALL_GAMES, filter_id, &header_search, NULL, NULL, NULL, NULL) ==
+        SCID_OK);
+    assert(scid_database_filter_game_count_get(database, filter_id, &count) == SCID_OK);
+    assert(count == 2);
+
+    memset(&header_search, 0, sizeof(header_search));
+    header_search.event = "Imported";
+    assert(
+        scid_database_search_headers(
+            database, filter_id_two, filter_id, &header_search, NULL, NULL, NULL, NULL) == SCID_OK);
+    assert(scid_database_filter_game_count_get(database, filter_id, &count) == SCID_OK);
+    assert(count == 1);
+    assert(
+        scid_database_filter_game_indices_get(
+            database, filter_id, "d+", 0, 1, game_indexes, 4, &list_count) == SCID_OK);
+    assert(list_count == 1);
+    assert(game_indexes[0] == 3);
+
+    memset(&header_search, 0, sizeof(header_search));
+    header_search.date_min = "2026.02.01";
+    header_search.date_max = "2026.02.04";
+    assert(
+        scid_database_search_headers(
+            database, SCID_FILTER_ALL_GAMES, filter_id, &header_search, NULL, NULL, NULL, NULL) ==
+        SCID_OK);
+    assert(scid_database_filter_game_count_get(database, filter_id, &count) == SCID_OK);
+    assert(count == 2);
+
+    memset(&header_search, 0, sizeof(header_search));
+    header_search.result = "bad-result";
+    assert(
+        scid_database_search_headers(
+            database, SCID_FILTER_ALL_GAMES, filter_id, &header_search, NULL, NULL, NULL, NULL) ==
+        SCID_ERROR_BAD_ARG);
+
+    memset(&header_search, 0, sizeof(header_search));
+    header_search.event = "Imported";
+    cancel.calls = 0;
+    cancel.cancel_after_calls = 1;
+    assert(
+        scid_database_search_headers(
+            database, SCID_FILTER_ALL_GAMES, filter_id, &header_search, NULL, NULL, should_cancel,
+            &cancel) == SCID_ERROR_USER_CANCEL);
+    assert(cancel.calls > 0);
+
     assert(
         scid_database_filter_game_indices_get(
             database, SCID_FILTER_ALL_GAMES, "d+", 0, 4, game_indexes, 4, &list_count) == SCID_OK);
@@ -424,16 +498,16 @@ test_database(void)
         scid_database_filter_game_indices_get(
             database, filter_id_two, "d+", 0, 2, game_indexes, 4, &list_count) == SCID_OK);
     assert(list_count == 2);
-    assert(game_indexes[0] == 0);
-    assert(game_indexes[1] == 1);
+    assert(game_indexes[0] == 1);
+    assert(game_indexes[1] == 3);
     assert(
-        scid_database_filter_game_index_at_row_get(database, filter_id_two, "d+", 3, &count) ==
+        scid_database_filter_game_index_at_row_get(database, filter_id_two, "d+", 1, &count) ==
         SCID_OK);
     assert(count == 3);
     assert(
         scid_database_filter_game_row_for_index_get(
             database, filter_id_two, "d+", 3, &sorted_position) == SCID_OK);
-    assert(sorted_position == 3);
+    assert(sorted_position == 1);
     assert(
         scid_database_filter_game_index_at_row_get(database, filter_id_two, "d+", 99, &count) ==
         SCID_ERROR_BAD_ARG);
@@ -754,6 +828,27 @@ test_database(void)
     assert(
         scid_database_filter_game_row_for_index_get(
             database, SCID_FILTER_ALL_GAMES, "d+", 0, NULL) == SCID_ERROR_BAD_ARG);
+    memset(&header_search, 0, sizeof(header_search));
+    assert(
+        scid_database_search_headers(
+            NULL, SCID_FILTER_ALL_GAMES, filter_id, &header_search, NULL, NULL, NULL, NULL) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_database_search_headers(
+            database, 999, filter_id, &header_search, NULL, NULL, NULL, NULL) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_database_search_headers(
+            database, SCID_FILTER_ALL_GAMES, 999, &header_search, NULL, NULL, NULL, NULL) ==
+        SCID_ERROR_BAD_ARG);
+    assert(
+        scid_database_search_headers(
+            database, SCID_FILTER_ALL_GAMES, SCID_FILTER_ALL_GAMES, &header_search, NULL, NULL,
+            NULL, NULL) == SCID_ERROR_BAD_ARG);
+    assert(
+        scid_database_search_headers(
+            database, SCID_FILTER_ALL_GAMES, filter_id, NULL, NULL, NULL, NULL, NULL) ==
+        SCID_ERROR_BAD_ARG);
     assert(scid_database_close(NULL) == SCID_ERROR_BAD_ARG);
     assert(scid_database_save(NULL) == SCID_ERROR_BAD_ARG);
     assert(
