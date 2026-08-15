@@ -60,6 +60,57 @@ def write_search_pgn(path) -> None:
     )
 
 
+def write_board_search_pgn(path) -> None:
+    path.write_text(
+        """[Event "E Pawn"]
+[Site "Toronto"]
+[Date "2024.06.14"]
+[White "Alpha"]
+[Black "Beta"]
+[Result "1-0"]
+
+1. e4 e5 2. Nf3 1-0
+
+[Event "D Pawn"]
+[Site "Vancouver"]
+[Date "2025.01.02"]
+[White "Gamma"]
+[Black "Delta"]
+[Result "0-1"]
+
+1. d4 d5 0-1
+
+[Event "English"]
+[Site "Montreal"]
+[Date "2026.02.03"]
+[White "Epsilon"]
+[Black "Zeta"]
+[Result "1/2-1/2"]
+
+1. c4 c5 1/2-1/2
+
+[Event "Indian"]
+[Site "Calgary"]
+[Date "2026.02.04"]
+[White "Eta"]
+[Black "Theta"]
+[Result "0-1"]
+
+1. d4 Nf6 0-1
+
+[Event "Variation"]
+[Site "Victoria"]
+[Date "2027.01.01"]
+[White "Iota"]
+[Black "Kappa"]
+[Result "*"]
+
+1. a3 (1. h4 h5) a6 *
+""",
+        encoding="utf-8",
+    )
+
+
 def test_database_open_pgn_read_only_loads_games(tmp_path):
     path = tmp_path / "games.pgn"
     write_pgn(path, 2)
@@ -245,6 +296,82 @@ def test_database_search_position_can_search_within_source_filter(tmp_path):
     assert destination.get_game_indices("N+") == (2,)
 
 
+def test_database_search_board_exposes_match_constants(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_board_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"
+    )
+
+    matches = database.search.board(
+        position,
+        match=database.search.BOARD_MATCH_EXACT,
+    )
+
+    assert database.search.BOARD_MATCH_EXACT == "exact"
+    assert database.search.BOARD_MATCH_PAWNS == "pawns"
+    assert database.search.BOARD_MATCH_FILES == "files"
+    assert matches.get_game_indices("N+") == (1,)
+
+
+def test_database_search_board_can_search_within_source_filter(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_board_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+    )
+    black_wins = database.search.headers(database.search.HeaderCriteria(result="0-1"))
+    destination = database.filters.create()
+
+    matches = database.search.board(
+        position,
+        match=database.search.BOARD_MATCH_FILES,
+        source=black_wins,
+        destination=destination,
+    )
+
+    assert matches is destination
+    assert destination.get_game_indices("N+") == (1, 3)
+
+
+def test_database_search_board_can_use_pawn_and_file_matches(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_board_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    d4_d5 = libscid.Position.from_fen(
+        "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"
+    )
+    e4_files = libscid.Position.from_fen(
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+    )
+
+    pawn_matches = database.search.board(d4_d5, match="pawns")
+    file_matches = database.search.board(
+        e4_files,
+        match=database.search.BOARD_MATCH_FILES,
+    )
+
+    assert pawn_matches.get_game_indices("N+") == (1,)
+    assert file_matches.get_game_indices("N+") == (0, 1, 2, 3, 4)
+
+
+def test_database_search_board_can_include_flipped_position(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_board_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    flipped = libscid.Position.from_fen(
+        "rnbqkbnr/pppp1ppp/8/4p3/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+    )
+
+    without_flipped = database.search.board(flipped)
+    with_flipped = database.search.board(flipped, include_flipped=True)
+
+    assert without_flipped.get_game_indices("N+") == ()
+    assert with_flipped.get_game_indices("N+") == (0,)
+
+
 def test_database_search_reports_progress(tmp_path):
     path = tmp_path / "games.pgn"
     write_search_pgn(path)
@@ -275,6 +402,23 @@ def test_database_search_position_reports_progress(tmp_path):
         reports.append((done, total, message))
 
     database.search.position(position, progress_report_callback=report)
+
+    assert reports
+
+
+def test_database_search_board_reports_progress(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_board_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"
+    )
+    reports = []
+
+    def report(done: int, total: int, message: str | None) -> None:
+        reports.append((done, total, message))
+
+    database.search.board(position, progress_report_callback=report)
 
     assert reports
 
@@ -321,6 +465,27 @@ def test_database_search_position_can_be_cancelled(tmp_path):
     assert calls > 0
 
 
+def test_database_search_board_can_be_cancelled(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_board_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"
+    )
+    calls = 0
+
+    def should_cancel() -> bool:
+        nonlocal calls
+        calls += 1
+        return True
+
+    with pytest.raises(libscid.LibScidError) as raised:
+        database.search.board(position, should_cancel_fn=should_cancel)
+
+    assert raised.value.code == 2
+    assert calls > 0
+
+
 def test_database_search_reraises_progress_callback_exception(tmp_path):
     path = tmp_path / "games.pgn"
     write_search_pgn(path)
@@ -349,6 +514,21 @@ def test_database_search_position_reraises_progress_callback_exception(tmp_path)
 
     with pytest.raises(RuntimeError, match="stop from Python"):
         database.search.position(position, progress_report_callback=report)
+
+
+def test_database_search_board_reraises_progress_callback_exception(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_board_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"
+    )
+
+    def report(_done: int, _total: int, _message: str | None) -> None:
+        raise RuntimeError("stop from Python")
+
+    with pytest.raises(RuntimeError, match="stop from Python"):
+        database.search.board(position, progress_report_callback=report)
 
 
 def test_database_search_validates_criteria(tmp_path):
@@ -387,6 +567,28 @@ def test_database_search_position_validates_arguments(tmp_path):
         database.search.position("not a position")
     with pytest.raises(ValueError, match="destination cannot be the all_games filter"):
         database.search.position(position, destination=database.filters.all_games)
+
+
+def test_database_search_board_validates_arguments(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_board_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2"
+    )
+
+    with pytest.raises(TypeError, match="position must be a Position"):
+        database.search.board("not a position")
+    with pytest.raises(TypeError, match="match must be str"):
+        database.search.board(position, match=1)
+    with pytest.raises(ValueError, match="match must be 'exact', 'pawns', or 'files'"):
+        database.search.board(position, match="material")
+    with pytest.raises(TypeError, match="include_variations must be bool"):
+        database.search.board(position, include_variations="yes")
+    with pytest.raises(TypeError, match="include_flipped must be bool"):
+        database.search.board(position, include_flipped="yes")
+    with pytest.raises(ValueError, match="destination cannot be the all_games filter"):
+        database.search.board(position, destination=database.filters.all_games)
 
 
 def test_database_open_pgn_read_only_reports_progress(tmp_path):

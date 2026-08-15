@@ -12,6 +12,7 @@ from ._text import encode
 from ._types import (
     NativeProgressReportCallback,
     NativeShouldCancelFn,
+    ScidSearchBoardCriteria,
     ScidSearchHeaderCriteria,
 )
 
@@ -251,6 +252,32 @@ class NativeDatabaseMixin(NativeLibraryBase):
         )
         raise_callback_exception()
         self._check("scid_database_search_position", error)
+
+    def database_search_board(
+        self,
+        database: ctypes.c_void_p,
+        source_filter_id: int,
+        destination_filter_id: int,
+        criteria: ScidSearchBoardCriteria,
+        progress_report_callback: ProgressReportCallback | None = None,
+        should_cancel_fn: ShouldCancelFn | None = None,
+    ) -> None:
+        progress_callback, should_cancel_callback, raise_callback_exception = (
+            self._database_search_callbacks(progress_report_callback, should_cancel_fn)
+        )
+
+        error = self._lib.scid_database_search_board(
+            database,
+            source_filter_id,
+            destination_filter_id,
+            ctypes.byref(criteria),
+            progress_callback,
+            None,
+            should_cancel_callback,
+            None,
+        )
+        raise_callback_exception()
+        self._check("scid_database_search_board", error)
 
     def _database_search_callbacks(
         self,

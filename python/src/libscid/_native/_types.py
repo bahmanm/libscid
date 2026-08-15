@@ -55,6 +55,15 @@ class ScidSearchHeaderCriteria(ctypes.Structure):
     ]
 
 
+class ScidSearchBoardCriteria(ctypes.Structure):
+    _fields_ = [
+        ("position", ctypes.c_void_p),
+        ("match", ctypes.c_int),
+        ("include_variations", ctypes.c_int),
+        ("include_flipped", ctypes.c_int),
+    ]
+
+
 class PgnOptionsProtocol(Protocol):
     @property
     def symbolic_nags(self) -> bool: ...

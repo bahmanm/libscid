@@ -6,6 +6,7 @@ from ._types import (
     NativeProgressReportCallback,
     NativeShouldCancelFn,
     ScidMoveSpec,
+    ScidSearchBoardCriteria,
     ScidSearchHeaderCriteria,
 )
 
@@ -159,6 +160,19 @@ def bind_functions(lib: ctypes.CDLL) -> None:
             scid_filter_id,
             scid_filter_id,
             ctypes.c_void_p,
+            NativeProgressReportCallback,
+            ctypes.c_void_p,
+            NativeShouldCancelFn,
+            ctypes.c_void_p,
+        ],
+    )
+    bind(
+        "scid_database_search_board",
+        [
+            ctypes.c_void_p,
+            scid_filter_id,
+            scid_filter_id,
+            ctypes.POINTER(ScidSearchBoardCriteria),
             NativeProgressReportCallback,
             ctypes.c_void_p,
             NativeShouldCancelFn,

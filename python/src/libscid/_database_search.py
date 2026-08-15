@@ -2,13 +2,18 @@ from __future__ import annotations
 
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from ._filter import Filter
 from ._native import NativeLibrary
-from ._native._constants import SCID_FILTER_ALL_GAMES
+from ._native._constants import (
+    SCID_BOARD_SEARCH_MATCH_EXACT,
+    SCID_BOARD_SEARCH_MATCH_FILES,
+    SCID_BOARD_SEARCH_MATCH_PAWNS,
+    SCID_FILTER_ALL_GAMES,
+)
 from ._native._text import encode
-from ._native._types import ScidSearchHeaderCriteria
+from ._native._types import ScidSearchBoardCriteria, ScidSearchHeaderCriteria
 from ._position import Position
 
 if TYPE_CHECKING:
@@ -17,6 +22,17 @@ if TYPE_CHECKING:
 ProgressReportCallback = Callable[[int, int, str | None], None]
 ShouldCancelFn = Callable[[], bool]
 HeaderResult = str | Iterable[str] | None
+BoardSearchMatch = Literal["exact", "pawns", "files"]
+
+BOARD_MATCH_EXACT: BoardSearchMatch = "exact"
+BOARD_MATCH_PAWNS: BoardSearchMatch = "pawns"
+BOARD_MATCH_FILES: BoardSearchMatch = "files"
+
+_BOARD_MATCH_TO_NATIVE = {
+    BOARD_MATCH_EXACT: SCID_BOARD_SEARCH_MATCH_EXACT,
+    BOARD_MATCH_PAWNS: SCID_BOARD_SEARCH_MATCH_PAWNS,
+    BOARD_MATCH_FILES: SCID_BOARD_SEARCH_MATCH_FILES,
+}
 
 _STRING_FIELDS = (
     "player",
@@ -130,6 +146,9 @@ class HeaderCriteria:
 
 class DatabaseSearch:
     HeaderCriteria = HeaderCriteria
+    BOARD_MATCH_EXACT = BOARD_MATCH_EXACT
+    BOARD_MATCH_PAWNS = BOARD_MATCH_PAWNS
+    BOARD_MATCH_FILES = BOARD_MATCH_FILES
 
     _native: NativeLibrary
     _database: Database
@@ -219,6 +238,54 @@ class DatabaseSearch:
         )
         return destination_filter
 
+    def board(
+        self,
+        position: Position,
+        *,
+        match: BoardSearchMatch = BOARD_MATCH_EXACT,
+        source: Filter | None = None,
+        destination: Filter | None = None,
+        include_variations: bool = False,
+        include_flipped: bool = False,
+        progress_report_callback: ProgressReportCallback | None = None,
+        should_cancel_fn: ShouldCancelFn | None = None,
+    ) -> Filter:
+        if not isinstance(position, Position):
+            raise TypeError("position must be a Position")
+        native_match = _native_board_match(match)
+        include_variations = _boolean("include_variations", include_variations) != 0
+        include_flipped = _boolean("include_flipped", include_flipped) != 0
+
+        source_filter = (
+            self._database.filters.all_games
+            if source is None
+            else self._validate_filter("source", source)
+        )
+        destination_filter = (
+            self._database.filters.create()
+            if destination is None
+            else self._validate_filter("destination", destination)
+        )
+
+        if destination_filter._id == SCID_FILTER_ALL_GAMES:
+            raise ValueError("destination cannot be the all_games filter")
+
+        criteria = ScidSearchBoardCriteria(
+            position._handle,
+            native_match,
+            int(include_variations),
+            int(include_flipped),
+        )
+        self._native.database_search_board(
+            self._database._handle,
+            source_filter._available_id(),
+            destination_filter._available_id(),
+            criteria,
+            progress_report_callback=progress_report_callback,
+            should_cancel_fn=should_cancel_fn,
+        )
+        return destination_filter
+
     def _validate_filter(self, name: str, filter_: Filter) -> Filter:
         if not isinstance(filter_, Filter):
             raise TypeError(f"{name} must be a Filter")
@@ -254,6 +321,15 @@ def _normalise_result(value: HeaderResult) -> str | None:
             raise TypeError("result items must be str")
         parts.append(item)
     return ", ".join(parts)
+
+
+def _native_board_match(value: BoardSearchMatch) -> int:
+    if not isinstance(value, str):
+        raise TypeError("match must be str")
+    try:
+        return _BOARD_MATCH_TO_NATIVE[value]
+    except KeyError:
+        raise ValueError("match must be 'exact', 'pawns', or 'files'") from None
 
 
 def _optional_unsigned_integer(name: str, value: int | None) -> int:
