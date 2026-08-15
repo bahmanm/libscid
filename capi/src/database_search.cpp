@@ -4,6 +4,8 @@
 #include "scid/libscid/progress.h"
 #include "scid/libscid/support.h"
 
+#include "scid/core/board.h"
+#include "scid/core/game.h"
 #include "scid/core/primitives.h"
 #include "scid/database/scidbase.h"
 
@@ -371,6 +373,59 @@ namespace
         }
     }
 
+
+    bool
+    board_search_match_to_core(
+        scid_board_search_match          match,
+        scid::database::gameExactMatchT* out_match)
+    {
+        if (out_match == nullptr)
+        {
+            return false;
+        }
+
+        switch (match)
+        {
+            case SCID_BOARD_SEARCH_MATCH_EXACT:
+                *out_match = scid::database::GAME_EXACT_MATCH_Exact;
+                return true;
+            case SCID_BOARD_SEARCH_MATCH_PAWNS:
+                *out_match = scid::database::GAME_EXACT_MATCH_Pawns;
+                return true;
+            case SCID_BOARD_SEARCH_MATCH_FILES:
+                *out_match = scid::database::GAME_EXACT_MATCH_Fyles;
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
+    scid::core::Position
+    color_flipped_position(const scid::core::Position& position)
+    {
+        scid::core::Position result;
+        result.Clear();
+        result.SetToMove(scid::core::color_Flip(position.GetToMove()));
+        result.SetPlyCounter(position.GetPlyCounter());
+
+        const scid::core::pieceT* board = position.GetBoard();
+        for (scid::core::squareT square = scid::core::A1; square <= scid::core::H8; ++square)
+        {
+            const scid::core::pieceT piece = board[square];
+            if (piece == scid::core::EMPTY)
+            {
+                continue;
+            }
+
+            const scid::core::pieceT  flipped_piece = scid::core::PIECE_FLIP[piece];
+            const scid::core::squareT flipped_square = scid::core::square_FlipRank(square);
+            (void)result.AddPiece(flipped_piece, flipped_square);
+        }
+
+        return result;
+    }
+
 } // namespace
 
 scid_error
@@ -476,6 +531,90 @@ scid_database_search_position(
         }
         intersect_with_snapshot(database->value, source_included, destination);
         return SCID_OK;
+    }
+    catch (...)
+    {
+        return SCID_ERROR;
+    }
+}
+
+
+scid_error
+scid_database_search_board(
+    scid_database*                    database,
+    scid_filter_id                    source_filter_id,
+    scid_filter_id                    destination_filter_id,
+    const scid_search_board_criteria* criteria,
+    scid_progress_report_callback     progress_report,
+    void*                             progress_report_user_data,
+    scid_should_cancel_fn             should_cancel,
+    void*                             should_cancel_user_data)
+{
+    if (database == nullptr || criteria == nullptr || criteria->position == nullptr ||
+        destination_filter_id == SCID_FILTER_ALL_GAMES || !database->value.isOpen())
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        scid::database::gameExactMatchT search_type = scid::database::GAME_EXACT_MATCH_Exact;
+        if (!board_search_match_to_core(criteria->match, &search_type))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        scid::database::HFilter source(nullptr);
+        if (!database_filter_get(database, source_filter_id, &source))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        scid::database::HFilter destination(nullptr);
+        if (!database_filter_get(database, destination_filter_id, &destination))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        const auto source_included = included_games_snapshot(database->value, source);
+        destination.clear();
+
+        scid::core::Game         scratch_game;
+        scid::core::Position     search_position = criteria->position->value;
+        scid::core::Position     flipped_position = color_flipped_position(search_position);
+        scid::database::Progress progress(new CallbackProgress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+
+        const auto game_count = database->value.numGames();
+        for (scid::database::gamenumT index = 0; index < game_count; ++index)
+        {
+            if (!source_included[index])
+            {
+                continue;
+            }
+
+            if (!progress(index, game_count, "Searching board"))
+            {
+                return SCID_ERROR_USER_CANCEL;
+            }
+
+            scid::core::uint         ply = 0;
+            const scid::core::errorT error = database->value.searchBoard(
+                index, scratch_game, &search_position, &flipped_position,
+                criteria->include_variations != 0, true, criteria->include_flipped != 0,
+                search_type, ply);
+            if (error != scid::core::OK)
+            {
+                return database_error_to_c(error);
+            }
+            if (ply != 0)
+            {
+                destination.set(index, static_cast<scid::core::byte>(ply));
+            }
+        }
+
+        return progress(game_count, game_count, "Searching board") ? SCID_OK
+                                                                   : SCID_ERROR_USER_CANCEL;
     }
     catch (...)
     {

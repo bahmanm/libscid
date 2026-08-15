@@ -15,10 +15,19 @@ extern "C"
 
     typedef int scid_filter_id;
 
+    typedef int scid_board_search_match;
+
     enum
     {
         SCID_FILTER_ALL_GAMES = -1,
         SCID_FILTER_PRIMARY = -2
+    };
+
+    enum
+    {
+        SCID_BOARD_SEARCH_MATCH_EXACT = 0,
+        SCID_BOARD_SEARCH_MATCH_PAWNS = 1,
+        SCID_BOARD_SEARCH_MATCH_FILES = 2
     };
 
     typedef void (*scid_progress_report_callback)(
@@ -65,6 +74,14 @@ extern "C"
             int has_comments;
             int has_nags;
     } scid_search_header_criteria;
+
+    typedef struct scid_search_board_criteria
+    {
+            const scid_position*    position;
+            scid_board_search_match match;
+            int                     include_variations;
+            int                     include_flipped;
+    } scid_search_board_criteria;
 
 
     SCID_API scid_error
@@ -208,6 +225,18 @@ extern "C"
         void*                         progress_report_user_data,
         scid_should_cancel_fn         should_cancel,
         void*                         should_cancel_user_data);
+
+
+    SCID_API scid_error
+    scid_database_search_board(
+        scid_database*                    database,
+        scid_filter_id                    source_filter_id,
+        scid_filter_id                    destination_filter_id,
+        const scid_search_board_criteria* criteria,
+        scid_progress_report_callback     progress_report,
+        void*                             progress_report_user_data,
+        scid_should_cancel_fn             should_cancel,
+        void*                             should_cancel_user_data);
 
 
     SCID_API scid_error
