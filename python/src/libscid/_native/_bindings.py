@@ -153,6 +153,19 @@ def bind_functions(lib: ctypes.CDLL) -> None:
         ],
     )
     bind(
+        "scid_database_search_position",
+        [
+            ctypes.c_void_p,
+            scid_filter_id,
+            scid_filter_id,
+            ctypes.c_void_p,
+            NativeProgressReportCallback,
+            ctypes.c_void_p,
+            NativeShouldCancelFn,
+            ctypes.c_void_p,
+        ],
+    )
+    bind(
         "scid_database_game_tag_get",
         [
             ctypes.c_void_p,

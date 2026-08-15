@@ -3,6 +3,7 @@ from __future__ import annotations
 import ctypes
 import os
 from collections.abc import Callable
+from typing import Any
 
 from ._base import NativeLibraryBase
 from ._constants import SCID_OK
@@ -16,6 +17,7 @@ from ._types import (
 
 ProgressReportCallback = Callable[[int, int, str | None], None]
 ShouldCancelFn = Callable[[], bool]
+RaiseCallbackException = Callable[[], None]
 
 
 class NativeDatabaseMixin(NativeLibraryBase):
@@ -207,6 +209,54 @@ class NativeDatabaseMixin(NativeLibraryBase):
         progress_report_callback: ProgressReportCallback | None = None,
         should_cancel_fn: ShouldCancelFn | None = None,
     ) -> None:
+        progress_callback, should_cancel_callback, raise_callback_exception = (
+            self._database_search_callbacks(progress_report_callback, should_cancel_fn)
+        )
+
+        error = self._lib.scid_database_search_headers(
+            database,
+            source_filter_id,
+            destination_filter_id,
+            ctypes.byref(criteria),
+            progress_callback,
+            None,
+            should_cancel_callback,
+            None,
+        )
+        raise_callback_exception()
+        self._check("scid_database_search_headers", error)
+
+    def database_search_position(
+        self,
+        database: ctypes.c_void_p,
+        source_filter_id: int,
+        destination_filter_id: int,
+        position: ctypes.c_void_p,
+        progress_report_callback: ProgressReportCallback | None = None,
+        should_cancel_fn: ShouldCancelFn | None = None,
+    ) -> None:
+        progress_callback, should_cancel_callback, raise_callback_exception = (
+            self._database_search_callbacks(progress_report_callback, should_cancel_fn)
+        )
+
+        error = self._lib.scid_database_search_position(
+            database,
+            source_filter_id,
+            destination_filter_id,
+            position,
+            progress_callback,
+            None,
+            should_cancel_callback,
+            None,
+        )
+        raise_callback_exception()
+        self._check("scid_database_search_position", error)
+
+    def _database_search_callbacks(
+        self,
+        progress_report_callback: ProgressReportCallback | None,
+        should_cancel_fn: ShouldCancelFn | None,
+    ) -> tuple[Any, Any, RaiseCallbackException]:
         callback_exception: BaseException | None = None
 
         def report_progress(
@@ -250,19 +300,11 @@ class NativeDatabaseMixin(NativeLibraryBase):
             else NativeShouldCancelFn()
         )
 
-        error = self._lib.scid_database_search_headers(
-            database,
-            source_filter_id,
-            destination_filter_id,
-            ctypes.byref(criteria),
-            progress_callback,
-            None,
-            should_cancel_callback,
-            None,
-        )
-        if callback_exception is not None:
-            raise callback_exception
-        self._check("scid_database_search_headers", error)
+        def raise_callback_exception() -> None:
+            if callback_exception is not None:
+                raise callback_exception
+
+        return progress_callback, should_cancel_callback, raise_callback_exception
 
     def database_game_tag(
         self, database: ctypes.c_void_p, index: int, name: str | bytes

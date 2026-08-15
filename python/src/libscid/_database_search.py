@@ -9,6 +9,7 @@ from ._native import NativeLibrary
 from ._native._constants import SCID_FILTER_ALL_GAMES
 from ._native._text import encode
 from ._native._types import ScidSearchHeaderCriteria
+from ._position import Position
 
 if TYPE_CHECKING:
     from ._database import Database
@@ -177,6 +178,42 @@ class DatabaseSearch:
             source_filter._available_id(),
             destination_filter._available_id(),
             native_criteria,
+            progress_report_callback=progress_report_callback,
+            should_cancel_fn=should_cancel_fn,
+        )
+        return destination_filter
+
+    def position(
+        self,
+        position: Position,
+        *,
+        source: Filter | None = None,
+        destination: Filter | None = None,
+        progress_report_callback: ProgressReportCallback | None = None,
+        should_cancel_fn: ShouldCancelFn | None = None,
+    ) -> Filter:
+        if not isinstance(position, Position):
+            raise TypeError("position must be a Position")
+
+        source_filter = (
+            self._database.filters.all_games
+            if source is None
+            else self._validate_filter("source", source)
+        )
+        destination_filter = (
+            self._database.filters.create()
+            if destination is None
+            else self._validate_filter("destination", destination)
+        )
+
+        if destination_filter._id == SCID_FILTER_ALL_GAMES:
+            raise ValueError("destination cannot be the all_games filter")
+
+        self._native.database_search_position(
+            self._database._handle,
+            source_filter._available_id(),
+            destination_filter._available_id(),
+            position._handle,
             progress_report_callback=progress_report_callback,
             should_cancel_fn=should_cancel_fn,
         )

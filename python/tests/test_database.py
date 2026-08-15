@@ -211,6 +211,40 @@ def test_database_search_can_reuse_destination_filter(tmp_path):
     assert destination.get_game_indices("N+") == (1,)
 
 
+def test_database_search_can_search_position(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    )
+
+    matches = database.search.position(position)
+
+    assert isinstance(matches, libscid.Filter)
+    assert matches.get_game_indices("N+") == (0, 2)
+
+
+def test_database_search_position_can_search_within_source_filter(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    )
+    white_wins = database.search.headers(database.search.HeaderCriteria(result="1-0"))
+    destination = database.filters.create()
+
+    matches = database.search.position(
+        position,
+        source=white_wins,
+        destination=destination,
+    )
+
+    assert matches is destination
+    assert destination.get_game_indices("N+") == (2,)
+
+
 def test_database_search_reports_progress(tmp_path):
     path = tmp_path / "games.pgn"
     write_search_pgn(path)
@@ -224,6 +258,23 @@ def test_database_search_reports_progress(tmp_path):
         database.search.HeaderCriteria(result="1-0"),
         progress_report_callback=report,
     )
+
+    assert reports
+
+
+def test_database_search_position_reports_progress(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    )
+    reports = []
+
+    def report(done: int, total: int, message: str | None) -> None:
+        reports.append((done, total, message))
+
+    database.search.position(position, progress_report_callback=report)
 
     assert reports
 
@@ -249,6 +300,27 @@ def test_database_search_can_be_cancelled(tmp_path):
     assert calls > 0
 
 
+def test_database_search_position_can_be_cancelled(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    )
+    calls = 0
+
+    def should_cancel() -> bool:
+        nonlocal calls
+        calls += 1
+        return True
+
+    with pytest.raises(libscid.LibScidError) as raised:
+        database.search.position(position, should_cancel_fn=should_cancel)
+
+    assert raised.value.code == 2
+    assert calls > 0
+
+
 def test_database_search_reraises_progress_callback_exception(tmp_path):
     path = tmp_path / "games.pgn"
     write_search_pgn(path)
@@ -262,6 +334,21 @@ def test_database_search_reraises_progress_callback_exception(tmp_path):
             database.search.HeaderCriteria(result="1-0"),
             progress_report_callback=report,
         )
+
+
+def test_database_search_position_reraises_progress_callback_exception(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    )
+
+    def report(_done: int, _total: int, _message: str | None) -> None:
+        raise RuntimeError("stop from Python")
+
+    with pytest.raises(RuntimeError, match="stop from Python"):
+        database.search.position(position, progress_report_callback=report)
 
 
 def test_database_search_validates_criteria(tmp_path):
@@ -286,6 +373,20 @@ def test_database_search_validates_criteria(tmp_path):
             database.search.HeaderCriteria(result="1-0"),
             destination=database.filters.all_games,
         )
+
+
+def test_database_search_position_validates_arguments(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    position = libscid.Position.from_fen(
+        "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3"
+    )
+
+    with pytest.raises(TypeError, match="position must be a Position"):
+        database.search.position("not a position")
+    with pytest.raises(ValueError, match="destination cannot be the all_games filter"):
+        database.search.position(position, destination=database.filters.all_games)
 
 
 def test_database_open_pgn_read_only_reports_progress(tmp_path):
