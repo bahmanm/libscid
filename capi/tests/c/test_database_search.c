@@ -136,7 +136,7 @@ test_database_search(void)
     scid_search_header_criteria header_search = {0};
     scid_search_board_criteria  board_search = {0};
     size_t                      count = 99;
-    size_t                      game_indexes[4] = {99, 99, 99, 99};
+    size_t                      game_indexes[5] = {99, 99, 99, 99, 99};
     size_t                      list_count = 99;
     struct progress_report_data progress = {0, 0, 0, 0};
     struct should_cancel_data   cancel = {0, 1};
@@ -315,7 +315,16 @@ test_database_search(void)
             database, SCID_FILTER_ALL_GAMES, filter_id, &board_search, NULL, NULL, NULL, NULL) ==
         SCID_OK);
     assert(scid_database_filter_game_count_get(database, filter_id, &count) == SCID_OK);
-    assert(count == 1);
+    assert(count == 5);
+    assert(
+        scid_database_filter_game_indices_get(
+            database, filter_id, "N+", 0, 5, game_indexes, 5, &list_count) == SCID_OK);
+    assert(list_count == 5);
+    assert(game_indexes[0] == 0);
+    assert(game_indexes[1] == 1);
+    assert(game_indexes[2] == 2);
+    assert(game_indexes[3] == 3);
+    assert(game_indexes[4] == 4);
 
     assert(
         scid_position_create_from_fen(

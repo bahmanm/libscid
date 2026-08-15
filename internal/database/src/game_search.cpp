@@ -318,13 +318,14 @@ namespace scid::database
                     }
                 }
 
-                (void)currentPosition.applyMove(move.spec);
+                if (currentPosition.applyMove(move.spec) != scid::core::OK)
+                {
+                    return false;
+                }
             }
 
-
-            return line.moves.empty() &&
-                   positionMatches(
-                       searchPos, currentPosition, searchType, whitePawnFyles, blackPawnFyles);
+            return positionMatches(
+                searchPos, currentPosition, searchType, whitePawnFyles, blackPawnFyles);
         }
 
 

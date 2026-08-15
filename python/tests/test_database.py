@@ -372,6 +372,21 @@ def test_database_search_board_can_include_flipped_position(tmp_path):
     assert with_flipped.get_game_indices("N+") == (0,)
 
 
+def test_database_search_board_can_include_variations(tmp_path):
+    path = tmp_path / "games.pgn"
+    write_board_search_pgn(path)
+    database = libscid.Database.open_pgn_read_only(path)
+    variation_position = libscid.Position.from_fen(
+        "rnbqkbnr/ppppppp1/8/7p/7P/8/PPPPPPP1/RNBQKBNR w KQkq - 0 2"
+    )
+
+    without_variations = database.search.board(variation_position)
+    with_variations = database.search.board(variation_position, include_variations=True)
+
+    assert without_variations.get_game_indices("N+") == ()
+    assert with_variations.get_game_indices("N+") == (4,)
+
+
 def test_database_search_reports_progress(tmp_path):
     path = tmp_path / "games.pgn"
     write_search_pgn(path)
