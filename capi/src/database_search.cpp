@@ -341,6 +341,36 @@ namespace
         }
     }
 
+
+    std::vector<unsigned char>
+    included_games_snapshot(
+        const scid::database::scidBaseT& database,
+        const scid::database::HFilter&   filter)
+    {
+        std::vector<unsigned char> included(database.numGames());
+        for (scid::database::gamenumT i = 0, n = database.numGames(); i < n; ++i)
+        {
+            included[i] = filter.get(i) != 0;
+        }
+        return included;
+    }
+
+
+    void
+    intersect_with_snapshot(
+        const scid::database::scidBaseT&  database,
+        const std::vector<unsigned char>& included,
+        scid::database::HFilter&          filter)
+    {
+        for (scid::database::gamenumT i = 0, n = database.numGames(); i < n; ++i)
+        {
+            if (!included[i])
+            {
+                filter.erase(i);
+            }
+        }
+    }
+
 } // namespace
 
 scid_error
@@ -398,6 +428,54 @@ scid_database_search_headers(
             scid::database::search_index(
                 &database->value, destination, static_cast<int>(argv.size()), argv.data(),
                 progress));
+    }
+    catch (...)
+    {
+        return SCID_ERROR;
+    }
+}
+
+
+scid_error
+scid_database_search_position(
+    scid_database*                database,
+    scid_filter_id                source_filter_id,
+    scid_filter_id                destination_filter_id,
+    const scid_position*          position,
+    scid_progress_report_callback progress_report,
+    void*                         progress_report_user_data,
+    scid_should_cancel_fn         should_cancel,
+    void*                         should_cancel_user_data)
+{
+    if (database == nullptr || position == nullptr ||
+        destination_filter_id == SCID_FILTER_ALL_GAMES || !database->value.isOpen())
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        scid::database::HFilter source(nullptr);
+        if (!database_filter_get(database, source_filter_id, &source))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        scid::database::HFilter destination(nullptr);
+        if (!database_filter_get(database, destination_filter_id, &destination))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        const auto               source_included = included_games_snapshot(database->value, source);
+        scid::database::Progress progress(new CallbackProgress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        if (!database->value.setPositionSearchFilter(position->value, destination, progress))
+        {
+            return SCID_ERROR_USER_CANCEL;
+        }
+        intersect_with_snapshot(database->value, source_included, destination);
+        return SCID_OK;
     }
     catch (...)
     {

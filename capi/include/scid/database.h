@@ -4,6 +4,7 @@
 #include "scid/_platform.h"
 #include "scid/eco.h"
 #include "scid/game.h"
+#include "scid/position.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -195,6 +196,18 @@ extern "C"
         void*                              progress_report_user_data,
         scid_should_cancel_fn              should_cancel,
         void*                              should_cancel_user_data);
+
+
+    SCID_API scid_error
+    scid_database_search_position(
+        scid_database*                database,
+        scid_filter_id                source_filter_id,
+        scid_filter_id                destination_filter_id,
+        const scid_position*          position,
+        scid_progress_report_callback progress_report,
+        void*                         progress_report_user_data,
+        scid_should_cancel_fn         should_cancel,
+        void*                         should_cancel_user_data);
 
 
     SCID_API scid_error

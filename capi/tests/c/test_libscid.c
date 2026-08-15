@@ -12,6 +12,8 @@ main(void)
     test_cursor();
     test_cursor_mutation();
     test_database();
+    test_database_filters();
+    test_database_search();
     test_eco();
     test_pgn_contract();
 
