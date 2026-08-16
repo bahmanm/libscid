@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import ctypes
+from collections.abc import Iterator
+from typing import TYPE_CHECKING
 
 from ._cursor import Cursor
 from ._native import NativeLibrary, load_library
 from ._pgn import PgnOptions
 from ._position import Position
+
+if TYPE_CHECKING:
+    from ._domain_support._movetext_iteration import MovetextEvent
 
 
 class Game:
@@ -71,6 +76,9 @@ class Game:
         return Cursor._from_handle(
             self._native, self, self._native.game_create_cursor(self._handle)
         )
+
+    def iter_movetext(self, *, variations: bool = True) -> Iterator[MovetextEvent]:
+        return self.create_cursor().iter_movetext(variations=variations)
 
     def to_pgn(self, options: PgnOptions | None = None) -> str:
         return self._native.game_to_pgn(self._handle, options)

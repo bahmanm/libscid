@@ -6,6 +6,12 @@ from ._cursor import Cursor
 from ._database import Database
 from ._database_filters import DatabaseFilters
 from ._database_search import DatabaseSearch
+from ._domain_support._movetext_iteration import (
+    MovetextEvent,
+    MovetextLineEnd,
+    MovetextLineStart,
+    MovetextMove,
+)
 from ._filter import Filter
 from ._game import Game
 from ._move_metadata import MoveMetadata
@@ -28,6 +34,10 @@ __all__ = [
     "Game",
     "LibScidError",
     "MoveMetadata",
+    "MovetextEvent",
+    "MovetextLineEnd",
+    "MovetextLineStart",
+    "MovetextMove",
     "Nag",
     "PgnOptions",
     "Position",
