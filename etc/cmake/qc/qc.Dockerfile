@@ -34,6 +34,7 @@ RUN apt-get update \
            cmake \
            cppcheck \
            curl \
+           libclang-rt-20-dev \
            python3 \
            python3-pip \
     && build_dir="$(mktemp -d)" \

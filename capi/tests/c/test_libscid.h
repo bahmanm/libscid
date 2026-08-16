@@ -3,7 +3,23 @@
 
 #include "scid/scid.h"
 
-#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define TEST_ASSERT(expr)                                                                          \
+    do                                                                                             \
+    {                                                                                              \
+        if (!(expr))                                                                               \
+        {                                                                                          \
+            fprintf(                                                                               \
+                stderr,                                                                            \
+                "TEST ASSERTION FAILED: %s\n"                                                      \
+                "  File: %s:%d\n"                                                                  \
+                "  Function: %s()\n",                                                              \
+                #expr, __FILE__, __LINE__, __func__);                                              \
+            abort();                                                                               \
+        }                                                                                          \
+    } while (0)
 
 static const char* TEST_STANDARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -68,8 +84,8 @@ test_cursor_take(
     scid_game_cursor** cursor,
     scid_game_cursor*  next_cursor)
 {
-    assert(cursor != 0);
-    assert(next_cursor != 0);
+    TEST_ASSERT(cursor != 0);
+    TEST_ASSERT(next_cursor != 0);
     scid_game_cursor_free(*cursor);
     *cursor = next_cursor;
 }
