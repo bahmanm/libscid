@@ -2,7 +2,6 @@
 
 #include "scid/scid.h"
 
-#include <assert.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -46,195 +45,198 @@ test_position(void)
     scid_movespec  moves[SCID_MAX_LEGAL_MOVES];
     size_t         move_count = 999;
 
-    assert(test_position_create_standard(&position) == SCID_OK);
-    assert(position != NULL);
-    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
-    assert(strcmp(fen, start_fen) == 0);
-    assert(fen_size == strlen(start_fen));
+    TEST_ASSERT(test_position_create_standard(&position) == SCID_OK);
+    TEST_ASSERT(position != NULL);
+    TEST_ASSERT(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
+    TEST_ASSERT(strcmp(fen, start_fen) == 0);
+    TEST_ASSERT(fen_size == strlen(start_fen));
 
-    assert(scid_position_is_start(position, &truth) == SCID_OK);
-    assert(truth == 1);
+    TEST_ASSERT(scid_position_is_start(position, &truth) == SCID_OK);
+    TEST_ASSERT(truth == 1);
 
-    assert(scid_position_is_check(position, &truth) == SCID_OK);
-    assert(truth == 0);
+    TEST_ASSERT(scid_position_is_check(position, &truth) == SCID_OK);
+    TEST_ASSERT(truth == 0);
 
-    assert(scid_position_is_checkmate(position, &truth) == SCID_OK);
-    assert(truth == 0);
+    TEST_ASSERT(scid_position_is_checkmate(position, &truth) == SCID_OK);
+    TEST_ASSERT(truth == 0);
 
-    assert(scid_position_is_legal(position, &truth) == SCID_OK);
-    assert(truth == 1);
+    TEST_ASSERT(scid_position_is_legal(position, &truth) == SCID_OK);
+    TEST_ASSERT(truth == 1);
 
-    assert(scid_position_side_to_move_get(position, &side_to_move) == SCID_OK);
-    assert(side_to_move == SCID_WHITE);
+    TEST_ASSERT(scid_position_side_to_move_get(position, &side_to_move) == SCID_OK);
+    TEST_ASSERT(side_to_move == SCID_WHITE);
 
-    assert(scid_position_fullmove_number_get(position, &number) == SCID_OK);
-    assert(number == 1);
+    TEST_ASSERT(scid_position_fullmove_number_get(position, &number) == SCID_OK);
+    TEST_ASSERT(number == 1);
 
-    assert(scid_position_halfmove_clock_get(position, &number) == SCID_OK);
-    assert(number == 0);
+    TEST_ASSERT(scid_position_halfmove_clock_get(position, &number) == SCID_OK);
+    TEST_ASSERT(number == 0);
 
-    assert(scid_position_piece_at_get(position, 4, &piece) == SCID_OK);
-    assert(piece == SCID_PIECE_WHITE_KING);
+    TEST_ASSERT(scid_position_piece_at_get(position, 4, &piece) == SCID_OK);
+    TEST_ASSERT(piece == SCID_PIECE_WHITE_KING);
 
-    assert(scid_position_piece_at_get(position, 56, &piece) == SCID_OK);
-    assert(piece == SCID_PIECE_BLACK_ROOK);
+    TEST_ASSERT(scid_position_piece_at_get(position, 56, &piece) == SCID_OK);
+    TEST_ASSERT(piece == SCID_PIECE_BLACK_ROOK);
 
-    assert(scid_position_piece_at_get(position, 28, &piece) == SCID_OK);
-    assert(piece == SCID_PIECE_NONE);
+    TEST_ASSERT(scid_position_piece_at_get(position, 28, &piece) == SCID_OK);
+    TEST_ASSERT(piece == SCID_PIECE_NONE);
 
-    assert(
+    TEST_ASSERT(
         scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, &move_count) == SCID_OK);
-    assert(move_count == 20);
-    assert(test_moves_include(moves, move_count, 12, 28, SCID_PIECE_NONE, 0));
-    assert(test_moves_include(moves, move_count, 6, 21, SCID_PIECE_NONE, 0));
-    assert(!test_moves_include(moves, move_count, 12, 36, SCID_PIECE_NONE, 0));
+    TEST_ASSERT(move_count == 20);
+    TEST_ASSERT(test_moves_include(moves, move_count, 12, 28, SCID_PIECE_NONE, 0));
+    TEST_ASSERT(test_moves_include(moves, move_count, 6, 21, SCID_PIECE_NONE, 0));
+    TEST_ASSERT(!test_moves_include(moves, move_count, 12, 36, SCID_PIECE_NONE, 0));
 
     move_count = 999;
-    assert(scid_position_legal_moves(position, moves, 19, &move_count) == SCID_ERROR_BUFFER_FULL);
-    assert(move_count == 0);
+    TEST_ASSERT(
+        scid_position_legal_moves(position, moves, 19, &move_count) == SCID_ERROR_BUFFER_FULL);
+    TEST_ASSERT(move_count == 0);
 
     move_count = 999;
-    assert(
+    TEST_ASSERT(
         scid_position_legal_moves(position, NULL, SCID_MAX_LEGAL_MOVES, &move_count) ==
         SCID_ERROR_BAD_ARG);
-    assert(move_count == 0);
-    assert(
+    TEST_ASSERT(move_count == 0);
+    TEST_ASSERT(
         scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, NULL) ==
         SCID_ERROR_BAD_ARG);
 
     scid_position_free(position);
 
     position = NULL;
-    assert(test_position_create_standard(&position) == SCID_OK);
-    assert(scid_position_create_with_uci(position, "e2e4", &next_position) == SCID_OK);
-    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
-    assert(strcmp(fen, start_fen) == 0);
+    TEST_ASSERT(test_position_create_standard(&position) == SCID_OK);
+    TEST_ASSERT(scid_position_create_with_uci(position, "e2e4", &next_position) == SCID_OK);
+    TEST_ASSERT(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
+    TEST_ASSERT(strcmp(fen, start_fen) == 0);
     scid_position_free(position);
     position = next_position;
     next_position = NULL;
-    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
-    assert(strcmp(fen, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1") == 0);
-    assert(scid_position_create_with_san(position, "c5", &next_position) == SCID_OK);
-    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
-    assert(strcmp(fen, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1") == 0);
+    TEST_ASSERT(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
+    TEST_ASSERT(strcmp(fen, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1") == 0);
+    TEST_ASSERT(scid_position_create_with_san(position, "c5", &next_position) == SCID_OK);
+    TEST_ASSERT(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
+    TEST_ASSERT(strcmp(fen, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1") == 0);
     scid_position_free(position);
     position = next_position;
     next_position = NULL;
-    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
-    assert(strcmp(fen, "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2") == 0);
-    assert(scid_position_apply_uci(position, "g1f3") == SCID_OK);
-    assert(scid_position_apply_uci(position, "not-a-move") == SCID_ERROR_INVALID_MOVE);
-    assert(scid_position_apply_san(position, "not-a-move") == SCID_ERROR_INVALID_MOVE);
-    assert(scid_position_create_with_uci(NULL, "e2e4", &next_position) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_create_with_uci(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
-    assert(
+    TEST_ASSERT(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
+    TEST_ASSERT(strcmp(fen, "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2") == 0);
+    TEST_ASSERT(scid_position_apply_uci(position, "g1f3") == SCID_OK);
+    TEST_ASSERT(scid_position_apply_uci(position, "not-a-move") == SCID_ERROR_INVALID_MOVE);
+    TEST_ASSERT(scid_position_apply_san(position, "not-a-move") == SCID_ERROR_INVALID_MOVE);
+    TEST_ASSERT(scid_position_create_with_uci(NULL, "e2e4", &next_position) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_create_with_uci(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
         scid_position_create_with_uci(position, "not-a-move", &next_position) ==
         SCID_ERROR_INVALID_MOVE);
-    assert(next_position == NULL);
-    assert(scid_position_create_with_uci(position, "g1f3", NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_create_with_san(NULL, "e4", &next_position) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_create_with_san(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
-    assert(
+    TEST_ASSERT(next_position == NULL);
+    TEST_ASSERT(scid_position_create_with_uci(position, "g1f3", NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_create_with_san(NULL, "e4", &next_position) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_create_with_san(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
         scid_position_create_with_san(position, "not-a-move", &next_position) ==
         SCID_ERROR_INVALID_MOVE);
-    assert(next_position == NULL);
-    assert(scid_position_create_with_san(position, "Nf3", NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_apply_uci(NULL, "e2e4") == SCID_ERROR_BAD_ARG);
-    assert(scid_position_apply_uci(position, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_apply_san(NULL, "e4") == SCID_ERROR_BAD_ARG);
-    assert(scid_position_apply_san(position, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(next_position == NULL);
+    TEST_ASSERT(scid_position_create_with_san(position, "Nf3", NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_apply_uci(NULL, "e2e4") == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_apply_uci(position, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_apply_san(NULL, "e4") == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_apply_san(position, NULL) == SCID_ERROR_BAD_ARG);
     scid_position_free(position);
 
     position = NULL;
-    assert(scid_position_create_from_fen(custom_fen, &position) == SCID_OK);
-    assert(position != NULL);
-    assert(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
-    assert(strcmp(fen, custom_fen) == 0);
-    assert(fen_size == strlen(custom_fen));
+    TEST_ASSERT(scid_position_create_from_fen(custom_fen, &position) == SCID_OK);
+    TEST_ASSERT(position != NULL);
+    TEST_ASSERT(scid_position_to_fen(position, fen, sizeof(fen), &fen_size) == SCID_OK);
+    TEST_ASSERT(strcmp(fen, custom_fen) == 0);
+    TEST_ASSERT(fen_size == strlen(custom_fen));
 
-    assert(scid_position_is_start(position, &truth) == SCID_OK);
-    assert(truth == 0);
+    TEST_ASSERT(scid_position_is_start(position, &truth) == SCID_OK);
+    TEST_ASSERT(truth == 0);
 
-    assert(scid_position_side_to_move_get(position, &side_to_move) == SCID_OK);
-    assert(side_to_move == SCID_WHITE);
+    TEST_ASSERT(scid_position_side_to_move_get(position, &side_to_move) == SCID_OK);
+    TEST_ASSERT(side_to_move == SCID_WHITE);
 
-    assert(scid_position_fullmove_number_get(position, &number) == SCID_OK);
-    assert(number == 25);
+    TEST_ASSERT(scid_position_fullmove_number_get(position, &number) == SCID_OK);
+    TEST_ASSERT(number == 25);
 
-    assert(scid_position_halfmove_clock_get(position, &number) == SCID_OK);
-    assert(number == 45);
+    TEST_ASSERT(scid_position_halfmove_clock_get(position, &number) == SCID_OK);
+    TEST_ASSERT(number == 45);
 
-    assert(scid_position_to_fen(position, NULL, 0, &fen_size) == SCID_ERROR_BUFFER_FULL);
-    assert(fen_size == strlen(custom_fen));
+    TEST_ASSERT(scid_position_to_fen(position, NULL, 0, &fen_size) == SCID_ERROR_BUFFER_FULL);
+    TEST_ASSERT(fen_size == strlen(custom_fen));
 
-    assert(
+    TEST_ASSERT(
         scid_position_to_fen(position, fen, strlen(custom_fen), &fen_size) ==
         SCID_ERROR_BUFFER_FULL);
-    assert(fen_size == strlen(custom_fen));
+    TEST_ASSERT(fen_size == strlen(custom_fen));
 
-    assert(scid_position_to_fen(position, fen, sizeof(fen), NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_to_fen(position, fen, sizeof(fen), NULL) == SCID_ERROR_BAD_ARG);
     scid_position_free(position);
 
     position = NULL;
-    assert(scid_position_create_from_fen(check_fen, &position) == SCID_OK);
-    assert(scid_position_is_check(position, &truth) == SCID_OK);
-    assert(truth == 1);
-    assert(scid_position_is_checkmate(position, &truth) == SCID_OK);
-    assert(truth == 0);
+    TEST_ASSERT(scid_position_create_from_fen(check_fen, &position) == SCID_OK);
+    TEST_ASSERT(scid_position_is_check(position, &truth) == SCID_OK);
+    TEST_ASSERT(truth == 1);
+    TEST_ASSERT(scid_position_is_checkmate(position, &truth) == SCID_OK);
+    TEST_ASSERT(truth == 0);
     scid_position_free(position);
 
     position = NULL;
-    assert(scid_position_create_from_fen(mate_fen, &position) == SCID_OK);
-    assert(scid_position_side_to_move_get(position, &side_to_move) == SCID_OK);
-    assert(side_to_move == SCID_WHITE);
-    assert(scid_position_is_check(position, &truth) == SCID_OK);
-    assert(truth == 1);
-    assert(scid_position_is_checkmate(position, &truth) == SCID_OK);
-    assert(truth == 1);
-    assert(
+    TEST_ASSERT(scid_position_create_from_fen(mate_fen, &position) == SCID_OK);
+    TEST_ASSERT(scid_position_side_to_move_get(position, &side_to_move) == SCID_OK);
+    TEST_ASSERT(side_to_move == SCID_WHITE);
+    TEST_ASSERT(scid_position_is_check(position, &truth) == SCID_OK);
+    TEST_ASSERT(truth == 1);
+    TEST_ASSERT(scid_position_is_checkmate(position, &truth) == SCID_OK);
+    TEST_ASSERT(truth == 1);
+    TEST_ASSERT(
         scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, &move_count) == SCID_OK);
-    assert(move_count == 0);
+    TEST_ASSERT(move_count == 0);
     scid_position_free(position);
 
     position = NULL;
-    assert(scid_position_create_from_fen(promotion_fen, &position) == SCID_OK);
-    assert(
+    TEST_ASSERT(scid_position_create_from_fen(promotion_fen, &position) == SCID_OK);
+    TEST_ASSERT(
         scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, &move_count) == SCID_OK);
-    assert(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_QUEEN, 0));
-    assert(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_ROOK, 0));
-    assert(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_BISHOP, 0));
-    assert(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_KNIGHT, 0));
+    TEST_ASSERT(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_QUEEN, 0));
+    TEST_ASSERT(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_ROOK, 0));
+    TEST_ASSERT(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_BISHOP, 0));
+    TEST_ASSERT(test_moves_include(moves, move_count, 48, 56, SCID_PIECE_KNIGHT, 0));
     scid_position_free(position);
 
     position = (scid_position*)1;
-    assert(
+    TEST_ASSERT(
         scid_position_create_from_fen("rnb1k2/Q1p5p/p7/4p3/4q3/8/PPP2R1P/2K5 b", &position) ==
         SCID_ERROR_INVALID_FEN);
-    assert(position == NULL);
+    TEST_ASSERT(position == NULL);
 
-    assert(test_position_create_standard(NULL) == SCID_ERROR_BAD_ARG);
-    assert(test_position_create_empty(NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_create_from_fen(NULL, &position) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_create_from_fen(custom_fen, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_to_fen(NULL, fen, sizeof(fen), &fen_size) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_is_start(NULL, &truth) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_is_start(position, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_is_check(NULL, &truth) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_is_check(position, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_is_checkmate(NULL, &truth) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_is_checkmate(position, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_is_legal(NULL, &truth) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_is_legal(position, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_side_to_move_get(NULL, &side_to_move) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_side_to_move_get(position, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_fullmove_number_get(NULL, &number) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_fullmove_number_get(position, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_halfmove_clock_get(NULL, &number) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_halfmove_clock_get(position, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_piece_at_get(NULL, 4, &piece) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_piece_at_get(position, 4, NULL) == SCID_ERROR_BAD_ARG);
-    assert(scid_position_piece_at_get(position, 64, &piece) == SCID_ERROR_BAD_ARG);
-    assert(
+    TEST_ASSERT(test_position_create_standard(NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(test_position_create_empty(NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_create_from_fen(NULL, &position) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_create_from_fen(custom_fen, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_to_fen(NULL, fen, sizeof(fen), &fen_size) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_is_start(NULL, &truth) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_is_start(position, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_is_check(NULL, &truth) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_is_check(position, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_is_checkmate(NULL, &truth) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_is_checkmate(position, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_is_legal(NULL, &truth) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_is_legal(position, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_side_to_move_get(NULL, &side_to_move) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_side_to_move_get(position, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_fullmove_number_get(NULL, &number) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_fullmove_number_get(position, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_halfmove_clock_get(NULL, &number) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_halfmove_clock_get(position, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_piece_at_get(NULL, 4, &piece) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_piece_at_get(position, 4, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_position_piece_at_get(position, 64, &piece) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
         scid_position_legal_moves(NULL, moves, SCID_MAX_LEGAL_MOVES, &move_count) ==
         SCID_ERROR_BAD_ARG);
 
