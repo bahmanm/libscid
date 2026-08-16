@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import ctypes
-from typing import Any
+from collections.abc import Iterator
+from typing import TYPE_CHECKING, Any
 
 from ._arbiter import Arbiter
 from ._nag import Nag
 from ._native import NativeLibrary
 from ._position import Position
+
+if TYPE_CHECKING:
+    from ._domain_support._movetext_iteration import MovetextEvent
 
 
 class Cursor:
@@ -129,6 +133,11 @@ class Cursor:
             self._game,
             self._native.cursor_truncate_before(self._game._handle, self._handle),
         )
+
+    def iter_movetext(self, *, variations: bool = True) -> Iterator[MovetextEvent]:
+        from ._domain_support._movetext_iteration import iter_movetext
+
+        return iter_movetext(self, variations=variations)
 
     def _from_optional_handle(self, handle: ctypes.c_void_p | None) -> Cursor | None:
         if handle is None:
