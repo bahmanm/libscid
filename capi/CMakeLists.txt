@@ -37,11 +37,14 @@ add_library(
     scid
     ${SCID_LIBRARY_TYPE}
     src/database.cpp
+    src/database_filter.cpp
+    src/database_search.cpp
     src/eco.cpp
     src/game.cpp
     src/movespec.cpp
     src/position.cpp
     src/primitives.cpp
+    src/progress.cpp
     src/support.cpp )
 add_library(
     LibScid::LibScid
@@ -96,6 +99,8 @@ if( BUILD_TESTING )
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_cursor.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_cursor_mutation.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_filters.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_search.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_eco.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_game.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_libscid.c"

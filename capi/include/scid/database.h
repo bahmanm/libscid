@@ -4,6 +4,7 @@
 #include "scid/_platform.h"
 #include "scid/eco.h"
 #include "scid/game.h"
+#include "scid/position.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -11,6 +12,76 @@ extern "C"
 #endif
 
     typedef struct scid_database scid_database;
+
+    typedef int scid_filter_id;
+
+    typedef int scid_board_search_match;
+
+    enum
+    {
+        SCID_FILTER_ALL_GAMES = -1,
+        SCID_FILTER_PRIMARY = -2
+    };
+
+    enum
+    {
+        SCID_BOARD_SEARCH_MATCH_EXACT = 0,
+        SCID_BOARD_SEARCH_MATCH_PAWNS = 1,
+        SCID_BOARD_SEARCH_MATCH_FILES = 2
+    };
+
+    typedef void (*scid_progress_report_callback)(
+        size_t      done,
+        size_t      total,
+        const char* message,
+        void*       user_data);
+
+    typedef int (*scid_should_cancel_fn)(void* user_data);
+
+    typedef struct scid_search_header_criteria
+    {
+            const char* player;
+            const char* white;
+            const char* black;
+            const char* event;
+            const char* site;
+            const char* site_country;
+            const char* round;
+
+            const char* date_min;
+            const char* date_max;
+            const char* event_date_min;
+            const char* event_date_max;
+
+            const char* eco_min;
+            const char* eco_max;
+
+            const char* result;
+
+            size_t game_number_min;
+            size_t game_number_max;
+            size_t halfmove_count_min;
+            size_t halfmove_count_max;
+
+            size_t white_elo_min;
+            size_t white_elo_max;
+            size_t black_elo_min;
+            size_t black_elo_max;
+            int    elo_difference_min;
+            int    elo_difference_max;
+
+            int has_variations;
+            int has_comments;
+            int has_nags;
+    } scid_search_header_criteria;
+
+    typedef struct scid_search_board_criteria
+    {
+            const scid_position*    position;
+            scid_board_search_match match;
+            int                     include_variations;
+            int                     include_flipped;
+    } scid_search_board_criteria;
 
 
     SCID_API scid_error
@@ -35,6 +106,16 @@ extern "C"
     scid_database_open_scid5_read_only(
         const char*     path,
         scid_database** out_database);
+
+
+    SCID_API scid_error
+    scid_database_open_pgn_read_only(
+        const char*                   path,
+        scid_progress_report_callback progress_report,
+        void*                         progress_report_user_data,
+        scid_should_cancel_fn         should_cancel,
+        void*                         should_cancel_user_data,
+        scid_database**               out_database);
 
 
     SCID_API scid_error
@@ -75,75 +156,87 @@ extern "C"
 
     SCID_API scid_error
     scid_database_filter_create(
-        scid_database* database,
-        char*          out_filter_id,
-        size_t         out_filter_id_capacity,
-        size_t*        out_filter_id_size);
+        scid_database*  database,
+        scid_filter_id* out_filter_id);
 
 
     SCID_API scid_error
     scid_database_filter_delete(
         scid_database* database,
-        const char*    filter_id);
+        scid_filter_id filter_id);
 
 
     SCID_API scid_error
-    scid_database_filter_fill(
-        scid_database* database,
-        const char*    filter_id,
-        unsigned       value);
-
-
-    SCID_API scid_error
-    scid_database_filter_value_set(
-        scid_database* database,
-        const char*    filter_id,
-        size_t         game_index,
-        unsigned       value);
-
-
-    SCID_API scid_error
-    scid_database_filter_value_get(
+    scid_database_filter_game_count_get(
         const scid_database* database,
-        const char*          filter_id,
-        size_t               game_index,
-        unsigned*            out_value);
-
-
-    SCID_API scid_error
-    scid_database_filter_count_get(
-        const scid_database* database,
-        const char*          filter_id,
+        scid_filter_id       filter_id,
         size_t*              out_count);
 
 
     SCID_API scid_error
-    scid_database_filter_game_at_get(
+    scid_database_filter_game_indices_get(
         const scid_database* database,
-        const char*          filter_id,
-        size_t               index,
+        scid_filter_id       filter_id,
+        const char*          sort_criteria,
+        size_t               start_row,
+        size_t               row_count,
+        size_t*              out_game_indices,
+        size_t               out_game_indices_capacity,
+        size_t*              out_game_indices_count);
+
+
+    SCID_API scid_error
+    scid_database_filter_game_index_at_row_get(
+        const scid_database* database,
+        scid_filter_id       filter_id,
+        const char*          sort_criteria,
+        size_t               row,
         size_t*              out_game_index);
 
 
     SCID_API scid_error
-    scid_database_game_list_get(
+    scid_database_filter_game_row_for_index_get(
         const scid_database* database,
-        const char*          filter_id,
+        scid_filter_id       filter_id,
         const char*          sort_criteria,
-        size_t               start,
-        size_t               count,
-        size_t*              out_game_indexes,
-        size_t               out_game_indexes_capacity,
-        size_t*              out_game_indexes_count);
+        size_t               game_index,
+        size_t*              out_row);
 
 
     SCID_API scid_error
-    scid_database_game_sorted_position_get(
-        const scid_database* database,
-        const char*          filter_id,
-        const char*          sort_criteria,
-        size_t               game_index,
-        size_t*              out_position);
+    scid_database_search_headers(
+        scid_database*                     database,
+        scid_filter_id                     source_filter_id,
+        scid_filter_id                     destination_filter_id,
+        const scid_search_header_criteria* criteria,
+        scid_progress_report_callback      progress_report,
+        void*                              progress_report_user_data,
+        scid_should_cancel_fn              should_cancel,
+        void*                              should_cancel_user_data);
+
+
+    SCID_API scid_error
+    scid_database_search_position(
+        scid_database*                database,
+        scid_filter_id                source_filter_id,
+        scid_filter_id                destination_filter_id,
+        const scid_position*          position,
+        scid_progress_report_callback progress_report,
+        void*                         progress_report_user_data,
+        scid_should_cancel_fn         should_cancel,
+        void*                         should_cancel_user_data);
+
+
+    SCID_API scid_error
+    scid_database_search_board(
+        scid_database*                    database,
+        scid_filter_id                    source_filter_id,
+        scid_filter_id                    destination_filter_id,
+        const scid_search_board_criteria* criteria,
+        scid_progress_report_callback     progress_report,
+        void*                             progress_report_user_data,
+        scid_should_cancel_fn             should_cancel,
+        void*                             should_cancel_user_data);
 
 
     SCID_API scid_error

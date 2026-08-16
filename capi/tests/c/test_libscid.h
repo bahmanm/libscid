@@ -82,6 +82,10 @@ test_cursor_mutation(void);
 void
 test_database(void);
 void
+test_database_filters(void);
+void
+test_database_search(void);
+void
 test_eco(void);
 void
 test_game(void);
