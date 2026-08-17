@@ -38,23 +38,23 @@ main(void)
                          "[Result \"1-0\"]\n"
                          "\n"
                          "1. e4 e5 2. Nf3 1-0\n";
-    scid_database* database = NULL;
-    scid_game*     game = NULL;
-    scid_game*     loaded = NULL;
-    scid_position* position = NULL;
-    char           diagnostic[1024];
-    char           filter_id[16] = {0};
-    char           flags[22];
-    char           text[128];
-    size_t         diagnostic_size = 0;
-    size_t         count = 0;
-    size_t         filter_id_size = 0;
-    size_t         game_indexes[1] = {0};
-    size_t         flags_size = 0;
-    size_t         listed_count = 0;
-    size_t         sorted_position = 0;
-    size_t         text_size = 0;
-    int            is_open = 0;
+    scid_database*              database = NULL;
+    scid_game*                  game = NULL;
+    scid_game*                  loaded = NULL;
+    scid_position*              position = NULL;
+    scid_filter_id              filter_id = 0;
+    scid_search_header_criteria header_criteria = {0};
+    char                        diagnostic[1024];
+    char                        flags[22];
+    char                        text[128];
+    size_t                      diagnostic_size = 0;
+    size_t                      count = 0;
+    size_t                      game_indexes[2] = {0};
+    size_t                      flags_size = 0;
+    size_t                      listed_count = 0;
+    size_t                      sorted_position = 0;
+    size_t                      text_size = 0;
+    int                         is_open = 0;
 
     if (!check(scid_database_create_memory("example", &database), "scid_database_create_memory") ||
         !check(scid_database_is_open(database, &is_open), "scid_database_is_open") || !is_open ||
@@ -102,30 +102,32 @@ main(void)
 
     printf("games after second add: %zu\n", count);
 
+    header_criteria.white = "Alpha";
+
     if (!check(
-            scid_database_filter_create(database, filter_id, sizeof(filter_id), &filter_id_size),
+            scid_database_filter_create(database, &filter_id),
             "scid_database_filter_create") ||
-        !check(scid_database_filter_fill(database, filter_id, 0), "scid_database_filter_fill") ||
         !check(
-            scid_database_filter_value_set(database, filter_id, 1, 1),
-            "scid_database_filter_value_set") ||
+            scid_database_search_headers(
+                database, SCID_FILTER_ALL_GAMES, filter_id, &header_criteria, NULL, NULL, NULL, NULL),
+            "scid_database_search_headers") ||
         !check(
-            scid_database_filter_count_get(database, filter_id, &count),
-            "scid_database_filter_count_get") ||
-        count != 1 ||
+            scid_database_filter_game_count_get(database, filter_id, &count),
+            "scid_database_filter_game_count_get") ||
+        count != 2 ||
         !check(
-            scid_database_game_list_get(
-                database, filter_id, "d+", 0, 1, game_indexes, 1, &listed_count),
-            "scid_database_game_list_get") ||
-        listed_count != 1 || game_indexes[0] != 1 ||
+            scid_database_filter_game_indices_get(
+                database, filter_id, "d+", 0, 2, game_indexes, 2, &listed_count),
+            "scid_database_filter_game_indices_get") ||
+        listed_count != 2 || game_indexes[0] != 0 || game_indexes[1] != 1 ||
         !check(
-            scid_database_game_sorted_position_get(
-                database, filter_id, "d+", game_indexes[0], &sorted_position),
-            "scid_database_game_sorted_position_get") ||
-        sorted_position != 0 ||
+            scid_database_filter_game_row_for_index_get(
+                database, filter_id, "d+", game_indexes[1], &sorted_position),
+            "scid_database_filter_game_row_for_index_get") ||
+        sorted_position != 1 ||
         !check(
             scid_database_game_get(
-                database, game_indexes[0], &loaded, flags, sizeof(flags), &flags_size),
+                database, game_indexes[1], &loaded, flags, sizeof(flags), &flags_size),
             "scid_database_game_get") ||
         !text_equals(flags, flags_size, "M") ||
         !check(
