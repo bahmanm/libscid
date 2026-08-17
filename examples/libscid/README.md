@@ -15,3 +15,6 @@ This directory contains examples that use the C ABI from `libscid`.
 - `100-edit-database/`: replace games and toggle the deleted marker.
 - `110-persistent-database/`: create, close, and reopen a SCID5 database.
 - `120-import-export-pgn/`: import and export PGN through a database.
+- `130-search-headers/`: query database games using header criteria and filters.
+- `140-search-position/`: search database games for exact board positions and chain search filters.
+- `150-search-board/`: filter database games by board structure and pawn layout criteria.

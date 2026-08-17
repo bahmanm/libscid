@@ -38,11 +38,11 @@ main(void)
                          "[Result \"1-0\"]\n"
                          "\n"
                          "1. e4 e5 2. Nf3 1-0\n";
-    scid_database*              database = NULL;
-    scid_game*                  game = NULL;
-    scid_game*                  loaded = NULL;
-    scid_position*              position = NULL;
-    scid_filter_id              filter_id = 0;
+    scid_database* database = NULL;
+    scid_game*     game = NULL;
+    scid_game*     loaded = NULL;
+    scid_position* position = NULL;
+    scid_filter_id filter_id = 0;
     scid_search_header_criteria header_criteria = {0};
     char                        diagnostic[1024];
     char                        flags[22];
@@ -104,12 +104,11 @@ main(void)
 
     header_criteria.white = "Alpha";
 
-    if (!check(
-            scid_database_filter_create(database, &filter_id),
-            "scid_database_filter_create") ||
+    if (!check(scid_database_filter_create(database, &filter_id), "scid_database_filter_create") ||
         !check(
             scid_database_search_headers(
-                database, SCID_FILTER_ALL_GAMES, filter_id, &header_criteria, NULL, NULL, NULL, NULL),
+                database, SCID_FILTER_ALL_GAMES, filter_id, &header_criteria, NULL, NULL, NULL,
+                NULL),
             "scid_database_search_headers") ||
         !check(
             scid_database_filter_game_count_get(database, filter_id, &count),
