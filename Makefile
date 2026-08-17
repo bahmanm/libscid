@@ -4,7 +4,7 @@ export ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 libscid.__components := internal capi python
 libscid.__qc.stages := format static-analysis dynamic-analysis
-libscid.__example.pgn.roundtrip := $(ROOT)examples/libscid/000-python-bindings/pgn_roundtrip.py
+libscid.__example.pgn.roundtrip := $(ROOT)examples/python/000-python-bindings/pgn_roundtrip.py
 
 ####################################################################################################
 
