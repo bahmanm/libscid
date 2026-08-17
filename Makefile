@@ -4,7 +4,7 @@ export ROOT := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 libscid.__components := internal capi python
 libscid.__qc.stages := format static-analysis dynamic-analysis
-libscid.__example.pgn.roundtrip := $(ROOT)examples/python/000-python-bindings/pgn_roundtrip.py
+libscid.__example.pgn.roundtrip := $(ROOT)examples/python/010-edit-pgn/main.py
 
 ####################################################################################################
 
@@ -53,7 +53,13 @@ libscid.release : $(libscid.__components:%=libscid.%.release)
 ####################################################################################################
 
 libscid.test-examples : libscid.test
-	$(LIBSCID_PYTHON) $(libscid.__example.pgn.roundtrip) --library $(libscid.capi.artefact)
+libscid.test-examples : export LIBSCID_LIBRARY := $(libscid.capi.artefact)
+libscid.test-examples : export PYTHONPATH := $(ROOT)python/src
+libscid.test-examples :
+	shopt -s nullglob; \
+	for script in $(ROOT)examples/python/*/main.py; do \
+	    $(LIBSCID_PYTHON) "$$script"; \
+	done
 
 .PHONY : libscid.test-examples
 

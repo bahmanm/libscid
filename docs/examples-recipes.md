@@ -16,11 +16,14 @@ ctest --test-dir _build/examples --output-on-failure
 The same examples are included in release archives under
 `share/doc/libscid/examples`.
 
-## Language Bindings
+## Language Bindings (Python)
 
-- `examples/python/000-python-bindings`: load the shared C ABI from Python
-  with `ctypes`, create a game with `scid_game_create()` and roundtrip PGN
-  through the default export path.
+- `examples/python/010-edit-pgn`: parse, inspect, edit header tags, and export PGN.
+- `examples/python/020-author-pgn`: author games with moves, comments, NAGs, and variations.
+- `examples/python/030-navigate-pgn`: traverse variation trees with `Cursor` and iterate movetext.
+- `examples/python/040-position-and-arbiter`: position analysis, legal moves, and arbitral draw claims.
+- `examples/python/050-list-database`: database opening, metadata inspection, and filter pagination.
+- `examples/python/060-search-database`: header criteria, position, and board pawn structure search.
 
 ## Games, Positions And PGN
 
