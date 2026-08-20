@@ -2,6 +2,7 @@
 #define SCID_LIBSCID_HANDLES_H
 
 #include "scid/libscid/handles/database.h"
+#include "scid/libscid/handles/database_search.h"
 #include "scid/libscid/handles/eco_book.h"
 #include "scid/libscid/handles/game.h"
 #include "scid/libscid/handles/game_cursor.h"

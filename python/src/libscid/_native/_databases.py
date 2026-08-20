@@ -12,8 +12,6 @@ from ._text import encode
 from ._types import (
     NativeProgressReportCallback,
     NativeShouldCancelFn,
-    ScidSearchBoardCriteria,
-    ScidSearchHeaderCriteria,
 )
 
 ProgressReportCallback = Callable[[int, int, str | None], None]
@@ -201,12 +199,34 @@ class NativeDatabaseMixin(NativeLibraryBase):
         )
         return row.value
 
+    def search_header_criteria_create(self) -> ctypes.c_void_p:
+        criteria = ctypes.c_void_p()
+        self._check(
+            "scid_search_header_criteria_create",
+            self._lib.scid_search_header_criteria_create(ctypes.byref(criteria)),
+        )
+        return criteria
+
+    def search_header_criteria_free(self, criteria: ctypes.c_void_p) -> None:
+        self._lib.scid_search_header_criteria_free(criteria)
+
+    def search_board_criteria_create(self) -> ctypes.c_void_p:
+        criteria = ctypes.c_void_p()
+        self._check(
+            "scid_search_board_criteria_create",
+            self._lib.scid_search_board_criteria_create(ctypes.byref(criteria)),
+        )
+        return criteria
+
+    def search_board_criteria_free(self, criteria: ctypes.c_void_p) -> None:
+        self._lib.scid_search_board_criteria_free(criteria)
+
     def database_search_headers(
         self,
         database: ctypes.c_void_p,
         source_filter_id: int,
         destination_filter_id: int,
-        criteria: ScidSearchHeaderCriteria,
+        criteria: ctypes.c_void_p,
         progress_report_callback: ProgressReportCallback | None = None,
         should_cancel_fn: ShouldCancelFn | None = None,
     ) -> None:
@@ -218,7 +238,7 @@ class NativeDatabaseMixin(NativeLibraryBase):
             database,
             source_filter_id,
             destination_filter_id,
-            ctypes.byref(criteria),
+            criteria,
             progress_callback,
             None,
             should_cancel_callback,
@@ -258,7 +278,7 @@ class NativeDatabaseMixin(NativeLibraryBase):
         database: ctypes.c_void_p,
         source_filter_id: int,
         destination_filter_id: int,
-        criteria: ScidSearchBoardCriteria,
+        criteria: ctypes.c_void_p,
         progress_report_callback: ProgressReportCallback | None = None,
         should_cancel_fn: ShouldCancelFn | None = None,
     ) -> None:
@@ -270,7 +290,7 @@ class NativeDatabaseMixin(NativeLibraryBase):
             database,
             source_filter_id,
             destination_filter_id,
-            ctypes.byref(criteria),
+            criteria,
             progress_callback,
             None,
             should_cancel_callback,

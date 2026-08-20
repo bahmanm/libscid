@@ -43,18 +43,18 @@ main(void)
     scid_game*     loaded = NULL;
     scid_position* position = NULL;
     scid_filter_id filter_id = 0;
-    scid_search_header_criteria header_criteria = {0};
-    char                        diagnostic[1024];
-    char                        flags[22];
-    char                        text[128];
-    size_t                      diagnostic_size = 0;
-    size_t                      count = 0;
-    size_t                      game_indexes[2] = {0};
-    size_t                      flags_size = 0;
-    size_t                      listed_count = 0;
-    size_t                      sorted_position = 0;
-    size_t                      text_size = 0;
-    int                         is_open = 0;
+    scid_search_header_criteria* header_criteria = NULL;
+    char                         diagnostic[1024];
+    char                         flags[22];
+    char                         text[128];
+    size_t                       diagnostic_size = 0;
+    size_t                       count = 0;
+    size_t                       game_indexes[2] = {0};
+    size_t                       flags_size = 0;
+    size_t                       listed_count = 0;
+    size_t                       sorted_position = 0;
+    size_t                       text_size = 0;
+    int                          is_open = 0;
 
     if (!check(scid_database_create_memory("example", &database), "scid_database_create_memory") ||
         !check(scid_database_is_open(database, &is_open), "scid_database_is_open") || !is_open ||
@@ -102,12 +102,16 @@ main(void)
 
     printf("games after second add: %zu\n", count);
 
-    header_criteria.white = "Alpha";
-
-    if (!check(scid_database_filter_create(database, &filter_id), "scid_database_filter_create") ||
+    if (!check(
+            scid_search_header_criteria_create(&header_criteria),
+            "scid_search_header_criteria_create") ||
+        !check(
+            scid_search_header_criteria_white_set(header_criteria, "Alpha"),
+            "scid_search_header_criteria_white_set") ||
+        !check(scid_database_filter_create(database, &filter_id), "scid_database_filter_create") ||
         !check(
             scid_database_search_headers(
-                database, SCID_FILTER_ALL_GAMES, filter_id, &header_criteria, NULL, NULL, NULL,
+                database, SCID_FILTER_ALL_GAMES, filter_id, header_criteria, NULL, NULL, NULL,
                 NULL),
             "scid_database_search_headers") ||
         !check(
@@ -138,6 +142,7 @@ main(void)
             "scid_game_mainline_halfmove_count_get") ||
         count != 3)
     {
+        scid_search_header_criteria_free(header_criteria);
         scid_database_filter_delete(database, filter_id);
         scid_game_free(loaded);
         scid_position_free(position);
@@ -150,6 +155,7 @@ main(void)
     printf("loaded event: %.*s\n", (int)text_size, text);
     printf("loaded halfmoves: %zu\n", count);
 
+    scid_search_header_criteria_free(header_criteria);
     scid_database_filter_delete(database, filter_id);
     scid_game_free(loaded);
     scid_position_free(position);

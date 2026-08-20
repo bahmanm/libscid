@@ -37,17 +37,17 @@ main(void)
                       "[Result \"1-0\"]\n\n"
                       "1. e4 e5 1-0\n";
 
-    scid_database*              database = NULL;
-    scid_filter_id              filter_id = 0;
-    scid_search_header_criteria criteria = {0};
-    char                        diagnostic[1024];
-    size_t                      diagnostic_size = 0;
-    size_t                      imported_count = 0;
-    size_t                      matched_count = 0;
-    size_t                      game_indices[2] = {0};
-    size_t                      listed_count = 0;
-    size_t                      row_index = 0;
-    size_t                      translated_game_index = 0;
+    scid_database*               database = NULL;
+    scid_filter_id               filter_id = 0;
+    scid_search_header_criteria* criteria = NULL;
+    char                         diagnostic[1024];
+    size_t                       diagnostic_size = 0;
+    size_t                       imported_count = 0;
+    size_t                       matched_count = 0;
+    size_t                       game_indices[2] = {0};
+    size_t                       listed_count = 0;
+    size_t                       row_index = 0;
+    size_t                       translated_game_index = 0;
 
     if (!check(
             scid_database_create_memory("search-headers-demo", &database),
@@ -64,17 +64,21 @@ main(void)
         return 1;
     }
 
-    if (!check(scid_database_filter_create(database, &filter_id), "scid_database_filter_create"))
+    if (!check(scid_database_filter_create(database, &filter_id), "scid_database_filter_create") ||
+        !check(
+            scid_search_header_criteria_create(&criteria), "scid_search_header_criteria_create") ||
+        !check(
+            scid_search_header_criteria_white_set(criteria, "Kasparov"),
+            "scid_search_header_criteria_white_set"))
     {
+        scid_search_header_criteria_free(criteria);
         scid_database_free(database);
         return 1;
     }
 
-    criteria.white = "Kasparov";
-
     if (!check(
             scid_database_search_headers(
-                database, SCID_FILTER_ALL_GAMES, filter_id, &criteria, NULL, NULL, NULL, NULL),
+                database, SCID_FILTER_ALL_GAMES, filter_id, criteria, NULL, NULL, NULL, NULL),
             "scid_database_search_headers") ||
         !check(
             scid_database_filter_game_count_get(database, filter_id, &matched_count),
@@ -96,6 +100,7 @@ main(void)
             "scid_database_filter_game_index_at_row_get") ||
         translated_game_index != 2)
     {
+        scid_search_header_criteria_free(criteria);
         scid_database_filter_delete(database, filter_id);
         scid_database_free(database);
         return 1;
@@ -106,6 +111,7 @@ main(void)
     printf("matched game indices: %zu, %zu\n", game_indices[0], game_indices[1]);
     printf("row for game index 2: %zu\n", row_index);
 
+    scid_search_header_criteria_free(criteria);
     scid_database_filter_delete(database, filter_id);
     scid_database_free(database);
     return 0;
