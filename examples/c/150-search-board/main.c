@@ -40,16 +40,16 @@ main(void)
     /* Target position after 1. e4 e6 2. d4 d5 (French pawn structure) */
     const char* french_fen = "rnbqkbnr/ppp2ppp/4p3/3p4/3PP3/8/PPP2PPP/RNBQKBNR w KQkq - 0 3";
 
-    scid_database*             database = NULL;
-    scid_position*             french_position = NULL;
-    scid_filter_id             filter_id = 0;
-    scid_search_board_criteria criteria = {0};
-    char                       diagnostic[1024];
-    size_t                     diagnostic_size = 0;
-    size_t                     imported_count = 0;
-    size_t                     matched_count = 0;
-    size_t                     matched_indices[2] = {0};
-    size_t                     listed_count = 0;
+    scid_database*              database = NULL;
+    scid_position*              french_position = NULL;
+    scid_filter_id              filter_id = 0;
+    scid_search_board_criteria* criteria = NULL;
+    char                        diagnostic[1024];
+    size_t                      diagnostic_size = 0;
+    size_t                      imported_count = 0;
+    size_t                      matched_count = 0;
+    size_t                      matched_indices[2] = {0};
+    size_t                      listed_count = 0;
 
     if (!check(
             scid_database_create_memory("search-board-demo", &database),
@@ -70,21 +70,30 @@ main(void)
         return 1;
     }
 
-    if (!check(scid_database_filter_create(database, &filter_id), "scid_database_filter_create"))
+    if (!check(scid_database_filter_create(database, &filter_id), "scid_database_filter_create") ||
+        !check(scid_search_board_criteria_create(&criteria), "scid_search_board_criteria_create") ||
+        !check(
+            scid_search_board_criteria_position_set(criteria, french_position),
+            "scid_search_board_criteria_position_set") ||
+        !check(
+            scid_search_board_criteria_match_set(criteria, SCID_BOARD_SEARCH_MATCH_PAWNS),
+            "scid_search_board_criteria_match_set") ||
+        !check(
+            scid_search_board_criteria_include_variations_set(criteria, 0),
+            "scid_search_board_criteria_include_variations_set") ||
+        !check(
+            scid_search_board_criteria_include_flipped_set(criteria, 0),
+            "scid_search_board_criteria_include_flipped_set"))
     {
+        scid_search_board_criteria_free(criteria);
         scid_position_free(french_position);
         scid_database_free(database);
         return 1;
     }
 
-    criteria.position = french_position;
-    criteria.match = SCID_BOARD_SEARCH_MATCH_PAWNS;
-    criteria.include_variations = 0;
-    criteria.include_flipped = 0;
-
     if (!check(
             scid_database_search_board(
-                database, SCID_FILTER_ALL_GAMES, filter_id, &criteria, NULL, NULL, NULL, NULL),
+                database, SCID_FILTER_ALL_GAMES, filter_id, criteria, NULL, NULL, NULL, NULL),
             "scid_database_search_board") ||
         !check(
             scid_database_filter_game_count_get(database, filter_id, &matched_count),
@@ -96,6 +105,7 @@ main(void)
             "scid_database_filter_game_indices_get") ||
         listed_count != 2 || matched_indices[0] != 0 || matched_indices[1] != 2)
     {
+        scid_search_board_criteria_free(criteria);
         scid_database_filter_delete(database, filter_id);
         scid_position_free(french_position);
         scid_database_free(database);
@@ -106,6 +116,7 @@ main(void)
     printf("matched games for French Pawn Structure: %zu\n", matched_count);
     printf("matched game indices: %zu, %zu\n", matched_indices[0], matched_indices[1]);
 
+    scid_search_board_criteria_free(criteria);
     scid_database_filter_delete(database, filter_id);
     scid_position_free(french_position);
     scid_database_free(database);

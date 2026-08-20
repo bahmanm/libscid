@@ -6,8 +6,6 @@ from ._types import (
     NativeProgressReportCallback,
     NativeShouldCancelFn,
     ScidMoveSpec,
-    ScidSearchBoardCriteria,
-    ScidSearchHeaderCriteria,
 )
 
 
@@ -140,13 +138,80 @@ def bind_functions(lib: ctypes.CDLL) -> None:
         "scid_database_filter_game_row_for_index_get",
         [ctypes.c_void_p, scid_filter_id, ctypes.c_char_p, ctypes.c_size_t, c_size_t_p],
     )
+    bind("scid_search_header_criteria_create", [c_void_p_p])
+    bind("scid_search_header_criteria_free", [ctypes.c_void_p], None)
+    bind("scid_search_header_criteria_player_set", [ctypes.c_void_p, ctypes.c_char_p])
+    bind("scid_search_header_criteria_white_set", [ctypes.c_void_p, ctypes.c_char_p])
+    bind("scid_search_header_criteria_black_set", [ctypes.c_void_p, ctypes.c_char_p])
+    bind("scid_search_header_criteria_event_set", [ctypes.c_void_p, ctypes.c_char_p])
+    bind("scid_search_header_criteria_site_set", [ctypes.c_void_p, ctypes.c_char_p])
+    bind(
+        "scid_search_header_criteria_site_country_set",
+        [ctypes.c_void_p, ctypes.c_char_p],
+    )
+    bind("scid_search_header_criteria_round_set", [ctypes.c_void_p, ctypes.c_char_p])
+    bind("scid_search_header_criteria_result_set", [ctypes.c_void_p, ctypes.c_char_p])
+    bind(
+        "scid_search_header_criteria_date_range_set",
+        [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p],
+    )
+    bind(
+        "scid_search_header_criteria_event_date_range_set",
+        [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p],
+    )
+    bind(
+        "scid_search_header_criteria_eco_range_set",
+        [ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p],
+    )
+    bind(
+        "scid_search_header_criteria_game_number_range_set",
+        [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_size_t],
+    )
+    bind(
+        "scid_search_header_criteria_halfmove_count_range_set",
+        [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_size_t],
+    )
+    bind(
+        "scid_search_header_criteria_white_elo_range_set",
+        [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_size_t],
+    )
+    bind(
+        "scid_search_header_criteria_black_elo_range_set",
+        [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_size_t],
+    )
+    bind(
+        "scid_search_header_criteria_elo_difference_range_set",
+        [ctypes.c_void_p, ctypes.c_int, ctypes.c_int],
+    )
+    bind(
+        "scid_search_header_criteria_has_variations_set",
+        [ctypes.c_void_p, ctypes.c_int],
+    )
+    bind(
+        "scid_search_header_criteria_has_comments_set", [ctypes.c_void_p, ctypes.c_int]
+    )
+    bind("scid_search_header_criteria_has_nags_set", [ctypes.c_void_p, ctypes.c_int])
+
+    bind("scid_search_board_criteria_create", [c_void_p_p])
+    bind("scid_search_board_criteria_free", [ctypes.c_void_p], None)
+    bind("scid_search_board_criteria_position_set", [ctypes.c_void_p, ctypes.c_void_p])
+    bind("scid_search_board_criteria_match_set", [ctypes.c_void_p, ctypes.c_int])
+    bind(
+        "scid_search_board_criteria_include_variations_set",
+        [ctypes.c_void_p, ctypes.c_int],
+    )
+    bind(
+        "scid_search_board_criteria_include_flipped_set",
+        [ctypes.c_void_p, ctypes.c_int],
+    )
+
     bind(
         "scid_database_search_headers",
         [
             ctypes.c_void_p,
             scid_filter_id,
             scid_filter_id,
-            ctypes.POINTER(ScidSearchHeaderCriteria),
+            ctypes.c_void_p,
             NativeProgressReportCallback,
             ctypes.c_void_p,
             NativeShouldCancelFn,
@@ -172,7 +237,7 @@ def bind_functions(lib: ctypes.CDLL) -> None:
             ctypes.c_void_p,
             scid_filter_id,
             scid_filter_id,
-            ctypes.POINTER(ScidSearchBoardCriteria),
+            ctypes.c_void_p,
             NativeProgressReportCallback,
             ctypes.c_void_p,
             NativeShouldCancelFn,

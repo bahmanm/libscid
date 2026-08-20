@@ -278,22 +278,23 @@ namespace
             std::string,
             std::string>>&                 out_arguments)
     {
-        append_text_search_pair(out_arguments, "-player", criteria.player);
-        append_text_search_pair(out_arguments, "-white", criteria.white);
-        append_text_search_pair(out_arguments, "-black", criteria.black);
-        append_text_search_pair(out_arguments, "-event", criteria.event);
-        append_text_search_pair(out_arguments, "-site", criteria.site);
-        append_text_search_pair(out_arguments, "-sitecountry", criteria.site_country);
-        append_text_search_pair(out_arguments, "-round", criteria.round);
+        append_text_search_pair(out_arguments, "-player", criteria.player.c_str());
+        append_text_search_pair(out_arguments, "-white", criteria.white.c_str());
+        append_text_search_pair(out_arguments, "-black", criteria.black.c_str());
+        append_text_search_pair(out_arguments, "-event", criteria.event.c_str());
+        append_text_search_pair(out_arguments, "-site", criteria.site.c_str());
+        append_text_search_pair(out_arguments, "-sitecountry", criteria.site_country.c_str());
+        append_text_search_pair(out_arguments, "-round", criteria.round.c_str());
         append_text_range_search_pair(
-            out_arguments, "-date", criteria.date_min, criteria.date_max, "1800.01.01");
-        append_text_range_search_pair(
-            out_arguments, "-eventdate", criteria.event_date_min, criteria.event_date_max,
+            out_arguments, "-date", criteria.date_min.c_str(), criteria.date_max.c_str(),
             "1800.01.01");
         append_text_range_search_pair(
-            out_arguments, "-eco", criteria.eco_min, criteria.eco_max, "A00");
+            out_arguments, "-eventdate", criteria.event_date_min.c_str(),
+            criteria.event_date_max.c_str(), "1800.01.01");
+        append_text_range_search_pair(
+            out_arguments, "-eco", criteria.eco_min.c_str(), criteria.eco_max.c_str(), "A00");
 
-        const auto result_filter = result_search_filter(criteria.result);
+        const auto result_filter = result_search_filter(criteria.result.c_str());
         if (!result_filter)
         {
             return SCID_ERROR_BAD_ARG;
@@ -550,7 +551,7 @@ scid_database_search_board(
     scid_should_cancel_fn             should_cancel,
     void*                             should_cancel_user_data)
 {
-    if (database == nullptr || criteria == nullptr || criteria->position == nullptr ||
+    if (database == nullptr || criteria == nullptr || !criteria->position.has_value() ||
         destination_filter_id == SCID_FILTER_ALL_GAMES || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
@@ -580,7 +581,7 @@ scid_database_search_board(
         destination.clear();
 
         scid::core::Game         scratch_game;
-        scid::core::Position     search_position = criteria->position->value;
+        scid::core::Position     search_position = *criteria->position;
         scid::core::Position     flipped_position = color_flipped_position(search_position);
         scid::database::Progress progress(new CallbackProgress(
             progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
@@ -601,8 +602,7 @@ scid_database_search_board(
             scid::core::uint         ply = 0;
             const scid::core::errorT error = database->value.searchBoard(
                 index, scratch_game, &search_position, &flipped_position,
-                criteria->include_variations != 0, true, criteria->include_flipped != 0,
-                search_type, ply);
+                criteria->include_variations, true, criteria->include_flipped, search_type, ply);
             if (error != scid::core::OK)
             {
                 return database_error_to_c(error);
@@ -620,4 +620,832 @@ scid_database_search_board(
     {
         return SCID_ERROR;
     }
+}
+
+
+scid_error
+scid_search_header_criteria_create(scid_search_header_criteria** out_criteria)
+{
+    if (out_criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        *out_criteria = new scid_search_header_criteria;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_criteria = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+
+void
+scid_search_header_criteria_free(scid_search_header_criteria* criteria)
+{
+    delete criteria;
+}
+
+
+scid_error
+scid_search_header_criteria_player_set(
+    scid_search_header_criteria* criteria,
+    const char*                  player)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->player = player == nullptr ? "" : player;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_player_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_text,
+    size_t                             out_text_capacity,
+    size_t*                            out_text_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    return write_text(criteria->player, out_text, out_text_capacity, out_text_size);
+}
+
+
+scid_error
+scid_search_header_criteria_white_set(
+    scid_search_header_criteria* criteria,
+    const char*                  white)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->white = white == nullptr ? "" : white;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_white_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_text,
+    size_t                             out_text_capacity,
+    size_t*                            out_text_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    return write_text(criteria->white, out_text, out_text_capacity, out_text_size);
+}
+
+
+scid_error
+scid_search_header_criteria_black_set(
+    scid_search_header_criteria* criteria,
+    const char*                  black)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->black = black == nullptr ? "" : black;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_black_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_text,
+    size_t                             out_text_capacity,
+    size_t*                            out_text_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    return write_text(criteria->black, out_text, out_text_capacity, out_text_size);
+}
+
+
+scid_error
+scid_search_header_criteria_event_set(
+    scid_search_header_criteria* criteria,
+    const char*                  event)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->event = event == nullptr ? "" : event;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_event_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_text,
+    size_t                             out_text_capacity,
+    size_t*                            out_text_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    return write_text(criteria->event, out_text, out_text_capacity, out_text_size);
+}
+
+
+scid_error
+scid_search_header_criteria_site_set(
+    scid_search_header_criteria* criteria,
+    const char*                  site)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->site = site == nullptr ? "" : site;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_site_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_text,
+    size_t                             out_text_capacity,
+    size_t*                            out_text_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    return write_text(criteria->site, out_text, out_text_capacity, out_text_size);
+}
+
+
+scid_error
+scid_search_header_criteria_site_country_set(
+    scid_search_header_criteria* criteria,
+    const char*                  site_country)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->site_country = site_country == nullptr ? "" : site_country;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_site_country_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_text,
+    size_t                             out_text_capacity,
+    size_t*                            out_text_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    return write_text(criteria->site_country, out_text, out_text_capacity, out_text_size);
+}
+
+
+scid_error
+scid_search_header_criteria_round_set(
+    scid_search_header_criteria* criteria,
+    const char*                  round)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->round = round == nullptr ? "" : round;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_round_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_text,
+    size_t                             out_text_capacity,
+    size_t*                            out_text_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    return write_text(criteria->round, out_text, out_text_capacity, out_text_size);
+}
+
+
+scid_error
+scid_search_header_criteria_date_range_set(
+    scid_search_header_criteria* criteria,
+    const char*                  date_min,
+    const char*                  date_max)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->date_min = date_min == nullptr ? "" : date_min;
+    criteria->date_max = date_max == nullptr ? "" : date_max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_date_range_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_date_min,
+    size_t                             out_date_min_capacity,
+    size_t*                            out_date_min_size,
+    char*                              out_date_max,
+    size_t                             out_date_max_capacity,
+    size_t*                            out_date_max_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (const scid_error error =
+            write_text(criteria->date_min, out_date_min, out_date_min_capacity, out_date_min_size);
+        error != SCID_OK)
+    {
+        return error;
+    }
+
+    return write_text(criteria->date_max, out_date_max, out_date_max_capacity, out_date_max_size);
+}
+
+
+scid_error
+scid_search_header_criteria_event_date_range_set(
+    scid_search_header_criteria* criteria,
+    const char*                  event_date_min,
+    const char*                  event_date_max)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->event_date_min = event_date_min == nullptr ? "" : event_date_min;
+    criteria->event_date_max = event_date_max == nullptr ? "" : event_date_max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_event_date_range_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_event_date_min,
+    size_t                             out_event_date_min_capacity,
+    size_t*                            out_event_date_min_size,
+    char*                              out_event_date_max,
+    size_t                             out_event_date_max_capacity,
+    size_t*                            out_event_date_max_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (const scid_error error = write_text(
+            criteria->event_date_min, out_event_date_min, out_event_date_min_capacity,
+            out_event_date_min_size);
+        error != SCID_OK)
+    {
+        return error;
+    }
+
+    return write_text(
+        criteria->event_date_max, out_event_date_max, out_event_date_max_capacity,
+        out_event_date_max_size);
+}
+
+
+scid_error
+scid_search_header_criteria_eco_range_set(
+    scid_search_header_criteria* criteria,
+    const char*                  eco_min,
+    const char*                  eco_max)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->eco_min = eco_min == nullptr ? "" : eco_min;
+    criteria->eco_max = eco_max == nullptr ? "" : eco_max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_eco_range_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_eco_min,
+    size_t                             out_eco_min_capacity,
+    size_t*                            out_eco_min_size,
+    char*                              out_eco_max,
+    size_t                             out_eco_max_capacity,
+    size_t*                            out_eco_max_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (const scid_error error =
+            write_text(criteria->eco_min, out_eco_min, out_eco_min_capacity, out_eco_min_size);
+        error != SCID_OK)
+    {
+        return error;
+    }
+
+    return write_text(criteria->eco_max, out_eco_max, out_eco_max_capacity, out_eco_max_size);
+}
+
+
+scid_error
+scid_search_header_criteria_result_set(
+    scid_search_header_criteria* criteria,
+    const char*                  result)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->result = result == nullptr ? "" : result;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_result_get(
+    const scid_search_header_criteria* criteria,
+    char*                              out_text,
+    size_t                             out_text_capacity,
+    size_t*                            out_text_size)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    return write_text(criteria->result, out_text, out_text_capacity, out_text_size);
+}
+
+
+scid_error
+scid_search_header_criteria_game_number_range_set(
+    scid_search_header_criteria* criteria,
+    size_t                       min,
+    size_t                       max)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->game_number_min = min;
+    criteria->game_number_max = max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_game_number_range_get(
+    const scid_search_header_criteria* criteria,
+    size_t*                            out_min,
+    size_t*                            out_max)
+{
+    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_min = criteria->game_number_min;
+    *out_max = criteria->game_number_max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_halfmove_count_range_set(
+    scid_search_header_criteria* criteria,
+    size_t                       min,
+    size_t                       max)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->halfmove_count_min = min;
+    criteria->halfmove_count_max = max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_halfmove_count_range_get(
+    const scid_search_header_criteria* criteria,
+    size_t*                            out_min,
+    size_t*                            out_max)
+{
+    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_min = criteria->halfmove_count_min;
+    *out_max = criteria->halfmove_count_max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_white_elo_range_set(
+    scid_search_header_criteria* criteria,
+    size_t                       min,
+    size_t                       max)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->white_elo_min = min;
+    criteria->white_elo_max = max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_white_elo_range_get(
+    const scid_search_header_criteria* criteria,
+    size_t*                            out_min,
+    size_t*                            out_max)
+{
+    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_min = criteria->white_elo_min;
+    *out_max = criteria->white_elo_max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_black_elo_range_set(
+    scid_search_header_criteria* criteria,
+    size_t                       min,
+    size_t                       max)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->black_elo_min = min;
+    criteria->black_elo_max = max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_black_elo_range_get(
+    const scid_search_header_criteria* criteria,
+    size_t*                            out_min,
+    size_t*                            out_max)
+{
+    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_min = criteria->black_elo_min;
+    *out_max = criteria->black_elo_max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_elo_difference_range_set(
+    scid_search_header_criteria* criteria,
+    int                          min,
+    int                          max)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->elo_difference_min = min;
+    criteria->elo_difference_max = max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_elo_difference_range_get(
+    const scid_search_header_criteria* criteria,
+    int*                               out_min,
+    int*                               out_max)
+{
+    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_min = criteria->elo_difference_min;
+    *out_max = criteria->elo_difference_max;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_has_variations_set(
+    scid_search_header_criteria* criteria,
+    int                          enabled)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->has_variations = (enabled != 0);
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_has_variations_get(
+    const scid_search_header_criteria* criteria,
+    int*                               out_enabled)
+{
+    if (criteria == nullptr || out_enabled == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_enabled = criteria->has_variations ? 1 : 0;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_has_comments_set(
+    scid_search_header_criteria* criteria,
+    int                          enabled)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->has_comments = (enabled != 0);
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_has_comments_get(
+    const scid_search_header_criteria* criteria,
+    int*                               out_enabled)
+{
+    if (criteria == nullptr || out_enabled == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_enabled = criteria->has_comments ? 1 : 0;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_has_nags_set(
+    scid_search_header_criteria* criteria,
+    int                          enabled)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->has_nags = (enabled != 0);
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_header_criteria_has_nags_get(
+    const scid_search_header_criteria* criteria,
+    int*                               out_enabled)
+{
+    if (criteria == nullptr || out_enabled == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_enabled = criteria->has_nags ? 1 : 0;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_board_criteria_create(scid_search_board_criteria** out_criteria)
+{
+    if (out_criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        *out_criteria = new scid_search_board_criteria;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        *out_criteria = nullptr;
+        return SCID_ERROR;
+    }
+}
+
+
+void
+scid_search_board_criteria_free(scid_search_board_criteria* criteria)
+{
+    delete criteria;
+}
+
+
+scid_error
+scid_search_board_criteria_position_set(
+    scid_search_board_criteria* criteria,
+    const scid_position*        position)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (position == nullptr)
+    {
+        criteria->position.reset();
+    }
+    else
+    {
+        criteria->position = position->value;
+    }
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_board_criteria_position_get(
+    const scid_search_board_criteria* criteria,
+    scid_position*                    out_position)
+{
+    if (criteria == nullptr || out_position == nullptr || !criteria->position.has_value())
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    return write_position(*criteria->position, out_position);
+}
+
+
+scid_error
+scid_search_board_criteria_match_set(
+    scid_search_board_criteria* criteria,
+    scid_board_search_match     match)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (match != SCID_BOARD_SEARCH_MATCH_EXACT && match != SCID_BOARD_SEARCH_MATCH_PAWNS &&
+        match != SCID_BOARD_SEARCH_MATCH_FILES)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->match = match;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_board_criteria_match_get(
+    const scid_search_board_criteria* criteria,
+    scid_board_search_match*          out_match)
+{
+    if (criteria == nullptr || out_match == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_match = criteria->match;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_board_criteria_include_variations_set(
+    scid_search_board_criteria* criteria,
+    int                         enabled)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->include_variations = (enabled != 0);
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_board_criteria_include_variations_get(
+    const scid_search_board_criteria* criteria,
+    int*                              out_enabled)
+{
+    if (criteria == nullptr || out_enabled == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_enabled = criteria->include_variations ? 1 : 0;
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_board_criteria_include_flipped_set(
+    scid_search_board_criteria* criteria,
+    int                         enabled)
+{
+    if (criteria == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    criteria->include_flipped = (enabled != 0);
+    return SCID_OK;
+}
+
+
+scid_error
+scid_search_board_criteria_include_flipped_get(
+    const scid_search_board_criteria* criteria,
+    int*                              out_enabled)
+{
+    if (criteria == nullptr || out_enabled == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_enabled = criteria->include_flipped ? 1 : 0;
+    return SCID_OK;
 }

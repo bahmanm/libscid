@@ -10,6 +10,8 @@ libscid uses opaque handles for owned objects:
 - `scid_game_cursor`: immutable navigation pointer into a game's movetext tree.
 - `scid_eco_book`: loaded ECO opening classification database.
 - `scid_database`: in-memory, SCID5 or read-only PGN database.
+- `scid_search_header_criteria`: header search criteria builder and filters.
+- `scid_search_board_criteria`: board and pawn structure search criteria builder.
 
 Functions return `scid_error`; `SCID_OK` (0) indicates success. Text inputs are UTF-8 `const char*`. Text and array output parameters use caller-owned buffers with explicit capacity and output size parameters.
 
@@ -135,9 +137,16 @@ Navigation and editing use `scid_game_cursor`. Cursors are immutable location po
   - `scid_database_filter_create()`, `scid_database_filter_delete()`, `scid_database_filter_game_count_get()`.
   - `scid_database_filter_game_indices_get()`, `scid_database_filter_game_index_at_row_get()`, `scid_database_filter_game_row_for_index_get()`.
 - Search Engines:
-  - `scid_database_search_headers(db, src_filter, dst_filter, &header_criteria, progress_cb, ...)` filters games by tag fields, Elo ranges, move counts, and flags (`scid_search_header_criteria`).
+  - `scid_database_search_headers(db, src_filter, dst_filter, header_criteria, progress_cb, ...)` filters games by tag fields, Elo ranges, move counts, and flags using opaque `scid_search_header_criteria`.
   - `scid_database_search_position(db, src_filter, dst_filter, position, ...)` filters games matching an exact board position.
-  - `scid_database_search_board(db, src_filter, dst_filter, &board_criteria, ...)` filters games by exact position, pawn structure, or file configuration (`scid_search_board_criteria`).
+  - `scid_database_search_board(db, src_filter, dst_filter, board_criteria, ...)` filters games by exact position, pawn structure, or file configuration using opaque `scid_search_board_criteria`.
+- Search Criteria Builders:
+  - Header criteria lifecycle: `scid_search_header_criteria_create()`, `scid_search_header_criteria_free()`.
+  - Header text filters: `*_player_set()`, `*_player_get()`, `*_white_set()`, `*_white_get()`, `*_black_set()`, `*_black_get()`, `*_event_set()`, `*_event_get()`, `*_site_set()`, `*_site_get()`, `*_site_country_set()`, `*_site_country_get()`, `*_round_set()`, `*_round_get()`, `*_result_set()`, `*_result_get()`.
+  - Header ranges: `*_date_range_set()`, `*_date_range_get()`, `*_event_date_range_set()`, `*_event_date_range_get()`, `*_eco_range_set()`, `*_eco_range_get()`, `*_game_number_range_set()`, `*_game_number_range_get()`, `*_halfmove_count_range_set()`, `*_halfmove_count_range_get()`, `*_white_elo_range_set()`, `*_white_elo_range_get()`, `*_black_elo_range_set()`, `*_black_elo_range_get()`, `*_elo_difference_range_set()`, `*_elo_difference_range_get()`.
+  - Header flags: `*_has_variations_set()`, `*_has_variations_get()`, `*_has_comments_set()`, `*_has_comments_get()`, `*_has_nags_set()`, `*_has_nags_get()`.
+  - Board criteria lifecycle: `scid_search_board_criteria_create()`, `scid_search_board_criteria_free()`.
+  - Board configuration: `*_position_set()`, `*_position_get()`, `*_match_set()`, `*_match_get()`, `*_include_variations_set()`, `*_include_variations_get()`, `*_include_flipped_set()`, `*_include_flipped_get()`.
 - Database Metadata & Statistics:
   - `scid_database_metadata_get()`, `scid_database_metadata_set()`, `scid_database_metadata_count_get()`, `scid_database_metadata_at_get()`.
   - `scid_database_stats_date_range_get()`, `scid_database_stats_result_count_get()`.
