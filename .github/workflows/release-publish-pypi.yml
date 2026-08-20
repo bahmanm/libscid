@@ -1,0 +1,50 @@
+name: release/publish-pypi
+
+on:
+  workflow_call:
+    inputs:
+      tag_name:
+        description: "Release tag to publish to PyPI (e.g. v0.10.0 or v0.10.0b1)"
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag to publish to PyPI (e.g. v0.10.0 or v0.10.0b1)"
+        required: false
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  release-publish-pypi__publish:
+    name: release-publish-pypi__publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine release tag
+        id: vars
+        run: |
+          if [ -n "${{ inputs.tag_name }}" ]; then
+            echo "tag=${{ inputs.tag_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download wheel assets from GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p dist-pypi
+          gh release download "${{ steps.vars.outputs.tag }}" \
+            --repo "${{ github.repository }}" \
+            --pattern "*.whl" \
+            --dir dist-pypi
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist-pypi/
+          skip-existing: true
