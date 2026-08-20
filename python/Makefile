@@ -11,7 +11,7 @@ libscid.python.__bundled.library := $(libscid.python.__native.dir)$(libscid.__li
 libscid.python.__release.library ?= $(if $(LIBSCID_LIBRARY),$(LIBSCID_LIBRARY),$(ROOT)capi/_build/release/$(libscid.__library.name))
 libscid.python.__release.smoke-test.dir ?= $(libscid.python.__project.dir)_build/release-smoke-test/
 libscid.python.__release.artefact.dir ?= $(LIBSCID_RELEASE_ROOT)
-libscid.python.__release.version ?= $(LIBSCID_RELEASE_PROJECT_VERSION)
+libscid.python.__release.version ?= $(if $(LIBSCID_RELEASE_PYTHON_VERSION),$(LIBSCID_RELEASE_PYTHON_VERSION),$(LIBSCID_RELEASE_PROJECT_VERSION))
 LIBSCID_UV_FLAGS ?= --system-certs
 libscid.python.__qc.paths := src tests hatch_build.py ../examples/python
 

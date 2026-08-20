@@ -1,13 +1,63 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
 from hatchling.metadata.plugin.interface import MetadataHookInterface
 from packaging.tags import sys_tags
+from packaging.version import InvalidVersion, Version
 
 DEFAULT_VERSION = "0.0.0"
+
+
+def to_pep440(raw_version: str) -> str:
+    version = raw_version.strip()
+    if version.startswith("v") or version.startswith("V"):
+        version = version[1:]
+
+    # -testing.N, -test.N, -dev.N, -devN -> .devN
+    version = re.sub(
+        r"-(?:testing|test|dev)\.?(\d+)",
+        r".dev\1",
+        version,
+        flags=re.IGNORECASE,
+    )
+    # -alpha.N, -a.N, -alphaN, -aN -> aN
+    version = re.sub(
+        r"-(?:alpha|a)\.?(\d+)",
+        r"a\1",
+        version,
+        flags=re.IGNORECASE,
+    )
+    # -beta.N, -b.N, -betaN, -bN -> bN
+    version = re.sub(
+        r"-(?:beta|b)\.?(\d+)",
+        r"b\1",
+        version,
+        flags=re.IGNORECASE,
+    )
+    # -rc.N, -rcN, -c.N -> rcN
+    version = re.sub(
+        r"-(?:rc|c)\.?(\d+)",
+        r"rc\1",
+        version,
+        flags=re.IGNORECASE,
+    )
+    # -post.N, -postN -> .postN
+    version = re.sub(
+        r"-post\.?(\d+)",
+        r".post\1",
+        version,
+        flags=re.IGNORECASE,
+    )
+
+    try:
+        parsed = Version(version)
+        return str(parsed)
+    except InvalidVersion:
+        return version
 
 
 def _platform_tag() -> str:
@@ -54,7 +104,11 @@ def get_build_hook() -> type[LibScidBuildHook]:
 
 class LibScidMetadataHook(MetadataHookInterface):
     def update(self, metadata: dict[str, object]) -> None:
-        metadata["version"] = os.environ.get("LIBSCID_PYTHON_VERSION", DEFAULT_VERSION)
+        raw_version = os.environ.get(
+            "LIBSCID_PYTHON_VERSION",
+            os.environ.get("LIBSCID_RELEASE_VERSION", DEFAULT_VERSION),
+        )
+        metadata["version"] = to_pep440(raw_version)
 
 
 def get_metadata_hook() -> type[LibScidMetadataHook]:
