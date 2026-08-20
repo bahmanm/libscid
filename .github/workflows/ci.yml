@@ -10,14 +10,10 @@ permissions:
   contents: read
 
 jobs:
-  ci__default:
+  ci__unix:
     name: ci__${{ matrix.check_label }}
     runs-on: ${{ matrix.os }}
 
-    defaults:
-      run:
-        shell: bash -euo pipefail {0}
-
     strategy:
       fail-fast: false
       matrix:
@@ -26,67 +22,27 @@ jobs:
             check_label: linux
           - os: macos-15
             check_label: macos
-          - os: windows-2022
-            check_label: windoze
 
     steps:
       - uses: actions/checkout@v7
 
-      - name: Set up MSVC
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Set up libscid toolchain
-        uses: ./.github/actions/setup-libscid-toolchain
+      - name: Run CI suite
+        uses: ./.github/actions/build-unix
         with:
-          make: "true"
-          llvm: "true"
+          platform_label: ${{ matrix.check_label }}
+          target: libscid.internal.default.test libscid.capi.default.test libscid.test-examples
+          make_args: LIBSCID_CMAKE_BUILD_ARGS=--verbose
 
-      - name: Verify GNU Make
-        run: make --version
-
-      - name: Run default CMake component tests
-        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose libscid.internal.default.test libscid.capi.default.test
-
-  ci__shared:
-    name: ci__${{ matrix.check_label }}-shared
-    runs-on: ${{ matrix.os }}
-
-    defaults:
-      run:
-        shell: bash -euo pipefail {0}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-24.04
-            check_label: linux
-          - os: macos-15
-            check_label: macos
-          - os: windows-2022
-            check_label: windoze
+  ci__windoze:
+    name: ci__windoze
+    runs-on: windows-2022
 
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v7
+      - name: Run CI suite
+        uses: ./.github/actions/build-windoze
         with:
-          python-version: "3.x"
-
-      - name: Set up MSVC
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Set up libscid toolchain
-        uses: ./.github/actions/setup-libscid-toolchain
-        with:
-          make: "true"
-          uv: "true"
-          llvm: "true"
-
-      - name: Verify GNU Make
-        run: make --version
-
-      - name: Run shared tests
-        run: make LIBSCID_CMAKE_BUILD_ARGS=--verbose libscid.test-examples
+          platform_label: windoze
+          target: libscid.internal.default.test libscid.capi.default.test libscid.test-examples
+          make_args: LIBSCID_CMAKE_BUILD_ARGS=--verbose
