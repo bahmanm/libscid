@@ -1,0 +1,23 @@
+cmake_minimum_required( VERSION 3.28 )
+
+project(
+    libscid-c-examples
+    LANGUAGES C )
+
+enable_testing()
+
+add_subdirectory( 010-edit-pgn )
+add_subdirectory( 020-author-pgn )
+add_subdirectory( 030-nonstandard-start )
+add_subdirectory( 040-navigate-pgn )
+add_subdirectory( 050-position-and-moves )
+add_subdirectory( 060-mutate-pgn )
+add_subdirectory( 070-eco-lookup )
+add_subdirectory( 080-memory-database )
+add_subdirectory( 090-list-database )
+add_subdirectory( 100-edit-database )
+add_subdirectory( 110-persistent-database )
+add_subdirectory( 120-import-export-pgn )
+add_subdirectory( 130-search-headers )
+add_subdirectory( 140-search-position )
+add_subdirectory( 150-search-board )

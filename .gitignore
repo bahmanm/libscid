@@ -3,6 +3,8 @@
 *.lo
 *.la
 *.so
+*.dylib
+*.dll
 *.obj
 *.d
 Makefile.bak
@@ -18,8 +20,6 @@ __pycache__/
 .pytest_cache/
 .tox/
 .venv/
-src/bindings/python/src/libscid/_native/*.dll
-src/bindings/python/src/libscid/_native/*.dylib
 
 .cache
 .vs

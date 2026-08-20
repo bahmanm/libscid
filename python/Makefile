@@ -13,7 +13,7 @@ libscid.python.__release.smoke-test.dir ?= $(libscid.python.__project.dir)_build
 libscid.python.__release.artefact.dir ?= $(LIBSCID_RELEASE_ROOT)
 libscid.python.__release.version ?= $(LIBSCID_RELEASE_PROJECT_VERSION)
 LIBSCID_UV_FLAGS ?= --system-certs
-libscid.python.__qc.paths := src tests hatch_build.py
+libscid.python.__qc.paths := src tests hatch_build.py ../examples/python
 
 ####################################################################################################
 

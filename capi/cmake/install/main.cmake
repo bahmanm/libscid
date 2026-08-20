@@ -46,12 +46,8 @@ install(
     DESTINATION "${LIBSCID_INSTALL_DOCDIR}" )
 
 install(
-    FILES "${LIBSCID_SOURCE_ROOT}/examples/CMakeLists.txt"
-    DESTINATION "${LIBSCID_INSTALL_DOCDIR}/examples" )
-
-install(
     DIRECTORY
-        "${LIBSCID_SOURCE_ROOT}/examples/libscid"
+        "${LIBSCID_SOURCE_ROOT}/examples/c"
         "${LIBSCID_SOURCE_ROOT}/examples/fixtures"
     DESTINATION "${LIBSCID_INSTALL_DOCDIR}/examples" )
 

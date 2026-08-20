@@ -1,0 +1,17 @@
+# 060 Mutate PGN
+
+This example parses an existing PGN game through the C ABI, navigates to a
+move with immutable game cursors, edits its comment and NAGs, merges a source
+game's moves as a new variation with
+`SCID_GAME_MERGE_MOVES_INSERT_VARIATION`, promotes that variation, and writes
+the changed PGN.
+
+Install libscid first; see the installation guide:
+
+- https://libscid.bahmanm.com/installation.html
+
+```sh
+cmake -S examples/c/060-mutate-pgn -B _build/examples/c/060-mutate-pgn -DCMAKE_PREFIX_PATH=install/libscid
+cmake --build _build/examples/c/060-mutate-pgn
+ctest --test-dir _build/examples/c/060-mutate-pgn --output-on-failure
+```

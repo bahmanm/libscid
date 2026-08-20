@@ -51,7 +51,7 @@ esac
 tar "${tar_args[@]}"
 
 cmake_args=(
-    -S "$install_root/share/doc/libscid/examples"
+    -S "$install_root/share/doc/libscid/examples/c"
     -B "$examples_build_dir"
     "-DCMAKE_PREFIX_PATH=$install_root"
 )
