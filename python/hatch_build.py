@@ -11,19 +11,32 @@ DEFAULT_VERSION = "0.0.0"
 
 
 def _platform_tag() -> str:
-    tag = next(
-        item
-        for item in sys_tags()
-        if "manylinux" not in item.platform and "musllinux" not in item.platform
-    )
-    platform = tag.platform
-
     if sys.platform == "darwin":
         from hatchling.builders.macos import process_macos_plat_tag
 
-        platform = process_macos_plat_tag(platform, compat=False)
+        tag = next(
+            item
+            for item in sys_tags()
+            if "manylinux" not in item.platform and "musllinux" not in item.platform
+        )
+        return process_macos_plat_tag(tag.platform, compat=False)
 
-    return platform
+    if sys.platform.startswith("linux"):
+        tag = next(
+            (item for item in sys_tags() if "manylinux" in item.platform),
+            None,
+        )
+        if tag is not None:
+            return tag.platform
+
+        tag = next(item for item in sys_tags() if "musllinux" not in item.platform)
+        return tag.platform
+
+    if sys.platform.startswith("win") or sys.platform == "win32":
+        tag = next(item for item in sys_tags() if item.platform.startswith("win"))
+        return tag.platform
+
+    raise RuntimeError(f"Unsupported platform for libscid wheel build: {sys.platform}")
 
 
 class LibScidBuildHook(BuildHookInterface):
