@@ -1,0 +1,31 @@
+name: Publish release to GitHub
+description: Downloads build artefacts and creates a GitHub Release with attached assets.
+
+inputs:
+  tag:
+    description: "Release tag to publish"
+    required: true
+  artifacts_dir:
+    description: "Directory where artifacts are downloaded"
+    default: "dist"
+
+runs:
+  using: composite
+  steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v8
+      with:
+        path: ${{ inputs.artifacts_dir }}
+        merge-multiple: true
+
+    - name: Create GitHub release
+      uses: softprops/action-gh-release@v3
+      with:
+        tag_name: ${{ inputs.tag }}
+        name: libscid ${{ inputs.tag }}
+        prerelease: ${{ contains(inputs.tag, '-testing') || contains(inputs.tag, '-dev') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha') || contains(inputs.tag, '-rc') || contains(inputs.tag, 'a') || contains(inputs.tag, 'b') || contains(inputs.tag, 'rc') || contains(inputs.tag, 'dev') }}
+        files: |
+          ${{ inputs.artifacts_dir }}/*.tar.gz
+          ${{ inputs.artifacts_dir }}/*.whl
+        fail_on_unmatched_files: true
+        generate_release_notes: true

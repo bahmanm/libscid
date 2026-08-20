@@ -19,12 +19,26 @@ jobs:
     name: release/publish-github
     needs:
       - release-build
-    uses: ./.github/workflows/release-publish-github.yml
-    secrets: inherit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Publish to GitHub
+        uses: ./.github/actions/publish-github
+        with:
+          tag: ${{ github.ref_name }}
 
   release-publish-pypi:
     name: release/publish-pypi
     needs:
       - release-publish-github
-    uses: ./.github/workflows/release-publish-pypi.yml
-    secrets: inherit
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Publish to PyPI
+        uses: ./.github/actions/publish-pypi
+        with:
+          tag: ${{ github.ref_name }}
