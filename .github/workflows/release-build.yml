@@ -12,10 +12,6 @@ jobs:
     name: release-build__${{ matrix.asset_label }}
     runs-on: ${{ matrix.os }}
 
-    defaults:
-      run:
-        shell: bash -euo pipefail {0}
-
     strategy:
       fail-fast: false
       matrix:
@@ -28,108 +24,25 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v7
+      - name: Build and package release
+        uses: ./.github/actions/build-unix
         with:
-          python-version: "3.x"
-
-      - name: Set up libscid toolchain
-        uses: ./.github/actions/setup-libscid-toolchain
-        with:
-          make: "true"
-          uv: "true"
-          llvm: "true"
+          target: libscid.release
+          platform_label: ${{ matrix.asset_label }}
+          is_release: "true"
           docs: "true"
-
-      - name: Set release identity
-        run: |
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-              tag="${GITHUB_REF_NAME}"
-              raw_version="${tag#v}"
-              numeric_version=$(echo "$raw_version" | grep -oE '^[0-9]+(\.[0-9]+){0,3}' || true)
-
-              if [[ -z "$numeric_version" ]]; then
-                  echo "Tag '$tag' does not contain a CMake-compatible numeric version." >&2
-                  exit 1
-              fi
-              python_version="$raw_version"
-          else
-              tag="snapshot-${GITHUB_SHA::12}"
-              numeric_version="0.0.0"
-              python_version="0.0.0"
-          fi
-
-          echo "LIBSCID_RELEASE_PROJECT_VERSION=$numeric_version" >> "$GITHUB_ENV"
-          echo "LIBSCID_RELEASE_PYTHON_VERSION=$python_version" >> "$GITHUB_ENV"
-          echo "LIBSCID_RELEASE_VERSION=$tag" >> "$GITHUB_ENV"
-          echo "LIBSCID_RELEASE_PACKAGE_VERSION_LABEL=$tag" >> "$GITHUB_ENV"
-          echo "LIBSCID_RELEASE_PLATFORM=${{ matrix.asset_label }}" >> "$GITHUB_ENV"
-
-      - name: Release
-        run: make libscid.release
-
-      - name: Upload release artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: release-build__${{ matrix.asset_label }}
-          path: _release/*
-          if-no-files-found: error
 
   release-build__windoze:
     name: release-build__windoze
     runs-on: windows-2022
 
-    defaults:
-      run:
-        shell: pwsh
-
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v7
+      - name: Build and package release
+        uses: ./.github/actions/build-windoze
         with:
-          python-version: "3.x"
-
-      - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Set up libscid toolchain
-        uses: ./.github/actions/setup-libscid-toolchain
-        with:
-          make: "true"
-          uv: "true"
-          llvm: "true"
+          target: libscid.release
+          platform_label: windoze
+          is_release: "true"
           docs: "true"
-
-      - name: Set release identity
-        run: |
-          if ($env:GITHUB_REF -like 'refs/tags/v*') {
-            $tag = $env:GITHUB_REF_NAME
-            $raw_version = $tag -replace '^v', ''
-            if ($raw_version -match '^([0-9]+(\.[0-9]+){0,3})') {
-              $numeric_version = $Matches[1]
-            } else {
-              Write-Error "Tag '$tag' does not contain a CMake-compatible numeric version."
-              exit 1
-            }
-            $python_version = $raw_version
-          } else {
-            $tag = "snapshot-$($env:GITHUB_SHA.Substring(0, 12))"
-            $numeric_version = "0.0.0"
-            $python_version = "0.0.0"
-          }
-
-          "LIBSCID_RELEASE_PROJECT_VERSION=$numeric_version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_RELEASE_PYTHON_VERSION=$python_version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_RELEASE_VERSION=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_RELEASE_PACKAGE_VERSION_LABEL=$tag" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          "LIBSCID_RELEASE_PLATFORM=windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: Release
-        run: make libscid.release
-
-      - name: Upload release artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: release-build__windoze
-          path: _release/*
-          if-no-files-found: error

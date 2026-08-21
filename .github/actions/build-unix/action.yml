@@ -1,0 +1,76 @@
+name: Build libscid on Unix
+description: Builds, tests, or packages libscid on Linux and macOS runners.
+
+inputs:
+  target:
+    description: "GNU Make target(s) to execute"
+    required: true
+  platform_label:
+    description: "Platform asset label (e.g. linux, macos, macos-arm)"
+    required: true
+  is_release:
+    description: "Whether this is a release build requiring release identity and artefact upload"
+    default: "false"
+  docs:
+    description: "Install documentation tools (Doxygen, PlantUML)"
+    default: "false"
+  make_args:
+    description: "Additional arguments to pass to make"
+    default: ""
+  python_version:
+    description: "Python version for setup-python"
+    default: "3.x"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: ${{ inputs.python_version }}
+
+    - name: Set up libscid toolchain
+      uses: ./.github/actions/setup-libscid-toolchain
+      with:
+        make: "true"
+        uv: "true"
+        llvm: "true"
+        docs: ${{ inputs.docs }}
+
+    - name: Set release identity
+      if: ${{ inputs.is_release == 'true' }}
+      shell: bash
+      run: |
+        if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            tag="${GITHUB_REF_NAME}"
+            raw_version="${tag#v}"
+            numeric_version=$(echo "$raw_version" | grep -oE '^[0-9]+(\.[0-9]+){0,3}' || true)
+
+            if [[ -z "$numeric_version" ]]; then
+                echo "Tag '$tag' does not contain a CMake-compatible numeric version." >&2
+                exit 1
+            fi
+            python_version="$raw_version"
+        else
+            tag="snapshot-${GITHUB_SHA::12}"
+            numeric_version="0.0.0"
+            python_version="0.0.0"
+        fi
+
+        echo "LIBSCID_RELEASE_PROJECT_VERSION=$numeric_version" >> "$GITHUB_ENV"
+        echo "LIBSCID_RELEASE_PYTHON_VERSION=$python_version" >> "$GITHUB_ENV"
+        echo "LIBSCID_RELEASE_VERSION=$tag" >> "$GITHUB_ENV"
+        echo "LIBSCID_RELEASE_PACKAGE_VERSION_LABEL=$tag" >> "$GITHUB_ENV"
+        echo "LIBSCID_RELEASE_PLATFORM=${{ inputs.platform_label }}" >> "$GITHUB_ENV"
+
+    - name: Execute Make target
+      shell: bash
+      run: make ${{ inputs.make_args }} ${{ inputs.target }}
+
+    - name: Upload release artifacts
+      if: ${{ inputs.is_release == 'true' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: release-build__${{ inputs.platform_label }}
+        path: _release/*
+        if-no-files-found: error
