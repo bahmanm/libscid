@@ -1,3 +1,8 @@
+/**
+ * @file scid.h
+ * @brief Master umbrella header for libscid C ABI public surface.
+ */
+
 #ifndef SCID_SCID_H
 #define SCID_SCID_H
 

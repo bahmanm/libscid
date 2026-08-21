@@ -122,3 +122,10 @@ libscid.python.qc-all : libscid.python.qc-format libscid.python.qc-static-analys
 .PHONY : libscid.python.qc-all
 
 ####################################################################################################
+
+libscid.python.docs :
+
+.PHONY : libscid.python.docs
+
+####################################################################################################
+

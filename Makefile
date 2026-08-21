@@ -46,6 +46,12 @@ libscid.clean : $(libscid.__components:%=libscid.%.clean)
 
 ####################################################################################################
 
+libscid.docs : $(libscid.__components:%=libscid.%.docs)
+
+.PHONY : libscid.docs
+
+####################################################################################################
+
 libscid.release : $(libscid.__components:%=libscid.%.release)
 
 .PHONY : libscid.release
