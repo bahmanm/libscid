@@ -1,3 +1,5 @@
+"""Chess arbiter evaluation for draw claims and rule verifications."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -21,15 +23,58 @@ class _PositionId:
 
 
 class Arbiter:
+    """Evaluates tournament rules and draw claim conditions for a cursor position.
+
+    An `Arbiter` instance is typically accessed via the
+    [`Cursor.arbiter`][libscid.Cursor.arbiter] property. It evaluates claimable
+    draw conditions defined by the FIDE Laws of Chess at the cursor's current
+    position, including the fifty-move rule and threefold repetition.
+
+    Example:
+        >>> import libscid
+        >>> pgn = "1. Nf3 Nf6 2. Ng1 Ng8 3. Nf3 Nf6 4. Ng1 Ng8 *"
+        >>> cursor = libscid.Game.from_pgn(pgn).create_cursor().to_game_end()
+        >>> cursor.arbiter.can_claim_threefold_repetition
+        True
+        >>> cursor.arbiter.can_claim_fifty_move_rule
+        False
+    """
+
     def __init__(self, cursor: Cursor):
+        """Initialise an arbiter bound to a specific cursor position.
+
+        Args:
+            cursor: The cursor navigating the game tree to inspect.
+        """
         self._cursor = cursor
 
     @property
     def can_claim_fifty_move_rule(self) -> bool:
+        """Check whether a draw can be claimed under the fifty-move rule.
+
+        According to the FIDE Laws of Chess, a player may claim a draw if the
+        last 50 consecutive full moves (100 halfmoves / ply) have been completed
+        by each player without any piece capture and without any pawn advance.
+
+        Returns:
+            True if the halfmove clock is at least 100; otherwise False.
+        """
         return self._cursor.position.halfmove_clock >= 100
 
     @property
     def can_claim_threefold_repetition(self) -> bool:
+        """Check whether a draw can be claimed under the threefold repetition rule.
+
+        According to the FIDE Laws of Chess, a player may claim a draw if the
+        exact same board position has occurred at least three times along the
+        path from the game start to this cursor node. Two positions are identical
+        if the side to move, piece placements, castling rights, and en passant
+        target squares are identical.
+
+        Returns:
+            True if the current board state has occurred 3 or more times along
+            the line of play; otherwise False.
+        """
         position_ids = self._path_position_ids()
         return position_ids.count(position_ids[-1]) >= 3
 
