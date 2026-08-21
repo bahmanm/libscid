@@ -1,3 +1,8 @@
+/**
+ * @file _platform.h
+ * @brief Platform-specific linkage specifications and export macro definitions.
+ */
+
 #ifndef SCID_PLATFORM_H
 #define SCID_PLATFORM_H
 
