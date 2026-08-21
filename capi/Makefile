@@ -18,6 +18,7 @@ libscid.capi.default.__qc.format.build.dir ?= $(libscid.capi.default.__build.dir
 libscid.capi.default.__qc.analysis.build.dir ?= $(libscid.capi.default.__build.dir)analysis/
 libscid.capi.default.__qc.dynamic-analysis.build.dir ?= $(libscid.capi.default.__build.dir)sanitisers/
 
+libscid.capi.__docs.build.dir ?= $(libscid.capi.__project.dir)_build/docs/
 libscid.capi.__release.build.dir ?= $(libscid.capi.__project.dir)_build/release/
 libscid.capi.__release.package.build.dir ?= $(libscid.capi.__project.dir)_build/package/
 libscid.capi.__release.smoke-test.dir ?= $(libscid.capi.__project.dir)_build/release-smoke-test/
@@ -105,3 +106,24 @@ libscid.capi.release : libscid.capi.release-package libscid.capi.__release-smoke
 .PHONY : libscid.capi.release
 
 ####################################################################################################
+
+libscid.capi.docs : libscid.capi.__cmake.contract
+	$(LIBSCID_CMAKE) \
+	    -S $(libscid.capi.__cmake.source.dir) \
+	    -B $(libscid.capi.__docs.build.dir) \
+	    $(libscid.cmake.__generator.arg) \
+	    $(libscid.cmake.__c.compiler.arg) \
+	    $(libscid.cmake.__cxx.compiler.arg) \
+	    -DBUILD_TESTING=OFF \
+	    -DLIBSCID_BUILD_DOCS=ON \
+	    "-DLIBSCID_SOURCE_ROOT=$(libscid.capi.__cmake.source.root)" \
+	    $(LIBSCID_CMAKE_CONFIGURE_ARGS)
+	$(LIBSCID_CMAKE) \
+	    --build $(libscid.capi.__docs.build.dir) \
+	    --target api-docs \
+	    $(LIBSCID_CMAKE_BUILD_ARGS)
+
+.PHONY : libscid.capi.docs
+
+####################################################################################################
+
