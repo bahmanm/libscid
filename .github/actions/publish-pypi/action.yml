@@ -1,5 +1,5 @@
 name: Publish Python packages to PyPI
-description: Downloads Python wheels from GitHub Release and publishes them to PyPI using Trusted Publishing.
+description: Downloads Python wheels from GitHub Release and publishes them to PyPI using uv and Trusted Publishing.
 
 inputs:
   tag:
@@ -12,6 +12,16 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: "3.x"
+
+    - name: Set up uv
+      uses: ./.github/actions/setup-libscid-toolchain
+      with:
+        uv: "true"
+
     - name: Download wheel assets from GitHub Release
       shell: bash
       env:
@@ -23,8 +33,6 @@ runs:
           --pattern "*.whl" \
           --dir "${{ inputs.packages_dir }}"
 
-    - name: Publish package distributions to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        packages-dir: ${{ inputs.packages_dir }}/
-        skip-existing: true
+    - name: Publish wheels via uv
+      shell: bash
+      run: uv publish --trusted-publishing always "${{ inputs.packages_dir }}"/*.whl
