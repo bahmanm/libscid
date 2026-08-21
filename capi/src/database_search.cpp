@@ -1,4 +1,5 @@
 #include "scid/database.h"
+#include "scid/database_search.h"
 
 #include "scid/libscid/handles.h"
 #include "scid/libscid/progress.h"

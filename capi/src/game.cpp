@@ -1,4 +1,6 @@
 #include "scid/game.h"
+#include "scid/game_cursor.h"
+#include "scid/game_pgn.h"
 
 #include "scid/libscid/handles.h"
 #include "scid/libscid/support.h"
