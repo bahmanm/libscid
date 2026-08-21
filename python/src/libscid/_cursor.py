@@ -77,6 +77,14 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] pointing to the same node.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *")
+            >>> cursor = game.create_cursor().next()
+            >>> cloned = cursor.clone()
+            >>> cloned.previous_move_san
+            'e4'
         """
         return self._from_handle(
             self._native,
@@ -90,6 +98,15 @@ class Cursor:
         Returns:
             A new [`Cursor`][libscid.Cursor] advanced by one ply, or None if
             the cursor is already at the end of the line.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> cursor = game.create_cursor()
+            >>> cursor.next().previous_move_san
+            'e4'
+            >>> cursor.to_game_end().next() is None
+            True
         """
         return self._from_optional_handle(self._native.cursor_next(self._handle))
 
@@ -99,6 +116,15 @@ class Cursor:
         Returns:
             A new [`Cursor`][libscid.Cursor] moved back by one ply, or None if
             the cursor is already at the start of the line.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> cursor = game.create_cursor().to_game_end()
+            >>> cursor.previous().previous_move_san
+            'e4'
+            >>> game.create_cursor().previous() is None
+            True
         """
         return self._from_optional_handle(self._native.cursor_previous(self._handle))
 
@@ -108,6 +134,13 @@ class Cursor:
         Returns:
             A new [`Cursor`][libscid.Cursor] at the initial starting position
             of the game.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *")
+            >>> cursor = game.create_cursor().to_game_end()
+            >>> cursor.to_game_start().is_line_start
+            True
         """
         return self._from_handle(
             self._native,
@@ -120,6 +153,13 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] at the end of the mainline.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *")
+            >>> cursor = game.create_cursor()
+            >>> cursor.to_game_end().is_line_end
+            True
         """
         return self._from_handle(
             self._native,
@@ -136,6 +176,16 @@ class Cursor:
         Returns:
             A new [`Cursor`][libscid.Cursor] at the target ply offset, or None
             if the offset exceeds the mainline ply count.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 Nc6 *")
+            >>> cursor = game.create_cursor()
+            >>> ply2 = cursor.to_main_line_offset(2)
+            >>> ply2.previous_move_san
+            'e5'
+            >>> cursor.to_main_line_offset(10) is None
+            True
         """
         return self._from_optional_handle(
             self._native.cursor_to_main_line_offset(self._handle, offset)
@@ -151,6 +201,16 @@ class Cursor:
             A new [`Cursor`][libscid.Cursor] at the start of the specified
             variation branch, or None if `index` is out of bounds or no
             variations exist.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 (1. d4 d5) 1... e5 *")
+            >>> cursor = game.create_cursor()
+            >>> var_cursor = cursor.enter_variation(0)
+            >>> var_cursor.next().previous_move_san
+            'd4'
+            >>> var_cursor.variation_depth
+            1
         """
         return self._from_optional_handle(
             self._native.cursor_enter_variation(self._handle, index)
@@ -163,6 +223,14 @@ class Cursor:
             A new [`Cursor`][libscid.Cursor] positioned on the parent line
             where this variation branched, or None if the cursor is already
             on the mainline.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 (1. d4 d5) 1... e5 *")
+            >>> var_cursor = game.create_cursor().enter_variation(0)
+            >>> parent = var_cursor.exit_variation()
+            >>> parent.variation_depth
+            0
         """
         return self._from_optional_handle(
             self._native.cursor_exit_variation(self._handle)
@@ -184,6 +252,17 @@ class Cursor:
         Raises:
             ValueError: If the cursor is not at the end of the line.
             LibScidError: If the move is illegal or cannot be parsed.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game()
+            >>> cursor = game.create_cursor()
+            >>> cursor = cursor.append_move("e4")
+            >>> cursor.previous_move_san
+            'e4'
+            >>> cursor = cursor.append_move("e5")
+            >>> cursor.previous_move_san
+            'e5'
         """
         self._require_line_end("append_move")
         return self._from_handle(
@@ -208,6 +287,17 @@ class Cursor:
         Raises:
             ValueError: If the cursor is not at the end of the line.
             LibScidError: If the positions are incompatible or appending fails.
+
+        Examples:
+            >>> import libscid
+            >>> game1 = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> game2 = libscid.Game.from_pgn(
+            ...     "2. Nf3 Nc6 *", position=game1.end_position
+            ... )
+            >>> cursor = game1.create_cursor().to_game_end()
+            >>> cursor = cursor.append_game(game2)
+            >>> game1.mainline_move_count
+            4
         """
         self._require_line_end("append_game")
         return self._from_handle(
@@ -229,6 +319,15 @@ class Cursor:
             A new [`Cursor`][libscid.Cursor] at the start of the newly created
             variation, or None if the cursor is at the line end or the variation
             could not be created.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> cursor = game.create_cursor()
+            >>> var_cursor = cursor.add_variation("Alternative opening")
+            >>> var_cursor = var_cursor.append_move("d4")
+            >>> var_cursor.previous_move_san
+            'd4'
         """
         return self._from_optional_handle(
             self._native.cursor_add_variation(
@@ -242,6 +341,14 @@ class Cursor:
         Returns:
             A new [`Cursor`][libscid.Cursor] on the parent line where the
             variation branched, or None if the cursor is on the mainline.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 (1. d4 d5) 1... e5 *")
+            >>> var_cursor = game.create_cursor().enter_variation(0)
+            >>> parent = var_cursor.remove_variation()
+            >>> game.create_cursor().variation_count
+            0
         """
         return self._from_optional_handle(
             self._native.cursor_remove_variation(self._game._handle, self._handle)
@@ -253,6 +360,16 @@ class Cursor:
         Returns:
             A new [`Cursor`][libscid.Cursor] on the promoted variation, or None
             if the cursor is on the mainline.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 (1. d4) (1. c4) 1... e5 *")
+            >>> var2 = game.create_cursor().enter_variation(1)
+            >>> var2.next().previous_move_san
+            'c4'
+            >>> promoted = var2.promote_variation_to_first()
+            >>> game.create_cursor().enter_variation(0).next().previous_move_san
+            'c4'
         """
         return self._from_optional_handle(
             self._native.cursor_promote_variation_to_first(
@@ -269,6 +386,14 @@ class Cursor:
         Returns:
             A new [`Cursor`][libscid.Cursor] on the new mainline, or None if the
             cursor is already on the mainline.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 (1. d4 d5) 1... e5 *")
+            >>> var = game.create_cursor().enter_variation(0)
+            >>> new_main = var.promote_variation_to_mainline()
+            >>> game.create_cursor().next().previous_move_san
+            'd4'
         """
         return self._from_optional_handle(
             self._native.cursor_promote_variation_to_mainline(
@@ -281,6 +406,16 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] at the newly truncated line end.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 Nc6 *")
+            >>> cursor = game.create_cursor().to_main_line_offset(2)
+            >>> cursor.previous_move_san
+            'e5'
+            >>> truncated = cursor.truncate()
+            >>> game.mainline_move_count
+            2
         """
         return self._from_handle(
             self._native,
@@ -294,6 +429,16 @@ class Cursor:
         Returns:
             A new [`Cursor`][libscid.Cursor] at the beginning of the truncated
             line.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 Nc6 *")
+            >>> cursor = game.create_cursor().to_main_line_offset(2)
+            >>> start = cursor.truncate_before()
+            >>> game.mainline_move_count
+            2
+            >>> start.next().previous_move_san
+            'Nf3'
         """
         return self._from_handle(
             self._native,
@@ -311,6 +456,16 @@ class Cursor:
         Returns:
             An iterator yielding [`MovetextEvent`][libscid.MovetextEvent]
             instances.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 (1. d4 d5) 1... e5 *")
+            >>> moves = [
+            ...     e.san for e in game.create_cursor().iter_movetext()
+            ...     if isinstance(e, libscid.MovetextMove)
+            ... ]
+            >>> moves
+            ['e4', 'd4', 'd5', 'e5']
         """
         from ._domain_support._movetext_iteration import iter_movetext
 
@@ -347,7 +502,15 @@ class Cursor:
 
     @property
     def arbiter(self) -> Arbiter:
-        """Retrieve an arbiter to evaluate tournament rules at this position."""
+        """Retrieve an arbiter to evaluate tournament rules at this position.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> cursor = game.create_cursor().to_game_end()
+            >>> cursor.arbiter.can_claim_fifty_move_rule
+            False
+        """
         return Arbiter(self)
 
     @property
@@ -415,11 +578,28 @@ class Cursor:
 
         Args:
             comment: Commentary text to attach.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> cursor = game.create_cursor().next()
+            >>> cursor.set_comment("King Pawn opening")
+            >>> cursor.comment
+            'King Pawn opening'
         """
         self._native.cursor_set_comment(self._game._handle, self._handle, comment)
 
     def remove_comment(self) -> None:
-        """Clear commentary text at the current cursor node."""
+        """Clear commentary text at the current cursor node.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 {King pawn} e5 *")
+            >>> cursor = game.create_cursor().next()
+            >>> cursor.remove_comment()
+            >>> cursor.comment == ""
+            True
+        """
         self.set_comment("")
 
     def add_nag(self, nag: Nag) -> bool:
@@ -430,6 +610,15 @@ class Cursor:
 
         Returns:
             True if the NAG was attached successfully; otherwise False.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> cursor = game.create_cursor().next()
+            >>> cursor.add_nag(libscid.Nag("!"))
+            True
+            >>> [nag.symbol for nag in cursor.previous_move_nags]
+            ['!']
         """
         return self._native.cursor_add_nag(self._game._handle, self._handle, nag.code)
 
@@ -438,6 +627,15 @@ class Cursor:
 
         Returns:
             True if a move NAG was found and removed; otherwise False.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 $1 $14 e5 *")
+            >>> cursor = game.create_cursor().next()
+            >>> cursor.remove_move_nag()
+            True
+            >>> [nag.text for nag in cursor.previous_move_nags]
+            ['$14']
         """
         return self._native.cursor_remove_nag(
             self._game._handle, self._handle, move_nag=True
@@ -448,13 +646,31 @@ class Cursor:
 
         Returns:
             True if a positional NAG was found and removed; otherwise False.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 $1 $14 e5 *")
+            >>> cursor = game.create_cursor().next()
+            >>> cursor.remove_position_nag()
+            True
+            >>> [nag.text for nag in cursor.previous_move_nags]
+            ['$1']
         """
         return self._native.cursor_remove_nag(
             self._game._handle, self._handle, move_nag=False
         )
 
     def remove_nags(self) -> None:
-        """Remove all Numeric Annotation Glyphs from the incoming move."""
+        """Remove all Numeric Annotation Glyphs from the incoming move.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 $1 $14 e5 *")
+            >>> cursor = game.create_cursor().next()
+            >>> cursor.remove_nags()
+            >>> cursor.previous_move_nags
+            ()
+        """
         self._native.cursor_remove_nags(self._game._handle, self._handle)
 
     @property
@@ -494,7 +710,17 @@ class Cursor:
 
     @property
     def position(self) -> Position:
-        """Board state snapshot at this cursor position."""
+        """Board state snapshot at this cursor position.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> cursor = game.create_cursor().next()
+            >>> cursor.position.side_to_move
+            'black'
+            >>> cursor.position.get_piece_at("e4")
+            'P'
+        """
         return Position._from_handle(
             self._native, self._native.cursor_position(self._handle)
         )
