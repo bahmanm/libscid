@@ -26,7 +26,7 @@ class MovetextLineStart:
         variation_index: Sibling index among variations branching at this
             fork point (0 for mainline or first alternative).
 
-    Example:
+    Examples:
         >>> import libscid
         >>> game = libscid.Game.from_pgn("{Intro} 1. e4 e5 *")
         >>> start_event = next(game.iter_movetext())
@@ -65,7 +65,7 @@ class MovetextMove:
         position_before: [`Position`][libscid.Position] snapshot before the move.
         position_after: [`Position`][libscid.Position] snapshot after the move.
 
-    Example:
+    Examples:
         >>> import libscid
         >>> game = libscid.Game.from_pgn("1. e4 $1 {King pawn} e5 *")
         >>> move = next(
@@ -101,7 +101,7 @@ class MovetextLineEnd:
         variation_depth: Variation nesting level (0 for mainline).
         variation_index: Sibling variation index at the parent fork.
 
-    Example:
+    Examples:
         >>> import libscid
         >>> game = libscid.Game.from_pgn("1. e4 e5 *")
         >>> events = list(game.iter_movetext())
@@ -147,7 +147,7 @@ def iter_movetext(
         TypeError: If `cursor` is not a `Cursor` or `variations` is not a boolean.
         RuntimeError: If cursor navigation encounters an unexpected state.
 
-    Example:
+    Examples:
         >>> import libscid
         >>> game = libscid.Game.from_pgn("1. e4 (1. d4 d5) e5 *")
         >>> moves = [

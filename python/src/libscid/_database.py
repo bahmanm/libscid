@@ -30,7 +30,7 @@ class Database:
     factory class methods such as
     [`open_pgn_read_only()`][libscid.Database.open_pgn_read_only].
 
-    Example:
+    Examples:
         >>> import libscid
         >>> database = libscid.Database.open_pgn_read_only("tournaments.pgn")
         >>> database.game_count

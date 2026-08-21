@@ -27,13 +27,13 @@ class Game:
     Game tree traversal and editing are performed by creating a
     [`Cursor`][libscid.Cursor] via [`create_cursor()`][libscid.Game.create_cursor].
 
-    Example:
+    Examples:
         >>> import libscid
         >>> game = libscid.Game.from_pgn(
-        ...     '[Event "World Championship"]\\n'
-        ...     '[White "Kasparov, Garry"]\\n'
-        ...     '[Black "Karpov, Anatoly"]\\n'
-        ...     '[Result "1-0"]\\n\\n'
+        ...     '[Event "World Championship"]\n'
+        ...     '[White "Kasparov, Garry"]\n'
+        ...     '[Black "Karpov, Anatoly"]\n'
+        ...     '[Result "1-0"]\n\n'
         ...     '1. e4 e5 2. Nf3 Nc6 3. Bb5 1-0'
         ... )
         >>> game.get_tag("White")
@@ -87,7 +87,7 @@ class Game:
             LibScidError: If the PGN syntax is invalid, illegal moves are
                 encountered, or parsing fails.
 
-        Example:
+        Examples:
             >>> import libscid
             >>> game = libscid.Game.from_pgn("1. d4 d5 2. c4 e6 *")
             >>> game.mainline_move_count

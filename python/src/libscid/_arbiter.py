@@ -30,7 +30,7 @@ class Arbiter:
     draw conditions defined by the FIDE Laws of Chess at the cursor's current
     position, including the fifty-move rule and threefold repetition.
 
-    Example:
+    Examples:
         >>> import libscid
         >>> pgn = "1. Nf3 Nf6 2. Ng1 Ng8 3. Nf3 Nf6 4. Ng1 Ng8 *"
         >>> cursor = libscid.Game.from_pgn(pgn).create_cursor().to_game_end()

@@ -34,7 +34,7 @@ class Cursor:
     via [`Game.create_cursor()`][libscid.Game.create_cursor] or navigation
     methods.
 
-    Example:
+    Examples:
         >>> import libscid
         >>> game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 Nc6 *")
         >>> cursor = game.create_cursor()

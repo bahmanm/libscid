@@ -143,7 +143,7 @@ class HeaderCriteria:
         has_comments: If True, matches only games with text commentary.
         has_nags: If True, matches only games with Numeric Annotation Glyphs.
 
-    Example:
+    Examples:
         >>> import libscid
         >>> criteria = libscid.HeaderCriteria(
         ...     white="Kasparov",
@@ -273,7 +273,7 @@ class DatabaseSearch:
     Direct instantiation of `DatabaseSearch` is disallowed; instances are
     accessed via the [`Database.search`][libscid.Database.search] property.
 
-    Example:
+    Examples:
         >>> import libscid
         >>> database = libscid.Database.open_pgn_read_only("games.pgn")
         >>> criteria = libscid.HeaderCriteria(white="Fischer", result="1-0")

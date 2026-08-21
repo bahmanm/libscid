@@ -22,7 +22,7 @@ class DatabaseFilters:
     Direct instantiation of `DatabaseFilters` is disallowed; instances are
     accessed via the [`Database.filters`][libscid.Database.filters] property.
 
-    Example:
+    Examples:
         >>> import libscid
         >>> database = libscid.Database.open_pgn_read_only("games.pgn")
         >>> all_games = database.filters.all_games

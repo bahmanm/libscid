@@ -24,7 +24,7 @@ class Filter:
     [`DatabaseFilters.create()`][libscid.DatabaseFilters.create], or as search result
     destinations from [`DatabaseSearch`][libscid.DatabaseSearch].
 
-    Example:
+    Examples:
         >>> import libscid
         >>> database = libscid.Database.open_pgn_read_only("games.pgn")
         >>> all_games = database.filters.all_games
