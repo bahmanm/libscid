@@ -12,14 +12,15 @@ libscid.python.__release.library ?= $(if $(LIBSCID_LIBRARY),$(LIBSCID_LIBRARY),$
 libscid.python.__release.smoke-test.dir ?= $(libscid.python.__project.dir)_build/release-smoke-test/
 libscid.python.__release.artefact.dir ?= $(LIBSCID_RELEASE_ROOT)
 libscid.python.__release.version ?= $(if $(LIBSCID_RELEASE_PYTHON_VERSION),$(LIBSCID_RELEASE_PYTHON_VERSION),$(LIBSCID_RELEASE_PROJECT_VERSION))
-LIBSCID_UV_FLAGS ?= --system-certs
+libscid.python.__bin.dir := $(libscid.python.__project.dir).venv/$(dir $(libscid.__venv.python))
+LIBSCID_UV_FLAGS ?=
 libscid.python.__qc.paths := src tests hatch_build.py ../examples/python
 
 ####################################################################################################
 
 libscid.python.configure :
 	cd $(libscid.python.__project.dir) \
-	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) sync --group dev
+	&& $(LIBSCID_UV) sync $(LIBSCID_UV_FLAGS)
 
 .PHONY : libscid.python.configure
 
@@ -45,6 +46,7 @@ libscid.python.clean :
 	-rm -rf $(libscid.python.__project.dir).tox $(libscid.python.__project.dir).venv
 	-rm -rf $(libscid.python.__project.dir)build $(libscid.python.__project.dir)dist
 	-rm -rf $(libscid.python.__project.dir)*.egg-info
+	-rm -rf $(libscid.python.__project.dir)_build/docs
 	-rm -f $(libscid.python.__native.dir)*.dll $(libscid.python.__native.dir)*.dylib $(libscid.python.__native.dir)*.so
 
 .PHONY : libscid.python.clean
@@ -124,8 +126,18 @@ libscid.python.qc-all : libscid.python.qc-format libscid.python.qc-static-analys
 ####################################################################################################
 
 libscid.python.docs :
+	cd $(libscid.python.__project.dir) \
+	&& $(LIBSCID_UV) run $(LIBSCID_UV_FLAGS) mkdocs build -f mkdocs.yml
 
 .PHONY : libscid.python.docs
+
+####################################################################################################
+
+libscid.python.docs-serve :
+	cd $(libscid.python.__project.dir) \
+	&& $(LIBSCID_UV) run $(LIBSCID_UV_FLAGS) mkdocs serve -f mkdocs.yml
+
+.PHONY : libscid.python.docs-serve
 
 ####################################################################################################
 

@@ -1,0 +1,65 @@
+site_name: libscid Python API
+site_url: https://libscid.bahmanm.com/python/
+repo_url: https://github.com/bahmanm/libscid
+repo_name: bahmanm/libscid
+docs_dir: docs
+site_dir: _build/docs/site
+
+theme:
+  name: material
+  font:
+    text: Cantarell
+    code: Oxygen Mono
+  palette:
+    - scheme: solarized-light
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: solarized-dark
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_category_heading: true
+            members_order: source
+            separate_signature: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+extra_css:
+  - stylesheets/solarized.css
+
+nav:
+  - Overview: index.md
+  - API Reference: reference.md

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>libscid Documentation Hub</title>
+    <meta name="description" content="libscid — Chess applications made easy. Comprehensive documentation for the C ABI and Python language bindings.">
+    <link rel="icon" type="image/png" href="assets/img/libscid-tiny.png">
+    
+    <!-- Typography: Cantarell & Oxygen Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cantarell:wght@400;600;700&family=Oxygen+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        /* =====================================================================
+         * Solarized Design Tokens (Ethan Schoonover)
+         * Base03: #002b36 | Base02: #073642 | Base01: #586e75 | Base00: #657b83
+         * Base0:  #839496 | Base1:  #93a1a1 | Base2:  #eee8d5 | Base3:  #fdf6e3
+         * Yellow: #b58900 | Orange: #cb4b16 | Red:    #dc322f | Magenta: #d33682
+         * Violet: #6c71c4 | Blue:   #268bd2 | Cyan:   #2aa198 | Green:   #859900
+         * ===================================================================== */
+        :root {
+            --bg-base: #fdf6e3;
+            --bg-surface: #eee8d5;
+            --bg-surface-elevated: #ffffff;
+            --fg-base: #657b83;
+            --fg-muted: #839496;
+            --fg-faint: #93a1a1;
+            --fg-heading: #586e75;
+            --border-color: #eee8d5;
+            --border-card: #e4dece;
+            
+            --accent-primary: #268bd2;
+            --accent-primary-hover: #1a6091;
+            --accent-secondary: #2aa198;
+            --accent-tag: #859900;
+            --accent-tag-bg: rgba(133, 153, 0, 0.12);
+            --card-shadow: 0 4px 16px rgba(0, 43, 54, 0.06);
+            --card-shadow-hover: 0 8px 28px rgba(0, 43, 54, 0.12);
+
+            --font-family-body: 'Cantarell', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-family-mono: 'Oxygen Mono', 'Source Code Pro', ui-monospace, monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --bg-base: #002b36;
+                --bg-surface: #073642;
+                --bg-surface-elevated: #003847;
+                --fg-base: #839496;
+                --fg-muted: #657b83;
+                --fg-faint: #586e75;
+                --fg-heading: #93a1a1;
+                --border-color: #073642;
+                --border-card: #0d4655;
+                
+                --accent-primary: #268bd2;
+                --accent-primary-hover: #2aa198;
+                --accent-secondary: #2aa198;
+                --accent-tag: #859900;
+                --accent-tag-bg: rgba(133, 153, 0, 0.18);
+                --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+                --card-shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.55);
+            }
+        }
+
+        [data-theme="dark"] {
+            --bg-base: #002b36;
+            --bg-surface: #073642;
+            --bg-surface-elevated: #003847;
+            --fg-base: #839496;
+            --fg-muted: #657b83;
+            --fg-faint: #586e75;
+            --fg-heading: #93a1a1;
+            --border-color: #073642;
+            --border-card: #0d4655;
+            
+            --accent-primary: #268bd2;
+            --accent-primary-hover: #2aa198;
+            --accent-secondary: #2aa198;
+            --accent-tag: #859900;
+            --accent-tag-bg: rgba(133, 153, 0, 0.18);
+            --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            --card-shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.55);
+        }
+
+        [data-theme="light"] {
+            --bg-base: #fdf6e3;
+            --bg-surface: #eee8d5;
+            --bg-surface-elevated: #ffffff;
+            --fg-base: #657b83;
+            --fg-muted: #839496;
+            --fg-faint: #93a1a1;
+            --fg-heading: #586e75;
+            --border-color: #eee8d5;
+            --border-card: #e4dece;
+            
+            --accent-primary: #268bd2;
+            --accent-primary-hover: #1a6091;
+            --accent-secondary: #2aa198;
+            --accent-tag: #859900;
+            --accent-tag-bg: rgba(133, 153, 0, 0.12);
+            --card-shadow: 0 4px 16px rgba(0, 43, 54, 0.06);
+            --card-shadow-hover: 0 8px 28px rgba(0, 43, 54, 0.12);
+        }
+
+        /* Base Reset & Layout */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--fg-base);
+            font-family: var(--font-family-body);
+            font-size: 16px;
+            line-height: 1.65;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        a:hover {
+            color: var(--accent-primary-hover);
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Navigation Header */
+        header.hub-header {
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--bg-base);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 4.25rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            color: var(--fg-heading);
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .brand img {
+            height: 38px;
+            width: auto;
+            display: block;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: 1px solid var(--border-card);
+            color: var(--fg-base);
+            padding: 0.45rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            background: var(--bg-surface);
+            border-color: var(--accent-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0 3rem;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 2.85rem;
+            font-weight: 700;
+            color: var(--fg-heading);
+            letter-spacing: -0.025em;
+            margin-bottom: 0.85rem;
+            line-height: 1.15;
+        }
+
+        .hero-subtitle {
+            font-size: 1.35rem;
+            color: var(--accent-secondary);
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-desc {
+            max-width: 720px;
+            margin: 0 auto 2.5rem;
+            color: var(--fg-base);
+            font-size: 1.05rem;
+        }
+
+        /* Documentation Portals Grid */
+        .portals-section {
+            padding-bottom: 3.5rem;
+        }
+
+        .section-heading {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--fg-heading);
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.01em;
+            text-align: center;
+        }
+
+        .portals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.75rem;
+        }
+
+        .portal-card {
+            background-color: var(--bg-surface-elevated);
+            border: 1px solid var(--border-card);
+            border-radius: 10px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow-hover);
+            border-color: var(--accent-primary);
+        }
+
+        .portal-card-header {
+            margin-bottom: 1.2rem;
+        }
+
+        .portal-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            background-color: var(--bg-surface);
+            color: var(--accent-primary);
+            font-family: var(--font-family-mono);
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin-bottom: 1rem;
+        }
+
+        .portal-title {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--fg-heading);
+            margin-bottom: 0.4rem;
+        }
+
+        .portal-desc {
+            color: var(--fg-base);
+            font-size: 0.96rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .badge {
+            font-family: var(--font-family-mono);
+            font-size: 0.78rem;
+            padding: 0.2rem 0.55rem;
+            border-radius: 4px;
+            background-color: var(--bg-surface);
+            color: var(--fg-base);
+            border: 1px solid var(--border-card);
+        }
+
+        .badge.highlight {
+            background-color: var(--accent-tag-bg);
+            color: var(--accent-tag);
+            border-color: transparent;
+            font-weight: 600;
+        }
+
+        .card-link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: var(--accent-primary);
+            color: #ffffff !important;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: background-color 0.15s ease, transform 0.15s ease;
+        }
+
+        .card-link-btn:hover {
+            background-color: var(--accent-primary-hover);
+        }
+
+        /* Architectural Pillars */
+        .features-section {
+            padding: 3rem 0 4rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .feature-item {
+            background-color: var(--bg-surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-card);
+        }
+
+        .feature-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--fg-heading);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: var(--fg-base);
+            line-height: 1.55;
+        }
+
+        /* Footer */
+        footer.hub-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-surface);
+            padding: 2.25rem 0;
+            font-size: 0.88rem;
+            color: var(--fg-muted);
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 680px) {
+            .hero-title {
+                font-size: 2.2rem;
+            }
+            .header-inner, .footer-inner {
+                flex-direction: column;
+                gap: 0.85rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="hub-header">
+        <div class="container header-inner">
+            <a href="./" class="brand">
+                <img src="assets/img/libscid-tiny.png" alt="libscid Logo">
+                <span>libscid</span>
+            </a>
+            <div class="nav-actions">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="Toggle theme">
+                    <span id="theme-icon">🌓</span>
+                    <span id="theme-text">Theme</span>
+                </button>
+                <a href="https://github.com/bahmanm/libscid" target="_blank" rel="noopener noreferrer" style="font-weight: 600;">GitHub ↗</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <h1 class="hero-title">libscid Documentation Hub</h1>
+                <p class="hero-subtitle">Chess applications made easy.</p>
+                <p class="hero-desc">
+                    A high-performance C ABI chess engine and database backend extracted from Scid/ScidUp.
+                    Select your language portal below to explore the reference documentation, tutorials, and APIs.
+                </p>
+            </div>
+        </section>
+
+        <!-- Portals Grid -->
+        <section class="portals-section">
+            <div class="container">
+                <h2 class="section-heading">Documentation Portals</h2>
+                <div class="portals-grid">
+                    
+                    <!-- C API Card -->
+                    <div class="portal-card">
+                        <div>
+                            <div class="portal-card-header">
+                                <div class="portal-icon">C</div>
+                                <h3 class="portal-title">C API Reference</h3>
+                            </div>
+                            <p class="portal-desc">
+                                Native C ABI consumer contract declared in <code>scid/scid.h</code>. Struct definitions, legal move generators, position evaluators, and Scid database manipulation APIs.
+                            </p>
+                            <div class="tags-container">
+                                <span class="badge highlight">C99 / C11</span>
+                                <span class="badge">Stable ABI</span>
+                                <span class="badge">Doxygen</span>
+                            </div>
+                        </div>
+                        <a href="capi/" class="card-link-btn">
+                            Explore C API Reference →
+                        </a>
+                    </div>
+
+                    <!-- Python API Card -->
+                    <div class="portal-card">
+                        <div>
+                            <div class="portal-card-header">
+                                <div class="portal-icon" style="color: var(--accent-secondary);">Py</div>
+                                <h3 class="portal-title">Python API Reference</h3>
+                            </div>
+                            <p class="portal-desc">
+                                Modern, type-annotated Python bindings. High-level object model for <code>Game</code>, <code>Position</code>, <code>Database</code>, PGN import/export, and ECO opening classification.
+                            </p>
+                            <div class="tags-container">
+                                <span class="badge highlight">Python &gt;= 3.12</span>
+                                <span class="badge">PEP 561 (Typed)</span>
+                                <span class="badge">MkDocs Material</span>
+                            </div>
+                        </div>
+                        <a href="python/" class="card-link-btn">
+                            Explore Python API Reference →
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Architectural Highlights -->
+        <section class="features-section">
+            <div class="container">
+                <h2 class="section-heading">Key Architectural Highlights</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <h4 class="feature-title">Stable C ABI</h4>
+                        <p class="feature-desc">Engineered around an explicit C ABI boundary to guarantee foreign-function compatibility across any host runtime.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="feature-title">Zero GUI Dependencies</h4>
+                        <p class="feature-desc">Decoupled entirely from desktop Tcl/Tk UI layers, suitable for microservices, command-line utilities, and web servers.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="feature-title">Scid Database Engine</h4>
+                        <p class="feature-desc">Comprehensive support for in-memory and on-disk Scid database manipulation, header search, and fast indexing.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4 class="feature-title">ECO Opening Book</h4>
+                        <p class="feature-desc">Built-in classification and lookup for ECO codes and opening nomenclature.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="hub-footer">
+        <div class="container footer-inner">
+            <div>
+                &copy; <script>document.write(new Date().getFullYear())</script> libscid Contributors. Released under GPL-2.0-or-later.
+            </div>
+            <div class="footer-links">
+                <a href="capi/">C API Docs</a>
+                <a href="python/">Python Docs</a>
+                <a href="https://github.com/bahmanm/libscid">GitHub Repository</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Theme Switcher Script -->
+    <script>
+        (function() {
+            const root = document.documentElement;
+            const toggleBtn = document.getElementById('theme-toggle');
+            const toggleIcon = document.getElementById('theme-icon');
+            const toggleText = document.getElementById('theme-text');
+            
+            function getPreferredTheme() {
+                const stored = localStorage.getItem('libscid-theme');
+                if (stored) return stored;
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            function applyTheme(theme) {
+                root.setAttribute('data-theme', theme);
+                localStorage.setItem('libscid-theme', theme);
+                if (theme === 'dark') {
+                    toggleIcon.textContent = '☀️';
+                    toggleText.textContent = 'Light';
+                } else {
+                    toggleIcon.textContent = '🌙';
+                    toggleText.textContent = 'Dark';
+                }
+            }
+
+            applyTheme(getPreferredTheme());
+
+            toggleBtn.addEventListener('click', function() {
+                const current = root.getAttribute('data-theme') || getPreferredTheme();
+                const next = current === 'dark' ? 'light' : 'dark';
+                applyTheme(next);
+            });
+        })();
+    </script>
+</body>
+</html>
