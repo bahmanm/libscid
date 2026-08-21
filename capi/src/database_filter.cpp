@@ -1,3 +1,4 @@
+#include "scid/database_filter.h"
 #include "scid/database.h"
 
 #include "scid/libscid/handles.h"

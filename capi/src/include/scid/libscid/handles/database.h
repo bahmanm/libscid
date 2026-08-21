@@ -3,6 +3,7 @@
 
 #include "scid/database.h"
 #include "scid/database/scidbase.h"
+#include "scid/database_filter.h"
 
 #include <string>
 #include <utility>

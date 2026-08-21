@@ -2,6 +2,7 @@
 #define SCID_LIBSCID_SUPPORT_H
 
 #include "scid/database.h"
+#include "scid/database_filter.h"
 #include "scid/movespec.h"
 #include "scid/primitives.h"
 
