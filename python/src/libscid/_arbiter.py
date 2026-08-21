@@ -45,6 +45,14 @@ class Arbiter:
 
         Args:
             cursor: The cursor navigating the game tree to inspect.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> cursor = game.create_cursor().to_game_end()
+            >>> arbiter = cursor.arbiter
+            >>> arbiter.can_claim_fifty_move_rule
+            False
         """
         self._cursor = cursor
 
@@ -58,6 +66,18 @@ class Arbiter:
 
         Returns:
             True if the halfmove clock is at least 100; otherwise False.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "8/8/8/8/8/4k3/8/4K3 w - - 100 51"
+            ... )
+            >>> game = libscid.Game(position=pos)
+            >>> game.create_cursor().arbiter.can_claim_fifty_move_rule
+            True
+            >>> normal_game = libscid.Game.from_pgn("1. e4 e5 *")
+            >>> normal_game.create_cursor().arbiter.can_claim_fifty_move_rule
+            False
         """
         return self._cursor.position.halfmove_clock >= 100
 
@@ -74,6 +94,16 @@ class Arbiter:
         Returns:
             True if the current board state has occurred 3 or more times along
             the line of play; otherwise False.
+
+        Examples:
+            >>> import libscid
+            >>> pgn = "1. Nf3 Nf6 2. Ng1 Ng8 3. Nf3 Nf6 4. Ng1 Ng8 *"
+            >>> cursor = libscid.Game.from_pgn(pgn).create_cursor().to_game_end()
+            >>> cursor.arbiter.can_claim_threefold_repetition
+            True
+            >>> non_rep = libscid.Game.from_pgn("1. e4 e5 2. Nf3 Nc6 *")
+            >>> non_rep.create_cursor().arbiter.can_claim_threefold_repetition
+            False
         """
         position_ids = self._path_position_ids()
         return position_ids.count(position_ids[-1]) >= 3
