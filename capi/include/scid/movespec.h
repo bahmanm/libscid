@@ -1,6 +1,6 @@
 /**
  * @file movespec.h
- * @brief Chess move specification value type and notation codecs (UCI and SAN).
+ * @brief Chess move specification value type, UCI codecs, and SAN notation parser/formatter.
  */
 
 #ifndef SCID_MOVESPEC_H
@@ -14,27 +14,29 @@ extern "C"
 {
 #endif
 
-#ifndef SCID_POSITION_TYPEDEF
-#define SCID_POSITION_TYPEDEF
-    typedef struct scid_position scid_position;
-#endif
-
     /**
-     * @defgroup movespec Move Specification
-     * @brief Chess move value type, constructors, and UCI/SAN notation codecs.
+     * @defgroup movespec Move Representation & Codecs
+     * @brief Chess move specification value type, UCI codecs, and SAN notation parser/formatter.
      * @{
      */
 
     /**
      * @name Move Representation & Construction
-     * @brief Core move value struct and primitive factory constructor.
+     * @brief Value-type representation of chess moves and basic constructors.
      * @{
      */
 
     /**
-     * @brief Concrete value struct representing a single chess move.
+     * @brief Forward declaration of position handle.
+     * @see scid_position
+     */
+    typedef struct scid_position scid_position;
+
+    /**
+     * @brief Move specification record.
      *
-     * A move specification encapsulates the source square, destination square,
+     * A self-contained, register-passable value type representing a move from an
+     * origin square to a destination square, along with the moving piece, captured piece,
      * optional pawn promotion piece, and castling flag. It is passed by value
      * across the C API.
      *
@@ -144,11 +146,12 @@ extern "C"
      * into the caller-provided buffer.
      *
      * @param[in]  move              The move specification to format.
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated UCI string.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
-     * @param[in]  out_text_capacity Capacity of @p out_text in bytes (at least 6 bytes recommended).
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated UCI
+     * string. May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[in]  out_text_capacity Capacity of @p out_text in bytes (at least 6 bytes
+     * recommended).
+     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK               UCI string formatted successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p out_text_size is NULL, or if @p move contains an invalid
@@ -207,15 +210,16 @@ extern "C"
      *
      * @param[in]  position          Pointer to the board position context. Must not be NULL.
      * @param[in]  move              The move specification to format.
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated SAN string.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
-     * @param[in]  out_text_capacity Capacity of @p out_text in bytes (at least 10 bytes recommended).
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated SAN
+     * string. May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[in]  out_text_capacity Capacity of @p out_text in bytes (at least 10 bytes
+     * recommended).
+     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK                 SAN string formatted successfully.
-     * @retval SCID_ERROR_BAD_ARG      If @p position or @p out_text_size is NULL, or if @p move contains
-     *                                 invalid square or promotion values.
+     * @retval SCID_ERROR_BAD_ARG      If @p position or @p out_text_size is NULL, or if @p move
+     * contains invalid square or promotion values.
      * @retval SCID_ERROR_INVALID_MOVE If @p move is not a legal move in the given position.
      * @retval SCID_ERROR_BUFFER_FULL  If @p out_text_capacity is insufficient.
      *

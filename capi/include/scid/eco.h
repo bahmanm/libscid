@@ -45,7 +45,8 @@ extern "C"
         /** Sentinel value indicating no ECO classification or an unclassified position. */
         SCID_ECO_NONE = 0,
 
-        /** Maximum buffer size required to store any formatted ECO code string including null terminator. */
+        /** Maximum buffer size required to store any formatted ECO code string including null
+         * terminator. */
         SCID_ECO_STRING_CAPACITY = 6
     };
 
@@ -75,7 +76,8 @@ extern "C"
      * to @p out_code and @ref SCID_OK is returned.
      *
      * @param[in]  text     Null-terminated ASCII/UTF-8 ECO string. Must not be NULL.
-     * @param[out] out_code Pointer to the `scid_eco_code` receiving the parsed code value. Must not be NULL.
+     * @param[out] out_code Pointer to the `scid_eco_code` receiving the parsed code value. Must not
+     * be NULL.
      *
      * @retval SCID_OK           String parsed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p text or @p out_code is NULL.
@@ -95,12 +97,15 @@ extern "C"
      * requested formatting style (@p format).
      *
      * @param[in]  code              The numeric ECO code to format.
-     * @param[in]  format            Formatting mode (@ref SCID_ECO_FORMAT_BASIC or @ref SCID_ECO_FORMAT_EXTENDED).
+     * @param[in]  format            Formatting mode (@ref SCID_ECO_FORMAT_BASIC or @ref
+     * SCID_ECO_FORMAT_EXTENDED).
      * @param[out] out_text          Caller-allocated buffer receiving the null-terminated string.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
-     * @param[in]  out_text_capacity Capacity of @p out_text in bytes (at least @ref SCID_ECO_STRING_CAPACITY recommended).
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     *                               May be NULL if @p out_text_capacity is 0 to query required
+     * capacity.
+     * @param[in]  out_text_capacity Capacity of @p out_text in bytes (at least @ref
+     * SCID_ECO_STRING_CAPACITY recommended).
+     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK               String formatted successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p format is invalid or @p out_text_size is NULL.
@@ -136,8 +141,8 @@ extern "C"
      * Instances are loaded using @ref scid_eco_book_load() and must be released
      * when no longer needed using @ref scid_eco_book_free().
      *
-     * @note Instances are thread-safe for concurrent read-only queries (@ref scid_eco_book_code_find()
-     *       and @ref scid_eco_book_name_find()).
+     * @note Instances are thread-safe for concurrent read-only queries (@ref
+     * scid_eco_book_code_find() and @ref scid_eco_book_name_find()).
      *
      * @see scid_eco_book_load()
      * @see scid_eco_book_free()
@@ -191,7 +196,8 @@ extern "C"
      *
      * @param[in]  book     Pointer to the loaded ECO book. Must not be NULL.
      * @param[in]  position Pointer to the board position to classify. Must not be NULL.
-     * @param[out] out_code Pointer receiving the matching numeric ECO code, or @ref SCID_ECO_NONE if unclassified. Must not be NULL.
+     * @param[out] out_code Pointer receiving the matching numeric ECO code, or @ref SCID_ECO_NONE
+     * if unclassified. Must not be NULL.
      *
      * @retval SCID_OK           Lookup completed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p book, @p position, or @p out_code is NULL.
@@ -214,11 +220,11 @@ extern "C"
      *
      * @param[in]  book              Pointer to the loaded ECO book. Must not be NULL.
      * @param[in]  position          Pointer to the board position to classify. Must not be NULL.
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated opening name.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated opening
+     * name. May be NULL if @p out_text_capacity is 0 to query required capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK               Lookup completed successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p book, @p position, or @p out_text_size is NULL.

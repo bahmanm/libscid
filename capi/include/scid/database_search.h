@@ -1,6 +1,7 @@
 /**
  * @file database_search.h
- * @brief High-performance chess database query engine, header criteria, board matching, and search execution.
+ * @brief High-performance chess database query engine, header criteria, board matching, and search
+ * execution.
  */
 
 #ifndef SCID_DATABASE_SEARCH_H
@@ -17,7 +18,8 @@ extern "C"
 
     /**
      * @defgroup database_search Database Search Engine
-     * @brief Multi-criteria header filters, position and material pattern queries, board configuration matching, and search execution.
+     * @brief Multi-criteria header filters, position and material pattern queries, board
+     * configuration matching, and search execution.
      * @{
      */
 
@@ -46,7 +48,8 @@ extern "C"
         /** @brief Exact piece placement: all pieces and pawns on identical squares. */
         SCID_BOARD_SEARCH_MATCH_EXACT = 0,
 
-        /** @brief Pawn structure and material: exact pawn placement and matching overall piece balance. */
+        /** @brief Pawn structure and material: exact pawn placement and matching overall piece
+         * balance. */
         SCID_BOARD_SEARCH_MATCH_PAWNS = 1,
 
         /** @brief File configurations: matching piece count per vertical file. */
@@ -90,7 +93,8 @@ extern "C"
     /**
      * @brief Opaque handle representing board pattern and position search criteria.
      *
-     * Encapsulates target board layout, match strictness, variation traversal, and color-flipped matching.
+     * Encapsulates target board layout, match strictness, variation traversal, and color-flipped
+     * matching.
      *
      * @see scid_search_board_criteria_create()
      * @see scid_search_board_criteria_free()
@@ -107,14 +111,17 @@ extern "C"
      */
 
     /**
-     * @brief Allocates and initialises a new header search criteria handle with default (unrestricted) values.
+     * @brief Allocates and initialises a new header search criteria handle with default
+     * (unrestricted) values.
      *
-     * @param[out] out_criteria Pointer receiving the newly allocated criteria handle. Must not be NULL.
+     * @param[out] out_criteria Pointer receiving the newly allocated criteria handle. Must not be
+     * NULL.
      *
      * @retval SCID_OK           Handle allocated successfully.
      * @retval SCID_ERROR_BAD_ARG If @p out_criteria is NULL.
      *
-     * @note The caller acquires ownership of @p out_criteria and must release it with @ref scid_search_header_criteria_free().
+     * @note The caller acquires ownership of @p out_criteria and must release it with @ref
+     * scid_search_header_criteria_free().
      */
     SCID_API scid_error
     scid_search_header_criteria_create(scid_search_header_criteria** out_criteria);
@@ -123,7 +130,8 @@ extern "C"
     /**
      * @brief Releases a header search criteria handle.
      *
-     * @param[in,out] criteria Pointer to the criteria handle to release. If NULL, this function performs no action.
+     * @param[in,out] criteria Pointer to the criteria handle to release. If NULL, this function
+     * performs no action.
      *
      * @note Passing NULL is guaranteed to be a safe no-op.
      */
@@ -151,10 +159,11 @@ extern "C"
      *
      * @param[in]  criteria          Pointer to the header criteria. Must not be NULL.
      * @param[out] out_text          Caller-allocated buffer receiving the player filter string.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     *                               May be NULL if @p out_text_capacity is 0 to query required
+     * capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Filter string retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p criteria or @p out_text_size is NULL.
@@ -189,8 +198,8 @@ extern "C"
      * @param[in]  criteria          Pointer to the header criteria. Must not be NULL.
      * @param[out] out_text          Caller-allocated buffer receiving the filter string.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Filter string retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p criteria or @p out_text_size is NULL.
@@ -225,8 +234,8 @@ extern "C"
      * @param[in]  criteria          Pointer to the header criteria. Must not be NULL.
      * @param[out] out_text          Caller-allocated buffer receiving the filter string.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Filter string retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p criteria or @p out_text_size is NULL.
@@ -261,8 +270,8 @@ extern "C"
      * @param[in]  criteria          Pointer to the header criteria. Must not be NULL.
      * @param[out] out_text          Caller-allocated buffer receiving the filter string.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Filter string retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p criteria or @p out_text_size is NULL.
@@ -297,8 +306,8 @@ extern "C"
      * @param[in]  criteria          Pointer to the header criteria. Must not be NULL.
      * @param[out] out_text          Caller-allocated buffer receiving the filter string.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Filter string retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p criteria or @p out_text_size is NULL.
@@ -333,8 +342,8 @@ extern "C"
      * @param[in]  criteria          Pointer to the header criteria. Must not be NULL.
      * @param[out] out_text          Caller-allocated buffer receiving the country filter string.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Filter string retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p criteria or @p out_text_size is NULL.
@@ -369,8 +378,8 @@ extern "C"
      * @param[in]  criteria          Pointer to the header criteria. Must not be NULL.
      * @param[out] out_text          Caller-allocated buffer receiving the round filter string.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Filter string retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p criteria or @p out_text_size is NULL.
@@ -407,10 +416,12 @@ extern "C"
      * @param[in]  criteria               Pointer to the header criteria. Must not be NULL.
      * @param[out] out_date_min           Caller-allocated buffer receiving the minimum date string.
      * @param[in]  out_date_min_capacity  Capacity of @p out_date_min in bytes.
-     * @param[out] out_date_min_size      Pointer receiving min date bytes written. Must not be NULL.
+     * @param[out] out_date_min_size      Pointer receiving min date bytes written. Must not be
+     * NULL.
      * @param[out] out_date_max           Caller-allocated buffer receiving the maximum date string.
      * @param[in]  out_date_max_capacity  Capacity of @p out_date_max in bytes.
-     * @param[out] out_date_max_size      Pointer receiving max date bytes written. Must not be NULL.
+     * @param[out] out_date_max_size      Pointer receiving max date bytes written. Must not be
+     * NULL.
      *
      * @retval SCID_OK               Range retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If any mandatory pointer is NULL.
@@ -448,12 +459,16 @@ extern "C"
      * @brief Retrieves the current event date range filter.
      *
      * @param[in]  criteria                     Pointer to the header criteria. Must not be NULL.
-     * @param[out] out_event_date_min           Caller-allocated buffer receiving the minimum event date.
+     * @param[out] out_event_date_min           Caller-allocated buffer receiving the minimum event
+     * date.
      * @param[in]  out_event_date_min_capacity  Capacity of @p out_event_date_min in bytes.
-     * @param[out] out_event_date_min_size      Pointer receiving min event date bytes written. Must not be NULL.
-     * @param[out] out_event_date_max           Caller-allocated buffer receiving the maximum event date.
+     * @param[out] out_event_date_min_size      Pointer receiving min event date bytes written. Must
+     * not be NULL.
+     * @param[out] out_event_date_max           Caller-allocated buffer receiving the maximum event
+     * date.
      * @param[in]  out_event_date_max_capacity  Capacity of @p out_event_date_max in bytes.
-     * @param[out] out_event_date_max_size      Pointer receiving max event date bytes written. Must not be NULL.
+     * @param[out] out_event_date_max_size      Pointer receiving max event date bytes written. Must
+     * not be NULL.
      *
      * @retval SCID_OK               Range retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If any mandatory pointer is NULL.
@@ -514,7 +529,8 @@ extern "C"
 
 
     /**
-     * @brief Sets the outcome result filter string (`"1-0"`, `"0-1"`, `"1/2-1/2"`, `"="`, `"*"`, or combinations).
+     * @brief Sets the outcome result filter string (`"1-0"`, `"0-1"`, `"1/2-1/2"`, `"="`, `"*"`, or
+     * combinations).
      *
      * @param[in,out] criteria Pointer to the header criteria. Must not be NULL.
      * @param[in]     result   Result pattern string (or NULL/`""` to clear).
@@ -534,8 +550,8 @@ extern "C"
      * @param[in]  criteria          Pointer to the header criteria. Must not be NULL.
      * @param[out] out_text          Caller-allocated buffer receiving the result filter.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Filter string retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p criteria or @p out_text_size is NULL.
@@ -816,19 +832,22 @@ extern "C"
 
     /**
      * @name Board & Position Search Criteria
-     * @brief Configuration getters and setters for piece placement, pawn structure, and material queries.
+     * @brief Configuration getters and setters for piece placement, pawn structure, and material
+     * queries.
      * @{
      */
 
     /**
      * @brief Allocates and initialises a new board search criteria handle with default values.
      *
-     * @param[out] out_criteria Pointer receiving the newly allocated criteria handle. Must not be NULL.
+     * @param[out] out_criteria Pointer receiving the newly allocated criteria handle. Must not be
+     * NULL.
      *
      * @retval SCID_OK           Handle allocated successfully.
      * @retval SCID_ERROR_BAD_ARG If @p out_criteria is NULL.
      *
-     * @note The caller acquires ownership of @p out_criteria and must release it with @ref scid_search_board_criteria_free().
+     * @note The caller acquires ownership of @p out_criteria and must release it with @ref
+     * scid_search_board_criteria_free().
      */
     SCID_API scid_error
     scid_search_board_criteria_create(scid_search_board_criteria** out_criteria);
@@ -837,7 +856,8 @@ extern "C"
     /**
      * @brief Releases a board search criteria handle.
      *
-     * @param[in,out] criteria Pointer to the criteria handle to release. If NULL, this function performs no action.
+     * @param[in,out] criteria Pointer to the criteria handle to release. If NULL, this function
+     * performs no action.
      *
      * @note Passing NULL is guaranteed to be a safe no-op.
      */
@@ -864,8 +884,8 @@ extern "C"
      * @brief Retrieves the target position pattern configured in the board criteria.
      *
      * @param[in]  criteria     Pointer to the board criteria. Must not be NULL.
-     * @param[out] out_position Pointer to an allocated @ref scid_position receiving the copied state.
-     *                          Must not be NULL.
+     * @param[out] out_position Pointer to an allocated @ref scid_position receiving the copied
+     * state. Must not be NULL.
      *
      * @retval SCID_OK           Position copied successfully.
      * @retval SCID_ERROR_BAD_ARG If @p criteria or @p out_position is NULL.
@@ -881,7 +901,8 @@ extern "C"
      *
      * @param[in,out] criteria Pointer to the board criteria. Must not be NULL.
      * @param[in]     match    Matching mode (@ref SCID_BOARD_SEARCH_MATCH_EXACT,
-     *                         @ref SCID_BOARD_SEARCH_MATCH_PAWNS, or @ref SCID_BOARD_SEARCH_MATCH_FILES).
+     *                         @ref SCID_BOARD_SEARCH_MATCH_PAWNS, or @ref
+     * SCID_BOARD_SEARCH_MATCH_FILES).
      *
      * @retval SCID_OK           Match mode updated successfully.
      * @retval SCID_ERROR_BAD_ARG If @p criteria is NULL or @p match is invalid.
@@ -896,7 +917,8 @@ extern "C"
      * @brief Retrieves the current board matching mode.
      *
      * @param[in]  criteria  Pointer to the board criteria. Must not be NULL.
-     * @param[out] out_match Pointer receiving the @ref scid_board_search_match value. Must not be NULL.
+     * @param[out] out_match Pointer receiving the @ref scid_board_search_match value. Must not be
+     * NULL.
      *
      * @retval SCID_OK           Query completed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p criteria or @p out_match is NULL.
@@ -908,7 +930,8 @@ extern "C"
 
 
     /**
-     * @brief Configures whether position searches traverse sub-variations in addition to the mainline.
+     * @brief Configures whether position searches traverse sub-variations in addition to the
+     * mainline.
      *
      * @param[in,out] criteria Pointer to the board criteria. Must not be NULL.
      * @param[in]     enabled  `1` to search inside variations; `0` for mainline only.
@@ -939,10 +962,12 @@ extern "C"
 
 
     /**
-     * @brief Configures whether board search matches horizontally/vertically flipped mirror configurations.
+     * @brief Configures whether board search matches horizontally/vertically flipped mirror
+     * configurations.
      *
      * @param[in,out] criteria Pointer to the board criteria. Must not be NULL.
-     * @param[in]     enabled  `1` to match flipped board configurations; `0` for standard orientation only.
+     * @param[in]     enabled  `1` to match flipped board configurations; `0` for standard
+     * orientation only.
      *
      * @retval SCID_OK           Setting updated successfully.
      * @retval SCID_ERROR_BAD_ARG If @p criteria is NULL.
@@ -978,13 +1003,17 @@ extern "C"
      */
 
     /**
-     * @brief Executes a header metadata search over games in a source filter, populating a destination filter.
+     * @brief Executes a header metadata search over games in a source filter, populating a
+     * destination filter.
      *
      * @param[in,out] database                  Pointer to the open database. Must not be NULL.
-     * @param[in]     source_filter_id          Filter ID restricting games to scan (@ref scid_filter_id).
+     * @param[in]     source_filter_id          Filter ID restricting games to scan (@ref
+     * scid_filter_id).
      * @param[in]     destination_filter_id     Filter ID to receive matching game indices.
-     * @param[in]     criteria                  Pointer to configured header search criteria. Must not be NULL.
-     * @param[in]     progress_report           Optional callback for progress notifications (may be NULL).
+     * @param[in]     criteria                  Pointer to configured header search criteria. Must
+     * not be NULL.
+     * @param[in]     progress_report           Optional callback for progress notifications (may be
+     * NULL).
      * @param[in]     progress_report_user_data Context pointer passed to @p progress_report.
      * @param[in]     should_cancel             Optional cancellation callback (may be NULL).
      * @param[in]     should_cancel_user_data  Context pointer passed to @p should_cancel.
@@ -1034,7 +1063,8 @@ extern "C"
 
 
     /**
-     * @brief Executes a board pattern / pawn / file configuration search across games in the database.
+     * @brief Executes a board pattern / pawn / file configuration search across games in the
+     * database.
      *
      * @param[in,out] database                  Pointer to the open database. Must not be NULL.
      * @param[in]     source_filter_id          Filter ID restricting games to scan.

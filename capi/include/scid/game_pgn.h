@@ -16,7 +16,8 @@ extern "C"
 
     /**
      * @defgroup game_pgn PGN Serialisation & Formatting
-     * @brief Portable Game Notation (PGN) text generation, formatting flags, and export configuration.
+     * @brief Portable Game Notation (PGN) text generation, formatting flags, and export
+     * configuration.
      * @{
      */
 
@@ -57,7 +58,8 @@ extern "C"
      * @retval SCID_OK           Options handle created successfully.
      * @retval SCID_ERROR_BAD_ARG If @p out_options is NULL.
      *
-     * @note The caller acquires ownership of @p out_options and must release it with @ref scid_game_pgn_options_free().
+     * @note The caller acquires ownership of @p out_options and must release it with @ref
+     * scid_game_pgn_options_free().
      *
      * @see scid_game_pgn_options_free()
      */
@@ -78,10 +80,12 @@ extern "C"
 
 
     /**
-     * @brief Configures whether Numeric Annotation Glyphs (NAGs) are rendered symbolically or numerically.
+     * @brief Configures whether Numeric Annotation Glyphs (NAGs) are rendered symbolically or
+     * numerically.
      *
-     * When enabled (`1`), standard glyphs (NAG 1..6) are output as symbols (`!`, `?`, `!!`, `??`, `!?`, `?!`).
-     * When disabled (`0`), all NAGs are output in standard numeric format (`$1`, `$2`, etc.).
+     * When enabled (`1`), standard glyphs (NAG 1..6) are output as symbols (`!`, `?`, `!!`, `??`,
+     * `!?`, `?!`). When disabled (`0`), all NAGs are output in standard numeric format (`$1`, `$2`,
+     * etc.).
      *
      * @param[in,out] options Pointer to the options handle. Must not be NULL.
      * @param[in]     enabled Non-zero (`1`) for symbolic glyphs; zero (`0`) for numeric `$N` codes.
@@ -96,10 +100,12 @@ extern "C"
 
 
     /**
-     * @brief Configures whether non-standard supplemental header tags are emitted in the PGN tag roster.
+     * @brief Configures whether non-standard supplemental header tags are emitted in the PGN tag
+     * roster.
      *
      * The mandatory Seven Tag Roster (STR) and `FEN` (for non-standard setups) are always emitted.
-     * Non-standard supplemental tags (e.g. `WhiteElo`, `ECO`, `Annotator`, `Time`) are included when enabled.
+     * Non-standard supplemental tags (e.g. `WhiteElo`, `ECO`, `Annotator`, `Time`) are included
+     * when enabled.
      *
      * @param[in,out] options Pointer to the options handle. Must not be NULL.
      * @param[in]     enabled Non-zero (`1`) to include supplemental tags; zero (`0`) to omit them.
@@ -117,7 +123,8 @@ extern "C"
      * @brief Configures whether move and position comments are included in the exported movetext.
      *
      * @param[in,out] options Pointer to the options handle. Must not be NULL.
-     * @param[in]     enabled Non-zero (`1`) to include `{ comment }` blocks; zero (`0`) to strip commentary.
+     * @param[in]     enabled Non-zero (`1`) to include `{ comment }` blocks; zero (`0`) to strip
+     * commentary.
      *
      * @retval SCID_OK           Option set successfully.
      * @retval SCID_ERROR_BAD_ARG If @p options is NULL.
@@ -132,7 +139,8 @@ extern "C"
      * @brief Configures whether sub-variations are recursively included in the exported movetext.
      *
      * @param[in,out] options Pointer to the options handle. Must not be NULL.
-     * @param[in]     enabled Non-zero (`1`) to include `( variation )` branches; zero (`0`) for mainline only.
+     * @param[in]     enabled Non-zero (`1`) to include `( variation )` branches; zero (`0`) for
+     * mainline only.
      *
      * @retval SCID_OK           Option set successfully.
      * @retval SCID_ERROR_BAD_ARG If @p options is NULL.
@@ -173,19 +181,23 @@ extern "C"
      * @brief Encodes a game into Portable Game Notation (PGN) text.
      *
      * Exports the game's tag roster, commentary, NAG annotations, and movetext according
-     * to the formatting preferences defined in @p options (or default settings if @p options is NULL).
+     * to the formatting preferences defined in @p options (or default settings if @p options is
+     * NULL).
      *
      * @param[in]  game              Pointer to the game entity to encode. Must not be NULL.
-     * @param[in]  options           Pointer to custom export options, or NULL to use default settings.
+     * @param[in]  options           Pointer to custom export options, or NULL to use default
+     * settings.
      * @param[out] out_text          Caller-allocated buffer receiving the null-terminated PGN text.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     *                               May be NULL if @p out_text_capacity is 0 to query required
+     * capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK               PGN text encoded successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p game or @p out_text_size is NULL.
-     * @retval SCID_ERROR_BUFFER_FULL If @p out_text_capacity is insufficient to hold the full PGN output.
+     * @retval SCID_ERROR_BUFFER_FULL If @p out_text_capacity is insufficient to hold the full PGN
+     * output.
      *
      * @see scid_game_create()
      * @see scid_game_pgn_options_create()

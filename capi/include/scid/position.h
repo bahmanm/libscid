@@ -1,6 +1,7 @@
 /**
  * @file position.h
- * @brief Chess board position state representation, FEN codecs, move generation, and evaluation queries.
+ * @brief Chess board position state representation, FEN codecs, move generation, and evaluation
+ * queries.
  */
 
 #ifndef SCID_POSITION_H
@@ -49,7 +50,8 @@ extern "C"
     /**
      * @brief Creates a new board position initialised from a FEN string.
      *
-     * @param[in]  fen          Null-terminated Forsyth–Edwards Notation (FEN) string. Must not be NULL.
+     * @param[in]  fen          Null-terminated Forsyth–Edwards Notation (FEN) string. Must not be
+     * NULL.
      * @param[out] out_position Pointer to a handle pointer receiving the newly allocated
      *                          `scid_position` instance on success. Must not be NULL.
      *
@@ -72,11 +74,12 @@ extern "C"
     /**
      * @brief Creates a new board position by cloning an existing position and applying a SAN move.
      *
-     * Leaves the source @p position unmodified and returns a freshly allocated position reflecting the move.
+     * Leaves the source @p position unmodified and returns a freshly allocated position reflecting
+     * the move.
      *
      * @param[in]  position     Pointer to the source board position. Must not be NULL.
-     * @param[in]  san          Null-terminated Standard Algebraic Notation move (e.g. `"Nf3"`, `"O-O"`).
-     *                          Must not be NULL.
+     * @param[in]  san          Null-terminated Standard Algebraic Notation move (e.g. `"Nf3"`,
+     * `"O-O"`). Must not be NULL.
      * @param[out] out_position Pointer to a handle pointer receiving the newly allocated position.
      *                          Must not be NULL.
      *
@@ -96,11 +99,12 @@ extern "C"
     /**
      * @brief Creates a new board position by cloning an existing position and applying a UCI move.
      *
-     * Leaves the source @p position unmodified and returns a freshly allocated position reflecting the move.
+     * Leaves the source @p position unmodified and returns a freshly allocated position reflecting
+     * the move.
      *
      * @param[in]  position     Pointer to the source board position. Must not be NULL.
-     * @param[in]  uci          Null-terminated coordinate UCI move string (e.g. `"e2e4"`, `"a7a8q"`).
-     *                          Must not be NULL.
+     * @param[in]  uci          Null-terminated coordinate UCI move string (e.g. `"e2e4"`,
+     * `"a7a8q"`). Must not be NULL.
      * @param[out] out_position Pointer to a handle pointer receiving the newly allocated position.
      *                          Must not be NULL.
      *
@@ -144,11 +148,12 @@ extern "C"
      * castling availability, en passant square, halfmove clock, and fullmove number.
      *
      * @param[in]  position          Pointer to the board position. Must not be NULL.
-     * @param[out] out_fen           Caller-allocated buffer receiving the null-terminated FEN string.
-     *                               May be NULL if @p out_fen_capacity is 0 to query required capacity.
-     * @param[in]  out_fen_capacity  Capacity of @p out_fen in bytes (at least 100 bytes recommended).
-     * @param[out] out_fen_size      Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_fen           Caller-allocated buffer receiving the null-terminated FEN
+     * string. May be NULL if @p out_fen_capacity is 0 to query required capacity.
+     * @param[in]  out_fen_capacity  Capacity of @p out_fen in bytes (at least 100 bytes
+     * recommended).
+     * @param[out] out_fen_size      Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK               FEN string emitted successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p position or @p out_fen_size is NULL.
@@ -179,7 +184,8 @@ extern "C"
      * halfmove clock, and fullmove number.
      *
      * @param[in,out] position Pointer to the board position to mutate. Must not be NULL.
-     * @param[in]     san      Null-terminated SAN move string (e.g. `"e4"`, `"Nf3"`, `"O-O"`). Must not be NULL.
+     * @param[in]     san      Null-terminated SAN move string (e.g. `"e4"`, `"Nf3"`, `"O-O"`). Must
+     * not be NULL.
      *
      * @retval SCID_OK                 Move applied successfully.
      * @retval SCID_ERROR_BAD_ARG      If @p position or @p san is NULL.
@@ -200,7 +206,8 @@ extern "C"
      * halfmove clock, and fullmove number.
      *
      * @param[in,out] position Pointer to the board position to mutate. Must not be NULL.
-     * @param[in]     uci      Null-terminated coordinate UCI move string (e.g. `"e2e4"`, `"a7a8q"`). Must not be NULL.
+     * @param[in]     uci      Null-terminated coordinate UCI move string (e.g. `"e2e4"`,
+     * `"a7a8q"`). Must not be NULL.
      *
      * @retval SCID_OK                 Move applied successfully.
      * @retval SCID_ERROR_BAD_ARG      If @p position or @p uci is NULL.
@@ -235,14 +242,17 @@ extern "C"
      * @brief Generates all strictly legal moves available in the current position.
      *
      * @param[in]  position           Pointer to the board position. Must not be NULL.
-     * @param[out] out_moves          Caller-allocated array receiving the generated @ref scid_movespec values.
-     *                                Must not be NULL.
-     * @param[in]  out_moves_capacity Maximum number of move items @p out_moves can hold (recommend @ref SCID_MAX_LEGAL_MOVES).
-     * @param[out] out_moves_size     Pointer receiving the total count of legal moves written. Must not be NULL.
+     * @param[out] out_moves          Caller-allocated array receiving the generated @ref
+     * scid_movespec values. Must not be NULL.
+     * @param[in]  out_moves_capacity Maximum number of move items @p out_moves can hold (recommend
+     * @ref SCID_MAX_LEGAL_MOVES).
+     * @param[out] out_moves_size     Pointer receiving the total count of legal moves written. Must
+     * not be NULL.
      *
      * @retval SCID_OK               Legal moves generated successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p position, @p out_moves, or @p out_moves_size is NULL.
-     * @retval SCID_ERROR_BUFFER_FULL If @p out_moves_capacity is less than the number of legal moves.
+     * @retval SCID_ERROR_BUFFER_FULL If @p out_moves_capacity is less than the number of legal
+     * moves.
      */
     SCID_API scid_error
     scid_position_legal_moves(
@@ -256,8 +266,8 @@ extern "C"
      * @brief Checks if the position is identical to the standard chess starting position.
      *
      * @param[in]  position     Pointer to the board position. Must not be NULL.
-     * @param[out] out_is_start Pointer receiving non-zero (`1`) if standard start position; `0` otherwise.
-     *                          Must not be NULL.
+     * @param[out] out_is_start Pointer receiving non-zero (`1`) if standard start position; `0`
+     * otherwise. Must not be NULL.
      *
      * @retval SCID_OK           Check completed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p position or @p out_is_start is NULL.
@@ -272,8 +282,8 @@ extern "C"
      * @brief Checks if the king of the side to move is currently in check.
      *
      * @param[in]  position     Pointer to the board position. Must not be NULL.
-     * @param[out] out_is_check Pointer receiving non-zero (`1`) if active player is in check; `0` otherwise.
-     *                          Must not be NULL.
+     * @param[out] out_is_check Pointer receiving non-zero (`1`) if active player is in check; `0`
+     * otherwise. Must not be NULL.
      *
      * @retval SCID_OK           Check completed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p position or @p out_is_check is NULL.
@@ -290,8 +300,8 @@ extern "C"
      * @brief Checks if the position is in checkmate (king in check with no legal moves).
      *
      * @param[in]  position         Pointer to the board position. Must not be NULL.
-     * @param[out] out_is_checkmate Pointer receiving non-zero (`1`) if active player is checkmated; `0` otherwise.
-     *                              Must not be NULL.
+     * @param[out] out_is_checkmate Pointer receiving non-zero (`1`) if active player is checkmated;
+     * `0` otherwise. Must not be NULL.
      *
      * @retval SCID_OK           Check completed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p position or @p out_is_checkmate is NULL.
@@ -307,12 +317,12 @@ extern "C"
     /**
      * @brief Validates whether the board position satisfies all chess rules and invariants.
      *
-     * Verifies that both kings exist, the non-active player is not in check, no pawns occupy the 1st
-     * or 8th ranks, and piece counts do not violate chess constraints.
+     * Verifies that both kings exist, the non-active player is not in check, no pawns occupy the
+     * 1st or 8th ranks, and piece counts do not violate chess constraints.
      *
      * @param[in]  position     Pointer to the board position. Must not be NULL.
-     * @param[out] out_is_legal Pointer receiving non-zero (`1`) if position is strictly legal; `0` otherwise.
-     *                          Must not be NULL.
+     * @param[out] out_is_legal Pointer receiving non-zero (`1`) if position is strictly legal; `0`
+     * otherwise. Must not be NULL.
      *
      * @retval SCID_OK           Validation completed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p position or @p out_is_legal is NULL.
@@ -335,7 +345,8 @@ extern "C"
      * @brief Retrieves the colour of the player whose turn it is to move.
      *
      * @param[in]  position          Pointer to the board position. Must not be NULL.
-     * @param[out] out_side_to_move  Pointer receiving @ref SCID_WHITE or @ref SCID_BLACK. Must not be NULL.
+     * @param[out] out_side_to_move  Pointer receiving @ref SCID_WHITE or @ref SCID_BLACK. Must not
+     * be NULL.
      *
      * @retval SCID_OK           Side retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG If @p position or @p out_side_to_move is NULL.
@@ -385,9 +396,10 @@ extern "C"
      *
      * @param[in]  position  Pointer to the board position. Must not be NULL.
      * @param[in]  square    Square index to query (0..63).
-     * @param[out] out_piece Pointer receiving the coloured piece identifier (@ref SCID_PIECE_WHITE_PAWN,
-     *                       @ref SCID_PIECE_BLACK_KING, etc.), or @ref SCID_PIECE_NONE if the square is empty.
-     *                       Must not be NULL.
+     * @param[out] out_piece Pointer receiving the coloured piece identifier (@ref
+     * SCID_PIECE_WHITE_PAWN,
+     *                       @ref SCID_PIECE_BLACK_KING, etc.), or @ref SCID_PIECE_NONE if the
+     * square is empty. Must not be NULL.
      *
      * @retval SCID_OK           Piece retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG If @p position or @p out_piece is NULL, or @p square > 63.

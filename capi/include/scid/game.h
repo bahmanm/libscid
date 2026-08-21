@@ -17,7 +17,8 @@ extern "C"
 
     /**
      * @defgroup game Game Management
-     * @brief Core chess game aggregate, PGN header tag roster, comments, boundary positions, and move merging.
+     * @brief Core chess game aggregate, PGN header tag roster, comments, boundary positions, and
+     * move merging.
      * @{
      */
 
@@ -48,8 +49,8 @@ extern "C"
      * @brief Creates a new blank game starting from a specified board position.
      *
      * Initialises standard default PGN tags (`[Event "?"]`, `[Site "?"]`, `[Date "????.??.??"]`,
-     * `[Round "?"]`, `[White "?"]`, `[Black "?"]`, `[Result "*"]`). If @p position is a non-standard
-     * setup, a `[FEN "..."]` tag is automatically attached.
+     * `[Round "?"]`, `[White "?"]`, `[Black "?"]`, `[Result "*"]`). If @p position is a
+     * non-standard setup, a `[FEN "..."]` tag is automatically attached.
      *
      * @param[in]  position Pointer to the starting board position. Must not be NULL.
      * @param[out] out_game Pointer to a handle pointer receiving the newly allocated
@@ -76,16 +77,17 @@ extern "C"
      * Parses PGN tags, move notations, nested variations, comments, and NAGs from
      * the provided string buffer.
      *
-     * @param[in]  position                Pointer to the starting position context. Must not be NULL.
+     * @param[in]  position                Pointer to the starting position context. Must not be
+     * NULL.
      * @param[in]  pgn                     Pointer to the PGN text buffer. Must not be NULL.
      * @param[in]  pgn_size                Length of @p pgn in bytes.
-     * @param[out] out_game                Pointer to a handle pointer receiving the newly allocated game.
-     *                                     Must not be NULL.
-     * @param[out] out_diagnostic          Optional caller-allocated buffer receiving parser diagnostic messages.
-     *                                     May be NULL if not requested.
+     * @param[out] out_game                Pointer to a handle pointer receiving the newly allocated
+     * game. Must not be NULL.
+     * @param[out] out_diagnostic          Optional caller-allocated buffer receiving parser
+     * diagnostic messages. May be NULL if not requested.
      * @param[in]  out_diagnostic_capacity Capacity of @p out_diagnostic in bytes.
-     * @param[out] out_diagnostic_size     Optional pointer receiving bytes written to @p out_diagnostic.
-     *                                     May be NULL if not requested.
+     * @param[out] out_diagnostic_size     Optional pointer receiving bytes written to @p
+     * out_diagnostic. May be NULL if not requested.
      *
      * @retval SCID_OK                Game parsed and created successfully.
      * @retval SCID_ERROR_BAD_ARG     If @p position, @p pgn, or @p out_game is NULL.
@@ -132,16 +134,17 @@ extern "C"
      * `"Round"`, `"White"`, `"Black"`, `"Result"`), well-known supplemental tags (e.g. `"ECO"`,
      * `"EventDate"`, `"FEN"`), and arbitrary extra tags.
      *
-     * If the specified tag is not present in the game, an empty string `""` is written to @p out_text
-     * with `*out_text_size = 0`.
+     * If the specified tag is not present in the game, an empty string `""` is written to @p
+     * out_text with `*out_text_size = 0`.
      *
      * @param[in]  game              Pointer to the game. Must not be NULL.
-     * @param[in]  name              Null-terminated tag name (e.g. `"Event"`, `"ECO"`). Must not be NULL.
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated tag value.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[in]  name              Null-terminated tag name (e.g. `"Event"`, `"ECO"`). Must not be
+     * NULL.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated tag
+     * value. May be NULL if @p out_text_capacity is 0 to query required capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK               Tag value retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p game, @p name, or @p out_text_size is NULL.
@@ -162,15 +165,16 @@ extern "C"
      * @brief Sets or updates the value of a PGN header tag.
      *
      * Updates an existing tag or adds a new supplemental tag. When updating the `"Result"` tag,
-     * the value is validated against standard PGN result strings (`"1-0"`, `"0-1"`, `"1/2-1/2"`, `"*"`).
+     * the value is validated against standard PGN result strings (`"1-0"`, `"0-1"`, `"1/2-1/2"`,
+     * `"*"`).
      *
      * @param[in,out] game  Pointer to the game to mutate. Must not be NULL.
      * @param[in]     name  Null-terminated tag name. Must not be NULL.
      * @param[in]     value Null-terminated tag value. Must not be NULL.
      *
      * @retval SCID_OK           Tag updated successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p game, @p name, or @p value is NULL, or if @p value is invalid
-     *                            for restricted tags (e.g. malformed `"Result"`).
+     * @retval SCID_ERROR_BAD_ARG If @p game, @p name, or @p value is NULL, or if @p value is
+     * invalid for restricted tags (e.g. malformed `"Result"`).
      *
      * @see scid_game_tag_get()
      * @see scid_game_tag_remove()
@@ -207,20 +211,24 @@ extern "C"
      * @param[in]  game               Pointer to the game. Must not be NULL.
      * @param[in]  index              Zero-based index of the tag to retrieve.
      * @param[out] out_name           Caller-allocated buffer receiving the tag name.
-     *                                May be NULL if @p out_name_capacity is 0 to query required capacity.
+     *                                May be NULL if @p out_name_capacity is 0 to query required
+     * capacity.
      * @param[in]  out_name_capacity  Capacity of @p out_name in bytes.
-     * @param[out] out_name_size      Pointer receiving bytes written to @p out_name (excluding null terminator),
-     *                                or required capacity. Must not be NULL.
+     * @param[out] out_name_size      Pointer receiving bytes written to @p out_name (excluding null
+     * terminator), or required capacity. Must not be NULL.
      * @param[out] out_value          Caller-allocated buffer receiving the tag value.
-     *                                May be NULL if @p out_value_capacity is 0 to query required capacity.
+     *                                May be NULL if @p out_value_capacity is 0 to query required
+     * capacity.
      * @param[in]  out_value_capacity Capacity of @p out_value in bytes.
-     * @param[out] out_value_size     Pointer receiving bytes written to @p out_value (excluding null terminator),
-     *                                or required capacity. Must not be NULL.
+     * @param[out] out_value_size     Pointer receiving bytes written to @p out_value (excluding
+     * null terminator), or required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Tag name and value retrieved successfully.
-     * @retval SCID_ERROR_BAD_ARG    If @p game, @p out_name_size, or @p out_value_size is NULL, or if
+     * @retval SCID_ERROR_BAD_ARG    If @p game, @p out_name_size, or @p out_value_size is NULL, or
+     * if
      *                               @p index is out of bounds.
-     * @retval SCID_ERROR_BUFFER_FULL If @p out_name_capacity or @p out_value_capacity is insufficient.
+     * @retval SCID_ERROR_BUFFER_FULL If @p out_name_capacity or @p out_value_capacity is
+     * insufficient.
      *
      * @see scid_game_tag_count_get()
      */
@@ -239,12 +247,13 @@ extern "C"
     /**
      * @brief Removes a PGN header tag by name.
      *
-     * Standard mandatory Seven Tag Roster (STR) tags and `"FEN"` cannot be removed (writes `0` to @p out_removed).
+     * Standard mandatory Seven Tag Roster (STR) tags and `"FEN"` cannot be removed (writes `0` to
+     * @p out_removed).
      *
      * @param[in,out] game        Pointer to the game to mutate. Must not be NULL.
      * @param[in]     name        Null-terminated tag name to remove. Must not be NULL.
-     * @param[out]    out_removed Pointer receiving non-zero (`1`) if the tag was present and removed;
-     *                            `0` if the tag was not found or is non-removable. Must not be NULL.
+     * @param[out]    out_removed Pointer receiving non-zero (`1`) if the tag was present and
+     * removed; `0` if the tag was not found or is non-removable. Must not be NULL.
      *
      * @retval SCID_OK           Tag removal processed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p game, @p name, or @p out_removed is NULL.
@@ -285,11 +294,11 @@ extern "C"
      * @brief Retrieves the initial comment text appearing before the first move of the game.
      *
      * @param[in]  game              Pointer to the game. Must not be NULL.
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated comment text.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated comment
+     * text. May be NULL if @p out_text_capacity is 0 to query required capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK               Comment retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p game or @p out_text_size is NULL.
@@ -307,7 +316,8 @@ extern "C"
      * @brief Populates a board position handle with the initial starting position of the game.
      *
      * @param[in]  game         Pointer to the game. Must not be NULL.
-     * @param[out] out_position Pointer to an existing `scid_position` handle to populate. Must not be NULL.
+     * @param[out] out_position Pointer to an existing `scid_position` handle to populate. Must not
+     * be NULL.
      *
      * @retval SCID_OK           Position populated successfully.
      * @retval SCID_ERROR_BAD_ARG If @p game or @p out_position is NULL.
@@ -321,14 +331,17 @@ extern "C"
 
 
     /**
-     * @brief Populates a board position handle with the final position reached at the end of the mainline.
+     * @brief Populates a board position handle with the final position reached at the end of the
+     * mainline.
      *
      * @param[in]  game         Pointer to the game. Must not be NULL.
-     * @param[out] out_position Pointer to an existing `scid_position` handle to populate. Must not be NULL.
+     * @param[out] out_position Pointer to an existing `scid_position` handle to populate. Must not
+     * be NULL.
      *
      * @retval SCID_OK                 Position populated successfully.
      * @retval SCID_ERROR_BAD_ARG      If @p game or @p out_position is NULL.
-     * @retval SCID_ERROR_INVALID_MOVE If a corrupt move sequence prevents reaching the end position.
+     * @retval SCID_ERROR_INVALID_MOVE If a corrupt move sequence prevents reaching the end
+     * position.
      *
      * @see scid_game_start_position_get()
      */
@@ -364,32 +377,37 @@ extern "C"
         /** Insert source moves as a new sub-variation branching off the current position. */
         SCID_GAME_MERGE_MOVES_INSERT_VARIATION = 1,
 
-        /** Replace subsequent moves in the current line by truncating and appending source moves. */
+        /** Replace subsequent moves in the current line by truncating and appending source moves.
+         */
         SCID_GAME_MERGE_MOVES_REPLACE = 2
     };
 
 
     /**
-     * @brief Merges the mainline move sequence from a source game into a target game at the cursor position.
+     * @brief Merges the mainline move sequence from a source game into a target game at the cursor
+     * position.
      *
      * Applies moves from @p source_game according to the chosen @p mode. The starting position
      * of @p source_game must match the board position at @p target_cursor.
      *
      * @param[in,out] target_game   Pointer to the target game being modified. Must not be NULL.
-     * @param[in]     target_cursor Pointer to the cursor indicating the insertion position in @p target_game.
-     *                              Must not be NULL.
+     * @param[in]     target_cursor Pointer to the cursor indicating the insertion position in @p
+     * target_game. Must not be NULL.
      * @param[in]     source_game   Pointer to the source game providing moves. Must not be NULL.
      * @param[in]     mode          Merge strategy (@ref SCID_GAME_MERGE_MOVES_APPEND,
-     *                              @ref SCID_GAME_MERGE_MOVES_INSERT_VARIATION, or @ref SCID_GAME_MERGE_MOVES_REPLACE).
-     * @param[out]    out_cursor    Pointer to a handle pointer receiving a newly allocated cursor positioned
-     *                              at the end of the merged moves. Must not be NULL.
+     *                              @ref SCID_GAME_MERGE_MOVES_INSERT_VARIATION, or @ref
+     * SCID_GAME_MERGE_MOVES_REPLACE).
+     * @param[out]    out_cursor    Pointer to a handle pointer receiving a newly allocated cursor
+     * positioned at the end of the merged moves. Must not be NULL.
      *
      * @retval SCID_OK                 Moves merged successfully.
-     * @retval SCID_ERROR_BAD_ARG      If any argument is NULL, @p mode is invalid, or cursor position
-     *                                 does not satisfy preconditions for @p mode.
-     * @retval SCID_ERROR_INVALID_MOVE If board positions do not match or illegal moves are encountered.
+     * @retval SCID_ERROR_BAD_ARG      If any argument is NULL, @p mode is invalid, or cursor
+     * position does not satisfy preconditions for @p mode.
+     * @retval SCID_ERROR_INVALID_MOVE If board positions do not match or illegal moves are
+     * encountered.
      *
-     * @note The caller acquires ownership of @p out_cursor and must release it with @ref scid_game_cursor_free().
+     * @note The caller acquires ownership of @p out_cursor and must release it with @ref
+     * scid_game_cursor_free().
      */
     SCID_API scid_error
     scid_game_merge_moves(

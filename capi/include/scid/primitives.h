@@ -1,6 +1,7 @@
 /**
  * @file primitives.h
- * @brief Foundational scalar types, error return codes, chess colours, squares, pieces, and NAG annotations.
+ * @brief Foundational scalar types, error return codes, chess colours, squares, pieces, and NAG
+ * annotations.
  */
 
 #ifndef SCID_PRIMITIVES_H
@@ -15,7 +16,8 @@ extern "C"
 
     /**
      * @defgroup primitives Primitive Types & Error Codes
-     * @brief Foundational scalar types, error return codes, chess colours, squares, pieces, and NAG annotations.
+     * @brief Foundational scalar types, error return codes, chess colours, squares, pieces, and NAG
+     * annotations.
      * @{
      */
 
@@ -28,7 +30,8 @@ extern "C"
     /**
      * @brief Numeric status code returned by public API functions.
      *
-     * A value of @ref SCID_OK indicates success; any non-zero value represents a specific error condition.
+     * A value of @ref SCID_OK indicates success; any non-zero value represents a specific error
+     * condition.
      */
     typedef unsigned short scid_error;
 
@@ -180,11 +183,13 @@ extern "C"
     /**
      * @brief Parses standard two-character coordinate string into a square index.
      *
-     * @param[in]  text       Null-terminated coordinate string (e.g. `"e4"`, `"a1"`, `"h8"`). Must not be NULL.
+     * @param[in]  text       Null-terminated coordinate string (e.g. `"e4"`, `"a1"`, `"h8"`). Must
+     * not be NULL.
      * @param[out] out_square Pointer receiving the parsed square index (0..63). Must not be NULL.
      *
      * @retval SCID_OK           Coordinate parsed successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p text or @p out_square is NULL, or if syntax is not a valid square name.
+     * @retval SCID_ERROR_BAD_ARG If @p text or @p out_square is NULL, or if syntax is not a valid
+     * square name.
      *
      * @see scid_square_to_string()
      */
@@ -198,14 +203,17 @@ extern "C"
      * @brief Formats a square index into a two-character coordinate string.
      *
      * @param[in]  square            Square index to format (0..63).
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated coordinate string (e.g. `"e4"`).
-     *                               May be NULL if @p out_text_capacity is 0 to probe required size.
-     * @param[in]  out_text_capacity Capacity of @p out_text in bytes (at least 3 bytes recommended).
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated
+     * coordinate string (e.g. `"e4"`). May be NULL if @p out_text_capacity is 0 to probe required
+     * size.
+     * @param[in]  out_text_capacity Capacity of @p out_text in bytes (at least 3 bytes
+     * recommended).
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Square formatted successfully.
-     * @retval SCID_ERROR_BAD_ARG    If @p square is out of range (> 63) or @p out_text_size is NULL.
+     * @retval SCID_ERROR_BAD_ARG    If @p square is out of range (> 63) or @p out_text_size is
+     * NULL.
      * @retval SCID_ERROR_BUFFER_FULL If @p out_text_capacity is insufficient.
      *
      * @see scid_square_from_string()
@@ -221,9 +229,11 @@ extern "C"
     /**
      * @brief Parses a single character piece symbol into an uncoloured piece kind.
      *
-     * Recognises standard English piece letters (`'K'`, `'Q'`, `'R'`, `'B'`, `'N'`, `'P'`, case-insensitive).
+     * Recognises standard English piece letters (`'K'`, `'Q'`, `'R'`, `'B'`, `'N'`, `'P'`,
+     * case-insensitive).
      *
-     * @param[in]  text      Null-terminated single-character string (e.g. `"Q"`, `"n"`). Must not be NULL.
+     * @param[in]  text      Null-terminated single-character string (e.g. `"Q"`, `"n"`). Must not
+     * be NULL.
      * @param[out] out_piece Pointer receiving the parsed uncoloured piece type. Must not be NULL.
      *
      * @retval SCID_OK           Piece parsed successfully.
@@ -262,7 +272,8 @@ extern "C"
      * @param[out] out_nag Pointer receiving the parsed NAG code (1..255). Must not be NULL.
      *
      * @retval SCID_OK           NAG parsed successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p text or @p out_nag is NULL, or if the string is unrecognised.
+     * @retval SCID_ERROR_BAD_ARG If @p text or @p out_nag is NULL, or if the string is
+     * unrecognised.
      *
      * @see scid_nag_to_string()
      */
@@ -278,11 +289,11 @@ extern "C"
      * @param[in]  nag               The NAG code to format (1..255).
      * @param[in]  as_symbol         Non-zero to format as typographical glyph (e.g. `"!"`, `"+="`),
      *                               or zero to emit dollar notation (e.g. `"$1"`, `"$14"`).
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated formatted text.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated formatted
+     * text. May be NULL if @p out_text_capacity is 0 to query required capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK               NAG formatted successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p out_text_size is NULL.

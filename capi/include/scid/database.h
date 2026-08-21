@@ -1,6 +1,7 @@
 /**
  * @file database.h
- * @brief Chess database management, persistent Scid5/PGN/memory backends, header indexing, and game storage.
+ * @brief Chess database management, persistent Scid5/PGN/memory backends, header indexing, and game
+ * storage.
  */
 
 #ifndef SCID_DATABASE_H
@@ -18,13 +19,15 @@ extern "C"
 
     /**
      * @defgroup database Database Management
-     * @brief Persistent and in-memory chess database storage, fast header indexing, game serialization, and metadata.
+     * @brief Persistent and in-memory chess database storage, fast header indexing, game
+     * serialization, and metadata.
      * @{
      */
 
     /**
      * @name Database Lifecycle & Storage Factories
-     * @brief Creation, opening, closing, and persistence of Scid5, PGN, and in-memory database handles.
+     * @brief Creation, opening, closing, and persistence of Scid5, PGN, and in-memory database
+     * handles.
      * @{
      */
 
@@ -85,7 +88,8 @@ extern "C"
      * @retval SCID_OK           Database created successfully.
      * @retval SCID_ERROR_BAD_ARG If @p name or @p out_database is NULL.
      *
-     * @note The caller acquires ownership of @p out_database and must release it with @ref scid_database_free().
+     * @note The caller acquires ownership of @p out_database and must release it with @ref
+     * scid_database_free().
      *
      * @see scid_database_free()
      */
@@ -101,15 +105,17 @@ extern "C"
      * Creates the triplet of Scid 5 files: `<path>.si5` (index), `<path>.sg5` (gamedata),
      * and `<path>.sn5` (name dictionary).
      *
-     * @param[in]  path         Base filesystem path without extension (or with `.si5`). Must not be NULL.
-     * @param[out] out_database Pointer to a handle pointer receiving the newly created database handle.
-     *                          Must not be NULL.
+     * @param[in]  path         Base filesystem path without extension (or with `.si5`). Must not be
+     * NULL.
+     * @param[out] out_database Pointer to a handle pointer receiving the newly created database
+     * handle. Must not be NULL.
      *
      * @retval SCID_OK           Database created successfully.
      * @retval SCID_ERROR_BAD_ARG If @p path or @p out_database is NULL.
      * @retval SCID_ERROR        If the files cannot be created or already exist.
      *
-     * @note The caller acquires ownership of @p out_database and must release it with @ref scid_database_free().
+     * @note The caller acquires ownership of @p out_database and must release it with @ref
+     * scid_database_free().
      *
      * @see scid_database_open_scid5()
      */
@@ -122,7 +128,8 @@ extern "C"
     /**
      * @brief Opens an existing Scid 5 database for read-write operations.
      *
-     * @param[in]  path         Base filesystem path without extension (or with `.si5`). Must not be NULL.
+     * @param[in]  path         Base filesystem path without extension (or with `.si5`). Must not be
+     * NULL.
      * @param[out] out_database Pointer to a handle pointer receiving the opened database handle.
      *                          Must not be NULL.
      *
@@ -130,7 +137,8 @@ extern "C"
      * @retval SCID_ERROR_BAD_ARG If @p path or @p out_database is NULL.
      * @retval SCID_ERROR        If the database files cannot be found or read.
      *
-     * @note The caller acquires ownership of @p out_database and must release it with @ref scid_database_free().
+     * @note The caller acquires ownership of @p out_database and must release it with @ref
+     * scid_database_free().
      *
      * @see scid_database_open_scid5_read_only()
      */
@@ -145,7 +153,8 @@ extern "C"
      *
      * Prevents accidental modification and allows concurrent read access from multiple processes.
      *
-     * @param[in]  path         Base filesystem path without extension (or with `.si5`). Must not be NULL.
+     * @param[in]  path         Base filesystem path without extension (or with `.si5`). Must not be
+     * NULL.
      * @param[out] out_database Pointer to a handle pointer receiving the opened database handle.
      *                          Must not be NULL.
      *
@@ -153,7 +162,8 @@ extern "C"
      * @retval SCID_ERROR_BAD_ARG If @p path or @p out_database is NULL.
      * @retval SCID_ERROR        If the database files cannot be found or read.
      *
-     * @note The caller acquires ownership of @p out_database and must release it with @ref scid_database_free().
+     * @note The caller acquires ownership of @p out_database and must release it with @ref
+     * scid_database_free().
      *
      * @see scid_database_open_scid5()
      */
@@ -170,19 +180,21 @@ extern "C"
      * random access without pre-loading full movetexts into memory.
      *
      * @param[in]  path                      Filesystem path to the `.pgn` file. Must not be NULL.
-     * @param[in]  progress_report           Optional callback for indexing progress notifications (may be NULL).
+     * @param[in]  progress_report           Optional callback for indexing progress notifications
+     * (may be NULL).
      * @param[in]  progress_report_user_data Context pointer passed to @p progress_report.
      * @param[in]  should_cancel             Optional cancellation callback (may be NULL).
      * @param[in]  should_cancel_user_data  Context pointer passed to @p should_cancel.
-     * @param[out] out_database              Pointer to a handle pointer receiving the opened database handle.
-     *                                       Must not be NULL.
+     * @param[out] out_database              Pointer to a handle pointer receiving the opened
+     * database handle. Must not be NULL.
      *
      * @retval SCID_OK           Database opened and indexed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p path or @p out_database is NULL.
      * @retval SCID_ERROR        If the file cannot be opened or parsed.
      * @retval SCID_ERROR_CANCEL If indexing was cancelled by @p should_cancel.
      *
-     * @note The caller acquires ownership of @p out_database and must release it with @ref scid_database_free().
+     * @note The caller acquires ownership of @p out_database and must release it with @ref
+     * scid_database_free().
      */
     SCID_API scid_error
     scid_database_open_pgn_read_only(
@@ -238,7 +250,8 @@ extern "C"
 
 
     /**
-     * @brief Explicitly persists pending database modifications, header index updates, and name caches to disk.
+     * @brief Explicitly persists pending database modifications, header index updates, and name
+     * caches to disk.
      *
      * @param[in,out] database Pointer to the database to save. Must not be NULL.
      *
@@ -254,7 +267,8 @@ extern "C"
 
     /**
      * @name Database Properties & Metadata
-     * @brief Inspection of database backend type, file paths, read-only status, and custom key-value metadata.
+     * @brief Inspection of database backend type, file paths, read-only status, and custom
+     * key-value metadata.
      * @{
      */
 
@@ -262,11 +276,11 @@ extern "C"
      * @brief Retrieves the filesystem path or name of the database.
      *
      * @param[in]  database          Pointer to the database. Must not be NULL.
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated filename string.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated filename
+     * string. May be NULL if @p out_text_capacity is 0 to query required capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null terminator),
-     *                               or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
+     * terminator), or required capacity if the buffer is too small. Must not be NULL.
      *
      * @retval SCID_OK               Filename retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_text_size is NULL.
@@ -281,14 +295,15 @@ extern "C"
 
 
     /**
-     * @brief Retrieves the database storage backend type string (e.g. `"memory"`, `"scid5"`, `"pgn"`).
+     * @brief Retrieves the database storage backend type string (e.g. `"memory"`, `"scid5"`,
+     * `"pgn"`).
      *
      * @param[in]  database          Pointer to the database. Must not be NULL.
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated type string.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated type
+     * string. May be NULL if @p out_text_capacity is 0 to query required capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Type string retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_text_size is NULL.
@@ -306,8 +321,8 @@ extern "C"
      * @brief Checks if the database is opened in read-only mode.
      *
      * @param[in]  database      Pointer to the database. Must not be NULL.
-     * @param[out] out_read_only Pointer receiving non-zero (`1`) if read-only; zero (`0`) if read-write.
-     *                           Must not be NULL.
+     * @param[out] out_read_only Pointer receiving non-zero (`1`) if read-only; zero (`0`) if
+     * read-write. Must not be NULL.
      *
      * @retval SCID_OK           Query completed successfully.
      * @retval SCID_ERROR_BAD_ARG If @p database or @p out_read_only is NULL.
@@ -322,12 +337,13 @@ extern "C"
      * @brief Retrieves a custom metadata property value by key name.
      *
      * @param[in]  database          Pointer to the database. Must not be NULL.
-     * @param[in]  key               Null-terminated metadata key name (e.g. `"description"`, `"type"`). Must not be NULL.
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated property value.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[in]  key               Null-terminated metadata key name (e.g. `"description"`,
+     * `"type"`). Must not be NULL.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated property
+     * value. May be NULL if @p out_text_capacity is 0 to query required capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Property retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p database, @p key, or @p out_text_size is NULL.
@@ -386,17 +402,24 @@ extern "C"
      * @brief Retrieves a metadata key-value pair by zero-based index.
      *
      * @param[in]  database            Pointer to the database. Must not be NULL.
-     * @param[in]  index               Zero-based index of the metadata entry (`0..metadata_count - 1`).
-     * @param[out] out_key             Caller-allocated buffer receiving the key string. May be NULL if capacity is 0.
+     * @param[in]  index               Zero-based index of the metadata entry (`0..metadata_count -
+     * 1`).
+     * @param[out] out_key             Caller-allocated buffer receiving the key string. May be NULL
+     * if capacity is 0.
      * @param[in]  out_key_capacity    Capacity of @p out_key in bytes.
-     * @param[out] out_key_size        Pointer receiving key bytes written (excluding null terminator). Must not be NULL.
-     * @param[out] out_value           Caller-allocated buffer receiving the value string. May be NULL if capacity is 0.
+     * @param[out] out_key_size        Pointer receiving key bytes written (excluding null
+     * terminator). Must not be NULL.
+     * @param[out] out_value           Caller-allocated buffer receiving the value string. May be
+     * NULL if capacity is 0.
      * @param[in]  out_value_capacity  Capacity of @p out_value in bytes.
-     * @param[out] out_value_size      Pointer receiving value bytes written (excluding null terminator). Must not be NULL.
+     * @param[out] out_value_size      Pointer receiving value bytes written (excluding null
+     * terminator). Must not be NULL.
      *
      * @retval SCID_OK               Metadata pair retrieved successfully.
-     * @retval SCID_ERROR_BAD_ARG    If any mandatory argument is NULL, or @p index is out of bounds.
-     * @retval SCID_ERROR_BUFFER_FULL If @p out_key_capacity or @p out_value_capacity is insufficient.
+     * @retval SCID_ERROR_BAD_ARG    If any mandatory argument is NULL, or @p index is out of
+     * bounds.
+     * @retval SCID_ERROR_BUFFER_FULL If @p out_key_capacity or @p out_value_capacity is
+     * insufficient.
      */
     SCID_API scid_error
     scid_database_metadata_at_get(
@@ -419,7 +442,8 @@ extern "C"
      */
 
     /**
-     * @brief Retrieves the chronological date span (earliest and latest game dates) in the database.
+     * @brief Retrieves the chronological date span (earliest and latest game dates) in the
+     * database.
      *
      * Dates are formatted in standard PGN date notation (`"YYYY.MM.DD"`).
      *
@@ -427,11 +451,13 @@ extern "C"
      * @param[out] out_min_date          Caller-allocated buffer receiving the earliest date string.
      *                                   May be NULL if @p out_min_date_capacity is 0.
      * @param[in]  out_min_date_capacity Capacity of @p out_min_date in bytes.
-     * @param[out] out_min_date_size     Pointer receiving bytes written for min date. Must not be NULL.
+     * @param[out] out_min_date_size     Pointer receiving bytes written for min date. Must not be
+     * NULL.
      * @param[out] out_max_date          Caller-allocated buffer receiving the latest date string.
      *                                   May be NULL if @p out_max_date_capacity is 0.
      * @param[in]  out_max_date_capacity Capacity of @p out_max_date in bytes.
-     * @param[out] out_max_date_size     Pointer receiving bytes written for max date. Must not be NULL.
+     * @param[out] out_max_date_size     Pointer receiving bytes written for max date. Must not be
+     * NULL.
      *
      * @retval SCID_OK               Date range retrieved successfully.
      * @retval SCID_ERROR_BAD_ARG    If any mandatory pointer argument is NULL.
@@ -452,11 +478,13 @@ extern "C"
      * @brief Retrieves the total number of games matching a specific outcome result string.
      *
      * @param[in]  database  Pointer to the database. Must not be NULL.
-     * @param[in]  result    Result filter string (`"1-0"`, `"0-1"`, `"1/2-1/2"`, or `"*"`). Must not be NULL.
+     * @param[in]  result    Result filter string (`"1-0"`, `"0-1"`, `"1/2-1/2"`, or `"*"`). Must
+     * not be NULL.
      * @param[out] out_count Pointer receiving the matching game count. Must not be NULL.
      *
      * @retval SCID_OK           Count retrieved successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p database, @p result, or @p out_count is NULL, or @p result is invalid.
+     * @retval SCID_ERROR_BAD_ARG If @p database, @p result, or @p out_count is NULL, or @p result
+     * is invalid.
      */
     SCID_API scid_error
     scid_database_stats_result_count_get(
@@ -491,15 +519,17 @@ extern "C"
     /**
      * @brief Parses and imports one or more PGN games from a text buffer into the database.
      *
-     * @param[in,out] database                Pointer to the database to append games to. Must not be NULL.
+     * @param[in,out] database                Pointer to the database to append games to. Must not
+     * be NULL.
      * @param[in]     pgn                     Buffer containing raw PGN text. Must not be NULL.
      * @param[in]     pgn_size                Size of the @p pgn buffer in bytes.
-     * @param[out]    out_diagnostic          Caller-allocated buffer receiving parser diagnostics on error.
-     *                                        May be NULL if @p out_diagnostic_capacity is 0.
+     * @param[out]    out_diagnostic          Caller-allocated buffer receiving parser diagnostics
+     * on error. May be NULL if @p out_diagnostic_capacity is 0.
      * @param[in]     out_diagnostic_capacity Capacity of @p out_diagnostic in bytes.
-     * @param[out]    out_diagnostic_size     Pointer receiving diagnostic bytes written. May be NULL if unneeded.
-     * @param[out]    out_imported_count      Pointer receiving count of games successfully imported.
-     *                                        Must not be NULL.
+     * @param[out]    out_diagnostic_size     Pointer receiving diagnostic bytes written. May be
+     * NULL if unneeded.
+     * @param[out]    out_imported_count      Pointer receiving count of games successfully
+     * imported. Must not be NULL.
      *
      * @retval SCID_OK           PGN stream imported successfully.
      * @retval SCID_ERROR_BAD_ARG If @p database, @p pgn, or @p out_imported_count is NULL.
@@ -521,7 +551,8 @@ extern "C"
      *
      * @param[in,out] database Pointer to the database. Must not be NULL.
      * @param[in]     game     Pointer to the game entity to encode and append. Must not be NULL.
-     * @param[in]     flags    Optional user flags string (e.g. `"W"`, `"B"`, `"D"`), or NULL/`""` for none.
+     * @param[in]     flags    Optional user flags string (e.g. `"W"`, `"B"`, `"D"`), or NULL/`""`
+     * for none.
      *
      * @retval SCID_OK           Game appended successfully.
      * @retval SCID_ERROR_BAD_ARG If @p database or @p game is NULL.
@@ -611,17 +642,21 @@ extern "C"
      *
      * @param[in]  database            Pointer to the database. Must not be NULL.
      * @param[in]  index               Zero-based index of the game (`0..game_count - 1`).
-     * @param[out] out_game            Pointer to a handle pointer receiving the newly allocated game entity.
-     *                                 Must not be NULL.
-     * @param[out] out_flags           Optional caller-allocated buffer receiving user flags string (may be NULL).
+     * @param[out] out_game            Pointer to a handle pointer receiving the newly allocated
+     * game entity. Must not be NULL.
+     * @param[out] out_flags           Optional caller-allocated buffer receiving user flags string
+     * (may be NULL).
      * @param[in]  out_flags_capacity  Capacity of @p out_flags in bytes.
-     * @param[out] out_flags_size      Pointer receiving user flags length (may be NULL if @p out_flags is NULL).
+     * @param[out] out_flags_size      Pointer receiving user flags length (may be NULL if @p
+     * out_flags is NULL).
      *
      * @retval SCID_OK               Game loaded successfully.
-     * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_game is NULL, or @p index is out of range.
+     * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_game is NULL, or @p index is out of
+     * range.
      * @retval SCID_ERROR_BUFFER_FULL If @p out_flags_capacity is insufficient for user flags.
      *
-     * @note The caller acquires ownership of @p out_game and must release it with @ref scid_game_free().
+     * @note The caller acquires ownership of @p out_game and must release it with @ref
+     * scid_game_free().
      *
      * @see scid_database_game_export_pgn()
      */
@@ -641,13 +676,15 @@ extern "C"
      * @param[in]  database          Pointer to the database. Must not be NULL.
      * @param[in]  index             Zero-based index of the game (`0..game_count - 1`).
      * @param[out] out_text          Caller-allocated buffer receiving the null-terminated PGN text.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     *                               May be NULL if @p out_text_capacity is 0 to query required
+     * capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               PGN text exported successfully.
-     * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_text_size is NULL, or @p index is out of range.
+     * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_text_size is NULL, or @p index is out
+     * of range.
      * @retval SCID_ERROR_BUFFER_FULL If @p out_text_capacity is insufficient.
      *
      * @see scid_database_game_get()
@@ -662,20 +699,22 @@ extern "C"
 
 
     /**
-     * @brief Queries a specific header tag value directly from the fast database index without loading the game.
+     * @brief Queries a specific header tag value directly from the fast database index without
+     * loading the game.
      *
      * @param[in]  database          Pointer to the database. Must not be NULL.
      * @param[in]  index             Zero-based index of the game (`0..game_count - 1`).
-     * @param[in]  name              Header tag name (e.g. `"White"`, `"Black"`, `"Event"`, `"Site"`, `"Date"`).
-     *                               Must not be NULL.
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated tag value.
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[in]  name              Header tag name (e.g. `"White"`, `"Black"`, `"Event"`,
+     * `"Site"`, `"Date"`). Must not be NULL.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated tag
+     * value. May be NULL if @p out_text_capacity is 0 to query required capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Tag value retrieved successfully.
-     * @retval SCID_ERROR_BAD_ARG    If @p database, @p name, or @p out_text_size is NULL, or @p index is out of range.
+     * @retval SCID_ERROR_BAD_ARG    If @p database, @p name, or @p out_text_size is NULL, or @p
+     * index is out of range.
      * @retval SCID_ERROR_NOT_FOUND  If the tag is not present in the game header.
      * @retval SCID_ERROR_BUFFER_FULL If @p out_text_capacity is insufficient.
      */
@@ -697,7 +736,8 @@ extern "C"
      * @param[out] out_count Pointer receiving the halfmove count. Must not be NULL.
      *
      * @retval SCID_OK           Count retrieved successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_count is NULL, or @p index is out of range.
+     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_count is NULL, or @p index is out of
+     * range.
      */
     SCID_API scid_error
     scid_database_game_halfmove_count_get(
@@ -714,7 +754,8 @@ extern "C"
      * @param[out] out_number Pointer receiving the 1-based game number. Must not be NULL.
      *
      * @retval SCID_OK           Number retrieved successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_number is NULL, or @p index is out of range.
+     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_number is NULL, or @p index is out of
+     * range.
      */
     SCID_API scid_error
     scid_database_game_number_get(
@@ -732,7 +773,8 @@ extern "C"
      *                         Must not be NULL.
      *
      * @retval SCID_OK           Query completed successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_deleted is NULL, or @p index is out of range.
+     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_deleted is NULL, or @p index is out of
+     * range.
      *
      * @see scid_database_game_delete()
      * @see scid_database_game_undelete()
@@ -749,15 +791,18 @@ extern "C"
      *
      * @param[in]  database          Pointer to the database. Must not be NULL.
      * @param[in]  index             Zero-based index of the game (`0..game_count - 1`).
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated result string
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated result
+     * string
      *                               (`"1-0"`, `"0-1"`, `"1/2-1/2"`, or `"*"`).
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     *                               May be NULL if @p out_text_capacity is 0 to query required
+     * capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Result string retrieved successfully.
-     * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_text_size is NULL, or @p index is out of range.
+     * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_text_size is NULL, or @p index is out
+     * of range.
      * @retval SCID_ERROR_BUFFER_FULL If @p out_text_capacity is insufficient.
      */
     SCID_API scid_error
@@ -777,7 +822,8 @@ extern "C"
      * @param[out] out_code Pointer receiving the @ref scid_eco_code. Must not be NULL.
      *
      * @retval SCID_OK           ECO code retrieved successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_code is NULL, or @p index is out of range.
+     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_code is NULL, or @p index is out of
+     * range.
      */
     SCID_API scid_error
     scid_database_game_eco_get(
@@ -791,14 +837,15 @@ extern "C"
      *
      * @param[in]  database          Pointer to the database. Must not be NULL.
      * @param[in]  index             Zero-based index of the game (`0..game_count - 1`).
-     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated date string (`"YYYY.MM.DD"`).
-     *                               May be NULL if @p out_text_capacity is 0 to query required capacity.
+     * @param[out] out_text          Caller-allocated buffer receiving the null-terminated date
+     * string (`"YYYY.MM.DD"`). May be NULL if @p out_text_capacity is 0 to query required capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or required capacity.
-     *                               Must not be NULL.
+     * @param[out] out_text_size     Pointer receiving bytes written (excluding null terminator), or
+     * required capacity. Must not be NULL.
      *
      * @retval SCID_OK               Date string retrieved successfully.
-     * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_text_size is NULL, or @p index is out of range.
+     * @retval SCID_ERROR_BAD_ARG    If @p database or @p out_text_size is NULL, or @p index is out
+     * of range.
      * @retval SCID_ERROR_BUFFER_FULL If @p out_text_capacity is insufficient.
      */
     SCID_API scid_error
