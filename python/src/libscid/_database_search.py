@@ -1,3 +1,5 @@
+"""Chess database search engine, multi-criteria header filters, and board matching."""
+
 from __future__ import annotations
 
 import ctypes
@@ -20,13 +22,25 @@ if TYPE_CHECKING:
     from ._database import Database
 
 ProgressReportCallback = Callable[[int, int, str | None], None]
+"""Progress callback receiving `(done: int, total: int, message: str | None)`."""
+
 ShouldCancelFn = Callable[[], bool]
+"""Predicate callback returning `True` to request cooperative cancellation."""
+
 HeaderResult = str | Iterable[str] | None
+"""Permitted game result specifications (e.g. `'1-0'`, `('1-0', '0-1')`)."""
+
 BoardSearchMatch = Literal["exact", "pawns", "files"]
+"""Board pattern match strictness algorithm modes."""
 
 BOARD_MATCH_EXACT: BoardSearchMatch = "exact"
+"""Exact board piece placement: all pieces and pawns on identical squares."""
+
 BOARD_MATCH_PAWNS: BoardSearchMatch = "pawns"
+"""Pawn structure and material match: exact pawn placement and piece counts."""
+
 BOARD_MATCH_FILES: BoardSearchMatch = "files"
+"""Piece distribution match: identical piece count per vertical file."""
 
 _BOARD_MATCH_TO_NATIVE = {
     BOARD_MATCH_EXACT: SCID_BOARD_SEARCH_MATCH_EXACT,
@@ -94,6 +108,52 @@ _BOOL_SETTERS = (
 
 @dataclass
 class HeaderCriteria:
+    """Multi-criteria search parameters for chess game headers.
+
+    Encapsulates text pattern filters, date/ECO ranges, rating limits, game
+    lengths, tournament results, and structural movetext flags.
+
+    Attributes:
+        player: Substring match on either White or Black player name.
+        white: Substring match on White player name.
+        black: Substring match on Black player name.
+        event: Substring match on event/tournament name.
+        site: Substring match on venue/site name.
+        site_country: Substring match on site country name or code.
+        round: Substring match on round identifier.
+        date_min: Minimum game date string (e.g. "1921.01.01").
+        date_max: Maximum game date string (e.g. "1927.12.31").
+        event_date_min: Minimum event date string.
+        event_date_max: Maximum event date string.
+        eco_min: Minimum ECO code classification (e.g. "B20").
+        eco_max: Maximum ECO code classification (e.g. "B99").
+        result: Desired game outcome (e.g. "1-0", "0-1", "1/2-1/2", "*") or an
+            iterable of acceptable outcomes.
+        game_number_min: Minimum 1-based game number in the database.
+        game_number_max: Maximum 1-based game number in the database.
+        halfmove_count_min: Minimum game length in halfmoves (ply).
+        halfmove_count_max: Maximum game length in halfmoves (ply).
+        white_elo_min: Minimum Elo rating for White.
+        white_elo_max: Maximum Elo rating for White.
+        black_elo_min: Minimum Elo rating for Black.
+        black_elo_max: Maximum Elo rating for Black.
+        elo_difference_min: Minimum Elo difference (`white_elo - black_elo`).
+        elo_difference_max: Maximum Elo difference (`white_elo - black_elo`).
+        has_variations: If True, matches only games with alternative variations.
+        has_comments: If True, matches only games with text commentary.
+        has_nags: If True, matches only games with Numeric Annotation Glyphs.
+
+    Example:
+        >>> import libscid
+        >>> criteria = libscid.HeaderCriteria(
+        ...     white="Kasparov",
+        ...     result="1-0",
+        ...     eco_min="B80",
+        ...     eco_max="B89",
+        ...     has_comments=True,
+        ... )
+    """
+
     player: str | None = None
     white: str | None = None
     black: str | None = None
@@ -204,6 +264,24 @@ class HeaderCriteria:
 
 
 class DatabaseSearch:
+    """Chess database query and search engine.
+
+    Executes fast header queries, exact position lookups via transposition
+    hashing, and flexible board pattern searches against database filter
+    subsets.
+
+    Direct instantiation of `DatabaseSearch` is disallowed; instances are
+    accessed via the [`Database.search`][libscid.Database.search] property.
+
+    Example:
+        >>> import libscid
+        >>> database = libscid.Database.open_pgn_read_only("games.pgn")
+        >>> criteria = libscid.HeaderCriteria(white="Fischer", result="1-0")
+        >>> matched_filter = database.search.headers(criteria)
+        >>> matched_filter.game_count
+        15
+    """
+
     HeaderCriteria = HeaderCriteria
     BOARD_MATCH_EXACT = BOARD_MATCH_EXACT
     BOARD_MATCH_PAWNS = BOARD_MATCH_PAWNS
@@ -213,6 +291,11 @@ class DatabaseSearch:
     _database: Database
 
     def __init__(self):
+        """Disallow direct search engine instantiation.
+
+        Raises:
+            TypeError: Always raised if instantiated directly.
+        """
         raise TypeError("DatabaseSearch objects are returned by libscid APIs")
 
     @classmethod
@@ -233,6 +316,34 @@ class DatabaseSearch:
         progress_report_callback: ProgressReportCallback | None = None,
         should_cancel_fn: ShouldCancelFn | None = None,
     ) -> Filter:
+        """Execute a multi-criteria header query across a database filter subset.
+
+        Scans game headers matching the criteria from the `source` filter,
+        writing matching game indices into the `destination` filter.
+
+        Args:
+            criteria: [`HeaderCriteria`][libscid.HeaderCriteria] specifying
+                header filters, rating ranges, results, and structural flags.
+            source: Source [`Filter`][libscid.Filter] defining the search
+                universe. If None, searches all games in the database.
+            destination: Destination [`Filter`][libscid.Filter] to receive
+                matching games. If None, a new filter is created.
+            progress_report_callback: Optional progress callback receiving
+                `(done, total, message)`.
+            should_cancel_fn: Optional predicate returning True to request
+                cooperative cancellation.
+
+        Returns:
+            The `destination` [`Filter`][libscid.Filter] containing matching
+            game indices.
+
+        Raises:
+            TypeError: If `criteria` is not a `HeaderCriteria` or filter
+                parameters are invalid.
+            ValueError: If `destination` is the `all_games` filter or belongs to
+                a different database.
+            LibScidError: If search execution fails or is cancelled.
+        """
         if not isinstance(criteria, HeaderCriteria):
             raise TypeError("criteria must be a HeaderCriteria")
 
@@ -273,6 +384,30 @@ class DatabaseSearch:
         progress_report_callback: ProgressReportCallback | None = None,
         should_cancel_fn: ShouldCancelFn | None = None,
     ) -> Filter:
+        """Search for games reaching an exact board position snapshot.
+
+        Performs fast transposition hash lookup across games in the `source`
+        filter, writing matches into `destination`.
+
+        Args:
+            position: Target [`Position`][libscid.Position] to find.
+            source: Source [`Filter`][libscid.Filter] defining the search subset.
+                If None, searches all games in the database.
+            destination: Destination [`Filter`][libscid.Filter] receiving
+                matching games. If None, a new filter is created.
+            progress_report_callback: Optional progress callback.
+            should_cancel_fn: Optional cooperative cancellation predicate.
+
+        Returns:
+            The `destination` [`Filter`][libscid.Filter] containing matching
+            game indices.
+
+        Raises:
+            TypeError: If `position` is not a `Position`.
+            ValueError: If `destination` is the `all_games` filter or belongs to
+                a different database.
+            LibScidError: If search execution fails or is cancelled.
+        """
         if not isinstance(position, Position):
             raise TypeError("position must be a Position")
 
@@ -312,6 +447,34 @@ class DatabaseSearch:
         progress_report_callback: ProgressReportCallback | None = None,
         should_cancel_fn: ShouldCancelFn | None = None,
     ) -> Filter:
+        """Search for games matching a board configuration or material pattern.
+
+        Args:
+            position: Target [`Position`][libscid.Position] layout to match.
+            match: Matching mode algorithm: "exact" (identical piece squares),
+                "pawns" (identical pawn structure and piece count balance), or
+                "files" (identical piece counts per file). Defaults to "exact".
+            source: Source [`Filter`][libscid.Filter] defining the search subset.
+                If None, searches all games in the database.
+            destination: Destination [`Filter`][libscid.Filter] receiving
+                matches. If None, a new filter is created.
+            include_variations: Whether to search alternative variation branches
+                in addition to the mainline. Defaults to False.
+            include_flipped: Whether to also match colour-flipped board
+                positions (White and Black swapped). Defaults to False.
+            progress_report_callback: Optional progress callback.
+            should_cancel_fn: Optional cooperative cancellation predicate.
+
+        Returns:
+            The `destination` [`Filter`][libscid.Filter] containing matching
+            game indices.
+
+        Raises:
+            TypeError: If `position` is not a `Position`.
+            ValueError: If `match` is invalid or `destination` is the `all_games`
+                filter.
+            LibScidError: If search execution fails or is cancelled.
+        """
         if not isinstance(position, Position):
             raise TypeError("position must be a Position")
         native_match = _native_board_match(match)

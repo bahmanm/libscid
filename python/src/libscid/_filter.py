@@ -1,3 +1,5 @@
+"""Database game filter, subset views, and sorted row mapping."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -9,6 +11,31 @@ if TYPE_CHECKING:
 
 
 class Filter:
+    """Subset view of games within a chess database.
+
+    A `Filter` represents a filtered or selected subset of games within a
+    [`Database`][libscid.Database]. Filters provide high-performance pagination,
+    multi-criteria sorting, and bidirectional mapping between 0-based database
+    game indices and sorted display row positions.
+
+    Filters are obtained via
+    [`DatabaseFilters.all_games`][libscid.DatabaseFilters.all_games],
+    [`DatabaseFilters.primary`][libscid.DatabaseFilters.primary],
+    [`DatabaseFilters.create()`][libscid.DatabaseFilters.create], or as search result
+    destinations from [`DatabaseSearch`][libscid.DatabaseSearch].
+
+    Example:
+        >>> import libscid
+        >>> database = libscid.Database.open_pgn_read_only("games.pgn")
+        >>> all_games = database.filters.all_games
+        >>> all_games.game_count
+        100
+        >>> # Get the first 10 game indices sorted by White player name:
+        >>> indices = all_games.get_game_indices(
+        ...     sort_criteria="W+", start_row=0, row_count=10
+        ... )
+    """
+
     _native: NativeLibrary
     _database: Database
     _id: int
@@ -16,6 +43,11 @@ class Filter:
     _deleted: bool
 
     def __init__(self):
+        """Disallow direct filter instantiation.
+
+        Raises:
+            TypeError: Always raised if instantiated directly.
+        """
         raise TypeError("Filter objects are returned by libscid APIs")
 
     @classmethod
@@ -32,6 +64,7 @@ class Filter:
 
     @property
     def game_count(self) -> int:
+        """Total number of games currently matched by this filter."""
         return self._native.database_filter_game_count(
             self._database._handle, self._available_id()
         )
@@ -42,6 +75,24 @@ class Filter:
         start_row: int = 0,
         row_count: int | None = None,
     ) -> tuple[int, ...]:
+        """Retrieve database game indices in sorted display row order.
+
+        Args:
+            sort_criteria: Sorting specification string (e.g. "N+" for game
+                number, "D-" for descending date, "W+" for White player, "B+"
+                for Black player, "E+" for ECO code). Defaults to "N+".
+            start_row: 0-based starting row offset in the sorted view. Defaults
+                to 0.
+            row_count: Maximum number of game indices to retrieve. If None,
+                retrieves all remaining games from `start_row`.
+
+        Returns:
+            A tuple of 0-based database game indices in sorted order.
+
+        Raises:
+            ValueError: If `start_row` or `row_count` is negative, or if the
+                filter has been deleted.
+        """
         self._check_non_negative("start_row", start_row)
         if row_count is None:
             row_count = max(self.game_count - start_row, 0)
@@ -55,6 +106,19 @@ class Filter:
         )
 
     def get_game_index_at_row(self, row: int, sort_criteria: str | bytes = "N+") -> int:
+        """Retrieve the database game index for a specific sorted display row.
+
+        Args:
+            row: 0-based display row index.
+            sort_criteria: Sorting specification string. Defaults to "N+".
+
+        Returns:
+            The 0-based database game index at the specified row.
+
+        Raises:
+            ValueError: If `row` is negative or out of bounds, or if the filter
+                has been deleted.
+        """
         self._check_non_negative("row", row)
         return self._native.database_filter_game_index_at_row(
             self._database._handle, self._available_id(), sort_criteria, row
@@ -63,12 +127,32 @@ class Filter:
     def get_game_row_for_index(
         self, game_index: int, sort_criteria: str | bytes = "N+"
     ) -> int:
+        """Find the sorted display row index for a specific database game index.
+
+        Args:
+            game_index: 0-based database game index.
+            sort_criteria: Sorting specification string. Defaults to "N+".
+
+        Returns:
+            The 0-based display row position of the game in the sorted filter view.
+
+        Raises:
+            ValueError: If `game_index` is negative or not present in the filter,
+                or if the filter has been deleted.
+        """
         self._check_non_negative("game_index", game_index)
         return self._native.database_filter_game_row_for_index(
             self._database._handle, self._available_id(), sort_criteria, game_index
         )
 
     def delete(self) -> None:
+        """Delete this user-created filter and release its database resources.
+
+        Raises:
+            ValueError: If attempting to delete a built-in filter (such as
+                `all_games` or `primary`) or if the filter has already been
+                deleted.
+        """
         if not self._owned:
             raise ValueError("built-in filters cannot be deleted")
         self._native.database_filter_delete(
