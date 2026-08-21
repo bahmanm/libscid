@@ -39,14 +39,26 @@ libscid.test : $(libscid.__components:%=libscid.%.test)
 
 ####################################################################################################
 
+libscid.__docs.public.dir := $(ROOT)_build/docs/public/
+libscid.__docs.hub.dir := $(ROOT)docs/hub/
+libscid.__docs.assets.dir := $(ROOT)docs/assets/
+
 libscid.clean : $(libscid.__components:%=libscid.%.clean)
 	-rm -rf $(LIBSCID_RELEASE_ROOT)
+	-rm -rf $(libscid.__docs.public.dir)
 
 .PHONY : libscid.clean
 
 ####################################################################################################
 
 libscid.docs : $(libscid.__components:%=libscid.%.docs)
+	mkdir -p $(libscid.__docs.public.dir)assets/img/
+	mkdir -p $(libscid.__docs.public.dir)capi/
+	mkdir -p $(libscid.__docs.public.dir)python/
+	cp $(libscid.__docs.hub.dir)index.html $(libscid.__docs.public.dir)
+	cp -r $(libscid.__docs.assets.dir)img/* $(libscid.__docs.public.dir)assets/img/
+	cp -r $(ROOT)capi/_build/docs/doxygen/html/* $(libscid.__docs.public.dir)capi/
+	cp -r $(ROOT)python/_build/docs/site/* $(libscid.__docs.public.dir)python/
 
 .PHONY : libscid.docs
 

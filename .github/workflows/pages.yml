@@ -29,35 +29,26 @@ jobs:
         uses: ./.github/actions/setup-libscid-toolchain
         with:
           docs: "true"
+          llvm: "true"
+          make: "true"
+          uv: "true"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 
-      - name: Configure
-        working-directory: capi
-        run: >
-          cmake
-          --preset docs
-          -DLIBSCID_PLANTUML_JAR_PATH="$LIBSCID_PLANTUML_JAR_PATH"
-
       - name: Build documentation
-        working-directory: capi
-        run: >
-          cmake
-          --build
-          --preset docs
-          --verbose
+        run: make libscid.docs
 
       - name: Verify documentation output
-        run: >
-          test
-          -f
-          capi/_build/docs/doxygen/html/index.html
+        run: |
+          test -f _build/docs/public/index.html
+          test -f _build/docs/public/capi/index.html
+          test -f _build/docs/public/python/index.html
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: capi/_build/docs/doxygen/html
+          path: _build/docs/public
 
   pages__deploy:
     needs: pages__build

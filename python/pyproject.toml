@@ -21,11 +21,19 @@ classifiers = [
 [dependency-groups]
 dev = [
     "hatchling>=1.27",
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.28",
     "pyright>=1.1",
     "pytest>=8.0",
     "ruff>=0.14",
     "tox>=4.0",
     "tox-uv>=1.0",
+]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.28",
 ]
 
 [tool.hatch.build.targets.wheel]
