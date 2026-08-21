@@ -2,6 +2,7 @@
 #define SCID_DATABASE_FILTER_H
 
 #include "scid/_platform.h"
+#include "scid/primitives.h"
 
 #ifdef __cplusplus
 extern "C"
