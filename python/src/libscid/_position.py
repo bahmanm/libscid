@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ctypes
+import weakref
 from typing import Literal
 
 from ._move_metadata import MoveMetadata
@@ -37,6 +38,7 @@ class Position:
 
     _native: NativeLibrary
     _handle: ctypes.c_void_p
+    _finalizer: weakref.finalize
 
     def __init__(self):
         """Disallows direct construction.
@@ -78,6 +80,7 @@ class Position:
         position = cls.__new__(cls)
         position._native = native
         position._handle = handle
+        position._finalizer = weakref.finalize(position, native.free_position, handle)
         return position
 
     @property
@@ -380,10 +383,6 @@ class Position:
         self._native.position_apply_uci(self._handle, uci)
 
     def _dispose(self) -> None:
-        handle = getattr(self, "_handle", None)
-        if handle:
-            self._native.free_position(self._handle)
-            self._handle = ctypes.c_void_p()
-
-    def __del__(self) -> None:
-        self._dispose()
+        finalizer = getattr(self, "_finalizer", None)
+        if finalizer is not None:
+            finalizer()
