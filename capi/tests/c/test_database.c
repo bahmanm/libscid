@@ -168,15 +168,52 @@ test_database(void)
     scid_filter_id              filter_id = 0;
     int                         is_open = 0;
     int                         read_only = 99;
+    int                         is_dirty = 99;
     int                         deleted = 99;
+    scid_error                  status_code = SCID_ERROR;
+    size_t                      bad_name_count = 99;
     struct progress_report_data progress = {0, 0, 0, 0};
     struct should_cancel_data   cancel = {0, 1};
+
+    TEST_ASSERT(scid_is_warning(SCID_OK) == 0);
+    TEST_ASSERT(scid_is_error(SCID_OK) == 0);
+    TEST_ASSERT(scid_is_warning(SCID_WARNING_NAME_DATA_LOSS) == 1);
+    TEST_ASSERT(scid_is_error(SCID_WARNING_NAME_DATA_LOSS) == 0);
+    TEST_ASSERT(scid_is_warning(SCID_ERROR) == 0);
+    TEST_ASSERT(scid_is_error(SCID_ERROR) == 1);
+    TEST_ASSERT(scid_is_warning(SCID_ERROR_FILE_OPEN) == 0);
+    TEST_ASSERT(scid_is_error(SCID_ERROR_FILE_OPEN) == 1);
+    TEST_ASSERT(scid_is_warning(SCID_ERROR_FILE_READ_ONLY) == 0);
+    TEST_ASSERT(scid_is_error(SCID_ERROR_FILE_READ_ONLY) == 1);
+    TEST_ASSERT(scid_is_warning(SCID_ERROR_CORRUPT) == 0);
+    TEST_ASSERT(scid_is_error(SCID_ERROR_CORRUPT) == 1);
+    TEST_ASSERT(scid_is_warning(SCID_ERROR_BAD_ARG) == 0);
+    TEST_ASSERT(scid_is_error(SCID_ERROR_BAD_ARG) == 1);
 
     TEST_ASSERT(scid_database_create_memory("scratch", &database) == SCID_OK);
     TEST_ASSERT(database != NULL);
 
     TEST_ASSERT(scid_database_is_open(database, &is_open) == SCID_OK);
     TEST_ASSERT(is_open == 1);
+    TEST_ASSERT(scid_database_status_open_get(database, &status_code) == SCID_OK);
+    TEST_ASSERT(status_code == SCID_OK);
+    TEST_ASSERT(scid_database_status_bad_name_count_get(database, &bad_name_count) == SCID_OK);
+    TEST_ASSERT(bad_name_count == 0);
+    TEST_ASSERT(scid_database_status_is_read_only(database, &read_only) == SCID_OK);
+    TEST_ASSERT(read_only == 0);
+    TEST_ASSERT(scid_database_status_is_dirty(database, &is_dirty) == SCID_OK);
+    TEST_ASSERT(is_dirty == 0);
+
+    TEST_ASSERT(scid_database_status_open_get(NULL, &status_code) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_database_status_open_get(database, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_database_status_bad_name_count_get(NULL, &bad_name_count) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_database_status_bad_name_count_get(database, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_database_status_is_read_only(NULL, &read_only) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_database_status_is_read_only(database, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_database_status_is_dirty(NULL, &is_dirty) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_database_status_is_dirty(database, NULL) == SCID_ERROR_BAD_ARG);
+
     TEST_ASSERT(scid_database_filename_get(database, text, sizeof(text), &text_size) == SCID_OK);
     TEST_ASSERT(strcmp(text, "<clipbase>") == 0);
     TEST_ASSERT(scid_database_type_get(database, text, sizeof(text), &text_size) == SCID_OK);

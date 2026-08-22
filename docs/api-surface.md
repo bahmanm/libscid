@@ -26,7 +26,8 @@ The C ABI maintains explicit ownership and mutability contracts:
 - Factory Functions: Functions returning owned handles accept an `out_...` pointer argument, e.g., `scid_game_create(..., scid_game** out_game, ...)`.
 - Read-Only Parameters: Arguments qualified with `const` are read-only for the duration of the call.
 - Caller-Owned Buffers: Text outputs require a target buffer pointer, a capacity (`size_t`), and an output size pointer (`size_t*`). If capacity is insufficient, functions return `SCID_ERROR_BUFFER_FULL` and report the required byte count in `out_..._size`.
-- Error Codes: `scid_error` enumerates standard failure modes including `SCID_ERROR_BAD_ARG`, `SCID_ERROR_INVALID_FEN`, `SCID_ERROR_INVALID_MOVE`, `SCID_ERROR_FILE_OPEN`, `SCID_ERROR_FILE_READ_ONLY`, and `SCID_ERROR_CORRUPT`.
+- Error and Warning Codes: `scid_error` enumerates standard failure modes (`SCID_ERROR_BAD_ARG`, `SCID_ERROR_INVALID_FEN`, `SCID_ERROR_INVALID_MOVE`, `SCID_ERROR_FILE_OPEN`, `SCID_ERROR_FILE_READ_ONLY`, `SCID_ERROR_CORRUPT`) as well as recoverable warnings (`SCID_WARNING_NAME_DATA_LOSS`).
+- Status Classification: `scid_is_warning(status)` and `scid_is_error(status)` classify status codes without preprocessor macros.
 
 ---
 
@@ -127,6 +128,10 @@ Navigation and editing use `scid_game_cursor`. Cursors are immutable location po
   - `scid_database_open_scid5_read_only(path, progress_cb, user_data, cancel_fn, cancel_user_data, out_db)`
   - `scid_database_open_pgn_read_only(path, progress_cb, user_data, cancel_fn, cancel_user_data, out_db)`
   - `scid_database_save()`, `scid_database_close()`, `scid_database_free()`.
+- Database Status & Properties:
+  - `scid_database_status_open_get()`, `scid_database_status_bad_name_count_get()`.
+  - `scid_database_status_is_read_only()`, `scid_database_status_is_dirty()`.
+  - `scid_database_is_open()`, `scid_database_read_only_get()`, `scid_database_filename_get()`, `scid_database_type_get()`.
 - Game Management & Storage:
   - `scid_database_game_count_get()`
   - `scid_database_game_get(db, index, out_game, out_flags, ...)`

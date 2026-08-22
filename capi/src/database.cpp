@@ -136,6 +136,112 @@ scid_database_is_open(
 
 
 scid_error
+scid_database_status_open_get(
+    const scid_database* database,
+    scid_error*          out_status)
+{
+    if (database == nullptr || out_status == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (!database->value.isOpen())
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        *out_status = database->open_status;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        return SCID_ERROR;
+    }
+}
+
+
+scid_error
+scid_database_status_bad_name_count_get(
+    const scid_database* database,
+    size_t*              out_count)
+{
+    if (database == nullptr || out_count == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (!database->value.isOpen())
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        *out_count = database->bad_name_count;
+        return SCID_OK;
+    }
+    catch (...)
+    {
+        return SCID_ERROR;
+    }
+}
+
+
+scid_error
+scid_database_status_is_read_only(
+    const scid_database* database,
+    int*                 out_is_read_only)
+{
+    if (database == nullptr || out_is_read_only == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (!database->value.isOpen())
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        return write_bool(database->value.isReadOnly(), out_is_read_only);
+    }
+    catch (...)
+    {
+        return SCID_ERROR;
+    }
+}
+
+
+scid_error
+scid_database_status_is_dirty(
+    const scid_database* database,
+    int*                 out_is_dirty)
+{
+    if (database == nullptr || out_is_dirty == nullptr)
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    if (!database->value.isOpen())
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    try
+    {
+        return write_bool(false, out_is_dirty);
+    }
+    catch (...)
+    {
+        return SCID_ERROR;
+    }
+}
+
+
+scid_error
 scid_database_filename_get(
     const scid_database* database,
     char*                out_text,

@@ -96,18 +96,18 @@ libscid.python.release : libscid.python.__release-wheel libscid.python.__release
 
 ####################################################################################################
 
-libscid.python.qc-format :
+libscid.python.qc-format : libscid.python.configure
 	cd $(libscid.python.__project.dir) \
-	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff format --check $(libscid.python.__qc.paths) \
-	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run ruff check $(libscid.python.__qc.paths)
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync ruff format --check $(libscid.python.__qc.paths) \
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync ruff check $(libscid.python.__qc.paths)
 
 .PHONY : libscid.python.qc-format
 
 ####################################################################################################
 
-libscid.python.qc-static-analysis :
+libscid.python.qc-static-analysis : libscid.python.configure
 	cd $(libscid.python.__project.dir) \
-	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run pyright
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync pyright
 
 .PHONY : libscid.python.qc-static-analysis
 

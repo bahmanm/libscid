@@ -12,6 +12,20 @@
 
 using namespace scid::libscid;
 
+int
+scid_is_warning(scid_error status)
+{
+    return status == SCID_WARNING_NAME_DATA_LOSS ? 1 : 0;
+}
+
+
+int
+scid_is_error(scid_error status)
+{
+    return (status != SCID_OK && !scid_is_warning(status)) ? 1 : 0;
+}
+
+
 scid_error
 scid_square_from_string(
     const char*  text,
