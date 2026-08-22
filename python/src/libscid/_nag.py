@@ -63,7 +63,7 @@ class Nag:
 
         Returns:
             The dollar-formatted string (e.g. `"$1"`, `"$14"`), or an empty
-            string `""` when `code` is 0.
+                string `""` when `code` is 0.
         """
         return load_library().nag_to_string(self.code)
 
@@ -73,7 +73,7 @@ class Nag:
 
         Returns:
             The typographical symbol (e.g. `"!"`, `"?"`, `"+="`, `"N"`), or an
-            empty string `""` when no symbolic representation exists or `code` is 0.
+                empty string `""` when no symbolic representation exists or `code` is 0.
         """
         return load_library().nag_to_string(self.code, symbolic=True)
 

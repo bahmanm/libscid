@@ -86,8 +86,8 @@ class Position:
 
         Returns:
             The complete FEN string including piece placement, side to move,
-            castling availability, en passant target square, halfmove clock,
-            and fullmove number.
+                castling availability, en passant target square, halfmove clock,
+                and fullmove number.
 
         Examples:
             >>> import libscid
@@ -215,8 +215,8 @@ class Position:
 
         Returns:
             Single-character piece letter (`"K"`, `"Q"`, `"R"`, `"B"`, `"N"`, `"P"`
-            for White; `"k"`, `"q"`, `"r"`, `"b"`, `"n"`, `"p"` for Black), or
-            `None` if the square is empty.
+                for White; `"k"`, `"q"`, `"r"`, `"b"`, `"n"`, `"p"` for Black), or
+                `None` if the square is empty.
 
         Raises:
             LibScidError: If `square` is not a valid coordinate string.
@@ -241,7 +241,7 @@ class Position:
 
         Returns:
             Tuple of legal moves formatted as coordinate UCI strings
-            (e.g. `("e2e4", "g1f3")`).
+                (e.g. `("e2e4", "g1f3")`).
 
         Examples:
             >>> import libscid
@@ -311,7 +311,7 @@ class Position:
 
         Returns:
             Canonical Standard Algebraic Notation string (e.g. `"e4"`, `"O-O"`,
-            `"b8=Q+"`).
+                `"b8=Q+"`).
 
         Raises:
             LibScidError: If `move` is illegal or ambiguous in the current position.

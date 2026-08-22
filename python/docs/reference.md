@@ -21,6 +21,11 @@ This page documents the public API classes, dataclasses, and functions provided 
       show_root_heading: true
       show_source: true
 
+::: libscid.Arbiter
+    options:
+      show_root_heading: true
+      show_source: true
+
 ## Database & Search
 
 ::: libscid.Database
@@ -66,6 +71,11 @@ This page documents the public API classes, dataclasses, and functions provided 
       show_source: true
 
 ## Movetext Iteration Events
+
+::: libscid.iter_movetext
+    options:
+      show_root_heading: true
+      show_source: true
 
 ::: libscid.MovetextEvent
     options:

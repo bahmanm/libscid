@@ -93,7 +93,7 @@ class Arbiter:
 
         Returns:
             True if the current board state has occurred 3 or more times along
-            the line of play; otherwise False.
+                the line of play; otherwise False.
 
         Examples:
             >>> import libscid

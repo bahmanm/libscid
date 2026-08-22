@@ -191,7 +191,7 @@ class Game:
 
         Returns:
             True if the tag was present and successfully removed; False if the
-            tag was not found or is non-removable.
+                tag was not found or is non-removable.
 
         Examples:
             >>> import libscid
@@ -223,7 +223,7 @@ class Game:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] positioned at the start of the
-            game.
+                game.
 
         Examples:
             >>> import libscid
@@ -245,7 +245,7 @@ class Game:
 
         Returns:
             An iterator yielding [`MovetextEvent`][libscid.MovetextEvent]
-            instances.
+                instances.
 
         Examples:
             >>> import libscid

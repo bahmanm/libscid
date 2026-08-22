@@ -279,7 +279,7 @@ class Database:
 
         Returns:
             A newly allocated [`Game`][libscid.Game] instance containing all
-            header tags, mainline moves, variation branches, and comments.
+                header tags, mainline moves, variation branches, and comments.
 
         Raises:
             LibScidError: If `index` is out of bounds or game deserialisation fails.

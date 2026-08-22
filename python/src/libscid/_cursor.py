@@ -97,7 +97,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] advanced by one ply, or None if
-            the cursor is already at the end of the line.
+                the cursor is already at the end of the line.
 
         Examples:
             >>> import libscid
@@ -115,7 +115,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] moved back by one ply, or None if
-            the cursor is already at the start of the line.
+                the cursor is already at the start of the line.
 
         Examples:
             >>> import libscid
@@ -133,7 +133,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] at the initial starting position
-            of the game.
+                of the game.
 
         Examples:
             >>> import libscid
@@ -175,7 +175,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] at the target ply offset, or None
-            if the offset exceeds the mainline ply count.
+                if the offset exceeds the mainline ply count.
 
         Examples:
             >>> import libscid
@@ -199,8 +199,8 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] at the start of the specified
-            variation branch, or None if `index` is out of bounds or no
-            variations exist.
+                variation branch, or None if `index` is out of bounds or no
+                variations exist.
 
         Examples:
             >>> import libscid
@@ -221,8 +221,8 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] positioned on the parent line
-            where this variation branched, or None if the cursor is already
-            on the mainline.
+                where this variation branched, or None if the cursor is already
+                on the mainline.
 
         Examples:
             >>> import libscid
@@ -247,7 +247,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] positioned after the newly appended
-            move.
+                move.
 
         Raises:
             ValueError: If the cursor is not at the end of the line.
@@ -282,7 +282,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] positioned at the end of the
-            appended moves.
+                appended moves.
 
         Raises:
             ValueError: If the cursor is not at the end of the line.
@@ -317,8 +317,8 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] at the start of the newly created
-            variation, or None if the cursor is at the line end or the variation
-            could not be created.
+                variation, or None if the cursor is at the line end or the variation
+                could not be created.
 
         Examples:
             >>> import libscid
@@ -340,7 +340,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] on the parent line where the
-            variation branched, or None if the cursor is on the mainline.
+                variation branched, or None if the cursor is on the mainline.
 
         Examples:
             >>> import libscid
@@ -359,7 +359,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] on the promoted variation, or None
-            if the cursor is on the mainline.
+                if the cursor is on the mainline.
 
         Examples:
             >>> import libscid
@@ -385,7 +385,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] on the new mainline, or None if the
-            cursor is already on the mainline.
+                cursor is already on the mainline.
 
         Examples:
             >>> import libscid
@@ -428,7 +428,7 @@ class Cursor:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] at the beginning of the truncated
-            line.
+                line.
 
         Examples:
             >>> import libscid
@@ -455,7 +455,7 @@ class Cursor:
 
         Returns:
             An iterator yielding [`MovetextEvent`][libscid.MovetextEvent]
-            instances.
+                instances.
 
         Examples:
             >>> import libscid
