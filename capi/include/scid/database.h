@@ -128,8 +128,8 @@ extern "C"
     /**
      * @brief Opens an existing Scid 5 database for read-write operations.
      *
-     * @param[in]  path                      Base filesystem path without extension (or with `.si5`).
-     *                                       Must not be NULL.
+     * @param[in]  path                      Base filesystem path without extension (or with
+     *                                       `.si5`). Must not be NULL.
      * @param[in]  progress_report           Optional callback for opening progress notifications
      *                                       (may be NULL).
      * @param[in]  progress_report_user_data Context pointer passed to @p progress_report.
@@ -163,8 +163,8 @@ extern "C"
      *
      * Prevents accidental modification and allows concurrent read access from multiple processes.
      *
-     * @param[in]  path                      Base filesystem path without extension (or with `.si5`).
-     *                                       Must not be NULL.
+     * @param[in]  path                      Base filesystem path without extension (or with
+     *                                       `.si5`). Must not be NULL.
      * @param[in]  progress_report           Optional callback for opening progress notifications
      *                                       (may be NULL).
      * @param[in]  progress_report_user_data Context pointer passed to @p progress_report.
