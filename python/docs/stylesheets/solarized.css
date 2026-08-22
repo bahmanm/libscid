@@ -216,6 +216,99 @@ kbd,
   color: #2aa198;
 }
 
+/* Navigation Drawer & Sidebar Styling (Solarized Dark) */
+[data-md-color-scheme="solarized-dark"] .md-nav {
+  color: #93a1a1;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav__title {
+  color: #eee8d5 !important;
+  font-weight: 700;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav__item--section > .md-nav__link,
+[data-md-color-scheme="solarized-dark"] .md-nav__item--section > .md-nav__link[for] {
+  color: #eee8d5 !important;
+  font-weight: 700;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav__link {
+  color: #93a1a1 !important;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav__link:hover,
+[data-md-color-scheme="solarized-dark"] .md-nav__link:focus {
+  color: #2aa198 !important;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav__item--active > .md-nav__link,
+[data-md-color-scheme="solarized-dark"] .md-nav__link--active,
+[data-md-color-scheme="solarized-dark"] .md-nav__link--active code {
+  color: #268bd2 !important;
+  font-weight: 600;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav--secondary .md-nav__link {
+  color: #839496 !important;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav--secondary .md-nav__link:hover {
+  color: #2aa198 !important;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav--secondary .md-nav__link--active {
+  color: #268bd2 !important;
+  font-weight: 600;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav__link--passed {
+  color: #839496 !important;
+}
+
+[data-md-color-scheme="solarized-dark"] .md-nav--integrated > .md-nav__list > .md-nav__item--active .md-nav--secondary {
+  border-left-color: #268bd2 !important;
+}
+
+/* Navigation Drawer & Sidebar Styling (Solarized Light) */
+[data-md-color-scheme="solarized-light"] .md-nav__title {
+  color: #073642 !important;
+  font-weight: 700;
+}
+
+[data-md-color-scheme="solarized-light"] .md-nav__item--section > .md-nav__link,
+[data-md-color-scheme="solarized-light"] .md-nav__item--section > .md-nav__link[for] {
+  color: #073642 !important;
+  font-weight: 700;
+}
+
+[data-md-color-scheme="solarized-light"] .md-nav__link {
+  color: #586e75 !important;
+}
+
+[data-md-color-scheme="solarized-light"] .md-nav__link:hover,
+[data-md-color-scheme="solarized-light"] .md-nav__link:focus {
+  color: #2aa198 !important;
+}
+
+[data-md-color-scheme="solarized-light"] .md-nav__item--active > .md-nav__link,
+[data-md-color-scheme="solarized-light"] .md-nav__link--active {
+  color: #268bd2 !important;
+  font-weight: 600;
+}
+
+[data-md-color-scheme="solarized-light"] .md-nav--secondary .md-nav__link {
+  color: #657b83 !important;
+}
+
+[data-md-color-scheme="solarized-light"] .md-nav--secondary .md-nav__link:hover {
+  color: #2aa198 !important;
+}
+
+[data-md-color-scheme="solarized-light"] .md-nav--secondary .md-nav__link--active {
+  color: #268bd2 !important;
+  font-weight: 600;
+}
+
 /* -----------------------------------------------------------------------------
  * mkdocstrings & API Reference Harmonisation
  * ----------------------------------------------------------------------------- */
