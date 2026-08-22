@@ -138,7 +138,7 @@ main(void)
     created = NULL;
 
     if (!check(
-            scid_database_open_scid5_read_only(path, &reopened),
+            scid_database_open_scid5_read_only(path, NULL, NULL, NULL, NULL, &reopened),
             "scid_database_open_scid5_read_only") ||
         !check(
             scid_database_type_get(reopened, type, sizeof(type), &type_size),

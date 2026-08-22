@@ -128,14 +128,20 @@ extern "C"
     /**
      * @brief Opens an existing Scid 5 database for read-write operations.
      *
-     * @param[in]  path         Base filesystem path without extension (or with `.si5`). Must not be
-     * NULL.
-     * @param[out] out_database Pointer to a handle pointer receiving the opened database handle.
-     *                          Must not be NULL.
+     * @param[in]  path                      Base filesystem path without extension (or with
+     *                                       `.si5`). Must not be NULL.
+     * @param[in]  progress_report           Optional callback for opening progress notifications
+     *                                       (may be NULL).
+     * @param[in]  progress_report_user_data Context pointer passed to @p progress_report.
+     * @param[in]  should_cancel             Optional cancellation callback (may be NULL).
+     * @param[in]  should_cancel_user_data   Context pointer passed to @p should_cancel.
+     * @param[out] out_database              Pointer to a handle pointer receiving the opened
+     *                                       database handle. Must not be NULL.
      *
-     * @retval SCID_OK           Database opened successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p path or @p out_database is NULL.
-     * @retval SCID_ERROR        If the database files cannot be found or read.
+     * @retval SCID_OK                Database opened successfully.
+     * @retval SCID_ERROR_BAD_ARG     If @p path or @p out_database is NULL.
+     * @retval SCID_ERROR             If the database files cannot be found or read.
+     * @retval SCID_ERROR_USER_CANCEL If opening was cancelled by @p should_cancel.
      *
      * @note The caller acquires ownership of @p out_database and must release it with @ref
      * scid_database_free().
@@ -144,8 +150,12 @@ extern "C"
      */
     SCID_API scid_error
     scid_database_open_scid5(
-        const char*     path,
-        scid_database** out_database);
+        const char*                   path,
+        scid_progress_report_callback progress_report,
+        void*                         progress_report_user_data,
+        scid_should_cancel_fn         should_cancel,
+        void*                         should_cancel_user_data,
+        scid_database**               out_database);
 
 
     /**
@@ -153,14 +163,20 @@ extern "C"
      *
      * Prevents accidental modification and allows concurrent read access from multiple processes.
      *
-     * @param[in]  path         Base filesystem path without extension (or with `.si5`). Must not be
-     * NULL.
-     * @param[out] out_database Pointer to a handle pointer receiving the opened database handle.
-     *                          Must not be NULL.
+     * @param[in]  path                      Base filesystem path without extension (or with
+     *                                       `.si5`). Must not be NULL.
+     * @param[in]  progress_report           Optional callback for opening progress notifications
+     *                                       (may be NULL).
+     * @param[in]  progress_report_user_data Context pointer passed to @p progress_report.
+     * @param[in]  should_cancel             Optional cancellation callback (may be NULL).
+     * @param[in]  should_cancel_user_data   Context pointer passed to @p should_cancel.
+     * @param[out] out_database              Pointer to a handle pointer receiving the opened
+     *                                       database handle. Must not be NULL.
      *
-     * @retval SCID_OK           Database opened successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p path or @p out_database is NULL.
-     * @retval SCID_ERROR        If the database files cannot be found or read.
+     * @retval SCID_OK                Database opened successfully.
+     * @retval SCID_ERROR_BAD_ARG     If @p path or @p out_database is NULL.
+     * @retval SCID_ERROR             If the database files cannot be found or read.
+     * @retval SCID_ERROR_USER_CANCEL If opening was cancelled by @p should_cancel.
      *
      * @note The caller acquires ownership of @p out_database and must release it with @ref
      * scid_database_free().
@@ -169,8 +185,12 @@ extern "C"
      */
     SCID_API scid_error
     scid_database_open_scid5_read_only(
-        const char*     path,
-        scid_database** out_database);
+        const char*                   path,
+        scid_progress_report_callback progress_report,
+        void*                         progress_report_user_data,
+        scid_should_cancel_fn         should_cancel,
+        void*                         should_cancel_user_data,
+        scid_database**               out_database);
 
 
     /**

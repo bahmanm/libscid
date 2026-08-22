@@ -482,7 +482,8 @@ test_database(void)
     scid_database_free(persisted);
     persisted = NULL;
 
-    TEST_ASSERT(scid_database_open_scid5(persisted_path, &reopened) == SCID_OK);
+    TEST_ASSERT(
+        scid_database_open_scid5(persisted_path, NULL, NULL, NULL, NULL, &reopened) == SCID_OK);
     TEST_ASSERT(reopened != NULL);
     TEST_ASSERT(scid_database_filename_get(reopened, text, sizeof(text), &text_size) == SCID_OK);
     TEST_ASSERT(strcmp(text, "_libscid_c_test_scid5.si5") == 0);
@@ -528,8 +529,46 @@ test_database(void)
     scid_database_free(reopened);
     reopened = NULL;
 
-    TEST_ASSERT(scid_database_open_scid5_read_only(persisted_path, &read_only_database) == SCID_OK);
+    /* Verify Scid 5 open with progress monitoring */
+    progress = (struct progress_report_data){0, 0, 0, 0};
+    TEST_ASSERT(
+        scid_database_open_scid5(
+            persisted_path, progress_report, &progress, NULL, NULL, &reopened) == SCID_OK);
+    TEST_ASSERT(reopened != NULL);
+    TEST_ASSERT(progress.calls > 0);
+    TEST_ASSERT(progress.last_done == 1);
+    TEST_ASSERT(progress.last_total == 1);
+    TEST_ASSERT(scid_database_close(reopened) == SCID_OK);
+    scid_database_free(reopened);
+    reopened = NULL;
+
+    /* Verify Scid 5 open cancellation */
+    cancel = (struct should_cancel_data){0, 1};
+    TEST_ASSERT(
+        scid_database_open_scid5(persisted_path, NULL, NULL, should_cancel, &cancel, &reopened) ==
+        SCID_ERROR_USER_CANCEL);
+    TEST_ASSERT(reopened == NULL);
+    TEST_ASSERT(cancel.calls > 0);
+
+    /* Verify Scid 5 read-only open cancellation */
+    cancel = (struct should_cancel_data){0, 1};
+    TEST_ASSERT(
+        scid_database_open_scid5_read_only(
+            persisted_path, NULL, NULL, should_cancel, &cancel, &read_only_database) ==
+        SCID_ERROR_USER_CANCEL);
+    TEST_ASSERT(read_only_database == NULL);
+    TEST_ASSERT(cancel.calls > 0);
+
+    /* Verify Scid 5 read-only open with progress monitoring */
+    progress = (struct progress_report_data){0, 0, 0, 0};
+    TEST_ASSERT(
+        scid_database_open_scid5_read_only(
+            persisted_path, progress_report, &progress, NULL, NULL, &read_only_database) ==
+        SCID_OK);
     TEST_ASSERT(read_only_database != NULL);
+    TEST_ASSERT(progress.calls > 0);
+    TEST_ASSERT(progress.last_done == 1);
+    TEST_ASSERT(progress.last_total == 1);
     TEST_ASSERT(scid_database_read_only_get(read_only_database, &read_only) == SCID_OK);
     TEST_ASSERT(read_only == 1);
     TEST_ASSERT(scid_database_save(read_only_database) == SCID_ERROR_FILE_READ_ONLY);
@@ -586,16 +625,23 @@ test_database(void)
     TEST_ASSERT(scid_database_create_memory("bad", NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_database_create_scid5(NULL, &persisted) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_database_create_scid5("bad", NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_open_scid5(NULL, &reopened) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_open_scid5("bad", NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_open_scid5(missing_path, &reopened) == SCID_ERROR_FILE_OPEN);
+    TEST_ASSERT(
+        scid_database_open_scid5(NULL, NULL, NULL, NULL, NULL, &reopened) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_database_open_scid5("bad", NULL, NULL, NULL, NULL, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_database_open_scid5(missing_path, NULL, NULL, NULL, NULL, &reopened) ==
+        SCID_ERROR_FILE_OPEN);
     TEST_ASSERT(reopened == NULL);
     TEST_ASSERT(
-        scid_database_open_scid5_read_only(NULL, &read_only_database) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_open_scid5_read_only("bad", NULL) == SCID_ERROR_BAD_ARG);
+        scid_database_open_scid5_read_only(NULL, NULL, NULL, NULL, NULL, &read_only_database) ==
+        SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_database_open_scid5_read_only(missing_path, &read_only_database) ==
-        SCID_ERROR_FILE_OPEN);
+        scid_database_open_scid5_read_only("bad", NULL, NULL, NULL, NULL, NULL) ==
+        SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_database_open_scid5_read_only(
+            missing_path, NULL, NULL, NULL, NULL, &read_only_database) == SCID_ERROR_FILE_OPEN);
     TEST_ASSERT(read_only_database == NULL);
 
     remove_file(pgn_path);
