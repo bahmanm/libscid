@@ -1,6 +1,10 @@
 # libscid Python Documentation
 
+<img src="assets/img/libscid-16x9.png" alt="libscid Logo" align="left" width="30%" style="max-width: 30%; margin-right: 1.5rem; margin-bottom: 1rem;" />
+
 `libscid` is a high-performance chess library providing modern Python bindings built atop the standalone `libscid` C ABI. It delivers fast game representation, standard-compliant PGN parsing and serialization, functional navigation cursors, board analysis, tournament arbiter adjudication, and multi-criteria database indexing and search.
+
+<div style="clear: both;"></div>
 
 ---
 

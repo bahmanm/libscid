@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/bahmanm/libscid/main/docs/assets/img/libscid-16x9.png" alt="libscid Hero Banner" width="100%"/>
+</p>
+
 # libscid
 
 [![PyPI version](https://img.shields.io/pypi/v/libscid.svg)](https://pypi.org/project/libscid/)
