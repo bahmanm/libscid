@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ctypes
+import weakref
 from collections.abc import Iterator
 from typing import TYPE_CHECKING
 
@@ -47,6 +48,7 @@ class Game:
 
     _native: NativeLibrary
     _handle: ctypes.c_void_p
+    _finalizer: weakref.finalize
 
     def __init__(self, position: Position | None = None):
         """Initialise a blank chess game.
@@ -73,10 +75,10 @@ class Game:
         if position is None:
             self._native = load_library()
             self._handle = self._native.create_blank_game()
-            return
-
-        self._native = position._native
-        self._handle = self._native.create_blank_game(position._handle)
+        else:
+            self._native = position._native
+            self._handle = self._native.create_blank_game(position._handle)
+        self._finalizer = weakref.finalize(self, self._native.free_game, self._handle)
 
     @classmethod
     def from_pgn(cls, pgn: str | bytes, position: Position | None = None) -> Game:
@@ -117,6 +119,7 @@ class Game:
         game = cls.__new__(cls)
         game._native = native
         game._handle = handle
+        game._finalizer = weakref.finalize(game, native.free_game, handle)
         return game
 
     @property
@@ -284,10 +287,6 @@ class Game:
         return self._native.game_to_pgn(self._handle, options)
 
     def _dispose(self) -> None:
-        handle = getattr(self, "_handle", None)
-        if handle:
-            self._native.free_game(self._handle)
-            self._handle = ctypes.c_void_p()
-
-    def __del__(self) -> None:
-        self._dispose()
+        finalizer = getattr(self, "_finalizer", None)
+        if finalizer is not None:
+            finalizer()

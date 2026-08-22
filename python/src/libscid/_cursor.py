@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ctypes
+import weakref
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
@@ -50,6 +51,7 @@ class Cursor:
     _native: NativeLibrary
     _game: Any
     _handle: ctypes.c_void_p
+    _finalizer: weakref.finalize
 
     def __init__(self):
         """Disallow direct cursor instantiation.
@@ -70,6 +72,7 @@ class Cursor:
         cursor._native = native
         cursor._game = game
         cursor._handle = handle
+        cursor._finalizer = weakref.finalize(cursor, native.free_cursor, handle)
         return cursor
 
     def clone(self) -> Cursor:
@@ -726,10 +729,6 @@ class Cursor:
         )
 
     def _dispose(self) -> None:
-        handle = getattr(self, "_handle", None)
-        if handle:
-            self._native.free_cursor(self._handle)
-            self._handle = ctypes.c_void_p()
-
-    def __del__(self) -> None:
-        self._dispose()
+        finalizer = getattr(self, "_finalizer", None)
+        if finalizer is not None:
+            finalizer()

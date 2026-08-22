@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import contextlib
 import ctypes
 import os
+import weakref
 from collections.abc import Callable
 
 from ._database_filters import DatabaseFilters
@@ -16,6 +18,13 @@ ProgressReportCallback = Callable[[int, int, str | None], None]
 
 ShouldCancelFn = Callable[[], bool]
 """Predicate callback returning `True` to request cooperative cancellation."""
+
+
+def _finalize_database(native: NativeLibrary, handle: ctypes.c_void_p) -> None:
+    with contextlib.suppress(Exception):
+        native.close_database(handle)
+    with contextlib.suppress(Exception):
+        native.free_database(handle)
 
 
 class Database:
@@ -58,6 +67,7 @@ class Database:
     _handle: ctypes.c_void_p
     _filters: DatabaseFilters
     _search: DatabaseSearch
+    _finalizer: weakref.finalize
 
     def __init__(self):
         """Disallow direct database instantiation.
@@ -128,6 +138,9 @@ class Database:
         database._handle = handle
         database._filters = DatabaseFilters._from_database(native, database)
         database._search = DatabaseSearch._from_database(native, database)
+        database._finalizer = weakref.finalize(
+            database, _finalize_database, native, handle
+        )
         return database
 
     @property
@@ -328,10 +341,6 @@ class Database:
             self._native.close_database(handle)
 
     def _dispose(self) -> None:
-        handle = getattr(self, "_handle", None)
-        if handle:
-            self._native.free_database(handle)
-            self._handle = ctypes.c_void_p()
-
-    def __del__(self) -> None:
-        self._dispose()
+        finalizer = getattr(self, "_finalizer", None)
+        if finalizer is not None:
+            finalizer()
