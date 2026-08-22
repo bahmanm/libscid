@@ -123,8 +123,8 @@ Navigation and editing use `scid_game_cursor`. Cursors are immutable location po
 - Database Lifecycle:
   - `scid_database_create_memory(name, out_db)`
   - `scid_database_create_scid5(path, out_db)`
-  - `scid_database_open_scid5(path, out_db)`
-  - `scid_database_open_scid5_read_only(path, out_db)`
+  - `scid_database_open_scid5(path, progress_cb, user_data, cancel_fn, cancel_user_data, out_db)`
+  - `scid_database_open_scid5_read_only(path, progress_cb, user_data, cancel_fn, cancel_user_data, out_db)`
   - `scid_database_open_pgn_read_only(path, progress_cb, user_data, cancel_fn, cancel_user_data, out_db)`
   - `scid_database_save()`, `scid_database_close()`, `scid_database_free()`.
 - Game Management & Storage:

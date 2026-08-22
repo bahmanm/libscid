@@ -40,19 +40,31 @@ scid_database_create_scid5(
 
 scid_error
 scid_database_open_scid5(
-    const char*     path,
-    scid_database** out_database)
+    const char*                   path,
+    scid_progress_report_callback progress_report,
+    void*                         progress_report_user_data,
+    scid_should_cancel_fn         should_cancel,
+    void*                         should_cancel_user_data,
+    scid_database**               out_database)
 {
-    return database_open("SCID5", scid::database::FMODE_Both, path, out_database);
+    scid::database::Progress progress(new CallbackProgress(
+        progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+    return database_open("SCID5", scid::database::FMODE_Both, path, out_database, &progress);
 }
 
 
 scid_error
 scid_database_open_scid5_read_only(
-    const char*     path,
-    scid_database** out_database)
+    const char*                   path,
+    scid_progress_report_callback progress_report,
+    void*                         progress_report_user_data,
+    scid_should_cancel_fn         should_cancel,
+    void*                         should_cancel_user_data,
+    scid_database**               out_database)
 {
-    return database_open("SCID5", scid::database::FMODE_ReadOnly, path, out_database);
+    scid::database::Progress progress(new CallbackProgress(
+        progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+    return database_open("SCID5", scid::database::FMODE_ReadOnly, path, out_database, &progress);
 }
 
 
