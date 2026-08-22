@@ -125,7 +125,7 @@ libscid.python.qc-all : libscid.python.qc-format libscid.python.qc-static-analys
 
 ####################################################################################################
 
-libscid.python.docs :
+libscid.python.docs : libscid.python.configure
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync mkdocs build -f mkdocs.yml
 
@@ -133,7 +133,7 @@ libscid.python.docs :
 
 ####################################################################################################
 
-libscid.python.docs-serve :
+libscid.python.docs-serve : libscid.python.configure
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync mkdocs serve -f mkdocs.yml
 
