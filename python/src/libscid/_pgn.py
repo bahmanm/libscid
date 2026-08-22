@@ -30,13 +30,31 @@ class PgnOptions:
 
     Examples:
         >>> import libscid
-        >>> game = libscid.Game.from_pgn("1. e4 $1 {King pawn} (1. c4) e5 *")
+        >>> pgn_text = (
+        ...     '[Event "World Championship"]\\n'
+        ...     '[Site "London"]\\n'
+        ...     '[Date "2018.11.09"]\\n'
+        ...     '[Round "1"]\\n'
+        ...     '[White "Carlsen, Magnus"]\\n'
+        ...     '[Black "Caruana, Fabiano"]\\n'
+        ...     '[Result "1/2-1/2"]\\n'
+        ...     '[ECO "B31"]\\n'
+        ...     '[Annotator "Expert"]\\n\\n'
+        ...     '1. e4 $1 {King Pawn} (1. d4) 1... c5 *'
+        ... )
+        >>> game = libscid.Game.from_pgn(pgn_text)
+        >>> # Export with symbolic NAGs (! instead of $1) and no variations:
         >>> options = libscid.PgnOptions(
         ...     symbolic_nags=True,
-        ...     comments=False,
         ...     variations=False,
+        ...     supplemental_tags=False,
         ... )
-        >>> "1. e4 ! e5 *" in game.to_pgn(options)
+        >>> pgn_out = game.to_pgn(options)
+        >>> "1.e4 !" in pgn_out
+        True
+        >>> "(1.d4)" not in pgn_out
+        True
+        >>> '[Annotator "Expert"]' not in pgn_out
         True
     """
 

@@ -27,6 +27,10 @@ theme:
     - navigation.instant
     - navigation.tracking
     - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - toc.integrate
     - content.code.copy
     - content.code.annotate
     - search.suggest
@@ -45,8 +49,11 @@ plugins:
             show_category_heading: true
             members_order: source
             separate_signature: true
-            members: true
             merge_init_into_class: true
+            filters:
+              - "!^_"
+            show_signature_annotations: true
+            signature_crossrefs: true
 
 markdown_extensions:
   - admonition
@@ -64,4 +71,15 @@ extra_css:
 
 nav:
   - Overview: index.md
-  - API Reference: reference.md
+  - User Guides:
+      - Quick Start: guides/quickstart.md
+      - Game Traversal & Move Tree: guides/game_traversal.md
+      - Database Indexing & Searching: guides/database_search.md
+      - Movetext Event Iteration: guides/movetext_iteration.md
+      - Tournament Arbiter: guides/arbiter.md
+  - API Reference:
+      - Overview: reference/index.md
+      - Core (Game & Navigation): reference/core.md
+      - Database & Search: reference/database.md
+      - PGN, Notation & Events: reference/pgn.md
+      - Exceptions: reference/errors.md

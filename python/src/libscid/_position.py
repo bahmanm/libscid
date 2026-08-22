@@ -59,6 +59,16 @@ class Position:
 
         Raises:
             LibScidError: If `fen` is malformed or describes an illegal board setup.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+            ... )
+            >>> pos.side_to_move
+            'black'
+            >>> pos.get_piece_at("e4")
+            'P'
         """
         native = load_library()
         return cls._from_handle(native, native.create_position_from_fen(fen))
@@ -76,8 +86,16 @@ class Position:
 
         Returns:
             The complete FEN string including piece placement, side to move,
-            castling availability, en passant target square, halfmove clock,
-            and fullmove number.
+                castling availability, en passant target square, halfmove clock,
+                and fullmove number.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+            ... )
+            >>> pos.fen
+            'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
         """
         return self._native.position_to_fen(self._handle)
 
@@ -87,6 +105,14 @@ class Position:
 
         Returns:
             `"white"` if White is to move, or `"black"` if Black is to move.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            ... )
+            >>> pos.side_to_move
+            'white'
         """
         return self._native.position_side_to_move(self._handle)
 
@@ -98,6 +124,14 @@ class Position:
 
         Returns:
             The positive integer fullmove number.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1"
+            ... )
+            >>> pos.fullmove_number
+            1
         """
         return self._native.position_fullmove_number(self._handle)
 
@@ -110,6 +144,14 @@ class Position:
 
         Returns:
             The non-negative integer halfmove clock.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/8/5N2/PPPPPPPP/RNBQKB1R b KQkq - 1 1"
+            ... )
+            >>> pos.halfmove_clock
+            1
         """
         return self._native.position_halfmove_clock(self._handle)
 
@@ -119,6 +161,12 @@ class Position:
 
         Returns:
             `True` if the active player is in check; `False` otherwise.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen("4k3/8/8/8/8/8/4R3/4K3 b - - 0 1")
+            >>> pos.is_check
+            True
         """
         return self._native.position_is_check(self._handle)
 
@@ -131,6 +179,12 @@ class Position:
 
         Returns:
             `True` if the active player is checkmated; `False` otherwise.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen("R3k3/8/4K3/8/8/8/8/8 b - - 0 1")
+            >>> pos.is_checkmate
+            True
         """
         return self._native.position_is_checkmate(self._handle)
 
@@ -143,6 +197,12 @@ class Position:
 
         Returns:
             `True` if the position is stalemated; `False` otherwise.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen("k7/2Q5/1K6/8/8/8/8/8 b - - 0 1")
+            >>> pos.is_stalemate
+            True
         """
         return not self.is_check and not self.legal_moves
 
@@ -155,11 +215,23 @@ class Position:
 
         Returns:
             Single-character piece letter (`"K"`, `"Q"`, `"R"`, `"B"`, `"N"`, `"P"`
-            for White; `"k"`, `"q"`, `"r"`, `"b"`, `"n"`, `"p"` for Black), or
-            `None` if the square is empty.
+                for White; `"k"`, `"q"`, `"r"`, `"b"`, `"n"`, `"p"` for Black), or
+                `None` if the square is empty.
 
         Raises:
             LibScidError: If `square` is not a valid coordinate string.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            ... )
+            >>> pos.get_piece_at("e1")
+            'K'
+            >>> pos.get_piece_at("e8")
+            'k'
+            >>> pos.get_piece_at("e4") is None
+            True
         """
         return self._native.position_piece_at(self._handle, square)
 
@@ -169,7 +241,17 @@ class Position:
 
         Returns:
             Tuple of legal moves formatted as coordinate UCI strings
-            (e.g. `("e2e4", "g1f3")`).
+                (e.g. `("e2e4", "g1f3")`).
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            ... )
+            >>> len(pos.legal_moves)
+            20
+            >>> "e2e4" in pos.legal_moves
+            True
         """
         return self._native.position_legal_moves_uci(self._handle)
 
@@ -188,6 +270,22 @@ class Position:
 
         Raises:
             LibScidError: If `move` is illegal or ambiguous in the current position.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "r1bqkb1r/pppp1ppp/2n5/4p3/2B1n3/5N2/PPPP1PPP/RNBQK2R w KQkq - 0 5"
+            ... )
+            >>> flags = pos.get_move_metadata("O-O")
+            >>> bool(flags & libscid.MoveMetadata.CASTLING)
+            True
+            >>> mate_pos = libscid.Position.from_fen(
+            ...     "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR"
+            ...     " w KQkq - 4 4"
+            ... )
+            >>> mate_flags = mate_pos.get_move_metadata("Qxf7#")
+            >>> bool(mate_flags & libscid.MoveMetadata.CHECKMATE)
+            True
         """
         movespec, san = self._native.position_move_metadata(self._handle, move)
         metadata = MoveMetadata.NONE
@@ -213,10 +311,20 @@ class Position:
 
         Returns:
             Canonical Standard Algebraic Notation string (e.g. `"e4"`, `"O-O"`,
-            `"b8=Q+"`).
+                `"b8=Q+"`).
 
         Raises:
             LibScidError: If `move` is illegal or ambiguous in the current position.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            ... )
+            >>> pos.to_san("e2e4")
+            'e4'
+            >>> pos.to_san("g1f3")
+            'Nf3'
         """
         return self._native.position_to_san(self._handle, move)
 
@@ -232,6 +340,17 @@ class Position:
 
         Raises:
             LibScidError: If `san` is illegal or ambiguous in the current position.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            ... )
+            >>> pos.apply_san("e4")
+            >>> pos.get_piece_at("e4")
+            'P'
+            >>> pos.side_to_move
+            'black'
         """
         self._native.position_apply_san(self._handle, san)
 
@@ -246,6 +365,17 @@ class Position:
 
         Raises:
             LibScidError: If `uci` is illegal in the current position.
+
+        Examples:
+            >>> import libscid
+            >>> pos = libscid.Position.from_fen(
+            ...     "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+            ... )
+            >>> pos.apply_uci("e2e4")
+            >>> pos.get_piece_at("e4")
+            'P'
+            >>> pos.side_to_move
+            'black'
         """
         self._native.position_apply_uci(self._handle, uci)
 

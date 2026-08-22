@@ -30,16 +30,28 @@ class Database:
     factory class methods such as
     [`open_pgn_read_only()`][libscid.Database.open_pgn_read_only].
 
-    Example:
-        >>> import libscid
-        >>> database = libscid.Database.open_pgn_read_only("tournaments.pgn")
+    Examples:
+        >>> import tempfile, pathlib, libscid
+        >>> pgn = (
+        ...     '[Event "Match"]\\n[White "Capablanca"]\\n[Black "Lasker"]'
+        ...     '\\n\\n1. e4 e5 1-0\\n'
+        ... )
+        >>> with tempfile.NamedTemporaryFile(
+        ...     "w+", suffix=".pgn", delete=False
+        ... ) as f:
+        ...     _ = f.write(pgn)
+        ...     f.flush()
+        ...     path = f.name
+        >>> database = libscid.Database.open_pgn_read_only(path)
         >>> database.game_count
-        42
+        1
         >>> database.get_tag(0, "White")
-        'Capablanca, Jose Raul'
+        'Capablanca'
         >>> game = database.get_game(0)
         >>> game.mainline_move_count
-        64
+        2
+        >>> database.close()
+        >>> pathlib.Path(path).unlink()
     """
 
     _native: NativeLibrary
@@ -80,6 +92,24 @@ class Database:
         Raises:
             LibScidError: If the file cannot be opened, is malformed, or
                 indexing is cancelled.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = (
+            ...     '[Event "Hastings"]\\n[White "Capa"]\\n[Black "Lasker"]'
+            ...     '\\n\\n1. e4 1-0\\n'
+            ... )
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.game_count
+            1
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         native = load_library()
         return cls._from_handle(
@@ -102,27 +132,106 @@ class Database:
 
     @property
     def type(self) -> str:
-        """Database backend format identifier (e.g. 'PGN', 'Scid5', 'Memory')."""
+        """Database backend format identifier (e.g. 'PGN', 'Scid5', 'Memory').
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write('[Event "E"]\\n[White "W"]\\n\\n1. e4 1-0\\n')
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.type
+            'PGN'
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
+        """
         return self._native.database_type(self._handle)
 
     @property
     def read_only(self) -> bool:
-        """True if the database was opened in read-only mode."""
+        """True if the database was opened in read-only mode.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write('[Event "E"]\\n[White "W"]\\n\\n1. e4 1-0\\n')
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.read_only
+            True
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
+        """
         return self._native.database_read_only(self._handle)
 
     @property
     def game_count(self) -> int:
-        """Total number of games indexed in the database."""
+        """Total number of games indexed in the database.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write('[Event "E"]\\n[White "W"]\\n\\n1. e4 1-0\\n')
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.game_count
+            1
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
+        """
         return self._native.database_game_count(self._handle)
 
     @property
     def filters(self) -> DatabaseFilters:
-        """Filter manager for accessing and creating game subset views."""
+        """Filter manager for accessing and creating game subset views.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write('[Event "E"]\\n[White "W"]\\n\\n1. e4 1-0\\n')
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.filters.all_games.game_count
+            1
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
+        """
         return self._filters
 
     @property
     def search(self) -> DatabaseSearch:
-        """Query engine for executing header, board, and position searches."""
+        """Query engine for executing header, board, and position searches.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(
+            ...         '[Event "E"]\\n[White "Capablanca"]\\n\\n1. e4 1-0\\n'
+            ...     )
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> criteria = libscid.HeaderCriteria(white="Capablanca")
+            >>> filter_view = db.search.headers(criteria)
+            >>> filter_view.game_count
+            1
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
+        """
         return self._search
 
     def get_tag(self, index: int, name: str | bytes) -> str:
@@ -140,6 +249,25 @@ class Database:
 
         Raises:
             LibScidError: If `index` is out of bounds or the database is closed.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(
+            ...         '[Event "Match"]\\n[White "Tal"]\\n[Black "Botvinnik"]'
+            ...         '\\n\\n1. e4 1-0\\n'
+            ...     )
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.get_tag(0, "White")
+            'Tal'
+            >>> db.get_tag(0, "Black")
+            'Botvinnik'
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         return self._native.database_game_tag(self._handle, index, name)
 
@@ -151,17 +279,50 @@ class Database:
 
         Returns:
             A newly allocated [`Game`][libscid.Game] instance containing all
-            header tags, mainline moves, variation branches, and comments.
+                header tags, mainline moves, variation branches, and comments.
 
         Raises:
             LibScidError: If `index` is out of bounds or game deserialisation fails.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(
+            ...         '[Event "Match"]\\n[White "Tal"]\\n[Black "Botvinnik"]'
+            ...         '\\n\\n1. e4 e5 1-0\\n'
+            ...     )
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> game = db.get_game(0)
+            >>> game.get_tag("White")
+            'Tal'
+            >>> game.mainline_move_count
+            2
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         return Game._from_handle(
             self._native, self._native.database_game(self._handle, index)
         )
 
     def close(self) -> None:
-        """Close database storage files and release resources."""
+        """Close database storage files and release resources.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write('[Event "E"]\\n[White "W"]\\n\\n1. e4 1-0\\n')
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
+        """
         handle = getattr(self, "_handle", None)
         if handle:
             self._native.close_database(handle)

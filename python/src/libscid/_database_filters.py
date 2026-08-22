@@ -22,11 +22,26 @@ class DatabaseFilters:
     Direct instantiation of `DatabaseFilters` is disallowed; instances are
     accessed via the [`Database.filters`][libscid.Database.filters] property.
 
-    Example:
-        >>> import libscid
-        >>> database = libscid.Database.open_pgn_read_only("games.pgn")
-        >>> all_games = database.filters.all_games
+    Examples:
+        >>> import tempfile, pathlib, libscid
+        >>> pgn = '[Event "E1"]\\n\\n1. e4 1-0\\n\\n[Event "E2"]\\n\\n1. d4 1-0\\n'
+        >>> with tempfile.NamedTemporaryFile(
+        ...     "w+", suffix=".pgn", delete=False
+        ... ) as f:
+        ...     _ = f.write(pgn)
+        ...     f.flush()
+        ...     path = f.name
+        >>> database = libscid.Database.open_pgn_read_only(path)
+        >>> database.filters.all_games.game_count
+        2
+        >>> database.filters.primary.game_count
+        2
         >>> custom_filter = database.filters.create()
+        >>> custom_filter.game_count
+        2
+        >>> custom_filter.delete()
+        >>> database.close()
+        >>> pathlib.Path(path).unlink()
     """
 
     _native: NativeLibrary
@@ -51,14 +66,46 @@ class DatabaseFilters:
 
     @property
     def all_games(self) -> Filter:
-        """Universal built-in filter matching all games in the database."""
+        """Universal built-in filter matching all games in the database.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = '[Event "E1"]\\n\\n1. e4 1-0\\n\\n[Event "E2"]\\n\\n1. d4 1-0\\n'
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.filters.all_games.game_count
+            2
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
+        """
         return Filter._from_id(
             self._native, self._database, SCID_FILTER_ALL_GAMES, owned=False
         )
 
     @property
     def primary(self) -> Filter:
-        """Primary working filter used for interactive search results."""
+        """Primary working filter used for interactive search results.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = '[Event "E1"]\\n\\n1. e4 1-0\\n\\n[Event "E2"]\\n\\n1. d4 1-0\\n'
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.filters.primary.game_count
+            2
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
+        """
         return Filter._from_id(
             self._native, self._database, SCID_FILTER_PRIMARY, owned=False
         )
@@ -68,6 +115,23 @@ class DatabaseFilters:
 
         Returns:
             A newly allocated user [`Filter`][libscid.Filter].
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = '[Event "E1"]\\n\\n1. e4 1-0\\n'
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> custom = db.filters.create()
+            >>> custom.game_count
+            1
+            >>> custom.delete()
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         return Filter._from_id(
             self._native,

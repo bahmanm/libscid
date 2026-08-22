@@ -143,7 +143,7 @@ class HeaderCriteria:
         has_comments: If True, matches only games with text commentary.
         has_nags: If True, matches only games with Numeric Annotation Glyphs.
 
-    Example:
+    Examples:
         >>> import libscid
         >>> criteria = libscid.HeaderCriteria(
         ...     white="Kasparov",
@@ -152,6 +152,10 @@ class HeaderCriteria:
         ...     eco_max="B89",
         ...     has_comments=True,
         ... )
+        >>> criteria.white
+        'Kasparov'
+        >>> criteria.result
+        '1-0'
     """
 
     player: str | None = None
@@ -273,13 +277,25 @@ class DatabaseSearch:
     Direct instantiation of `DatabaseSearch` is disallowed; instances are
     accessed via the [`Database.search`][libscid.Database.search] property.
 
-    Example:
-        >>> import libscid
-        >>> database = libscid.Database.open_pgn_read_only("games.pgn")
+    Examples:
+        >>> import tempfile, pathlib, libscid
+        >>> pgn = (
+        ...     '[Event "E"]\\n[White "Fischer"]\\n[Black "Spassky"]\\n'
+        ...     '[Result "1-0"]\\n\\n1. e4 e5 1-0\\n'
+        ... )
+        >>> with tempfile.NamedTemporaryFile(
+        ...     "w+", suffix=".pgn", delete=False
+        ... ) as f:
+        ...     _ = f.write(pgn)
+        ...     f.flush()
+        ...     path = f.name
+        >>> database = libscid.Database.open_pgn_read_only(path)
         >>> criteria = libscid.HeaderCriteria(white="Fischer", result="1-0")
         >>> matched_filter = database.search.headers(criteria)
         >>> matched_filter.game_count
-        15
+        1
+        >>> database.close()
+        >>> pathlib.Path(path).unlink()
     """
 
     HeaderCriteria = HeaderCriteria
@@ -335,7 +351,7 @@ class DatabaseSearch:
 
         Returns:
             The `destination` [`Filter`][libscid.Filter] containing matching
-            game indices.
+                game indices.
 
         Raises:
             TypeError: If `criteria` is not a `HeaderCriteria` or filter
@@ -343,6 +359,30 @@ class DatabaseSearch:
             ValueError: If `destination` is the `all_games` filter or belongs to
                 a different database.
             LibScidError: If search execution fails or is cancelled.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = (
+            ...     '[Event "E1"]\\n[White "Fischer"]\\n[Result "1-0"]\\n\\n'
+            ...     '1. e4 1-0\\n\\n'
+            ...     '[Event "E2"]\\n[White "Spassky"]\\n[Result "0-1"]\\n\\n'
+            ...     '1. d4 0-1\\n'
+            ... )
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> criteria = libscid.HeaderCriteria(white="Fischer")
+            >>> result_filter = db.search.headers(criteria)
+            >>> result_filter.game_count
+            1
+            >>> result_filter.get_game_indices()
+            (0,)
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         if not isinstance(criteria, HeaderCriteria):
             raise TypeError("criteria must be a HeaderCriteria")
@@ -400,13 +440,36 @@ class DatabaseSearch:
 
         Returns:
             The `destination` [`Filter`][libscid.Filter] containing matching
-            game indices.
+                game indices.
 
         Raises:
             TypeError: If `position` is not a `Position`.
             ValueError: If `destination` is the `all_games` filter or belongs to
                 a different database.
             LibScidError: If search execution fails or is cancelled.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = (
+            ...     '[Event "E1"]\\n\\n1. e4 e5 1-0\\n\\n'
+            ...     '[Event "E2"]\\n\\n1. d4 d5 1-0\\n'
+            ... )
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> fen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+            >>> pos = libscid.Position.from_fen(fen)
+            >>> matched_filter = db.search.position(pos)
+            >>> matched_filter.game_count
+            1
+            >>> matched_filter.get_game_indices()
+            (0,)
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         if not isinstance(position, Position):
             raise TypeError("position must be a Position")
@@ -467,13 +530,36 @@ class DatabaseSearch:
 
         Returns:
             The `destination` [`Filter`][libscid.Filter] containing matching
-            game indices.
+                game indices.
 
         Raises:
             TypeError: If `position` is not a `Position`.
             ValueError: If `match` is invalid or `destination` is the `all_games`
                 filter.
             LibScidError: If search execution fails or is cancelled.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = (
+            ...     '[Event "E1"]\\n\\n1. e4 e5 1-0\\n\\n'
+            ...     '[Event "E2"]\\n\\n1. d4 d5 1-0\\n'
+            ... )
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> fen = "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+            >>> pos = libscid.Position.from_fen(fen)
+            >>> matched_filter = db.search.board(pos, match="exact")
+            >>> matched_filter.game_count
+            1
+            >>> matched_filter.get_game_indices()
+            (0,)
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         if not isinstance(position, Position):
             raise TypeError("position must be a Position")

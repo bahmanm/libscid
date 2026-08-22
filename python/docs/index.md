@@ -96,7 +96,19 @@ for index in indices:
 
 ---
 
-## 3. Documentation & Reference
+## 3. Documentation Structure
 
-- [API Reference](reference.md): Detailed API documentation for all public classes, methods, and types.
+### 3.1. User Guides
+- [Quick Start](guides/quickstart.md): Installation and introductory workflows.
+- [Game Traversal & Move Tree](guides/game_traversal.md): Tree navigation, immutable cursors, variations, and comments.
+- [Database Indexing & Searching](guides/database_search.md): Fast PGN indexing, multi-criteria queries, and filters.
+- [Movetext Event Iteration](guides/movetext_iteration.md): Event-driven tree streaming with `iter_movetext`.
+- [Tournament Arbiter](guides/arbiter.md): Fifty-move rule and threefold repetition adjudication.
+
+### 3.2. API Reference
+- [API Reference Overview](reference/index.md): Public surface overview and module breakdown.
+- [Core API Reference](reference/core.md): `Game`, `Cursor`, `Position`, `Arbiter`.
+- [Database & Search API Reference](reference/database.md): `Database`, `DatabaseFilters`, `DatabaseSearch`, `HeaderCriteria`, `Filter`.
+- [PGN, Notation & Events](reference/pgn.md): `PgnOptions`, `Nag`, `MoveMetadata`, `iter_movetext`, `MovetextEvent`.
+- [Exceptions Reference](reference/errors.md): `LibScidError`.
 

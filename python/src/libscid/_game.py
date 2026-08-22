@@ -27,7 +27,7 @@ class Game:
     Game tree traversal and editing are performed by creating a
     [`Cursor`][libscid.Cursor] via [`create_cursor()`][libscid.Game.create_cursor].
 
-    Example:
+    Examples:
         >>> import libscid
         >>> game = libscid.Game.from_pgn(
         ...     '[Event "World Championship"]\\n'
@@ -59,6 +59,16 @@ class Game:
             position: Optional custom starting [`Position`][libscid.Position].
                 If omitted or None, the standard chess starting board setup is
                 used.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game()
+            >>> game.get_tag("Result")
+            '*'
+            >>> pos = libscid.Position.from_fen("4k3/8/8/8/8/8/8/4K2R w K - 0 1")
+            >>> custom_game = libscid.Game(pos)
+            >>> custom_game.get_tag("FEN")
+            '4k3/8/8/8/8/8/8/4K2R w K - 0 1'
         """
         if position is None:
             self._native = load_library()
@@ -87,11 +97,11 @@ class Game:
             LibScidError: If the PGN syntax is invalid, illegal moves are
                 encountered, or parsing fails.
 
-        Example:
+        Examples:
             >>> import libscid
             >>> game = libscid.Game.from_pgn("1. d4 d5 2. c4 e6 *")
             >>> game.mainline_move_count
-            3
+            4
         """
         if position is None:
             native = load_library()
@@ -139,6 +149,14 @@ class Game:
 
         Returns:
             The tag value string, or an empty string if the tag is absent.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn('[White "Tal, Mikhail"] 1. e4 *')
+            >>> game.get_tag("White")
+            'Tal, Mikhail'
+            >>> game.get_tag("Annotator")
+            ''
         """
         return self._native.game_get_tag(self._handle, name)
 
@@ -151,6 +169,14 @@ class Game:
 
         Raises:
             LibScidError: If the tag value is invalid (e.g. malformed "Result").
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game()
+            >>> game.set_tag("White", "Spassky, Boris")
+            >>> game.set_tag("WhiteElo", "2660")
+            >>> game.get_tag("WhiteElo")
+            '2660'
         """
         self._native.game_set_tag(self._handle, name, value)
 
@@ -165,7 +191,16 @@ class Game:
 
         Returns:
             True if the tag was present and successfully removed; False if the
-            tag was not found or is non-removable.
+                tag was not found or is non-removable.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game()
+            >>> game.set_tag("Annotator", "Fischer")
+            >>> game.remove_tag("Annotator")
+            True
+            >>> game.remove_tag("White")
+            False
         """
         return self._native.game_remove_tag(self._handle, name)
 
@@ -174,6 +209,12 @@ class Game:
 
         Returns:
             A tuple of `(name, value)` string pairs representing all tags.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game()
+            >>> dict(game.get_tags())["Result"]
+            '*'
         """
         return self._native.game_get_tags(self._handle)
 
@@ -182,7 +223,14 @@ class Game:
 
         Returns:
             A new [`Cursor`][libscid.Cursor] positioned at the start of the
-            game.
+                game.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 e5 2. Nf3 *")
+            >>> cursor = game.create_cursor()
+            >>> cursor.next().previous_move_san
+            'e4'
         """
         return Cursor._from_handle(
             self._native, self, self._native.game_create_cursor(self._handle)
@@ -197,7 +245,17 @@ class Game:
 
         Returns:
             An iterator yielding [`MovetextEvent`][libscid.MovetextEvent]
-            instances.
+                instances.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 (1. d4 d5) 1... e5 *")
+            >>> moves = [
+            ...     e.san for e in game.iter_movetext()
+            ...     if isinstance(e, libscid.MovetextMove)
+            ... ]
+            >>> moves
+            ['e4', 'd4', 'd5', 'e5']
         """
         return self.create_cursor().iter_movetext(variations=variations)
 
@@ -211,6 +269,17 @@ class Game:
 
         Returns:
             PGN-formatted string representing the game.
+
+        Examples:
+            >>> import libscid
+            >>> game = libscid.Game.from_pgn("1. e4 $1 {King pawn} (1. c4) e5 *")
+            >>> options = libscid.PgnOptions(
+            ...     symbolic_nags=True,
+            ...     variations=False,
+            ... )
+            >>> pgn = game.to_pgn(options)
+            >>> "1.e4 ! {King pawn} 1...e5" in pgn
+            True
         """
         return self._native.game_to_pgn(self._handle, options)
 

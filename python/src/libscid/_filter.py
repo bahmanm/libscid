@@ -24,16 +24,26 @@ class Filter:
     [`DatabaseFilters.create()`][libscid.DatabaseFilters.create], or as search result
     destinations from [`DatabaseSearch`][libscid.DatabaseSearch].
 
-    Example:
-        >>> import libscid
-        >>> database = libscid.Database.open_pgn_read_only("games.pgn")
+    Examples:
+        >>> import tempfile, pathlib, libscid
+        >>> pgn = (
+        ...     '[Event "E1"]\\n[White "W1"]\\n\\n1. e4 1-0\\n\\n'
+        ...     '[Event "E2"]\\n[White "W2"]\\n\\n1. d4 1-0\\n'
+        ... )
+        >>> with tempfile.NamedTemporaryFile(
+        ...     "w+", suffix=".pgn", delete=False
+        ... ) as f:
+        ...     _ = f.write(pgn)
+        ...     f.flush()
+        ...     path = f.name
+        >>> database = libscid.Database.open_pgn_read_only(path)
         >>> all_games = database.filters.all_games
         >>> all_games.game_count
-        100
-        >>> # Get the first 10 game indices sorted by White player name:
-        >>> indices = all_games.get_game_indices(
-        ...     sort_criteria="W+", start_row=0, row_count=10
-        ... )
+        2
+        >>> all_games.get_game_indices(start_row=0, row_count=2)
+        (0, 1)
+        >>> database.close()
+        >>> pathlib.Path(path).unlink()
     """
 
     _native: NativeLibrary
@@ -64,7 +74,26 @@ class Filter:
 
     @property
     def game_count(self) -> int:
-        """Total number of games currently matched by this filter."""
+        """Total number of games currently matched by this filter.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = (
+            ...     '[Event "E1"]\\n\\n1. e4 1-0\\n\\n'
+            ...     '[Event "E2"]\\n\\n1. d4 1-0\\n'
+            ... )
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.filters.all_games.game_count
+            2
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
+        """
         return self._native.database_filter_game_count(
             self._database._handle, self._available_id()
         )
@@ -92,6 +121,28 @@ class Filter:
         Raises:
             ValueError: If `start_row` or `row_count` is negative, or if the
                 filter has been deleted.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = (
+            ...     '[Event "E1"]\\n\\n1. e4 1-0\\n\\n'
+            ...     '[Event "E2"]\\n\\n1. d4 1-0\\n\\n'
+            ...     '[Event "E3"]\\n\\n1. c4 1-0\\n'
+            ... )
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> filter_view = db.filters.all_games
+            >>> filter_view.get_game_indices("N+", start_row=1, row_count=2)
+            (1, 2)
+            >>> filter_view.get_game_indices()
+            (0, 1, 2)
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         self._check_non_negative("start_row", start_row)
         if row_count is None:
@@ -118,6 +169,24 @@ class Filter:
         Raises:
             ValueError: If `row` is negative or out of bounds, or if the filter
                 has been deleted.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = (
+            ...     '[Event "E1"]\\n\\n1. e4 1-0\\n\\n'
+            ...     '[Event "E2"]\\n\\n1. d4 1-0\\n'
+            ... )
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.filters.all_games.get_game_index_at_row(1, "N+")
+            1
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         self._check_non_negative("row", row)
         return self._native.database_filter_game_index_at_row(
@@ -139,6 +208,24 @@ class Filter:
         Raises:
             ValueError: If `game_index` is negative or not present in the filter,
                 or if the filter has been deleted.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = (
+            ...     '[Event "E1"]\\n\\n1. e4 1-0\\n\\n'
+            ...     '[Event "E2"]\\n\\n1. d4 1-0\\n'
+            ... )
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> db.filters.all_games.get_game_row_for_index(1, "N+")
+            1
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         self._check_non_negative("game_index", game_index)
         return self._native.database_filter_game_row_for_index(
@@ -152,6 +239,23 @@ class Filter:
             ValueError: If attempting to delete a built-in filter (such as
                 `all_games` or `primary`) or if the filter has already been
                 deleted.
+
+        Examples:
+            >>> import tempfile, pathlib, libscid
+            >>> pgn = '[Event "E1"]\\n\\n1. e4 1-0\\n'
+            >>> with tempfile.NamedTemporaryFile(
+            ...     "w+", suffix=".pgn", delete=False
+            ... ) as f:
+            ...     _ = f.write(pgn)
+            ...     f.flush()
+            ...     path = f.name
+            >>> db = libscid.Database.open_pgn_read_only(path)
+            >>> custom = db.filters.create()
+            >>> custom.game_count
+            1
+            >>> custom.delete()
+            >>> db.close()
+            >>> pathlib.Path(path).unlink()
         """
         if not self._owned:
             raise ValueError("built-in filters cannot be deleted")
