@@ -138,15 +138,19 @@ extern "C"
      * @param[out] out_database              Pointer to a handle pointer receiving the opened
      *                                       database handle. Must not be NULL.
      *
-     * @retval SCID_OK                Database opened successfully.
-     * @retval SCID_ERROR_BAD_ARG     If @p path or @p out_database is NULL.
-     * @retval SCID_ERROR             If the database files cannot be found or read.
-     * @retval SCID_ERROR_USER_CANCEL If opening was cancelled by @p should_cancel.
+     * @retval SCID_OK                     Database opened successfully.
+     * @retval SCID_WARNING_NAME_DATA_LOSS Database opened in degraded read-only mode due to
+     *                                     unresolvable name records. @p out_database is valid.
+     * @retval SCID_ERROR_BAD_ARG          If @p path or @p out_database is NULL.
+     * @retval SCID_ERROR                  If the database files cannot be found or read.
+     * @retval SCID_ERROR_USER_CANCEL      If opening was cancelled by @p should_cancel.
      *
-     * @note The caller acquires ownership of @p out_database and must release it with @ref
-     * scid_database_free().
+     * @note On @ref SCID_OK and @ref SCID_WARNING_NAME_DATA_LOSS, the caller acquires ownership of
+     * @p out_database and must release it with @ref scid_database_free(). On fatal errors,
+     * @p out_database is set to NULL.
      *
      * @see scid_database_open_scid5_read_only()
+     * @see scid_database_status_open_get()
      */
     SCID_API scid_error
     scid_database_open_scid5(
@@ -173,15 +177,19 @@ extern "C"
      * @param[out] out_database              Pointer to a handle pointer receiving the opened
      *                                       database handle. Must not be NULL.
      *
-     * @retval SCID_OK                Database opened successfully.
-     * @retval SCID_ERROR_BAD_ARG     If @p path or @p out_database is NULL.
-     * @retval SCID_ERROR             If the database files cannot be found or read.
-     * @retval SCID_ERROR_USER_CANCEL If opening was cancelled by @p should_cancel.
+     * @retval SCID_OK                     Database opened successfully.
+     * @retval SCID_WARNING_NAME_DATA_LOSS Database opened in degraded read-only mode due to
+     *                                     unresolvable name records. @p out_database is valid.
+     * @retval SCID_ERROR_BAD_ARG          If @p path or @p out_database is NULL.
+     * @retval SCID_ERROR                  If the database files cannot be found or read.
+     * @retval SCID_ERROR_USER_CANCEL      If opening was cancelled by @p should_cancel.
      *
-     * @note The caller acquires ownership of @p out_database and must release it with @ref
-     * scid_database_free().
+     * @note On @ref SCID_OK and @ref SCID_WARNING_NAME_DATA_LOSS, the caller acquires ownership of
+     * @p out_database and must release it with @ref scid_database_free(). On fatal errors,
+     * @p out_database is set to NULL.
      *
      * @see scid_database_open_scid5()
+     * @see scid_database_status_open_get()
      */
     SCID_API scid_error
     scid_database_open_scid5_read_only(
@@ -204,17 +212,17 @@ extern "C"
      * (may be NULL).
      * @param[in]  progress_report_user_data Context pointer passed to @p progress_report.
      * @param[in]  should_cancel             Optional cancellation callback (may be NULL).
-     * @param[in]  should_cancel_user_data  Context pointer passed to @p should_cancel.
+     * @param[in]  should_cancel_user_data   Context pointer passed to @p should_cancel.
      * @param[out] out_database              Pointer to a handle pointer receiving the opened
      * database handle. Must not be NULL.
      *
-     * @retval SCID_OK           Database opened and indexed successfully.
-     * @retval SCID_ERROR_BAD_ARG If @p path or @p out_database is NULL.
-     * @retval SCID_ERROR        If the file cannot be opened or parsed.
-     * @retval SCID_ERROR_CANCEL If indexing was cancelled by @p should_cancel.
+     * @retval SCID_OK                Database opened and indexed successfully.
+     * @retval SCID_ERROR_BAD_ARG     If @p path or @p out_database is NULL.
+     * @retval SCID_ERROR             If the file cannot be opened or parsed.
+     * @retval SCID_ERROR_USER_CANCEL If indexing was cancelled by @p should_cancel.
      *
      * @note The caller acquires ownership of @p out_database and must release it with @ref
-     * scid_database_free().
+     * scid_database_free(). On fatal errors, @p out_database is set to NULL.
      */
     SCID_API scid_error
     scid_database_open_pgn_read_only(
@@ -267,6 +275,70 @@ extern "C"
     scid_database_is_open(
         const scid_database* database,
         int*                 out_is_open);
+
+
+    /**
+     * @brief Queries the initial open status code (e.g. SCID_OK or SCID_WARNING_NAME_DATA_LOSS).
+     *
+     * @param[in]  database    Pointer to the database handle. Must not be NULL.
+     * @param[out] out_status  Pointer receiving the initial open status code. Must not be NULL.
+     *
+     * @retval SCID_OK           Status code retrieved successfully.
+     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_status is NULL.
+     */
+    SCID_API scid_error
+    scid_database_status_open_get(
+        const scid_database* database,
+        scid_error*          out_status);
+
+
+    /**
+     * @brief Returns the count of corrupted or unresolvable name identifiers encountered during
+     * open.
+     *
+     * @param[in]  database   Pointer to the database handle. Must not be NULL.
+     * @param[out] out_count  Pointer receiving the count of invalid name references (0 if clean).
+     *                        Must not be NULL.
+     *
+     * @retval SCID_OK           Count retrieved successfully.
+     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_count is NULL.
+     */
+    SCID_API scid_error
+    scid_database_status_bad_name_count_get(
+        const scid_database* database,
+        size_t*              out_count);
+
+
+    /**
+     * @brief Checks whether the database session is operating in read-only mode.
+     *
+     * @param[in]  database          Pointer to the database handle. Must not be NULL.
+     * @param[out] out_is_read_only  Pointer receiving non-zero (`1`) if read-only; zero (`0`)
+     *                               if writable. Must not be NULL.
+     *
+     * @retval SCID_OK           Query completed successfully.
+     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_is_read_only is NULL.
+     */
+    SCID_API scid_error
+    scid_database_status_is_read_only(
+        const scid_database* database,
+        int*                 out_is_read_only);
+
+
+    /**
+     * @brief Checks whether the database session contains unpersisted in-memory modifications.
+     *
+     * @param[in]  database     Pointer to the database handle. Must not be NULL.
+     * @param[out] out_is_dirty Pointer receiving non-zero (`1`) if modifications exist; zero (`0`)
+     *                          if clean. Must not be NULL.
+     *
+     * @retval SCID_OK           Query completed successfully.
+     * @retval SCID_ERROR_BAD_ARG If @p database or @p out_is_dirty is NULL.
+     */
+    SCID_API scid_error
+    scid_database_status_is_dirty(
+        const scid_database* database,
+        int*                 out_is_dirty);
 
 
     /**

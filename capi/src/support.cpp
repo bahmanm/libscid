@@ -560,6 +560,8 @@ namespace scid::libscid
                 return SCID_ERROR_FILE_READ_ONLY;
             case scid::core::ERROR_Corrupt:
                 return SCID_ERROR_CORRUPT;
+            case scid::core::ERROR_NameDataLoss:
+                return SCID_WARNING_NAME_DATA_LOSS;
             default:
                 return SCID_ERROR;
         }
@@ -632,11 +634,23 @@ namespace scid::libscid
             const auto& selected_progress = progress == nullptr ? default_progress : *progress;
             auto*       database = new scid_database;
             const auto  error = database->value.open(db_type, mode, path, selected_progress);
-            if (error != scid::core::OK)
+            const auto  open_status = database_error_to_c(error);
+            database->open_status = open_status;
+            if (scid_is_error(open_status))
             {
                 delete database;
                 *out_database = nullptr;
-                return database_error_to_c(error);
+                return open_status;
+            }
+
+            if (database->open_status == SCID_WARNING_NAME_DATA_LOSS)
+            {
+                unsigned long long n_deleted = 0;
+                unsigned long long n_unused = 0;
+                unsigned long long n_sparse = 0;
+                unsigned long long n_badNameId = 0;
+                database->value.getCompactStat(&n_deleted, &n_unused, &n_sparse, &n_badNameId);
+                database->bad_name_count = static_cast<size_t>(n_badNameId);
             }
 
             if (db_type == "MEMORY")
@@ -653,7 +667,7 @@ namespace scid::libscid
             }
 
             *out_database = database;
-            return SCID_OK;
+            return database->open_status;
         }
         catch (...)
         {

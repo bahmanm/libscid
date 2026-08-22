@@ -30,13 +30,14 @@ extern "C"
     /**
      * @brief Numeric status code returned by public API functions.
      *
-     * A value of @ref SCID_OK indicates success; any non-zero value represents a specific error
-     * condition.
+     * A value of @ref SCID_OK indicates complete success. Warning codes (such as @ref
+     * SCID_WARNING_NAME_DATA_LOSS) indicate that an operation succeeded in a degraded but usable
+     * state. Error codes represent fatal failures.
      */
     typedef unsigned short scid_error;
 
     /**
-     * @brief Error code enumerators.
+     * @brief Status and error code enumerators.
      */
     enum
     {
@@ -61,6 +62,15 @@ extern "C"
         /** Corrupted database index, header, or data record encountered. */
         SCID_ERROR_CORRUPT = 152,
 
+        /**
+         * @brief Non-fatal warning: database was opened in degraded mode due to unresolvable name
+         * records.
+         *
+         * The database handle is valid and populated for read-only inspection. Direct mutations
+         * are rejected until the database is compacted or repaired.
+         */
+        SCID_WARNING_NAME_DATA_LOSS = 206,
+
         /** Malformed or syntactically invalid Forsyth–Edwards Notation (FEN) string. */
         SCID_ERROR_INVALID_FEN = 301,
 
@@ -70,6 +80,27 @@ extern "C"
         /** Destination buffer capacity is insufficient to receive output text or items. */
         SCID_ERROR_BUFFER_FULL = 601
     };
+
+    /**
+     * @brief Evaluates whether a status code represents a non-fatal, recoverable warning.
+     *
+     * @param[in] status Status code to inspect.
+     *
+     * @return Non-zero (`1`) if @p status is a warning; zero (`0`) otherwise.
+     */
+    SCID_API int
+    scid_is_warning(scid_error status);
+
+
+    /**
+     * @brief Evaluates whether a status code represents a fatal failure.
+     *
+     * @param[in] status Status code to inspect.
+     *
+     * @return Non-zero (`1`) if @p status is a fatal error; zero (`0`) otherwise.
+     */
+    SCID_API int
+    scid_is_error(scid_error status);
 
     /** @} */
 

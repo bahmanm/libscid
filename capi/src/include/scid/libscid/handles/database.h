@@ -13,6 +13,8 @@ struct scid_database
 {
         scid::database::scidBaseT                           value;
         std::string                                         type;
+        scid_error                                          open_status = SCID_OK;
+        size_t                                              bad_name_count = 0;
         scid_filter_id                                      next_filter_id = 1;
         std::vector<std::pair<scid_filter_id, std::string>> filters;
 };
