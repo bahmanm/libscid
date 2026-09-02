@@ -1,4 +1,4 @@
-# API Surface {#api_surface}
+# API Surface
 
 The installed API surface is the C ABI declared by `scid/scid.h`.
 

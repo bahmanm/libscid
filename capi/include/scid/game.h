@@ -369,7 +369,7 @@ extern "C"
     /**
      * @brief Merge mode enumerators.
      */
-    enum
+    enum scid_game_merge_moves_modes
     {
         /** Append source moves to the end of the current line (requires cursor at line end). */
         SCID_GAME_MERGE_MOVES_APPEND = 0,

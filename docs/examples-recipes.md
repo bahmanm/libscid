@@ -1,4 +1,4 @@
-# Examples and Recipes {#examples_recipes}
+# Examples and Recipes
 
 The examples are small standalone consumers of an installed libscid package.
 They double as concept guides: each one introduces a narrow C ABI workflow and

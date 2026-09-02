@@ -1,4 +1,4 @@
-# Installation {#installation}
+# Installation
 
 libscid can be used from a release archive or installed from a source checkout.
 The release archives are the easiest way to consume the library in another

@@ -43,7 +43,7 @@ extern "C"
     /**
      * @brief Matching algorithms for board configuration search.
      */
-    enum
+    enum scid_board_search_match_modes
     {
         /** @brief Exact piece placement: all pieces and pawns on identical squares. */
         SCID_BOARD_SEARCH_MATCH_EXACT = 0,

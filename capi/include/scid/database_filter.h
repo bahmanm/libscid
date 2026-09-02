@@ -44,7 +44,7 @@ extern "C"
     /**
      * @brief Special filter constants for universal and primary database views.
      */
-    enum
+    enum scid_filter_constants
     {
         /** @brief Pseudo-filter matching all games in the database without exclusion. */
         SCID_FILTER_ALL_GAMES = -1,
