@@ -1,0 +1,31 @@
+{
+  "baseUrl": "/capi/reference/",
+  "copyImages": false,
+  "fileExt": "md",
+  "filesFilter": [],
+  "folderClassesName": "classes",
+  "folderExamplesName": "examples",
+  "folderFilesName": "files",
+  "folderGroupsName": "modules",
+  "folderNamespacesName": "namespaces",
+  "folderRelatedPagesName": "pages",
+  "foldersToGenerate": [
+    "modules",
+    "classes",
+    "files"
+  ],
+  "indexClassesName": "index_classes",
+  "indexClassesTitle": "Classes & Data Structures",
+  "indexFilesName": "index_files",
+  "indexFilesTitle": "Header Files",
+  "indexGroupsName": "index_modules",
+  "indexGroupsTitle": "C ABI Modules",
+  "indexInFolders": false,
+  "linkAndInlineCodeAsHTML": false,
+  "linkLowercase": false,
+  "linkSuffix": ".md",
+  "mainPageInRoot": false,
+  "replaceUnderscoresInAnchors": true,
+  "sort": true,
+  "useFolders": true
+}

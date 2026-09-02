@@ -33,18 +33,17 @@ EXTRACT_STATIC         = NO
 HIDE_UNDOC_MEMBERS     = NO
 HIDE_UNDOC_CLASSES     = NO
 
-GENERATE_HTML          = YES
+GENERATE_HTML          = NO
 HTML_OUTPUT            = html
-HTML_EXTRA_STYLESHEET  = "@LIBSCID_SOURCE_ROOT@/docs/doxygen/libscid.css"
-HTML_EXTRA_FILES       = "@LIBSCID_SOURCE_ROOT@/docs/assets/img/libscid-tiny.png" \
-                         "@LIBSCID_SOURCE_ROOT@/docs/assets/img/libscid-16x10.png"
-HTML_DYNAMIC_SECTIONS  = YES
-GENERATE_TREEVIEW      = YES
-DISABLE_INDEX          = NO
-SEARCHENGINE           = YES
 
 GENERATE_XML           = YES
 XML_OUTPUT             = xml
+XML_PROGRAMLISTING     = NO
+
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF_POS = YES
+PREDEFINED             = SCID_API=
 
 GENERATE_LATEX         = NO
 GENERATE_MAN           = NO

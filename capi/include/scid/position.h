@@ -232,7 +232,7 @@ extern "C"
     /**
      * @brief Maximum theoretical legal moves possible in any valid chess position.
      */
-    enum
+    enum scid_position_limits
     {
         SCID_MAX_LEGAL_MOVES = 256
     };

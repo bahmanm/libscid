@@ -40,7 +40,7 @@ extern "C"
     /**
      * @brief ECO code constants and capacity limits.
      */
-    enum
+    enum scid_eco_constants
     {
         /** Sentinel value indicating no ECO classification or an unclassified position. */
         SCID_ECO_NONE = 0,
@@ -58,7 +58,7 @@ extern "C"
     /**
      * @brief ECO string format specifiers.
      */
-    enum
+    enum scid_eco_formats
     {
         /** Basic 3-character format without sub-variations (e.g. "B20", "C84"). */
         SCID_ECO_FORMAT_BASIC = 0,

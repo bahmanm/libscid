@@ -1,10 +1,10 @@
-# Quick Start {#quick_start}
+# Quick Start
 
 This guide shows three small ways to consume an installed libscid release:
 direct `cc`, a simple Makefile, and CMake.
 
 The examples use a local installation directory named `install/libscid`.
-See @ref installation "Installation" if libscid is not installed yet.
+See [Installation](installation.md) if libscid is not installed yet.
 
 ## Example Program
 
@@ -66,7 +66,7 @@ The PGN-facing game API is built from a few foundational calls:
   control symbolic NAGs, supplemental tags, comments, variations and line
   width.
 
-See @ref examples_recipes "Examples and Recipes" for complete programs that
+See [Examples and Recipes](examples-recipes.md) for complete programs that
 parse, author, navigate, mutate and export PGN.
 
 ## With cc

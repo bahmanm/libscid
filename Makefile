@@ -57,7 +57,7 @@ libscid.docs : $(libscid.__components:%=libscid.%.docs)
 	mkdir -p $(libscid.__docs.public.dir)python/
 	cp $(libscid.__docs.hub.dir)index.html $(libscid.__docs.public.dir)
 	cp -r $(libscid.__docs.assets.dir)img/* $(libscid.__docs.public.dir)assets/img/
-	cp -r $(ROOT)capi/_build/docs/doxygen/html/* $(libscid.__docs.public.dir)capi/
+	cp -r $(ROOT)capi/_build/docs/site/* $(libscid.__docs.public.dir)capi/
 	cp -r $(ROOT)python/_build/docs/site/* $(libscid.__docs.public.dir)python/
 
 .PHONY : libscid.docs

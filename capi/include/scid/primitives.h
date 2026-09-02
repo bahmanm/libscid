@@ -39,7 +39,7 @@ extern "C"
     /**
      * @brief Status and error code enumerators.
      */
-    enum
+    enum scid_error_code
     {
         /** Operation completed successfully. */
         SCID_OK = 0,
@@ -119,7 +119,7 @@ extern "C"
     /**
      * @brief Player colour enumerators.
      */
-    enum
+    enum scid_colour_type
     {
         /** White player. */
         SCID_WHITE = 0,
@@ -150,7 +150,7 @@ extern "C"
     /**
      * @brief Chess piece enumerators.
      */
-    enum
+    enum scid_piece_type
     {
         /** Empty square or absence of a piece. */
         SCID_PIECE_NONE = 0,

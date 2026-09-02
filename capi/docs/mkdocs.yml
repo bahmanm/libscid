@@ -1,0 +1,79 @@
+site_name: libscid C ABI
+site_url: https://libscid.bahmanm.com/capi/
+repo_url: https://github.com/bahmanm/libscid
+repo_name: bahmanm/libscid
+docs_dir: ../../docs
+site_dir: ../_build/docs/site
+
+theme:
+  name: material
+  logo: assets/img/libscid-tiny.png
+  favicon: assets/img/libscid-tiny.png
+  font:
+    text: Cantarell
+    code: Oxygen Mono
+  palette:
+    - scheme: solarized-light
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: solarized-dark
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - toc.integrate
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+extra_css:
+  - stylesheets/solarized.css
+
+nav:
+  - Overview: index.md
+  - Guides:
+      - Quick Start: quick-start.md
+      - Installation: installation.md
+      - Architecture: architecture.md
+      - Examples & Recipes: examples-recipes.md
+      - API Surface: api-surface.md
+  - C ABI Reference:
+      - Modules Overview: reference/index_modules.md
+      - Database Management: reference/modules/group__database.md
+      - Database Filters & Sorting: reference/modules/group__database__filter.md
+      - Database Search Engine: reference/modules/group__database__search.md
+      - ECO Classification: reference/modules/group__eco.md
+      - Game Management: reference/modules/group__game.md
+      - Game Movetext Cursor: reference/modules/group__game__cursor.md
+      - PGN Serialisation: reference/modules/group__game__pgn.md
+      - Move Representation & Codecs: reference/modules/group__movespec.md
+      - Board Position: reference/modules/group__position.md
+      - Primitives & Error Codes: reference/modules/group__primitives.md
+      - Data Structures: reference/index_classes.md
+      - Header Files: reference/index_files.md

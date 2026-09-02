@@ -163,8 +163,17 @@ runs:
       run: |
         if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
-            sudo apt-get install --yes default-jre doxygen graphviz plantuml
+            sudo apt-get install --yes default-jre doxygen graphviz plantuml unzip
             plantuml_jar="$(dpkg -L plantuml | awk '/\/plantuml\.jar$/ { print; exit }')"
+
+            doxybook2_version=1.6.4
+            doxybook2_tmp="$(mktemp -d)"
+            curl -fsSL \
+                "https://github.com/GeniusVentures/doxybook2/releases/download/v${doxybook2_version}/doxybook2-linux-amd64-v${doxybook2_version}.zip" \
+                -o "$doxybook2_tmp/doxybook2.zip"
+            unzip -q "$doxybook2_tmp/doxybook2.zip" -d "$doxybook2_tmp"
+            sudo install -m 0755 "$doxybook2_tmp/bin/doxybook2" /usr/local/bin/doxybook2
+            rm -rf "$doxybook2_tmp"
         elif [[ "$RUNNER_OS" == "macOS" ]]; then
             brew install doxygen graphviz plantuml
             plantuml_jar="$(brew --prefix plantuml)/libexec/plantuml.jar"
