@@ -1,6 +1,7 @@
 find_package( Doxygen REQUIRED )
 find_package( Python3 REQUIRED COMPONENTS Interpreter )
 find_program( DOXYBOOK2_EXECUTABLE NAMES doxybook2 DOC "Path to doxybook2 executable." )
+find_program( UV_EXECUTABLE NAMES uv DOC "Path to uv executable." )
 find_program( MKDOCS_EXECUTABLE NAMES mkdocs HINTS "${LIBSCID_SOURCE_ROOT}/capi/docs/.venv/bin" DOC "Path to mkdocs executable." )
 
 set( LIBSCID_DOXYGEN_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/doxygen" )
@@ -27,11 +28,14 @@ else()
     message( WARNING "doxybook2 executable not found; C ABI Markdown reference generation will be skipped." )
 endif()
 
-if( MKDOCS_EXECUTABLE )
+if( UV_EXECUTABLE )
+    list( APPEND LIBSCID_DOCS_COMMANDS
+        COMMAND "${UV_EXECUTABLE}" run --project "${LIBSCID_SOURCE_ROOT}/capi/docs" mkdocs build -f "${LIBSCID_MKDOCS_CONFIG}" -d "${LIBSCID_SITE_OUTPUT_DIR}" )
+elseif( MKDOCS_EXECUTABLE )
     list( APPEND LIBSCID_DOCS_COMMANDS
         COMMAND "${MKDOCS_EXECUTABLE}" build -f "${LIBSCID_MKDOCS_CONFIG}" -d "${LIBSCID_SITE_OUTPUT_DIR}" )
 else()
-    message( WARNING "mkdocs executable not found; MkDocs HTML site generation will be skipped." )
+    message( WARNING "Neither 'uv' nor 'mkdocs' executable found; MkDocs HTML site generation will be skipped." )
 endif()
 
 add_custom_target(
