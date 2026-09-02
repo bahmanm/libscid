@@ -1,0 +1,17 @@
+[project]
+name = "libscid-capi-docs"
+version = "0.0.0"
+description = "Documentation toolchain specification for libscid C ABI."
+requires-python = ">=3.10"
+dependencies = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.5.0",
+    "pymdown-extensions>=11.0",
+]
+
+[dependency-groups]
+dev = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.5.0",
+    "pymdown-extensions>=11.0",
+]
