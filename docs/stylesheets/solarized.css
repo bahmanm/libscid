@@ -161,6 +161,40 @@ kbd,
   color: #eee8d5;
 }
 
+[data-md-color-scheme="solarized-dark"] .doc-heading {
+  background-color: rgba(42, 161, 152, 0.16);
+  border-left-color: #268bd2;
+  color: #eee8d5;
+}
+
+[data-md-color-scheme="solarized-dark"] .doc-object-name {
+  color: #eee8d5;
+}
+
+[data-md-color-scheme="solarized-dark"] .doc-section-title {
+  color: #2aa198 !important;
+  font-weight: 700;
+}
+
+[data-md-color-scheme="solarized-dark"] .doc-signature {
+  background-color: #073642;
+  border-color: rgba(147, 161, 161, 0.25);
+  color: #93a1a1;
+}
+
+[data-md-color-scheme="solarized-dark"] details.mkdocstrings-source,
+[data-md-color-scheme="solarized-dark"] details.mkdocstrings-source summary {
+  background-color: #073642 !important;
+  color: #93a1a1 !important;
+  border: 1px solid rgba(147, 161, 161, 0.25) !important;
+  border-radius: 4px;
+}
+
+[data-md-color-scheme="solarized-dark"] details.mkdocstrings-source summary:hover {
+  color: #eee8d5 !important;
+  background-color: #0c4352 !important;
+}
+
 [data-md-color-scheme="solarized-dark"] .md-typeset table:not([class]) {
   border-color: rgba(147, 161, 161, 0.25);
   background-color: #002b36;
@@ -285,4 +319,79 @@ kbd,
   background-color: var(--md-default-bg-color--light);
   color: var(--md-default-fg-color);
   font-weight: 600;
+}
+
+/* -----------------------------------------------------------------------------
+ * mkdocstrings & API Reference Harmonisation
+ * ----------------------------------------------------------------------------- */
+.doc-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background-color: rgba(42, 161, 152, 0.16);
+  border-left: 4px solid var(--md-primary-fg-color);
+  padding: 0.45rem 0.85rem;
+  border-radius: 4px;
+  margin-top: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.doc-object-name,
+.doc-symbol-name,
+.doc-function-name,
+.doc-class-name,
+.doc-attribute-name {
+  font-family: var(--md-code-font) !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.doc-labels {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.doc-label {
+  font-family: var(--md-code-font);
+  font-size: 0.72rem !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 !important;
+  background-color: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.doc-label-property {
+  color: #2aa198 !important;
+}
+
+.doc-label-class,
+.doc-label-dataclass {
+  color: #268bd2 !important;
+}
+
+.doc-label-classmethod,
+.doc-label-staticmethod {
+  color: #6c71c4 !important;
+}
+
+.doc-label-instance-attribute,
+.doc-label-class-attribute,
+.doc-label-module-attribute {
+  color: #b58900 !important;
+}
+
+.doc-signature {
+  margin: 0.4rem 0 0.8rem 0;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 4px;
+}
+
+.doc-contents {
+  margin-top: 0.5rem;
 }
