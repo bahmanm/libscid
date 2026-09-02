@@ -20,7 +20,7 @@ libscid.python.__qc.paths := src tests hatch_build.py ../examples/python
 
 libscid.python.configure :
 	cd $(libscid.python.__project.dir) \
-	&& $(LIBSCID_UV) sync $(LIBSCID_UV_FLAGS)
+	&& $(LIBSCID_UV) sync --all-groups $(LIBSCID_UV_FLAGS)
 
 .PHONY : libscid.python.configure
 
