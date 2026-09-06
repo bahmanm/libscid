@@ -3,7 +3,7 @@ description: Install runner-local tools and export libscid compiler/documentatio
 
 inputs:
   make:
-    description: Install GNU Make and bmakelib.
+    description: Install GNU Make.
     default: "false"
   uv:
     description: Install uv with the active Python.
@@ -79,51 +79,6 @@ runs:
             exit 1
         fi
 
-    - name: Install bmakelib
-      if: ${{ inputs.make == 'true' }}
-      shell: bash
-      run: |
-        bmakelib_version=0.8.0
-        build_dir="$(mktemp -d)"
-
-        curl -fsSL \
-            "https://github.com/bahmanm/bmakelib/releases/download/v${bmakelib_version}/bmakelib-${bmakelib_version}.tar.gz" \
-            -o "$build_dir/bmakelib.tar.gz"
-        tar -xzf "$build_dir/bmakelib.tar.gz" -C "$build_dir"
-
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-            prefix_posix="$(cygpath -u "$RUNNER_TEMP")/libscid-tools"
-            prefix_make="$(cygpath -m "$prefix_posix")"
-        else
-            prefix_posix=/usr/local
-            prefix_make=/usr/local
-        fi
-
-        source_dir="$build_dir/bmakelib-${bmakelib_version}/src"
-        install_dir="$prefix_posix/include/bmakelib"
-
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-            mkdir -p "$install_dir"
-            cp "$source_dir"/*.mk "$source_dir/VERSION" "$install_dir/"
-        else
-            sudo mkdir -p "$install_dir"
-            sudo cp "$source_dir"/*.mk "$source_dir/VERSION" "$install_dir/"
-        fi
-
-        bmakelib_mk="$prefix_make/include/bmakelib/bmakelib.mk"
-        if [[ "$RUNNER_OS" == "Windows" ]]; then
-            bmakelib_check_path="$(cygpath -u "$bmakelib_mk")"
-        else
-            bmakelib_check_path="$bmakelib_mk"
-        fi
-
-        if [[ ! -f "$bmakelib_check_path" ]]; then
-            echo "Could not install bmakelib at $bmakelib_mk." >&2
-            exit 1
-        fi
-
-        echo "LIBSCID_BMAKELIB=$bmakelib_mk" >> "$GITHUB_ENV"
-        echo "bmakelib ${bmakelib_version} installed at $bmakelib_mk"
 
     - name: Install uv
       if: ${{ inputs.uv == 'true' }}

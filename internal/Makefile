@@ -1,4 +1,9 @@
+ifeq ($(.DEFAULT_GOAL),)
 .DEFAULT_GOAL := libscid.internal.test
+endif
+
+ifndef __libscid_internal_makefile
+__libscid_internal_makefile := 1
 
 libscid.internal.__makefile := $(lastword $(MAKEFILE_LIST))
 libscid.internal.__project.dir := $(dir $(abspath $(libscid.internal.__makefile)))
@@ -37,4 +42,6 @@ libscid.internal.docs :
 .PHONY : libscid.internal.docs
 
 ####################################################################################################
+
+endif
 

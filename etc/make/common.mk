@@ -1,11 +1,23 @@
+ifndef __libscid_etc_make_common_mk
+__libscid_etc_make_common_mk := 1
+
 SHELL := bash
 .SHELLFLAGS := -euo pipefail -c
 
 ####################################################################################################
 
-LIBSCID_BMAKELIB ?= bmakelib/bmakelib.mk
+LIBSCID_BMAKELIB_VERSION ?= v0.9.0
+LIBSCID_BMAKELIB_DIR ?= $(ROOT).bmakelib
+LIBSCID_BMAKELIB ?= $(LIBSCID_BMAKELIB_DIR)/bmakelib.mk
 
-include $(LIBSCID_BMAKELIB)
+-include $(LIBSCID_BMAKELIB)
+
+$(LIBSCID_BMAKELIB) :
+	@mkdir -p $(@D)
+	@curl -fsSL "https://github.com/bahmanm/bmakelib/releases/download/$(LIBSCID_BMAKELIB_VERSION)/bmakelib-portable.tar.gz" \
+		| tar -xz -C $(@D) --strip-components=3
+
+export LIBSCID_BMAKELIB
 
 ####################################################################################################
 
@@ -55,3 +67,5 @@ libscid.__venv.python := bin/python
 endif
 
 ####################################################################################################
+
+endif
