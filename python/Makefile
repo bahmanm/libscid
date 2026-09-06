@@ -1,4 +1,9 @@
+ifeq ($(.DEFAULT_GOAL),)
 .DEFAULT_GOAL := libscid.python.test
+endif
+
+ifndef __libscid_python_makefile
+__libscid_python_makefile := 1
 
 libscid.python.__makefile := $(lastword $(MAKEFILE_LIST))
 libscid.python.__project.dir := $(dir $(abspath $(libscid.python.__makefile)))
@@ -140,4 +145,6 @@ libscid.python.docs-serve : libscid.python.configure
 .PHONY : libscid.python.docs-serve
 
 ####################################################################################################
+
+endif
 
