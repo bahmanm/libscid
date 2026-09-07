@@ -1,4 +1,9 @@
+ifeq ($(.DEFAULT_GOAL),)
 .DEFAULT_GOAL := libscid.capi.test
+endif
+
+ifndef __libscid_capi_Makefile
+__libscid_capi_Makefile := 1
 
 libscid.capi.__makefile := $(lastword $(MAKEFILE_LIST))
 libscid.capi.__project.dir := $(dir $(abspath $(libscid.capi.__makefile)))
@@ -126,4 +131,7 @@ libscid.capi.docs : libscid.capi.__cmake.contract
 .PHONY : libscid.capi.docs
 
 ####################################################################################################
+
+endif
+
 

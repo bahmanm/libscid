@@ -1,3 +1,6 @@
+ifndef __libscid_etc_make_cmake.mk
+__libscid_etc_make_cmake.mk := 1
+
 ####################################################################################################
 # $(call libscid.cmake.__project.rules,PROJECT[,BASE_PROJECT])
 #
@@ -200,3 +203,5 @@ $(1).qc-all : $(1).qc-format $(1).qc-static-analysis $(1).qc-dynamic-analysis
 
 ####################################################################################################
 endef
+
+endif
