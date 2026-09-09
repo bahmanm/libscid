@@ -6,7 +6,7 @@ generated SCID5 files.
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/110-persistent-database -B _build/examples/c/110-persistent-database -DCMAKE_PREFIX_PATH=install/libscid

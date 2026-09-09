@@ -8,7 +8,7 @@ the changed PGN.
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/060-mutate-pgn -B _build/examples/c/060-mutate-pgn -DCMAKE_PREFIX_PATH=install/libscid

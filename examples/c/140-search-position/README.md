@@ -6,7 +6,7 @@ board position at any ply, and uses filter chaining to refine search results acr
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/140-search-position -B _build/examples/c/140-search-position -DCMAKE_PREFIX_PATH=install/libscid

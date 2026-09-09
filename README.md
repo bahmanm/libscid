@@ -31,16 +31,16 @@ database and ECO functionality without depending on a desktop application.
 
 ## Start Here
 
-- [Quick Start](https://libscid.bahmanm.com/quick_start.html): compile a small
+- [Quick Start](https://libscid.bahmanm.com/tutorials/quick-start/): compile a small
   C ABI consumer with `cc`, Make or CMake.
-- [Installation](https://libscid.bahmanm.com/installation.html): install a
+- [Installation](https://libscid.bahmanm.com/how-to/installation/): install a
   release archive or build and install from source.
-- [Examples and Recipes](https://libscid.bahmanm.com/examples_recipes.html):
-  choose a C ABI example by task.
-- [API Surface](https://libscid.bahmanm.com/api_surface.html): understand the
-  opaque handles, ownership rules and PGN game workflow.
-- [API Documentation](https://libscid.bahmanm.com/): browse the generated public
-  header reference.
+- [How-To Guides](https://libscid.bahmanm.com/how-to/): practical task-oriented
+  recipes for PGN editing, variation traversal and database queries.
+- [Explanation & Architecture](https://libscid.bahmanm.com/explanation/architecture/):
+  understand the opaque handles, memory model and subsystem designs.
+- [C ABI Reference](https://libscid.bahmanm.com/reference/index_modules/): browse
+  the generated public header and symbol specification.
 
 ## Minimal CMake Consumer
 

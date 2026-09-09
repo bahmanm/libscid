@@ -5,7 +5,7 @@ Declined position, and prints the matching ECO code and name.
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/070-eco-lookup -B _build/examples/c/070-eco-lookup -DCMAKE_PREFIX_PATH=install/libscid

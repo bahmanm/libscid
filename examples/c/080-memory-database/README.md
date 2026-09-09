@@ -6,7 +6,7 @@ game list, and loads the listed game back through the C ABI.
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/080-memory-database -B _build/examples/c/080-memory-database -DCMAKE_PREFIX_PATH=install/libscid
