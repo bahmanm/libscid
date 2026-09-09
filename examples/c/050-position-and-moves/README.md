@@ -6,7 +6,7 @@ move, move counters, board contents, and legal moves.
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/050-position-and-moves -B _build/examples/c/050-position-and-moves -DCMAKE_PREFIX_PATH=install/libscid

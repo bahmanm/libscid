@@ -6,7 +6,7 @@ exports PGN.
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/030-nonstandard-start -B _build/examples/c/030-nonstandard-start -DCMAKE_PREFIX_PATH=install/libscid

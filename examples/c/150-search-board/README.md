@@ -7,7 +7,7 @@ for games that match the specified board layout options.
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/150-search-board -B _build/examples/c/150-search-board -DCMAKE_PREFIX_PATH=install/libscid

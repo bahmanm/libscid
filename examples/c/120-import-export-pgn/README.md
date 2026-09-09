@@ -8,7 +8,7 @@ needed.
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/120-import-export-pgn -B _build/examples/c/120-import-export-pgn -DCMAKE_PREFIX_PATH=install/libscid

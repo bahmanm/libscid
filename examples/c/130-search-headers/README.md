@@ -7,7 +7,7 @@ counts, and paginates sorted game indices through the C ABI.
 
 Install libscid first; see the installation guide:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
 
 ```sh
 cmake -S examples/c/130-search-headers -B _build/examples/c/130-search-headers -DCMAKE_PREFIX_PATH=install/libscid

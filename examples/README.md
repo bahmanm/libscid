@@ -3,10 +3,10 @@
 These are small standalone projects showing how to consume the installed
 libscid C ABI package.
 
-The public examples live under `libscid/`. The canonical examples and recipes
-index lives in the generated documentation:
+The public examples live under `c/`. The canonical how-to guides and
+recipes index lives in the generated documentation:
 
-- https://libscid.bahmanm.com/examples_recipes.html
+- https://libscid.bahmanm.com/how-to/
 
 After installing libscid, configure and run the example suite with:
 
@@ -18,4 +18,4 @@ ctest --test-dir _build/examples --output-on-failure
 
 See the installation guide for release archive and source-install workflows:
 
-- https://libscid.bahmanm.com/installation.html
+- https://libscid.bahmanm.com/how-to/installation/
