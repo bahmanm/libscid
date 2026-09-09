@@ -30,7 +30,7 @@ jobs:
         uses: ./.github/actions/build-unix
         with:
           platform_label: ${{ matrix.check_label }}
-          target: libscid.internal.default.test libscid.capi.default.test libscid.test-examples
+          target: libscid.internal.static.test libscid.capi.static.test libscid.test-examples
           make_args: LIBSCID_CMAKE_BUILD_ARGS=--verbose
 
   ci__windoze:
@@ -44,5 +44,5 @@ jobs:
         uses: ./.github/actions/build-windoze
         with:
           platform_label: windoze
-          target: libscid.internal.default.test libscid.capi.default.test libscid.test-examples
+          target: libscid.internal.static.test libscid.capi.static.test libscid.test-examples
           make_args: LIBSCID_CMAKE_BUILD_ARGS=--verbose

@@ -39,6 +39,18 @@ libscid.test : $(libscid.__components:%=libscid.%.test)
 
 ####################################################################################################
 
+libscid.test.static : libscid.internal.static.test libscid.capi.static.test
+
+.PHONY : libscid.test.static
+
+####################################################################################################
+
+libscid.test.all : libscid.test libscid.test.static
+
+.PHONY : libscid.test.all
+
+####################################################################################################
+
 libscid.__docs.public.dir := $(ROOT)_build/docs/public/
 libscid.__docs.hub.dir := $(ROOT)docs/hub/
 libscid.__docs.assets.dir := $(ROOT)docs/assets/
