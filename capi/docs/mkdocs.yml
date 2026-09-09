@@ -49,7 +49,10 @@ markdown_extensions:
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
-  - pymdownx.snippets
+  - pymdownx.snippets:
+      base_path:
+        - ../..
+        - ../../docs
   - pymdownx.superfences
 
 extra_css:
@@ -62,6 +65,25 @@ nav:
   - How-To Guides:
       - Overview: how-to/index.md
       - Installation & Setup: how-to/installation.md
+      - Games & PGN:
+          - Parse and Edit PGN Tags: how-to/edit-pgn.md
+          - Author Games with Variations: how-to/author-pgn.md
+          - Nonstandard Start Positions: how-to/nonstandard-start.md
+          - Navigate Variation Trees: how-to/navigate-pgn.md
+          - Mutate and Merge Move Trees: how-to/mutate-pgn.md
+      - Board & Classification:
+          - Apply Moves & Enumerate Legals: how-to/position-and-moves.md
+          - Classify Positions with ECO: how-to/eco-lookup.md
+      - Database Operations:
+          - In-Memory Databases: how-to/memory-database.md
+          - Enumerate Lightweight Metadata: how-to/list-database.md
+          - Replace Games & Manage Deletions: how-to/edit-database.md
+          - Persistent SCID5 Collections: how-to/persistent-database.md
+          - Batch Import & Export PGN: how-to/import-export-pgn.md
+      - Database Search:
+          - Search by Header Criteria: how-to/search-headers.md
+          - Search by Exact Position: how-to/search-position.md
+          - Search by Board & Pawn Structure: how-to/search-board.md
   - C ABI Reference:
       - Modules Overview: reference/index_modules.md
       - Database Management: reference/modules/group__database.md
