@@ -19,4 +19,3 @@ graph TD
 - [Database](architecture/database.md): Stores and queries game collections while materialising Core games on demand.
 - [ECO](architecture/eco.md): Classifies opening positions and provides the compact opening-code vocabulary.
 - [Spelling](architecture/spelling.md): The name-authority layer for canonical database names and player metadata.
-

@@ -57,12 +57,11 @@ extra_css:
 
 nav:
   - Overview: index.md
-  - Guides:
-      - Quick Start: quick-start.md
-      - Installation: installation.md
-      - Architecture: architecture.md
-      - Examples & Recipes: examples-recipes.md
-      - API Surface: api-surface.md
+  - Tutorials:
+      - Quick Start: tutorials/quick-start.md
+  - How-To Guides:
+      - Overview: how-to/index.md
+      - Installation & Setup: how-to/installation.md
   - C ABI Reference:
       - Modules Overview: reference/index_modules.md
       - Database Management: reference/modules/group__database.md
@@ -77,3 +76,12 @@ nav:
       - Primitives & Error Codes: reference/modules/group__primitives.md
       - Data Structures: reference/index_classes.md
       - Header Files: reference/index_files.md
+  - Explanation:
+      - Architecture Overview: explanation/architecture.md
+      - Subsystems:
+          - Core Chess Model: explanation/architecture/core.md
+          - Database Subsystem: explanation/architecture/database.md
+          - ECO Classification: explanation/architecture/eco.md
+          - Spelling Name Authority: explanation/architecture/spelling.md
+      - ABI Design & Encapsulation: explanation/abi-design.md
+      - Memory & Buffer Semantics: explanation/memory-model.md

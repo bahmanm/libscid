@@ -1,14 +1,14 @@
 # Quick Start
 
-This guide shows three small ways to consume an installed libscid release:
-direct `cc`, a simple Makefile, and CMake.
+This tutorial walks through creating and building your first program with the libscid C ABI. You will verify that the library is installed properly, initialise a standard chess board position, and check its start-state using `cc`, Make, or CMake.
 
-The examples use a local installation directory named `install/libscid`.
-See [Installation](installation.md) if libscid is not installed yet.
+The instructions assume libscid has been installed to `install/libscid`. Refer to the [Installation Guide](../how-to/installation.md) if you have not yet installed the library.
 
-## Example Program
+---
 
-Create `main.c`:
+## 1. Minimal Program
+
+Create a source file named `main.c`:
 
 ```c
 #include <scid/scid.h>
@@ -46,30 +46,13 @@ main(void)
 }
 ```
 
-The public header is `scid/scid.h`, and the installed CMake target is
-`LibScid::LibScid`.
+The primary umbrella header is `scid/scid.h`, and the exported CMake target name is `LibScid::LibScid`.
 
-## PGN Workflow
+---
 
-The PGN-facing game API is built from a few foundational calls:
+## 2. Compiling with cc
 
-- Create a start position with `scid_position_create_from_fen()`.
-- Create a blank game with `scid_game_create_blank()` or parse moves and tags
-  with `scid_game_create()`.
-- Create a `scid_game_cursor` from the game. Cursor navigation is immutable:
-  functions such as `scid_game_cursor_next()` return a new cursor through an
-  `out_...` parameter.
-- Edit the game at a cursor, or merge another game's moves with
-  `scid_game_merge_moves()`.
-- Export with `scid_game_to_pgn(game, options, ...)`. Pass `NULL` for the
-  default complete PGN export, or pass a `scid_game_pgn_options` object to
-  control symbolic NAGs, supplemental tags, comments, variations and line
-  width.
-
-See [Examples and Recipes](examples-recipes.md) for complete programs that
-parse, author, navigate, mutate and export PGN.
-
-## With cc
+You can compile directly using your system C compiler:
 
 ```sh
 cc -std=c11 \
@@ -83,13 +66,13 @@ cc -std=c11 \
 ./libscid-hello
 ```
 
-For a non-standard install prefix, replace `install/libscid` with the directory
-where the release archive was extracted or where `cmake --install` installed
-the library.
+If you installed libscid to a custom path, substitute `install/libscid` with your chosen prefix directory.
 
-## With Make
+---
 
-Create `Makefile`:
+## 3. Compiling with Make
+
+Create a `Makefile` alongside `main.c`:
 
 ```make
 CC ?= cc
@@ -107,19 +90,18 @@ clean:
 	rm -f libscid-hello
 ```
 
-Build and run:
+Compile and execute:
 
 ```sh
 make
 ./libscid-hello
 ```
 
-Use `make LIBSCID_PREFIX=/path/to/libscid` if libscid is installed somewhere
-else.
+---
 
-## With CMake
+## 4. Compiling with CMake
 
-Create `CMakeLists.txt`:
+Create a `CMakeLists.txt` file:
 
 ```cmake
 cmake_minimum_required( VERSION 3.23 )
@@ -138,10 +120,19 @@ set_target_properties(
 target_link_libraries( libscid-hello PRIVATE LibScid::LibScid )
 ```
 
-Configure, build and run:
+Configure, build, and run:
 
 ```sh
 cmake -S . -B _build -DCMAKE_PREFIX_PATH=install/libscid
 cmake --build _build
 ./_build/libscid-hello
 ```
+
+---
+
+## 5. Next Steps
+
+Now that you have verified your installation and compiled your first program, explore:
+- [How-To Guides](../how-to/index.md): Practical task-oriented recipes for parsing PGN, navigating moves, and querying databases.
+- [C ABI Architecture](../explanation/architecture.md): Conceptual models and subsystem designs.
+- [C ABI Reference](../reference/index_modules.md): Authoritative documentation for every public function and type.
