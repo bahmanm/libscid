@@ -15,13 +15,8 @@ libscid.capi.__build.dir ?= $(libscid.capi.__project.dir)_build/
 libscid.capi.__cmake.build.targets := scid scid_tests_c
 libscid.capi.__cmake.test.labels := capi
 
-libscid.capi.default.__build.dir ?= $(libscid.capi.__project.dir)_build/default/
-libscid.capi.default.__cmake.build.targets := $(libscid.capi.__cmake.build.targets)
-libscid.capi.default.__cmake.test.labels := $(libscid.capi.__cmake.test.labels)
-libscid.capi.default.__cmake.shared.libs := OFF
-libscid.capi.default.__qc.format.build.dir ?= $(libscid.capi.default.__build.dir)format/
-libscid.capi.default.__qc.analysis.build.dir ?= $(libscid.capi.default.__build.dir)analysis/
-libscid.capi.default.__qc.dynamic-analysis.build.dir ?= $(libscid.capi.default.__build.dir)sanitisers/
+libscid.capi.static.__build.dir ?= $(libscid.capi.__project.dir)_build/static/
+libscid.capi.static.__cmake.linkage := static
 
 libscid.capi.__docs.build.dir ?= $(libscid.capi.__project.dir)_build/docs/
 libscid.capi.__release.build.dir ?= $(libscid.capi.__project.dir)_build/release/
@@ -37,7 +32,11 @@ libscid.capi.release.artefact := $(libscid.capi.__release.build.dir)$(libscid.__
 include $(ROOT)etc/make/cmake.mk
 
 $(eval $(call libscid.cmake.__project.rules,libscid.capi))
-$(eval $(call libscid.cmake.__project.rules,libscid.capi.default,libscid.capi))
+$(eval $(call libscid.cmake.__project.rules,libscid.capi.static,libscid.capi))
+
+libscid.capi.test.all : libscid.capi.test libscid.capi.static.test
+
+.PHONY : libscid.capi.test.all
 
 ####################################################################################################
 
