@@ -53,6 +53,6 @@ install(
 
 if( LIBSCID_BUILD_DOCS )
     install(
-        DIRECTORY "${LIBSCID_DOXYGEN_OUTPUT_DIR}/html/"
+        DIRECTORY "${LIBSCID_SITE_OUTPUT_DIR}/"
         DESTINATION "${LIBSCID_INSTALL_DOCDIR}/html" )
 endif()
