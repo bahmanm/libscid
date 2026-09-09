@@ -27,6 +27,13 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Purge third-party APT repositories
+      shell: bash
+      run: |
+        if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo rm -f /etc/apt/sources.list.d/*.list
+        fi
+
     - name: Install GNU Make
       if: ${{ inputs.make == 'true' }}
       shell: bash
