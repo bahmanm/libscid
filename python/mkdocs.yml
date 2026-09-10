@@ -73,12 +73,24 @@ extra_css:
 
 nav:
   - Overview: index.md
-  - User Guides:
-      - Quick Start: guides/quickstart.md
-      - Game Traversal & Move Tree: guides/game_traversal.md
-      - Database Indexing & Searching: guides/database_search.md
-      - Movetext Event Iteration: guides/movetext_iteration.md
-      - Tournament Arbiter: guides/arbiter.md
+  - Tutorials:
+      - First Steps: tutorials/quickstart.md
+      - Building a Game Inspector: tutorials/game-inspector.md
+      - Analysing Master Archives: tutorials/database-queries.md
+  - How-To Guides:
+      - Overview: how-to/index.md
+      - Parse & Serialise PGN: how-to/parse-and-serialise-pgn.md
+      - Move Tree Traversal: how-to/navigate-and-edit-trees.md
+      - Database Queries & Filters: how-to/filter-and-search-databases.md
+      - Stream Movetext Events: how-to/stream-movetext-events.md
+      - Adjudicate Tournament Draws: how-to/adjudicate-draws.md
+  - Explanation:
+      - Overview: explanation/index.md
+      - C ABI Bridge Architecture: explanation/bridge-architecture.md
+      - Immutable Cursor Mental Model: explanation/cursor-immutability.md
+      - Memory Model & Lifecycles: explanation/memory-and-lifecycles.md
+      - Indexing & Filter Algebra: explanation/indexing-and-filters.md
+      - Event Streams vs Tree Traversal: explanation/event-stream-vs-tree-walk.md
   - API Reference:
       - Overview: reference/index.md
       - Core (Game & Navigation): reference/core.md
