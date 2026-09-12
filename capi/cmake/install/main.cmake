@@ -52,6 +52,12 @@ else()
     set( LIBSCID_PC_INCLUDEDIR "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}" )
 endif()
 
+set( LIBSCID_PC_CFLAGS "-I\${includedir}" )
+get_target_property( _scid_target_type scid TYPE )
+if( _scid_target_type STREQUAL "SHARED_LIBRARY" )
+    string( APPEND LIBSCID_PC_CFLAGS " -DSCID_SHARED" )
+endif()
+
 configure_file(
     "${CMAKE_CURRENT_LIST_DIR}/../package/libscid.pc.in"
     "${CMAKE_CURRENT_BINARY_DIR}/libscid.pc"

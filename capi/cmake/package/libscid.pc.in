@@ -8,4 +8,4 @@ Description: Chess library for managing databases, from multi-terabyte collectio
 URL: https://github.com/bahmanm/libscid
 Version: @PROJECT_VERSION@
 Libs: -L${libdir} -lscid
-Cflags: -I${includedir}
+Cflags: @LIBSCID_PC_CFLAGS@
