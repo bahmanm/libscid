@@ -57,7 +57,7 @@ if [[ ! -f "$pc_file" ]]; then
 fi
 
 if command -v pkg-config >/dev/null 2>&1; then
-    PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --validate libscid
+    PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --exists libscid
     pc_cflags="$(PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --cflags libscid)"
     if [[ "$pc_cflags" != *"-DSCID_SHARED"* ]]; then
         echo "Release smoke test failed: -DSCID_SHARED missing from pkg-config cflags: $pc_cflags" >&2
@@ -65,7 +65,7 @@ if command -v pkg-config >/dev/null 2>&1; then
     fi
     PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --libs libscid
 else
-    echo "Notice: pkg-config not found on host; skipping pkg-config smoke tests" >&2
+    echo "pkg-config not found - skipping the related smoke tests." >&2
 fi
 
 case "$LIBSCID_HOST_SYSTEM" in

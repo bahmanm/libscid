@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+import subprocess
 import sys
 
 from hatchling.builders.hooks.plugin.interface import BuildHookInterface
@@ -9,13 +10,14 @@ from hatchling.metadata.plugin.interface import MetadataHookInterface
 from packaging.tags import sys_tags
 from packaging.version import InvalidVersion, Version
 
-DEFAULT_VERSION = "0.0.0"
-
 
 def to_pep440(raw_version: str) -> str:
     version = raw_version.strip()
     if version.startswith("v") or version.startswith("V"):
         version = version[1:]
+
+    if version == "snapshot":
+        return "0.0.0.dev0"
 
     # -testing.N, -test.N, -dev.N, -devN -> .devN
     version = re.sub(
@@ -104,10 +106,24 @@ def get_build_hook() -> type[LibScidBuildHook]:
 
 class LibScidMetadataHook(MetadataHookInterface):
     def update(self, metadata: dict[str, object]) -> None:
-        raw_version = os.environ.get(
-            "LIBSCID_PYTHON_VERSION",
-            os.environ.get("LIBSCID_RELEASE_VERSION", DEFAULT_VERSION),
+        raw_version = os.environ.get("LIBSCID_PYTHON_VERSION") or os.environ.get(
+            "LIBSCID_RELEASE_VERSION"
         )
+        if not raw_version:
+            version_cmake = os.path.abspath(
+                os.path.join(
+                    os.path.dirname(__file__), "..", "etc", "cmake", "version.cmake"
+                )
+            )
+            result = subprocess.run(
+                ["cmake", "-P", version_cmake],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            tokens = result.stdout.strip().split()
+            raw_version = tokens[1] if len(tokens) > 1 else tokens[0]
+
         metadata["version"] = to_pep440(raw_version)
 
 

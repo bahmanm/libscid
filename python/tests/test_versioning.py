@@ -32,6 +32,7 @@ from hatch_build import to_pep440
         ("v1.0.0-post.1", "1.0.0.post1"),
         ("0.10.0b1", "0.10.0b1"),
         ("0.10.0.dev5", "0.10.0.dev5"),
+        ("snapshot", "0.0.0.dev0"),
     ],
 )
 def test_to_pep440_normalization(input_tag: str, expected_pep440: str) -> None:

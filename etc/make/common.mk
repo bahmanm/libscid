@@ -41,8 +41,9 @@ LIBSCID_LINKAGE_TYPE ?= shared
 LIBSCID_CMAKE_C_COMPILER ?= $(LIBSCID_C_COMPILER)
 LIBSCID_CMAKE_CXX_COMPILER ?= $(LIBSCID_CXX_COMPILER)
 
-LIBSCID_RELEASE_PROJECT_VERSION ?= 0.0.0
-LIBSCID_RELEASE_VERSION ?= snapshot
+libscid.__release.versions := $(call bmakelib.shell.error-if-nonzero,$(LIBSCID_CMAKE) -P "$(ROOT)etc/cmake/version.cmake")
+LIBSCID_RELEASE_PROJECT_VERSION ?= $(word 1,$(libscid.__release.versions))
+LIBSCID_RELEASE_VERSION ?= $(word 2,$(libscid.__release.versions))
 LIBSCID_RELEASE_PACKAGE_VERSION_LABEL ?= $(LIBSCID_RELEASE_VERSION)
 LIBSCID_RELEASE_PLATFORM ?= local
 

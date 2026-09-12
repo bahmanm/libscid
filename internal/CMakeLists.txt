@@ -1,10 +1,6 @@
 cmake_minimum_required( VERSION 3.28 )
 
-if( DEFINED LIBSCID_VERSION AND LIBSCID_VERSION MATCHES "^[0-9]+(\\.[0-9]+)?(\\.[0-9]+)?(\\.[0-9]+)?$" )
-    unset( LIBSCID_VERSION CACHE )
-    unset( LIBSCID_VERSION )
-endif()
-set( LIBSCID_PROJECT_VERSION "0.0.0" CACHE STRING "Numeric libscid version used for CMake package compatibility." )
+include( "${CMAKE_CURRENT_SOURCE_DIR}/../etc/cmake/version.cmake" )
 
 project(
     libscid-internal
