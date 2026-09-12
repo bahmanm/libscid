@@ -7,7 +7,7 @@
 #ifndef SCID_PRIMITIVES_H
 #define SCID_PRIMITIVES_H
 
-#include "scid/_platform.h"
+#include "scid/platform.h"
 #include <stddef.h>
 
 #ifdef __cplusplus

@@ -21,7 +21,7 @@ endif()
 
 set(
     SCID_PUBLIC_HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/_platform.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/platform.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database_filter.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/database_search.h"

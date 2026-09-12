@@ -6,7 +6,7 @@
 #ifndef SCID_ECO_H
 #define SCID_ECO_H
 
-#include "scid/_platform.h"
+#include "scid/platform.h"
 #include "scid/position.h"
 #include <stddef.h>
 

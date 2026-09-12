@@ -7,8 +7,8 @@
 #ifndef SCID_POSITION_H
 #define SCID_POSITION_H
 
-#include "scid/_platform.h"
 #include "scid/movespec.h"
+#include "scid/platform.h"
 #include "scid/primitives.h"
 #include <stddef.h>
 
@@ -30,7 +30,7 @@ extern "C"
      */
 
 #ifndef SCID_POSITION_TYPEDEF
-    #define SCID_POSITION_TYPEDEF
+#define SCID_POSITION_TYPEDEF
     /**
      * @brief Opaque handle representing a chess board position state.
      *

@@ -7,8 +7,8 @@
 #ifndef SCID_DATABASE_SEARCH_H
 #define SCID_DATABASE_SEARCH_H
 
-#include "scid/_platform.h"
 #include "scid/database_filter.h"
+#include "scid/platform.h"
 #include "scid/position.h"
 #include <stddef.h>
 

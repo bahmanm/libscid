@@ -9,7 +9,6 @@ UseTab: Never
 ColumnLimit: 100
 MaxEmptyLinesToKeep: 2
 AlignAfterOpenBracket: AlwaysBreak
-IndentPPDirectives: BeforeHash
 
 NamespaceIndentation: All
 IndentAccessModifiers: true

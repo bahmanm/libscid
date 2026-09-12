@@ -7,9 +7,9 @@
 #ifndef SCID_DATABASE_H
 #define SCID_DATABASE_H
 
-#include "scid/_platform.h"
 #include "scid/eco.h"
 #include "scid/game.h"
+#include "scid/platform.h"
 #include "scid/position.h"
 #include <stddef.h>
 

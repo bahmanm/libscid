@@ -7,8 +7,8 @@
 #ifndef SCID_GAME_CURSOR_H
 #define SCID_GAME_CURSOR_H
 
-#include "scid/_platform.h"
 #include "scid/movespec.h"
+#include "scid/platform.h"
 #include "scid/position.h"
 #include "scid/primitives.h"
 #include <stddef.h>
