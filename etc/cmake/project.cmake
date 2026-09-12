@@ -8,6 +8,10 @@ include( GNUInstallDirs )
 include( "${LIBSCID_SOURCE_ROOT}/etc/cmake/test/runtime-dlls.cmake" )
 include( "${LIBSCID_SOURCE_ROOT}/etc/cmake/qc/sanitisers.cmake" )
 
+set( CMAKE_C_VISIBILITY_PRESET hidden )
+set( CMAKE_CXX_VISIBILITY_PRESET hidden )
+set( CMAKE_VISIBILITY_INLINES_HIDDEN ON )
+
 set( _libscid_default_version "snapshot" )
 find_package( Git QUIET )
 if( Git_FOUND )

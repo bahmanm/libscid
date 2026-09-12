@@ -6,9 +6,10 @@
 #ifndef SCID_GAME_H
 #define SCID_GAME_H
 
-#include "scid/_platform.h"
 #include "scid/movespec.h"
+#include "scid/platform.h"
 #include "scid/position.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"

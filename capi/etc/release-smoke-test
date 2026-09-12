@@ -50,6 +50,47 @@ case "$LIBSCID_HOST_SYSTEM" in
 esac
 tar "${tar_args[@]}"
 
+pc_file="$install_root/lib/pkgconfig/libscid.pc"
+if [[ ! -f "$pc_file" ]]; then
+    echo "Release smoke test failed: libscid.pc not found at $pc_file" >&2
+    exit 1
+fi
+
+if command -v pkg-config >/dev/null 2>&1; then
+    PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --validate libscid
+    pc_cflags="$(PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --cflags libscid)"
+    if [[ "$pc_cflags" != *"-DSCID_SHARED"* ]]; then
+        echo "Release smoke test failed: -DSCID_SHARED missing from pkg-config cflags: $pc_cflags" >&2
+        exit 1
+    fi
+    PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --libs libscid
+else
+    echo "Notice: pkg-config not found on host; skipping pkg-config smoke tests" >&2
+fi
+
+case "$LIBSCID_HOST_SYSTEM" in
+    Darwin)
+        if [[ ! -L "$install_root/lib/libscid.dylib" || ! -e "$install_root/lib/libscid.dylib" ]]; then
+            echo "Release smoke test failed: Linker symlink libscid.dylib not found" >&2
+            exit 1
+        fi
+        if nm -gU "$install_root"/lib/libscid.*dylib 2>/dev/null | grep -E '_ZN4scid|_ZTV4scid|_ZTS4scid'; then
+            echo "Release smoke test failed: Leaked internal C++ symbols detected in libscid.dylib" >&2
+            exit 1
+        fi
+        ;;
+    Linux)
+        if [[ ! -L "$install_root/lib/libscid.so" || ! -e "$install_root/lib/libscid.so" ]]; then
+            echo "Release smoke test failed: Linker symlink libscid.so not found" >&2
+            exit 1
+        fi
+        if nm -gD "$install_root"/lib/libscid.so* 2>/dev/null | grep -E '_ZN4scid|_ZTV4scid|_ZTS4scid'; then
+            echo "Release smoke test failed: Leaked internal C++ symbols detected in libscid.so" >&2
+            exit 1
+        fi
+        ;;
+esac
+
 cmake_args=(
     -S "$install_root/share/doc/libscid/examples/c"
     -B "$examples_build_dir"

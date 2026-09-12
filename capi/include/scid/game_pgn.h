@@ -6,8 +6,9 @@
 #ifndef SCID_GAME_PGN_H
 #define SCID_GAME_PGN_H
 
-#include "scid/_platform.h"
 #include "scid/game.h"
+#include "scid/platform.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"
