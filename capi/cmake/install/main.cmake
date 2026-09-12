@@ -1,6 +1,7 @@
 include( CMakePackageConfigHelpers )
 
 set( LIBSCID_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/libscid" )
+set( LIBSCID_INSTALL_PKGCONFIGDIR "${CMAKE_INSTALL_LIBDIR}/pkgconfig" )
 set(
     LIBSCID_INSTALL_DOCDIR
     "${CMAKE_INSTALL_DATAROOTDIR}/doc/libscid"
@@ -38,6 +39,27 @@ install(
         "${CMAKE_CURRENT_BINARY_DIR}/libscidConfig.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/libscidConfigVersion.cmake"
     DESTINATION "${LIBSCID_INSTALL_CMAKEDIR}" )
+
+if( IS_ABSOLUTE "${CMAKE_INSTALL_LIBDIR}" )
+    set( LIBSCID_PC_LIBDIR "${CMAKE_INSTALL_LIBDIR}" )
+else()
+    set( LIBSCID_PC_LIBDIR "\${prefix}/${CMAKE_INSTALL_LIBDIR}" )
+endif()
+
+if( IS_ABSOLUTE "${CMAKE_INSTALL_INCLUDEDIR}" )
+    set( LIBSCID_PC_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}" )
+else()
+    set( LIBSCID_PC_INCLUDEDIR "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}" )
+endif()
+
+configure_file(
+    "${CMAKE_CURRENT_LIST_DIR}/../package/libscid.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/libscid.pc"
+    @ONLY )
+
+install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/libscid.pc"
+    DESTINATION "${LIBSCID_INSTALL_PKGCONFIGDIR}" )
 
 install(
     FILES
