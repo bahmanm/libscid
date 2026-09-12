@@ -14,15 +14,6 @@ function( _libscid_discover_version out_var )
             OUTPUT_STRIP_TRAILING_WHITESPACE )
         if( NOT _git_tag STREQUAL "" )
             set( _discovered_version "${_git_tag}" )
-        else()
-            execute_process(
-                COMMAND "${GIT_EXECUTABLE}" -C "${LIBSCID_SOURCE_ROOT}" rev-parse --short=12 HEAD
-                OUTPUT_VARIABLE _git_sha
-                ERROR_QUIET
-                OUTPUT_STRIP_TRAILING_WHITESPACE )
-            if( NOT _git_sha STREQUAL "" )
-                set( _discovered_version "snapshot+${_git_sha}" )
-            endif()
         endif()
     endif()
 

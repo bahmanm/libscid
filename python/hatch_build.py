@@ -15,6 +15,9 @@ def to_pep440(raw_version: str) -> str:
     if version.startswith("v") or version.startswith("V"):
         version = version[1:]
 
+    if version == "snapshot":
+        return "0.0.0.dev0"
+
     # -testing.N, -test.N, -dev.N, -devN -> .devN
     version = re.sub(
         r"-(?:testing|test|dev)\.?(\d+)",
