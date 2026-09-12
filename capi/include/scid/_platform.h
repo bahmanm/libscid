@@ -15,8 +15,7 @@
         #else
             #define SCID_API __declspec(dllimport)
         #endif
-    #elif (defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 4)) && defined(SCID_SHARED)     \
-        && defined(SCID_BUILDING_LIBRARY)
+    #elif (defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 4)) && defined(SCID_SHARED)
         #define SCID_API __attribute__((visibility("default")))
     #else
         #define SCID_API
