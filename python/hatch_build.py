@@ -10,6 +10,7 @@ from hatchling.metadata.plugin.interface import MetadataHookInterface
 from packaging.tags import sys_tags
 from packaging.version import InvalidVersion, Version
 
+
 def to_pep440(raw_version: str) -> str:
     version = raw_version.strip()
     if version.startswith("v") or version.startswith("V"):
@@ -110,7 +111,9 @@ class LibScidMetadataHook(MetadataHookInterface):
         )
         if not raw_version:
             version_cmake = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "..", "etc", "cmake", "version.cmake")
+                os.path.join(
+                    os.path.dirname(__file__), "..", "etc", "cmake", "version.cmake"
+                )
             )
             result = subprocess.run(
                 ["cmake", "-P", version_cmake],
