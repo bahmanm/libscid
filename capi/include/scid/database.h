@@ -11,6 +11,7 @@
 #include "scid/eco.h"
 #include "scid/game.h"
 #include "scid/position.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"

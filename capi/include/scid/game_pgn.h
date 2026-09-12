@@ -8,6 +8,7 @@
 
 #include "scid/_platform.h"
 #include "scid/game.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"

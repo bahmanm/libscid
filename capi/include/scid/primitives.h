@@ -8,6 +8,7 @@
 #define SCID_PRIMITIVES_H
 
 #include "scid/_platform.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"

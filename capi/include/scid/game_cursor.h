@@ -11,6 +11,7 @@
 #include "scid/movespec.h"
 #include "scid/position.h"
 #include "scid/primitives.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"

@@ -9,6 +9,7 @@
 #include "scid/_platform.h"
 #include "scid/movespec.h"
 #include "scid/position.h"
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C"

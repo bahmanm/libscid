@@ -6,8 +6,6 @@
 #ifndef SCID_PLATFORM_H
 #define SCID_PLATFORM_H
 
-#include <stddef.h>
-
 #ifndef SCID_API
     #if defined(_WIN32) && defined(SCID_SHARED)
         #if defined(SCID_BUILDING_LIBRARY)
