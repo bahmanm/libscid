@@ -73,6 +73,7 @@ runs:
             export PATH="/usr/local/bin:$PATH"
         elif [[ "$RUNNER_OS" == "Windows" ]]; then
             choco install make --version="$make_version" --yes --no-progress
+            choco install pkgconfiglite --yes --no-progress
             echo "C:\\ProgramData\\chocolatey\\bin" >> "$GITHUB_PATH"
             export PATH="/c/ProgramData/chocolatey/bin:$PATH"
         fi
