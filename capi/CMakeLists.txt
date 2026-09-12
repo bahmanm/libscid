@@ -11,6 +11,8 @@ project(
     VERSION "${LIBSCID_PROJECT_VERSION}"
     LANGUAGES C CXX )
 
+set( LIBSCID_SOVERSION "${PROJECT_VERSION_MAJOR}" CACHE STRING "libscid ABI soname version." )
+
 include( "${LIBSCID_SOURCE_ROOT}/etc/cmake/project.cmake" )
 
 if( NOT TARGET LibScidInternal::Core )
@@ -68,7 +70,13 @@ target_compile_features(
 
 set_target_properties(
     scid
-    PROPERTIES CXX_EXTENSIONS OFF )
+    PROPERTIES
+        CXX_EXTENSIONS OFF
+        C_VISIBILITY_PRESET hidden
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN ON
+        VERSION "${PROJECT_VERSION}"
+        SOVERSION "${LIBSCID_SOVERSION}" )
 
 get_target_property( SCID_TARGET_TYPE scid TYPE )
 if( SCID_TARGET_TYPE STREQUAL "SHARED_LIBRARY" )
