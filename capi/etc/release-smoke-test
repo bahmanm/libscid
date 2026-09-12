@@ -64,11 +64,13 @@ if command -v pkg-config >/dev/null 2>&1; then
         exit 1
     fi
     PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --libs libscid
+else
+    echo "Notice: pkg-config not found on host; skipping pkg-config smoke tests" >&2
 fi
 
 case "$LIBSCID_HOST_SYSTEM" in
     Darwin)
-        if [[ ! -f "$install_root/lib/libscid.dylib" ]]; then
+        if [[ ! -L "$install_root/lib/libscid.dylib" || ! -e "$install_root/lib/libscid.dylib" ]]; then
             echo "Release smoke test failed: Linker symlink libscid.dylib not found" >&2
             exit 1
         fi
@@ -78,7 +80,7 @@ case "$LIBSCID_HOST_SYSTEM" in
         fi
         ;;
     Linux)
-        if [[ ! -f "$install_root/lib/libscid.so" ]]; then
+        if [[ ! -L "$install_root/lib/libscid.so" || ! -e "$install_root/lib/libscid.so" ]]; then
             echo "Release smoke test failed: Linker symlink libscid.so not found" >&2
             exit 1
         fi
