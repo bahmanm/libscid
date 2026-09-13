@@ -113,11 +113,10 @@ if( BUILD_TESTING )
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_game.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_libscid.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_movespec.c"
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_nag.c"
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_piece.c"
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_position.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_pgn_contract.c"
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_square.c" )
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_position.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_primitives.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_primitives_nullguards.c" )
     target_link_libraries(
         scid_tests_c
         PRIVATE LibScid::LibScid )

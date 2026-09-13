@@ -108,14 +108,12 @@ test_game(void);
 void
 test_movespec(void);
 void
-test_nag(void);
+test_primitives(void);
 void
-test_piece(void);
+test_primitives_nullguards(void);
 void
 test_pgn_contract(void);
 void
 test_position(void);
-void
-test_square(void);
 
 #endif

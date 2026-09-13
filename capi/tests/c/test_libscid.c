@@ -3,10 +3,9 @@
 int
 main(void)
 {
-    test_square();
-    test_piece();
+    test_primitives();
+    test_primitives_nullguards();
     test_movespec();
-    test_nag();
     test_position();
     test_game();
     test_cursor();
