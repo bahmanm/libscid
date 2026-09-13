@@ -92,9 +92,9 @@ test_cursor_take(
 
 
 void
-test_cursor(void);
+test_game_cursor(void);
 void
-test_cursor_mutation(void);
+test_game_cursor_nullguards(void);
 void
 test_database(void);
 void

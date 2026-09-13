@@ -104,13 +104,13 @@ endif()
 if( BUILD_TESTING )
     add_executable(
         scid_tests_c
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_cursor.c"
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_cursor_mutation.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_filters.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_search.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_eco.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_game.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_game_cursor.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_game_cursor_nullguards.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_game_nullguards.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_libscid.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_movespec.c"

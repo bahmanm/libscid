@@ -11,8 +11,8 @@ main(void)
     test_position_nullguards();
     test_game();
     test_game_nullguards();
-    test_cursor();
-    test_cursor_mutation();
+    test_game_cursor();
+    test_game_cursor_nullguards();
     test_database();
     test_database_filters();
     test_database_search();
