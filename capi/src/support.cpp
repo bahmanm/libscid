@@ -55,7 +55,7 @@ namespace scid::libscid
         char         rank_text,
         scid_square* out_square)
     {
-        if (out_square == nullptr)
+        if (any_null(out_square))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -82,7 +82,7 @@ namespace scid::libscid
         const char*  text,
         scid_square* out_square)
     {
-        if (text == nullptr || out_square == nullptr)
+        if (any_null(text, out_square))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -129,7 +129,7 @@ namespace scid::libscid
         char        text,
         scid_piece* out_piece)
     {
-        if (out_piece == nullptr)
+        if (any_null(out_piece))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -165,7 +165,7 @@ namespace scid::libscid
         size_t           out_text_capacity,
         size_t*          out_text_size)
     {
-        if (out_text_size == nullptr)
+        if (any_null(out_text_size) || (out_text == nullptr && out_text_capacity > 0))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -198,7 +198,7 @@ namespace scid::libscid
         bool value,
         int* out_value)
     {
-        if (out_value == nullptr)
+        if (any_null(out_value))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -213,7 +213,7 @@ namespace scid::libscid
         size_t  value,
         size_t* out_value)
     {
-        if (out_value == nullptr)
+        if (any_null(out_value))
         {
             return SCID_ERROR_BAD_ARG;
         }

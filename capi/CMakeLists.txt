@@ -139,6 +139,33 @@ if( BUILD_TESTING )
     set_tests_properties(
         libscid_c_test
         PROPERTIES LABELS "c;capi" )
+
+    add_executable(
+        scid_tests_cxx
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_support.cpp" )
+    target_compile_features(
+        scid_tests_cxx
+        PRIVATE cxx_std_23 )
+    target_include_directories(
+        scid_tests_cxx
+        PRIVATE
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/include"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+    target_link_libraries(
+        scid_tests_cxx
+        PRIVATE
+            LibScid::LibScid
+            LibScidInternal::Core
+            LibScidInternal::Database
+            LibScidInternal::Eco )
+    libscid_enable_test_runtime_dlls( scid_tests_cxx )
+
+    add_test(
+        NAME libscid_cxx_test
+        COMMAND scid_tests_cxx )
+    set_tests_properties(
+        libscid_cxx_test
+        PROPERTIES LABELS "cxx;capi" )
 endif()
 
 if( LIBSCID_BUILD_DOCS )

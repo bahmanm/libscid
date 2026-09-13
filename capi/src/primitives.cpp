@@ -31,6 +31,11 @@ scid_square_from_string(
     const char*  text,
     scid_square* out_square)
 {
+    if (any_null(text, out_square))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
     return parse_square(text, out_square);
 }
 
@@ -60,7 +65,7 @@ scid_piece_type_from_string(
     const char* text,
     scid_piece* out_piece)
 {
-    if (text == nullptr || out_piece == nullptr)
+    if (any_null(text, out_piece))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -106,7 +111,7 @@ scid_nag_create_from_string(
     const char* text,
     scid_nag*   out_nag)
 {
-    if (text == nullptr || out_nag == nullptr)
+    if (any_null(text, out_nag))
     {
         return SCID_ERROR_BAD_ARG;
     }
