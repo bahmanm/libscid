@@ -8,6 +8,7 @@ main(void)
     test_movespec();
     test_movespec_nullguards();
     test_position();
+    test_position_nullguards();
     test_game();
     test_cursor();
     test_cursor_mutation();

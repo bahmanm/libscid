@@ -117,5 +117,7 @@ void
 test_pgn_contract(void);
 void
 test_position(void);
+void
+test_position_nullguards(void);
 
 #endif
