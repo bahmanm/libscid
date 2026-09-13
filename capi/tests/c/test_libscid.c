@@ -10,6 +10,7 @@ main(void)
     test_position();
     test_position_nullguards();
     test_game();
+    test_game_nullguards();
     test_cursor();
     test_cursor_mutation();
     test_database();

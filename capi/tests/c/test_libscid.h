@@ -106,6 +106,8 @@ test_eco(void);
 void
 test_game(void);
 void
+test_game_nullguards(void);
+void
 test_movespec(void);
 void
 test_movespec_nullguards(void);
