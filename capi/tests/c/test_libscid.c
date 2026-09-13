@@ -6,6 +6,7 @@ main(void)
     test_primitives();
     test_primitives_nullguards();
     test_movespec();
+    test_movespec_nullguards();
     test_position();
     test_game();
     test_cursor();

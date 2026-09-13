@@ -108,6 +108,8 @@ test_game(void);
 void
 test_movespec(void);
 void
+test_movespec_nullguards(void);
+void
 test_primitives(void);
 void
 test_primitives_nullguards(void);

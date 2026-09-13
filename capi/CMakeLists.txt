@@ -113,6 +113,7 @@ if( BUILD_TESTING )
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_game.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_libscid.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_movespec.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_movespec_nullguards.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_pgn_contract.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_position.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_primitives.c"
