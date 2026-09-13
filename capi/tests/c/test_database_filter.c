@@ -18,7 +18,6 @@ add_game(
     scid_game_free(game);
 }
 
-
 static scid_database*
 create_filter_database(void)
 {
@@ -69,17 +68,13 @@ create_filter_database(void)
     return database;
 }
 
-
-void
-test_database_filters(void)
+static void
+test_database_filter_lifecycle(void)
 {
     scid_database* database = create_filter_database();
     scid_filter_id filter_id = 0;
     scid_filter_id filter_id_two = 0;
     size_t         count = 99;
-    size_t         game_indexes[4] = {99, 99, 99, 99};
-    size_t         list_count = 99;
-    size_t         sorted_position = 99;
 
     TEST_ASSERT(scid_database_filter_create(database, &filter_id) == SCID_OK);
     TEST_ASSERT(filter_id > 0);
@@ -98,6 +93,22 @@ test_database_filters(void)
     TEST_ASSERT(scid_database_filter_game_count_get(database, filter_id_two, &count) == SCID_OK);
     TEST_ASSERT(count == 4);
 
+    TEST_ASSERT(scid_database_filter_delete(database, filter_id) == SCID_OK);
+    TEST_ASSERT(scid_database_filter_delete(database, filter_id_two) == SCID_OK);
+
+    TEST_ASSERT(scid_database_close(database) == SCID_OK);
+    scid_database_free(database);
+}
+
+static void
+test_database_filter_pagination_and_sorting(void)
+{
+    scid_database* database = create_filter_database();
+    size_t         game_indexes[4] = {99, 99, 99, 99};
+    size_t         list_count = 99;
+    size_t         count = 99;
+    size_t         sorted_position = 99;
+
     TEST_ASSERT(
         scid_database_filter_game_indices_get(
             database, SCID_FILTER_ALL_GAMES, "d+", 0, 4, game_indexes, 4, &list_count) == SCID_OK);
@@ -106,90 +117,31 @@ test_database_filters(void)
     TEST_ASSERT(game_indexes[1] == 1);
     TEST_ASSERT(game_indexes[2] == 2);
     TEST_ASSERT(game_indexes[3] == 3);
+
     TEST_ASSERT(
         scid_database_filter_game_indices_get(
             database, SCID_FILTER_ALL_GAMES, "d+", 1, 2, game_indexes, 4, &list_count) == SCID_OK);
     TEST_ASSERT(list_count == 2);
     TEST_ASSERT(game_indexes[0] == 1);
     TEST_ASSERT(game_indexes[1] == 2);
+
     TEST_ASSERT(
         scid_database_filter_game_index_at_row_get(
             database, SCID_FILTER_ALL_GAMES, "d+", 2, &count) == SCID_OK);
     TEST_ASSERT(count == 2);
+
     TEST_ASSERT(
         scid_database_filter_game_row_for_index_get(
             database, SCID_FILTER_ALL_GAMES, "d+", 2, &sorted_position) == SCID_OK);
     TEST_ASSERT(sorted_position == 2);
 
-    TEST_ASSERT(scid_database_filter_delete(database, SCID_FILTER_ALL_GAMES) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_filter_delete(database, SCID_FILTER_PRIMARY) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_filter_delete(database, filter_id) == SCID_OK);
-    TEST_ASSERT(scid_database_filter_delete(database, filter_id_two) == SCID_OK);
-
-    TEST_ASSERT(scid_database_filter_create(NULL, &filter_id) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_filter_create(database, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_filter_delete(NULL, 999) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_filter_delete(database, 999) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_filter_delete(database, SCID_FILTER_ALL_GAMES) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_filter_delete(database, SCID_FILTER_PRIMARY) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_count_get(NULL, SCID_FILTER_ALL_GAMES, &count) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_filter_game_count_get(database, 999, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_count_get(database, SCID_FILTER_ALL_GAMES, NULL) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_indices_get(
-            NULL, SCID_FILTER_ALL_GAMES, "d+", 0, 1, game_indexes, 4, &list_count) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_indices_get(
-            database, 999, "d+", 0, 1, game_indexes, 4, &list_count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_indices_get(
-            database, SCID_FILTER_ALL_GAMES, NULL, 0, 1, game_indexes, 4, &list_count) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_indices_get(
-            database, SCID_FILTER_ALL_GAMES, "d+", 0, 1, NULL, 0, &list_count) ==
-        SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(list_count == 1);
-    TEST_ASSERT(
-        scid_database_filter_game_indices_get(
-            database, SCID_FILTER_ALL_GAMES, "d+", 0, 1, game_indexes, 4, NULL) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_index_at_row_get(NULL, SCID_FILTER_ALL_GAMES, "d+", 0, &count) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_index_at_row_get(database, 999, "d+", 0, &count) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_index_at_row_get(
-            database, SCID_FILTER_ALL_GAMES, NULL, 0, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_index_at_row_get(
-            database, SCID_FILTER_ALL_GAMES, "d+", 99, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_index_at_row_get(
-            database, SCID_FILTER_ALL_GAMES, "d+", 0, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_row_for_index_get(
-            NULL, SCID_FILTER_ALL_GAMES, "d+", 0, &sorted_position) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_row_for_index_get(database, 999, "d+", 0, &sorted_position) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_row_for_index_get(
-            database, SCID_FILTER_ALL_GAMES, NULL, 0, &sorted_position) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_row_for_index_get(
-            database, SCID_FILTER_ALL_GAMES, "d+", 99, &sorted_position) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_row_for_index_get(
-            database, SCID_FILTER_ALL_GAMES, "d+", 0, NULL) == SCID_ERROR_BAD_ARG);
-
     TEST_ASSERT(scid_database_close(database) == SCID_OK);
     scid_database_free(database);
+}
+
+void
+test_database_filter(void)
+{
+    test_database_filter_lifecycle();
+    test_database_filter_pagination_and_sorting();
 }

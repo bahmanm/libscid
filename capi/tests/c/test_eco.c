@@ -19,16 +19,12 @@ write_eco_file(const char* path)
     TEST_ASSERT(fclose(file) == 0);
 }
 
-
-void
-test_eco(void)
+static void
+test_eco_code_operations(void)
 {
-    char           path[128];
-    char           text[32];
-    scid_eco_book* book = NULL;
-    scid_eco_code  code = 0;
-    scid_position* position = NULL;
-    size_t         text_size = 0;
+    char          text[32];
+    scid_eco_code code = 0;
+    size_t        text_size = 0;
 
     TEST_ASSERT(scid_eco_code_from_string("B91a4", &code) == SCID_OK);
     TEST_ASSERT(code != SCID_ECO_NONE);
@@ -50,14 +46,17 @@ test_eco(void)
             SCID_ECO_NONE, SCID_ECO_FORMAT_EXTENDED, text, sizeof(text), &text_size) == SCID_OK);
     TEST_ASSERT(strcmp(text, "") == 0);
     TEST_ASSERT(text_size == 0);
+}
 
-    TEST_ASSERT(scid_eco_code_from_string(NULL, &code) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_eco_code_from_string("B20", NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_eco_code_to_string(code, 99, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_eco_code_to_string(code, SCID_ECO_FORMAT_EXTENDED, text, sizeof(text), NULL) ==
-        SCID_ERROR_BAD_ARG);
+static void
+test_eco_book_operations(void)
+{
+    char           path[128];
+    char           text[32];
+    scid_eco_book* book = NULL;
+    scid_eco_code  code = 0;
+    scid_position* position = NULL;
+    size_t         text_size = 0;
 
     snprintf(path, sizeof(path), "libscid_test_eco_file.eco");
     remove(path);
@@ -96,21 +95,14 @@ test_eco(void)
     TEST_ASSERT(strcmp(text, "") == 0);
     TEST_ASSERT(text_size == 0);
 
-    TEST_ASSERT(scid_eco_book_load(NULL, &book) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_eco_book_load(path, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_eco_book_code_find(NULL, position, &code) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_eco_book_code_find(book, NULL, &code) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_eco_book_code_find(book, position, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_eco_book_name_find(NULL, position, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_eco_book_name_find(book, NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_eco_book_name_find(book, position, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-
     scid_position_free(position);
     scid_eco_book_free(book);
-    scid_eco_book_free(NULL);
     remove(path);
+}
+
+void
+test_eco(void)
+{
+    test_eco_code_operations();
+    test_eco_book_operations();
 }

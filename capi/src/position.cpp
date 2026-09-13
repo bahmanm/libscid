@@ -51,7 +51,7 @@ scid_position_create_from_fen(
     const char*     fen,
     scid_position** out_position)
 {
-    if (fen == nullptr || out_position == nullptr)
+    if (any_null(fen, out_position))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -84,7 +84,7 @@ scid_position_create_with_san(
     const char*          san,
     scid_position**      out_position)
 {
-    if (position == nullptr || san == nullptr || out_position == nullptr)
+    if (any_null(position, san, out_position))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -127,7 +127,7 @@ scid_position_create_with_uci(
     const char*          uci,
     scid_position**      out_position)
 {
-    if (position == nullptr || uci == nullptr || out_position == nullptr)
+    if (any_null(position, uci, out_position))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -178,7 +178,7 @@ scid_position_to_fen(
     size_t               out_fen_capacity,
     size_t*              out_fen_size)
 {
-    if (position == nullptr)
+    if (any_null(position, out_fen_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -201,7 +201,7 @@ scid_position_apply_san(
     scid_position* position,
     const char*    san)
 {
-    if (position == nullptr || san == nullptr)
+    if (any_null(position, san))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -228,7 +228,7 @@ scid_position_apply_uci(
     scid_position* position,
     const char*    uci)
 {
-    if (position == nullptr || uci == nullptr)
+    if (any_null(position, uci))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -258,13 +258,14 @@ scid_position_legal_moves(
     size_t               out_moves_capacity,
     size_t*              out_moves_size)
 {
-    if (out_moves_size == nullptr)
+    if (any_null(out_moves_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     *out_moves_size = 0;
-    if (position == nullptr || out_moves == nullptr)
+
+    if (any_null(position, out_moves))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -301,7 +302,7 @@ scid_position_is_start(
     const scid_position* position,
     int*                 out_is_start)
 {
-    if (position == nullptr)
+    if (any_null(position, out_is_start))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -315,7 +316,7 @@ scid_position_is_check(
     const scid_position* position,
     int*                 out_is_check)
 {
-    if (position == nullptr)
+    if (any_null(position, out_is_check))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -337,7 +338,7 @@ scid_position_is_checkmate(
     const scid_position* position,
     int*                 out_is_checkmate)
 {
-    if (position == nullptr)
+    if (any_null(position, out_is_checkmate))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -359,7 +360,7 @@ scid_position_is_legal(
     const scid_position* position,
     int*                 out_is_legal)
 {
-    if (position == nullptr)
+    if (any_null(position, out_is_legal))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -381,7 +382,7 @@ scid_position_side_to_move_get(
     const scid_position* position,
     scid_colour*         out_side_to_move)
 {
-    if (position == nullptr || out_side_to_move == nullptr)
+    if (any_null(position, out_side_to_move))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -396,7 +397,7 @@ scid_position_fullmove_number_get(
     const scid_position* position,
     unsigned*            out_fullmove_number)
 {
-    if (position == nullptr || out_fullmove_number == nullptr)
+    if (any_null(position, out_fullmove_number))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -411,7 +412,7 @@ scid_position_halfmove_clock_get(
     const scid_position* position,
     unsigned*            out_halfmove_clock)
 {
-    if (position == nullptr || out_halfmove_clock == nullptr)
+    if (any_null(position, out_halfmove_clock))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -427,7 +428,7 @@ scid_position_piece_at_get(
     scid_square          square,
     scid_piece*          out_piece)
 {
-    if (position == nullptr || out_piece == nullptr)
+    if (any_null(position, out_piece))
     {
         return SCID_ERROR_BAD_ARG;
     }

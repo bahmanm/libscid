@@ -16,7 +16,7 @@ scid_eco_code_from_string(
     const char*    text,
     scid_eco_code* out_code)
 {
-    if (text == nullptr || out_code == nullptr)
+    if (any_null(text, out_code))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -41,6 +41,11 @@ scid_eco_code_to_string(
     size_t          out_text_capacity,
     size_t*         out_text_size)
 {
+    if (any_null(out_text_size))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
     if (format != SCID_ECO_FORMAT_BASIC && format != SCID_ECO_FORMAT_EXTENDED)
     {
         return SCID_ERROR_BAD_ARG;
@@ -64,7 +69,7 @@ scid_eco_book_load(
     const char*     path,
     scid_eco_book** out_book)
 {
-    if (path == nullptr || out_book == nullptr)
+    if (any_null(path, out_book))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -102,7 +107,7 @@ scid_eco_book_code_find(
     const scid_position* position,
     scid_eco_code*       out_code)
 {
-    if (book == nullptr || position == nullptr || out_code == nullptr)
+    if (any_null(book, position, out_code))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -127,7 +132,7 @@ scid_eco_book_name_find(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (book == nullptr || position == nullptr)
+    if (any_null(book, position, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }

@@ -38,7 +38,7 @@ scid_movespec_create(
     int            is_castling,
     scid_movespec* out_move)
 {
-    if (out_move == nullptr)
+    if (any_null(out_move))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -54,7 +54,7 @@ scid_movespec_create_from_uci(
     const char*    text,
     scid_movespec* out_move)
 {
-    if (text == nullptr || out_move == nullptr)
+    if (any_null(text, out_move))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -141,7 +141,7 @@ scid_movespec_create_from_san(
     const char*          text,
     scid_movespec*       out_move)
 {
-    if (position == nullptr || text == nullptr || out_move == nullptr)
+    if (any_null(position, text, out_move))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -174,7 +174,7 @@ scid_movespec_to_san(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (position == nullptr)
+    if (any_null(position, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }

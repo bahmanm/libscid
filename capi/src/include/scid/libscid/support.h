@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 struct scid_database;
 struct scid_game;
@@ -22,6 +23,14 @@ struct scid_position;
 
 namespace scid::libscid
 {
+
+    template <typename... Args>
+        requires((std::is_pointer_v<Args> || std::is_null_pointer_v<Args>) && ...)
+    [[nodiscard]] constexpr bool
+    any_null(Args... args) noexcept
+    {
+        return ((args == nullptr) || ...);
+    }
 
     bool
     square_is_valid(scid_square square);

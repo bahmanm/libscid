@@ -12,7 +12,7 @@ export ROOT ?= $(abspath $(libscid.capi.__project.dir)..)/
 include $(ROOT)etc/make/common.mk
 
 libscid.capi.__build.dir ?= $(libscid.capi.__project.dir)_build/
-libscid.capi.__cmake.build.targets := scid scid_tests_c
+libscid.capi.__cmake.build.targets := scid scid_tests_c scid_tests_cxx
 libscid.capi.__cmake.test.labels := capi
 
 libscid.capi.static.__build.dir ?= $(libscid.capi.__project.dir)_build/static/
