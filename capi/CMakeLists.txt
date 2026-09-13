@@ -105,8 +105,11 @@ if( BUILD_TESTING )
     add_executable(
         scid_tests_c
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database.c"
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_filters.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_nullguards.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_filter.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_filter_nullguards.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_search.c"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_database_search_nullguards.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_eco.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_eco_nullguards.c"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/c/test_game.c"

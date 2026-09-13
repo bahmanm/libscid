@@ -21,22 +21,19 @@ remove_scid5_database(const char* path)
     remove(filename);
 }
 
-
 static void
 remove_file(const char* path)
 {
     remove(path);
 }
 
-
 struct progress_report_data
 {
-        size_t calls;
-        size_t last_done;
-        size_t last_total;
-        int    saw_message;
+    size_t calls;
+    size_t last_done;
+    size_t last_total;
+    int    saw_message;
 };
-
 
 static void
 progress_report(
@@ -53,13 +50,11 @@ progress_report(
     data->saw_message = message != NULL;
 }
 
-
 struct should_cancel_data
 {
-        size_t calls;
-        size_t cancel_after_calls;
+    size_t calls;
+    size_t cancel_after_calls;
 };
-
 
 static int
 should_cancel(void* user_data)
@@ -69,7 +64,6 @@ should_cancel(void* user_data)
     ++data->calls;
     return data->calls >= data->cancel_after_calls;
 }
-
 
 static void
 write_pgn_database(
@@ -98,83 +92,9 @@ write_pgn_database(
     TEST_ASSERT(fclose(file) == 0);
 }
 
-
-void
-test_database(void)
+static void
+test_database_error_predicates(void)
 {
-    const char*                 persisted_path = "_libscid_c_test_scid5";
-    const char*                 missing_path = "_libscid_c_test_missing_scid5";
-    const char*                 pgn_path = "_libscid_c_test.pgn";
-    const char*                 large_pgn_path = "_libscid_c_test_large.pgn";
-    const char*                 pgn = "[Event \"Stored\"]\n"
-                                      "[Site \"Toronto\"]\n"
-                                      "[Date \"2024.06.14\"]\n"
-                                      "[Round \"7\"]\n"
-                                      "[White \"Alpha\"]\n"
-                                      "[Black \"Beta\"]\n"
-                                      "[Result \"1-0\"]\n"
-                                      "[ECO \"C20\"]\n"
-                                      "[EventDate \"2024.06.01\"]\n"
-                                      "\n"
-                                      "1. e4 e5 2. Nf3 1-0\n";
-    const char*                 replacement_pgn = "[Event \"Replacement\"]\n"
-                                                  "[Site \"Vancouver\"]\n"
-                                                  "[Date \"2025.01.02\"]\n"
-                                                  "[Round \"1\"]\n"
-                                                  "[White \"Gamma\"]\n"
-                                                  "[Black \"Delta\"]\n"
-                                                  "[Result \"0-1\"]\n"
-                                                  "\n"
-                                                  "1. d4 d5 0-1\n";
-    const char*                 imported_pgn = "[Event \"Imported\"]\n"
-                                               "[Site \"Montreal\"]\n"
-                                               "[Date \"2026.02.03\"]\n"
-                                               "[White \"Epsilon\"]\n"
-                                               "[Black \"Zeta\"]\n"
-                                               "[Result \"1/2-1/2\"]\n"
-                                               "\n"
-                                               "1. c4 c5 1/2-1/2\n"
-                                               "\n"
-                                               "[Event \"Imported Two\"]\n"
-                                               "[Site \"Calgary\"]\n"
-                                               "[Date \"2026.02.04\"]\n"
-                                               "[White \"Eta\"]\n"
-                                               "[Black \"Theta\"]\n"
-                                               "[Result \"0-1\"]\n"
-                                               "\n"
-                                               "1. d4 Nf6 0-1\n";
-    scid_database*              database = NULL;
-    scid_game*                  game = NULL;
-    scid_game*                  replacement = NULL;
-    scid_game*                  loaded = NULL;
-    scid_database*              persisted = NULL;
-    scid_database*              pgn_database = NULL;
-    scid_database*              reopened = NULL;
-    scid_database*              read_only_database = NULL;
-    char                        flags[22];
-    char                        diagnostic[1024];
-    char                        key[64];
-    char                        max_date[32];
-    char                        text[1024];
-    size_t                      count = 99;
-    size_t                      diagnostic_size = 99;
-    size_t                      flags_size = 99;
-    size_t                      imported_count = 99;
-    size_t                      key_size = 99;
-    size_t                      max_date_size = 99;
-    size_t                      text_size = 99;
-    scid_eco_code               eco_code = 0;
-    scid_eco_code               expected_eco_code = 0;
-    scid_filter_id              filter_id = 0;
-    int                         is_open = 0;
-    int                         read_only = 99;
-    int                         is_dirty = 99;
-    int                         deleted = 99;
-    scid_error                  status_code = SCID_ERROR;
-    size_t                      bad_name_count = 99;
-    struct progress_report_data progress = {0, 0, 0, 0};
-    struct should_cancel_data   cancel = {0, 1};
-
     TEST_ASSERT(scid_is_warning(SCID_OK) == 0);
     TEST_ASSERT(scid_is_error(SCID_OK) == 0);
     TEST_ASSERT(scid_is_warning(SCID_WARNING_NAME_DATA_LOSS) == 1);
@@ -189,6 +109,72 @@ test_database(void)
     TEST_ASSERT(scid_is_error(SCID_ERROR_CORRUPT) == 1);
     TEST_ASSERT(scid_is_warning(SCID_ERROR_BAD_ARG) == 0);
     TEST_ASSERT(scid_is_error(SCID_ERROR_BAD_ARG) == 1);
+}
+
+static void
+test_database_memory_lifecycle_and_crud(void)
+{
+    const char*    pgn = "[Event \"Stored\"]\n"
+                         "[Site \"Toronto\"]\n"
+                         "[Date \"2024.06.14\"]\n"
+                         "[Round \"7\"]\n"
+                         "[White \"Alpha\"]\n"
+                         "[Black \"Beta\"]\n"
+                         "[Result \"1-0\"]\n"
+                         "[ECO \"C20\"]\n"
+                         "[EventDate \"2024.06.01\"]\n"
+                         "\n"
+                         "1. e4 e5 2. Nf3 1-0\n";
+    const char*    replacement_pgn = "[Event \"Replacement\"]\n"
+                                     "[Site \"Vancouver\"]\n"
+                                     "[Date \"2025.01.02\"]\n"
+                                     "[Round \"1\"]\n"
+                                     "[White \"Gamma\"]\n"
+                                     "[Black \"Delta\"]\n"
+                                     "[Result \"0-1\"]\n"
+                                     "\n"
+                                     "1. d4 d5 0-1\n";
+    const char*    imported_pgn = "[Event \"Imported\"]\n"
+                                  "[Site \"Montreal\"]\n"
+                                  "[Date \"2026.02.03\"]\n"
+                                  "[White \"Epsilon\"]\n"
+                                  "[Black \"Zeta\"]\n"
+                                  "[Result \"1/2-1/2\"]\n"
+                                  "\n"
+                                  "1. c4 c5 1/2-1/2\n"
+                                  "\n"
+                                  "[Event \"Imported Two\"]\n"
+                                  "[Site \"Calgary\"]\n"
+                                  "[Date \"2026.02.04\"]\n"
+                                  "[White \"Eta\"]\n"
+                                  "[Black \"Theta\"]\n"
+                                  "[Result \"0-1\"]\n"
+                                  "\n"
+                                  "1. d4 Nf6 0-1\n";
+    scid_database* database = NULL;
+    scid_game*     game = NULL;
+    scid_game*     replacement = NULL;
+    scid_game*     loaded = NULL;
+    char           flags[22];
+    char           diagnostic[1024];
+    char           key[64];
+    char           max_date[32];
+    char           text[1024];
+    size_t         count = 99;
+    size_t         diagnostic_size = 99;
+    size_t         flags_size = 99;
+    size_t         imported_count = 99;
+    size_t         key_size = 99;
+    size_t         max_date_size = 99;
+    size_t         text_size = 99;
+    scid_eco_code  eco_code = 0;
+    scid_eco_code  expected_eco_code = 0;
+    int            is_open = 0;
+    int            read_only = 99;
+    int            is_dirty = 99;
+    int            deleted = 99;
+    scid_error     status_code = SCID_ERROR;
+    size_t         bad_name_count = 99;
 
     TEST_ASSERT(scid_database_create_memory("scratch", &database) == SCID_OK);
     TEST_ASSERT(database != NULL);
@@ -203,16 +189,6 @@ test_database(void)
     TEST_ASSERT(read_only == 0);
     TEST_ASSERT(scid_database_status_is_dirty(database, &is_dirty) == SCID_OK);
     TEST_ASSERT(is_dirty == 0);
-
-    TEST_ASSERT(scid_database_status_open_get(NULL, &status_code) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_status_open_get(database, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_status_bad_name_count_get(NULL, &bad_name_count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_status_bad_name_count_get(database, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_status_is_read_only(NULL, &read_only) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_status_is_read_only(database, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_status_is_dirty(NULL, &is_dirty) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_status_is_dirty(database, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(scid_database_filename_get(database, text, sizeof(text), &text_size) == SCID_OK);
     TEST_ASSERT(strcmp(text, "<clipbase>") == 0);
@@ -316,10 +292,6 @@ test_database(void)
         SCID_OK);
     TEST_ASSERT(strcmp(text, "") == 0);
     TEST_ASSERT(text_size == 0);
-    TEST_ASSERT(
-        scid_database_game_tag_get(database, 1, "Event", NULL, 0, &text_size) ==
-        SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(text_size == strlen("Stored"));
 
     TEST_ASSERT(scid_database_game_get(database, 0, &loaded, NULL, 0, NULL) == SCID_OK);
     TEST_ASSERT(loaded != NULL);
@@ -339,14 +311,6 @@ test_database(void)
     TEST_ASSERT(count == 3);
     scid_game_free(loaded);
     loaded = NULL;
-
-    TEST_ASSERT(
-        scid_database_game_get(database, 1, &loaded, NULL, 0, &flags_size) ==
-        SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(loaded == NULL);
-    TEST_ASSERT(flags_size == strlen("M"));
-    TEST_ASSERT(scid_database_game_get(database, 99, &loaded, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(loaded == NULL);
 
     TEST_ASSERT(
         test_game_create(replacement_pgn, strlen(replacement_pgn), &replacement, NULL, 0, NULL) ==
@@ -404,9 +368,7 @@ test_database(void)
         scid_database_game_export_pgn(database, 2, text, sizeof(text), &text_size) == SCID_OK);
     TEST_ASSERT(strstr(text, "[Event \"Imported\"]") != NULL);
     TEST_ASSERT(strstr(text, "1/2-1/2") != NULL);
-    TEST_ASSERT(
-        scid_database_game_export_pgn(database, 2, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(text_size > 0);
+
     TEST_ASSERT(
         scid_database_stats_date_range_get(
             database, text, sizeof(text), &text_size, max_date, sizeof(max_date), &max_date_size) ==
@@ -422,8 +384,51 @@ test_database(void)
     TEST_ASSERT(scid_database_stats_result_count_get(database, "*", &count) == SCID_OK);
     TEST_ASSERT(count == 0);
 
+    scid_game_free(game);
+    scid_game_free(replacement);
+    scid_database_free(database);
+}
+
+static void
+test_database_scid5_persistence_and_monitoring(void)
+{
+    const char*                 persisted_path = "_libscid_c_test_scid5";
+    const char*                 missing_path = "_libscid_c_test_missing_scid5";
+    const char*                 replacement_pgn = "[Event \"Replacement\"]\n"
+                                                  "[Site \"Vancouver\"]\n"
+                                                  "[Date \"2025.01.02\"]\n"
+                                                  "[Round \"1\"]\n"
+                                                  "[White \"Gamma\"]\n"
+                                                  "[Black \"Delta\"]\n"
+                                                  "[Result \"0-1\"]\n"
+                                                  "\n"
+                                                  "1. d4 d5 0-1\n";
+    scid_database*              persisted = NULL;
+    scid_database*              reopened = NULL;
+    scid_game*                  replacement = NULL;
+    scid_game*                  loaded = NULL;
+    char                        flags[22];
+    char                        key[64];
+    char                        max_date[32];
+    char                        text[1024];
+    size_t                      count = 99;
+    size_t                      flags_size = 99;
+    size_t                      key_size = 99;
+    size_t                      max_date_size = 99;
+    size_t                      text_size = 99;
+    int                         is_open = 0;
+    int                         read_only = 99;
+    struct progress_report_data progress = {0, 0, 0, 0};
+    struct should_cancel_data   cancel = {0, 1};
+
     remove_scid5_database(persisted_path);
     remove_scid5_database(missing_path);
+
+    TEST_ASSERT(
+        test_game_create(replacement_pgn, strlen(replacement_pgn), &replacement, NULL, 0, NULL) ==
+        SCID_OK);
+    TEST_ASSERT(replacement != NULL);
+
     TEST_ASSERT(scid_database_create_scid5(persisted_path, &persisted) == SCID_OK);
     TEST_ASSERT(persisted != NULL);
     TEST_ASSERT(scid_database_is_open(persisted, &is_open) == SCID_OK);
@@ -465,24 +470,7 @@ test_database(void)
         SCID_OK);
     TEST_ASSERT(strcmp(text, "") == 0);
     TEST_ASSERT(text_size == 0);
-    TEST_ASSERT(
-        scid_database_metadata_get(persisted, "description", NULL, 0, &text_size) ==
-        SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(text_size == strlen("C ABI persistent database"));
-    TEST_ASSERT(
-        scid_database_metadata_at_get(
-            persisted, 1, NULL, 0, &key_size, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(key_size == strlen("description"));
-    TEST_ASSERT(
-        scid_database_metadata_at_get(
-            persisted, 1, key, sizeof(key), &key_size, NULL, 0, &text_size) ==
-        SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(text_size == strlen("C ABI persistent database"));
-    TEST_ASSERT(
-        scid_database_metadata_at_get(
-            persisted, 99, key, sizeof(key), &key_size, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
+
     TEST_ASSERT(scid_database_game_add(persisted, replacement, "P") == SCID_OK);
     TEST_ASSERT(scid_database_game_count_get(persisted, &count) == SCID_OK);
     TEST_ASSERT(count == 1);
@@ -490,27 +478,6 @@ test_database(void)
     TEST_ASSERT(scid_database_close(persisted) == SCID_OK);
     TEST_ASSERT(scid_database_is_open(persisted, &is_open) == SCID_OK);
     TEST_ASSERT(is_open == 0);
-    TEST_ASSERT(scid_database_save(persisted) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_filter_create(persisted, &filter_id) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_count_get(persisted, SCID_FILTER_ALL_GAMES, &count) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_stats_date_range_get(
-            persisted, text, sizeof(text), &text_size, max_date, sizeof(max_date),
-            &max_date_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_stats_result_count_get(persisted, "0-1", &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_metadata_count_get(persisted, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_metadata_at_get(
-            persisted, 0, key, sizeof(key), &key_size, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_metadata_get(persisted, "description", text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_metadata_set(persisted, "description", "closed") == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_database_filename_get(persisted, text, sizeof(text), &text_size) == SCID_OK);
     TEST_ASSERT(strcmp(text, "<empty>") == 0);
     TEST_ASSERT(scid_database_type_get(persisted, text, sizeof(text), &text_size) == SCID_OK);
@@ -566,7 +533,6 @@ test_database(void)
     scid_database_free(reopened);
     reopened = NULL;
 
-    /* Verify Scid 5 open with progress monitoring */
     progress = (struct progress_report_data){0, 0, 0, 0};
     TEST_ASSERT(
         scid_database_open_scid5(
@@ -579,7 +545,6 @@ test_database(void)
     scid_database_free(reopened);
     reopened = NULL;
 
-    /* Verify Scid 5 open cancellation */
     cancel = (struct should_cancel_data){0, 1};
     TEST_ASSERT(
         scid_database_open_scid5(persisted_path, NULL, NULL, should_cancel, &cancel, &reopened) ==
@@ -587,7 +552,73 @@ test_database(void)
     TEST_ASSERT(reopened == NULL);
     TEST_ASSERT(cancel.calls > 0);
 
-    /* Verify Scid 5 read-only open cancellation */
+    TEST_ASSERT(
+        scid_database_open_scid5(missing_path, NULL, NULL, NULL, NULL, &reopened) ==
+        SCID_ERROR_FILE_OPEN);
+    TEST_ASSERT(reopened == NULL);
+
+    scid_game_free(replacement);
+    remove_scid5_database(persisted_path);
+    remove_scid5_database(missing_path);
+}
+
+static void
+test_database_scid5_read_only(void)
+{
+    const char*                 persisted_path = "_libscid_c_test_scid5";
+    const char*                 missing_path = "_libscid_c_test_missing_scid5";
+    const char*                 replacement_pgn = "[Event \"Replacement\"]\n"
+                                                  "[Site \"Vancouver\"]\n"
+                                                  "[Date \"2025.01.02\"]\n"
+                                                  "[Round \"1\"]\n"
+                                                  "[White \"Gamma\"]\n"
+                                                  "[Black \"Delta\"]\n"
+                                                  "[Result \"0-1\"]\n"
+                                                  "\n"
+                                                  "1. d4 d5 0-1\n";
+    const char*                 imported_pgn = "[Event \"Imported\"]\n"
+                                               "[Site \"Montreal\"]\n"
+                                               "[Date \"2026.02.03\"]\n"
+                                               "[White \"Epsilon\"]\n"
+                                               "[Black \"Zeta\"]\n"
+                                               "[Result \"1/2-1/2\"]\n"
+                                               "\n"
+                                               "1. c4 c5 1/2-1/2\n";
+    scid_database*              persisted = NULL;
+    scid_database*              read_only_database = NULL;
+    scid_game*                  replacement = NULL;
+    char                        diagnostic[1024];
+    char                        key[64];
+    char                        max_date[32];
+    char                        text[1024];
+    size_t                      count = 99;
+    size_t                      diagnostic_size = 99;
+    size_t                      imported_count = 99;
+    size_t                      key_size = 99;
+    size_t                      max_date_size = 99;
+    size_t                      text_size = 99;
+    int                         read_only = 99;
+    struct progress_report_data progress = {0, 0, 0, 0};
+    struct should_cancel_data   cancel = {0, 1};
+
+    remove_scid5_database(persisted_path);
+    remove_scid5_database(missing_path);
+
+    TEST_ASSERT(
+        test_game_create(replacement_pgn, strlen(replacement_pgn), &replacement, NULL, 0, NULL) ==
+        SCID_OK);
+    TEST_ASSERT(replacement != NULL);
+
+    TEST_ASSERT(scid_database_create_scid5(persisted_path, &persisted) == SCID_OK);
+    TEST_ASSERT(
+        scid_database_metadata_set(persisted, "description", "C ABI persistent database") ==
+        SCID_OK);
+    TEST_ASSERT(scid_database_game_add(persisted, replacement, "P") == SCID_OK);
+    TEST_ASSERT(scid_database_save(persisted) == SCID_OK);
+    TEST_ASSERT(scid_database_close(persisted) == SCID_OK);
+    scid_database_free(persisted);
+    persisted = NULL;
+
     cancel = (struct should_cancel_data){0, 1};
     TEST_ASSERT(
         scid_database_open_scid5_read_only(
@@ -596,7 +627,11 @@ test_database(void)
     TEST_ASSERT(read_only_database == NULL);
     TEST_ASSERT(cancel.calls > 0);
 
-    /* Verify Scid 5 read-only open with progress monitoring */
+    TEST_ASSERT(
+        scid_database_open_scid5_read_only(
+            missing_path, NULL, NULL, NULL, NULL, &read_only_database) == SCID_ERROR_FILE_OPEN);
+    TEST_ASSERT(read_only_database == NULL);
+
     progress = (struct progress_report_data){0, 0, 0, 0};
     TEST_ASSERT(
         scid_database_open_scid5_read_only(
@@ -656,30 +691,23 @@ test_database(void)
     TEST_ASSERT(scid_database_close(read_only_database) == SCID_OK);
     scid_database_free(read_only_database);
     read_only_database = NULL;
-    remove_scid5_database(persisted_path);
 
-    TEST_ASSERT(scid_database_create_memory(NULL, &database) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_create_memory("bad", NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_create_scid5(NULL, &persisted) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_create_scid5("bad", NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_open_scid5(NULL, NULL, NULL, NULL, NULL, &reopened) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_open_scid5("bad", NULL, NULL, NULL, NULL, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_open_scid5(missing_path, NULL, NULL, NULL, NULL, &reopened) ==
-        SCID_ERROR_FILE_OPEN);
-    TEST_ASSERT(reopened == NULL);
-    TEST_ASSERT(
-        scid_database_open_scid5_read_only(NULL, NULL, NULL, NULL, NULL, &read_only_database) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_open_scid5_read_only("bad", NULL, NULL, NULL, NULL, NULL) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_open_scid5_read_only(
-            missing_path, NULL, NULL, NULL, NULL, &read_only_database) == SCID_ERROR_FILE_OPEN);
-    TEST_ASSERT(read_only_database == NULL);
+    scid_game_free(replacement);
+    remove_scid5_database(persisted_path);
+}
+
+static void
+test_database_pgn_read_only(void)
+{
+    const char*                 pgn_path = "_libscid_c_test.pgn";
+    const char*                 large_pgn_path = "_libscid_c_test_large.pgn";
+    scid_database*              pgn_database = NULL;
+    char                        text[1024];
+    size_t                      count = 99;
+    size_t                      text_size = 99;
+    int                         read_only = 99;
+    struct progress_report_data progress = {0, 0, 0, 0};
+    struct should_cancel_data   cancel = {0, 1};
 
     remove_file(pgn_path);
     write_pgn_database(pgn_path, 2);
@@ -714,160 +742,16 @@ test_database(void)
     TEST_ASSERT(pgn_database == NULL);
     TEST_ASSERT(cancel.calls > 0);
 
-    TEST_ASSERT(
-        scid_database_open_pgn_read_only(NULL, NULL, NULL, NULL, NULL, &pgn_database) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_open_pgn_read_only(pgn_path, NULL, NULL, NULL, NULL, NULL) ==
-        SCID_ERROR_BAD_ARG);
-
-    TEST_ASSERT(scid_database_close(NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_save(NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_metadata_get(NULL, "description", text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_metadata_get(database, NULL, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_metadata_get(database, "description", text, sizeof(text), NULL) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_metadata_count_get(NULL, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_metadata_count_get(database, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_metadata_at_get(
-            NULL, 0, key, sizeof(key), &key_size, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_metadata_at_get(
-            database, 0, key, sizeof(key), NULL, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_metadata_at_get(
-            database, 0, key, sizeof(key), &key_size, text, sizeof(text), NULL) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_stats_date_range_get(
-            NULL, text, sizeof(text), &text_size, max_date, sizeof(max_date), &max_date_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_stats_date_range_get(
-            database, text, sizeof(text), NULL, max_date, sizeof(max_date), &max_date_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_stats_date_range_get(
-            database, text, sizeof(text), &text_size, max_date, sizeof(max_date), NULL) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_stats_date_range_get(
-            database, NULL, 0, &text_size, max_date, sizeof(max_date), &max_date_size) ==
-        SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(text_size == strlen("2024.06.14"));
-    TEST_ASSERT(scid_database_stats_result_count_get(NULL, "1-0", &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_stats_result_count_get(database, NULL, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_stats_result_count_get(database, "bad", &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_stats_result_count_get(database, "1-0", NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_metadata_set(NULL, "description", "bad") == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_metadata_set(database, NULL, "bad") == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_metadata_set(database, "description", NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_is_open(NULL, &is_open) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_is_open(database, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filename_get(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filename_get(database, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filename_get(database, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(text_size == strlen("<clipbase>"));
-    TEST_ASSERT(scid_database_type_get(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_type_get(database, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_type_get(database, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
-    TEST_ASSERT(text_size == strlen("memory"));
-    TEST_ASSERT(scid_database_read_only_get(NULL, &read_only) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_read_only_get(database, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_count_get(NULL, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_count_get(database, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_import_pgn(
-            NULL, imported_pgn, strlen(imported_pgn), diagnostic, sizeof(diagnostic),
-            &diagnostic_size, &imported_count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_import_pgn(
-            database, NULL, 0, diagnostic, sizeof(diagnostic), &diagnostic_size, &imported_count) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_import_pgn(
-            database, imported_pgn, strlen(imported_pgn), diagnostic, sizeof(diagnostic),
-            &diagnostic_size, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_import_pgn(
-            database, imported_pgn, strlen(imported_pgn), NULL, 0, NULL, &imported_count) ==
-        SCID_OK);
-    TEST_ASSERT(imported_count == 2);
-    TEST_ASSERT(
-        scid_database_game_export_pgn(NULL, 0, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_export_pgn(database, 99, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_export_pgn(database, 0, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_add(NULL, game, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_add(database, NULL, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_replace(NULL, 0, replacement, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_replace(database, 99, replacement, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_replace(database, 0, NULL, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_delete(NULL, 0) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_delete(database, 99) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_undelete(NULL, 0) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_undelete(database, 99) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_tag_get(NULL, 0, "Event", text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_tag_get(database, 0, NULL, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_tag_get(database, 99, "Event", text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_halfmove_count_get(NULL, 0, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_halfmove_count_get(database, 99, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_halfmove_count_get(database, 0, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_number_get(NULL, 0, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_number_get(database, 99, &count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_number_get(database, 0, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_deleted_get(NULL, 0, &deleted) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_deleted_get(database, 99, &deleted) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_deleted_get(database, 0, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_result_get(NULL, 0, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_result_get(database, 99, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_result_get(database, 0, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_eco_get(NULL, 0, &eco_code) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_eco_get(database, 99, &eco_code) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_eco_get(database, 0, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_date_get(NULL, 0, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_date_get(database, 99, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_game_date_get(database, 0, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_get(NULL, 0, &loaded, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_database_game_get(database, 0, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
-
-    scid_game_free(game);
-    scid_game_free(replacement);
-    scid_database_free(read_only_database);
-    scid_database_free(database);
-    scid_database_free(NULL);
-    remove_scid5_database(persisted_path);
-    remove_scid5_database(missing_path);
     remove_file(pgn_path);
     remove_file(large_pgn_path);
+}
+
+void
+test_database(void)
+{
+    test_database_error_predicates();
+    test_database_memory_lifecycle_and_crud();
+    test_database_scid5_persistence_and_monitoring();
+    test_database_scid5_read_only();
+    test_database_pgn_read_only();
 }

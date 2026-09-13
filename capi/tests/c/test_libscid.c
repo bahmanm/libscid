@@ -16,8 +16,11 @@ main(void)
     test_game_pgn();
     test_game_pgn_nullguards();
     test_database();
-    test_database_filters();
+    test_database_nullguards();
+    test_database_filter();
+    test_database_filter_nullguards();
     test_database_search();
+    test_database_search_nullguards();
     test_eco();
     test_eco_nullguards();
 

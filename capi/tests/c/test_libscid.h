@@ -98,9 +98,15 @@ test_game_cursor_nullguards(void);
 void
 test_database(void);
 void
-test_database_filters(void);
+test_database_nullguards(void);
+void
+test_database_filter(void);
+void
+test_database_filter_nullguards(void);
 void
 test_database_search(void);
+void
+test_database_search_nullguards(void);
 void
 test_eco(void);
 void
