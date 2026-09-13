@@ -13,11 +13,12 @@ main(void)
     test_game_nullguards();
     test_game_cursor();
     test_game_cursor_nullguards();
+    test_game_pgn();
+    test_game_pgn_nullguards();
     test_database();
     test_database_filters();
     test_database_search();
     test_eco();
-    test_pgn_contract();
 
     return 0;
 }

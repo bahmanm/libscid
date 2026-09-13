@@ -116,7 +116,9 @@ test_primitives(void);
 void
 test_primitives_nullguards(void);
 void
-test_pgn_contract(void);
+test_game_pgn(void);
+void
+test_game_pgn_nullguards(void);
 void
 test_position(void);
 void
