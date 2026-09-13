@@ -55,7 +55,7 @@ namespace scid::libscid
         char         rank_text,
         scid_square* out_square)
     {
-        if (out_square == nullptr)
+        if (any_null(out_square))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -82,7 +82,7 @@ namespace scid::libscid
         const char*  text,
         scid_square* out_square)
     {
-        if (text == nullptr || out_square == nullptr)
+        if (any_null(text, out_square))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -129,7 +129,7 @@ namespace scid::libscid
         char        text,
         scid_piece* out_piece)
     {
-        if (out_piece == nullptr)
+        if (any_null(out_piece))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -165,7 +165,7 @@ namespace scid::libscid
         size_t           out_text_capacity,
         size_t*          out_text_size)
     {
-        if (out_text_size == nullptr)
+        if (any_null(out_text_size) || (out_text == nullptr && out_text_capacity > 0))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -198,7 +198,7 @@ namespace scid::libscid
         bool value,
         int* out_value)
     {
-        if (out_value == nullptr)
+        if (any_null(out_value))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -213,7 +213,7 @@ namespace scid::libscid
         size_t  value,
         size_t* out_value)
     {
-        if (out_value == nullptr)
+        if (any_null(out_value))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -399,7 +399,7 @@ namespace scid::libscid
         scid_game*              game,
         const scid_game_cursor* cursor)
     {
-        if (game == nullptr || cursor == nullptr || cursor->game != game)
+        if (any_null(game, cursor) || cursor->game != game)
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -414,7 +414,7 @@ namespace scid::libscid
         const scid::core::MovetextLocation& location,
         scid_game_cursor**                  out_cursor)
     {
-        if (game == nullptr || out_cursor == nullptr)
+        if (any_null(game, out_cursor))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -445,7 +445,7 @@ namespace scid::libscid
         const scid_game_cursor* source_cursor,
         scid_game_cursor**      out_cursor)
     {
-        if (source_cursor == nullptr)
+        if (any_null(source_cursor, out_cursor))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -623,7 +623,7 @@ namespace scid::libscid
         scid_database**                 out_database,
         const scid::database::Progress* progress)
     {
-        if (path == nullptr || out_database == nullptr)
+        if (any_null(path, out_database))
         {
             return SCID_ERROR_BAD_ARG;
         }
@@ -1013,7 +1013,7 @@ namespace scid::libscid
         const scid::core::Position& source,
         scid_position*              out_position)
     {
-        if (out_position == nullptr)
+        if (any_null(out_position))
         {
             return SCID_ERROR_BAD_ARG;
         }

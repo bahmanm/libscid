@@ -16,7 +16,7 @@ scid_database_filter_create(
     scid_database*  database,
     scid_filter_id* out_filter_id)
 {
-    if (database == nullptr || out_filter_id == nullptr || !database->value.isOpen())
+    if (any_null(database, out_filter_id) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -40,7 +40,7 @@ scid_database_filter_delete(
     scid_database* database,
     scid_filter_id filter_id)
 {
-    if (database == nullptr || filter_id <= 0 || !database->value.isOpen())
+    if (any_null(database) || filter_id <= 0 || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -72,7 +72,7 @@ scid_database_filter_game_count_get(
     scid_filter_id       filter_id,
     size_t*              out_count)
 {
-    if (database == nullptr || out_count == nullptr || !database->value.isOpen())
+    if (any_null(database, out_count) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -105,7 +105,7 @@ scid_database_filter_game_indices_get(
     size_t               out_game_indices_capacity,
     size_t*              out_game_indices_count)
 {
-    if (database == nullptr || sort_criteria == nullptr || out_game_indices_count == nullptr ||
+    if (any_null(database, sort_criteria, out_game_indices_count) ||
         !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
@@ -152,7 +152,7 @@ scid_database_filter_game_index_at_row_get(
     size_t               row,
     size_t*              out_game_index)
 {
-    if (out_game_index == nullptr)
+    if (any_null(database, sort_criteria, out_game_index))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -176,7 +176,7 @@ scid_database_filter_game_row_for_index_get(
     size_t               game_index,
     size_t*              out_row)
 {
-    if (database == nullptr || sort_criteria == nullptr || out_row == nullptr ||
+    if (any_null(database, sort_criteria, out_row) ||
         !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;

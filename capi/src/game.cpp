@@ -37,7 +37,7 @@ scid_game_create_blank(
     const scid_position* position,
     scid_game**          out_game)
 {
-    if (position == nullptr || out_game == nullptr)
+    if (any_null(position, out_game))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -71,7 +71,7 @@ scid_game_create(
     size_t               out_diagnostic_capacity,
     size_t*              out_diagnostic_size)
 {
-    if (position == nullptr || pgn == nullptr || out_game == nullptr)
+    if (any_null(position, pgn, out_game))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -124,7 +124,7 @@ scid_game_free(scid_game* game)
 scid_error
 scid_game_pgn_options_create(scid_game_pgn_options** out_options)
 {
-    if (out_options == nullptr)
+    if (any_null(out_options))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -154,7 +154,7 @@ scid_game_pgn_options_symbolic_nags_set(
     scid_game_pgn_options* options,
     int                    enabled)
 {
-    if (options == nullptr)
+    if (any_null(options))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -169,7 +169,7 @@ scid_game_pgn_options_supplemental_tags_set(
     scid_game_pgn_options* options,
     int                    enabled)
 {
-    if (options == nullptr)
+    if (any_null(options))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -184,7 +184,7 @@ scid_game_pgn_options_comments_set(
     scid_game_pgn_options* options,
     int                    enabled)
 {
-    if (options == nullptr)
+    if (any_null(options))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -199,7 +199,7 @@ scid_game_pgn_options_variations_set(
     scid_game_pgn_options* options,
     int                    enabled)
 {
-    if (options == nullptr)
+    if (any_null(options))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -214,7 +214,7 @@ scid_game_pgn_options_line_width_set(
     scid_game_pgn_options* options,
     unsigned               line_width)
 {
-    if (options == nullptr)
+    if (any_null(options))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -239,7 +239,7 @@ scid_game_to_pgn(
     size_t                       out_text_capacity,
     size_t*                      out_text_size)
 {
-    if (game == nullptr)
+    if (any_null(game, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -264,7 +264,7 @@ scid_game_mainline_halfmove_count_get(
     const scid_game* game,
     size_t*          out_count)
 {
-    if (game == nullptr || out_count == nullptr)
+    if (any_null(game, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -287,7 +287,7 @@ scid_game_initial_comment_get(
     size_t           out_text_capacity,
     size_t*          out_text_size)
 {
-    if (game == nullptr)
+    if (any_null(game, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -311,7 +311,7 @@ scid_game_tag_get(
     size_t           out_text_capacity,
     size_t*          out_text_size)
 {
-    if (game == nullptr || name == nullptr)
+    if (any_null(game, name, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -334,7 +334,7 @@ scid_game_tag_set(
     const char* name,
     const char* value)
 {
-    if (game == nullptr || name == nullptr || value == nullptr)
+    if (any_null(game, name, value))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -355,7 +355,7 @@ scid_game_tag_count_get(
     const scid_game* game,
     size_t*          out_count)
 {
-    if (game == nullptr || out_count == nullptr)
+    if (any_null(game, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -382,7 +382,7 @@ scid_game_tag_at_get(
     size_t           out_value_capacity,
     size_t*          out_value_size)
 {
-    if (game == nullptr)
+    if (any_null(game, out_name_size, out_value_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -417,7 +417,7 @@ scid_game_tag_remove(
     const char* name,
     int*        out_removed)
 {
-    if (game == nullptr || name == nullptr || out_removed == nullptr)
+    if (any_null(game, name, out_removed))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -468,7 +468,7 @@ scid_game_start_position_get(
     const scid_game* game,
     scid_position*   out_position)
 {
-    if (game == nullptr)
+    if (any_null(game, out_position))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -494,7 +494,7 @@ scid_game_final_position_get(
     const scid_game* game,
     scid_position*   out_position)
 {
-    if (game == nullptr)
+    if (any_null(game, out_position))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -526,13 +526,13 @@ scid_game_merge_moves(
     scid_game_merge_moves_mode mode,
     scid_game_cursor**         out_cursor)
 {
-    if (out_cursor == nullptr)
+    if (any_null(out_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
     *out_cursor = nullptr;
 
-    if (source_game == nullptr)
+    if (any_null(source_game))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -663,7 +663,7 @@ scid_game_cursor_create(
     scid_game*         game,
     scid_game_cursor** out_cursor)
 {
-    if (game == nullptr || out_cursor == nullptr)
+    if (any_null(game, out_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -687,7 +687,7 @@ scid_game_cursor_clone(
     const scid_game_cursor* source_cursor,
     scid_game_cursor**      out_cursor)
 {
-    if (out_cursor == nullptr)
+    if (any_null(out_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -713,7 +713,7 @@ scid_game_cursor_position_get(
     const scid_game_cursor* cursor,
     scid_position*          out_position)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_position))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -746,7 +746,7 @@ scid_game_cursor_ply_get(
     const scid_game_cursor* cursor,
     size_t*                 out_ply)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_ply))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -760,7 +760,7 @@ scid_game_cursor_variation_count_get(
     const scid_game_cursor* cursor,
     size_t*                 out_count)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -774,7 +774,7 @@ scid_game_cursor_variation_depth_get(
     const scid_game_cursor* cursor,
     size_t*                 out_depth)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_depth))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -788,7 +788,7 @@ scid_game_cursor_variation_index_get(
     const scid_game_cursor* cursor,
     size_t*                 out_index)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_index))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -802,7 +802,7 @@ scid_game_cursor_is_line_start(
     const scid_game_cursor* cursor,
     int*                    out_is_line_start)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_is_line_start))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -816,7 +816,7 @@ scid_game_cursor_is_line_end(
     const scid_game_cursor* cursor,
     int*                    out_is_line_end)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_is_line_end))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -830,7 +830,7 @@ scid_game_cursor_is_game_start(
     const scid_game_cursor* cursor,
     int*                    out_is_game_start)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_is_game_start))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -844,7 +844,7 @@ scid_game_cursor_is_game_end(
     const scid_game_cursor* cursor,
     int*                    out_is_game_end)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_is_game_end))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -858,7 +858,7 @@ scid_game_cursor_is_variation_start(
     const scid_game_cursor* cursor,
     int*                    out_is_variation_start)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_is_variation_start))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -872,7 +872,7 @@ scid_game_cursor_is_variation_end(
     const scid_game_cursor* cursor,
     int*                    out_is_variation_end)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_is_variation_end))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -886,7 +886,7 @@ scid_game_cursor_is_variation_empty(
     const scid_game_cursor* cursor,
     int*                    out_is_variation_empty)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_is_variation_empty))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -902,7 +902,7 @@ scid_game_cursor_comment_get(
     size_t                  out_text_capacity,
     size_t*                 out_text_size)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -945,7 +945,7 @@ scid_game_cursor_comment_set(
     const scid_game_cursor* cursor,
     const char*             comment)
 {
-    if (comment == nullptr)
+    if (any_null(comment))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -977,7 +977,7 @@ scid_game_cursor_previous_movespec_get(
     const scid_game_cursor* cursor,
     scid_movespec*          out_move)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_move))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -993,7 +993,7 @@ scid_game_cursor_previous_move_san_get(
     size_t                  out_text_capacity,
     size_t*                 out_text_size)
 {
-    if (cursor == nullptr || out_text_size == nullptr)
+    if (any_null(cursor, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1023,7 +1023,7 @@ scid_game_cursor_previous_move_comment_get(
     size_t                  out_text_capacity,
     size_t*                 out_text_size)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1039,7 +1039,7 @@ scid_game_cursor_previous_move_nag_count_get(
     const scid_game_cursor* cursor,
     size_t*                 out_count)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1054,7 +1054,7 @@ scid_game_cursor_previous_move_nag_at_get(
     size_t                  index,
     scid_nag*               out_nag)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_nag))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1068,7 +1068,7 @@ scid_game_cursor_next_movespec_get(
     const scid_game_cursor* cursor,
     scid_movespec*          out_move)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_move))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1084,7 +1084,7 @@ scid_game_cursor_next_move_san_get(
     size_t                  out_text_capacity,
     size_t*                 out_text_size)
 {
-    if (cursor == nullptr || out_text_size == nullptr)
+    if (any_null(cursor, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1114,7 +1114,7 @@ scid_game_cursor_next_move_comment_get(
     size_t                  out_text_capacity,
     size_t*                 out_text_size)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1128,7 +1128,7 @@ scid_game_cursor_next_move_nag_count_get(
     const scid_game_cursor* cursor,
     size_t*                 out_count)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1143,7 +1143,7 @@ scid_game_cursor_next_move_nag_at_get(
     size_t                  index,
     scid_nag*               out_nag)
 {
-    if (cursor == nullptr)
+    if (any_null(cursor, out_nag))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1157,7 +1157,7 @@ scid_game_cursor_to_start(
     const scid_game_cursor* cursor,
     scid_game_cursor**      out_start_cursor)
 {
-    if (cursor == nullptr || out_start_cursor == nullptr)
+    if (any_null(cursor, out_start_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1182,7 +1182,7 @@ scid_game_cursor_to_end(
     const scid_game_cursor* cursor,
     scid_game_cursor**      out_end_cursor)
 {
-    if (cursor == nullptr || out_end_cursor == nullptr)
+    if (any_null(cursor, out_end_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1209,7 +1209,7 @@ scid_game_cursor_to_ply(
     int*                    out_moved,
     scid_game_cursor**      out_ply_cursor)
 {
-    if (cursor == nullptr || out_moved == nullptr || out_ply_cursor == nullptr)
+    if (any_null(cursor, out_moved, out_ply_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1242,7 +1242,7 @@ scid_game_cursor_next(
     int*                    out_moved,
     scid_game_cursor**      out_next_cursor)
 {
-    if (cursor == nullptr || out_moved == nullptr || out_next_cursor == nullptr)
+    if (any_null(cursor, out_moved, out_next_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1281,7 +1281,7 @@ scid_game_cursor_previous(
     int*                    out_moved,
     scid_game_cursor**      out_previous_cursor)
 {
-    if (cursor == nullptr || out_moved == nullptr || out_previous_cursor == nullptr)
+    if (any_null(cursor, out_moved, out_previous_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1321,7 +1321,7 @@ scid_game_cursor_variation_enter(
     int*                    out_entered,
     scid_game_cursor**      out_variation_cursor)
 {
-    if (cursor == nullptr || out_entered == nullptr || out_variation_cursor == nullptr)
+    if (any_null(cursor, out_entered, out_variation_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1360,7 +1360,7 @@ scid_game_cursor_variation_exit(
     int*                    out_exited,
     scid_game_cursor**      out_parent_cursor)
 {
-    if (cursor == nullptr || out_exited == nullptr || out_parent_cursor == nullptr)
+    if (any_null(cursor, out_exited, out_parent_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1400,7 +1400,7 @@ scid_game_cursor_move_add(
     scid_movespec           move,
     scid_game_cursor**      out_next_cursor)
 {
-    if (out_next_cursor == nullptr)
+    if (any_null(out_next_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1451,7 +1451,7 @@ scid_game_cursor_variation_add(
     int*                    out_added,
     scid_game_cursor**      out_variation_cursor)
 {
-    if (out_added == nullptr || out_variation_cursor == nullptr)
+    if (any_null(out_added, out_variation_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1497,7 +1497,7 @@ scid_game_cursor_nag_add(
     scid_nag                nag,
     int*                    out_added)
 {
-    if (out_added == nullptr)
+    if (any_null(out_added))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1536,7 +1536,7 @@ scid_game_cursor_nag_remove(
     int                     is_move_nag,
     int*                    out_removed)
 {
-    if (out_removed == nullptr)
+    if (any_null(out_removed))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1616,7 +1616,7 @@ scid_game_cursor_variation_promote_to_first(
     int*                    out_promoted,
     scid_game_cursor**      out_promoted_cursor)
 {
-    if (out_promoted == nullptr || out_promoted_cursor == nullptr)
+    if (any_null(out_promoted, out_promoted_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1661,7 +1661,7 @@ scid_game_cursor_variation_promote_to_mainline(
     int*                    out_promoted,
     scid_game_cursor**      out_mainline_cursor)
 {
-    if (out_promoted == nullptr || out_mainline_cursor == nullptr)
+    if (any_null(out_promoted, out_mainline_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1706,7 +1706,7 @@ scid_game_cursor_variation_delete(
     int*                    out_deleted,
     scid_game_cursor**      out_parent_cursor)
 {
-    if (out_deleted == nullptr || out_parent_cursor == nullptr)
+    if (any_null(out_deleted, out_parent_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1750,7 +1750,7 @@ scid_game_cursor_truncate(
     const scid_game_cursor* cursor,
     scid_game_cursor**      out_cursor)
 {
-    if (out_cursor == nullptr)
+    if (any_null(out_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1788,7 +1788,7 @@ scid_game_cursor_truncate_before_cursor(
     const scid_game_cursor* cursor,
     scid_game_cursor**      out_cursor)
 {
-    if (out_cursor == nullptr)
+    if (any_null(out_cursor))
     {
         return SCID_ERROR_BAD_ARG;
     }

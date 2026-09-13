@@ -86,7 +86,7 @@ scid_database_open_pgn_read_only(
 scid_error
 scid_database_close(scid_database* database)
 {
-    if (database == nullptr)
+    if (any_null(database))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -119,7 +119,7 @@ scid_database_is_open(
     const scid_database* database,
     int*                 out_is_open)
 {
-    if (database == nullptr || out_is_open == nullptr)
+    if (any_null(database, out_is_open))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -140,7 +140,7 @@ scid_database_status_open_get(
     const scid_database* database,
     scid_error*          out_status)
 {
-    if (database == nullptr || out_status == nullptr)
+    if (any_null(database, out_status))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -167,7 +167,7 @@ scid_database_status_bad_name_count_get(
     const scid_database* database,
     size_t*              out_count)
 {
-    if (database == nullptr || out_count == nullptr)
+    if (any_null(database, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -194,7 +194,7 @@ scid_database_status_is_read_only(
     const scid_database* database,
     int*                 out_is_read_only)
 {
-    if (database == nullptr || out_is_read_only == nullptr)
+    if (any_null(database, out_is_read_only))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -220,7 +220,7 @@ scid_database_status_is_dirty(
     const scid_database* database,
     int*                 out_is_dirty)
 {
-    if (database == nullptr || out_is_dirty == nullptr)
+    if (any_null(database, out_is_dirty))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -248,7 +248,7 @@ scid_database_filename_get(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (database == nullptr)
+    if (any_null(database, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -272,7 +272,7 @@ scid_database_type_get(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (database == nullptr)
+    if (any_null(database, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -293,7 +293,7 @@ scid_database_read_only_get(
     const scid_database* database,
     int*                 out_read_only)
 {
-    if (database == nullptr || out_read_only == nullptr)
+    if (any_null(database, out_read_only))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -312,7 +312,7 @@ scid_database_read_only_get(
 scid_error
 scid_database_save(scid_database* database)
 {
-    if (database == nullptr)
+    if (any_null(database))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -336,7 +336,7 @@ scid_database_metadata_get(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (database == nullptr || key == nullptr || !database->value.isOpen())
+    if (any_null(database, key, out_text_size) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -366,7 +366,7 @@ scid_database_metadata_set(
     const char*    key,
     const char*    value)
 {
-    if (database == nullptr || key == nullptr || value == nullptr || !database->value.isOpen())
+    if (any_null(database, key, value) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -387,7 +387,7 @@ scid_database_metadata_count_get(
     const scid_database* database,
     size_t*              out_count)
 {
-    if (database == nullptr || out_count == nullptr || !database->value.isOpen())
+    if (any_null(database, out_count) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -414,7 +414,7 @@ scid_database_metadata_at_get(
     size_t               out_value_capacity,
     size_t*              out_value_size)
 {
-    if (database == nullptr || !database->value.isOpen())
+    if (any_null(database, out_key_size, out_value_size) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -453,7 +453,7 @@ scid_database_stats_date_range_get(
     size_t               out_max_date_capacity,
     size_t*              out_max_date_size)
 {
-    if (database == nullptr || out_min_date_size == nullptr || out_max_date_size == nullptr ||
+    if (any_null(database, out_min_date_size, out_max_date_size) ||
         !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
@@ -487,7 +487,7 @@ scid_database_stats_result_count_get(
     const char*          result,
     size_t*              out_count)
 {
-    if (database == nullptr || result == nullptr || out_count == nullptr ||
+    if (any_null(database, result, out_count) ||
         !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
@@ -515,7 +515,7 @@ scid_database_game_count_get(
     const scid_database* database,
     size_t*              out_count)
 {
-    if (database == nullptr || out_count == nullptr)
+    if (any_null(database, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -541,7 +541,7 @@ scid_database_import_pgn(
     size_t*        out_diagnostic_size,
     size_t*        out_imported_count)
 {
-    if (database == nullptr || pgn == nullptr || out_imported_count == nullptr)
+    if (any_null(database, pgn, out_imported_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -615,7 +615,7 @@ scid_database_game_add(
     const scid_game* game,
     const char*      flags)
 {
-    if (database == nullptr || game == nullptr)
+    if (any_null(database, game))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -639,7 +639,7 @@ scid_database_game_replace(
     const scid_game* game,
     const char*      flags)
 {
-    if (database == nullptr || game == nullptr)
+    if (any_null(database, game))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -668,7 +668,7 @@ scid_database_game_delete(
     scid_database* database,
     size_t         index)
 {
-    if (database == nullptr)
+    if (any_null(database))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -697,7 +697,7 @@ scid_database_game_undelete(
     scid_database* database,
     size_t         index)
 {
-    if (database == nullptr)
+    if (any_null(database))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -730,7 +730,7 @@ scid_database_game_get(
     size_t               out_flags_capacity,
     size_t*              out_flags_size)
 {
-    if (database == nullptr || out_game == nullptr)
+    if (any_null(database, out_game))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -776,7 +776,7 @@ scid_database_game_export_pgn(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (database == nullptr)
+    if (any_null(database, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -816,7 +816,7 @@ scid_database_game_tag_get(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (database == nullptr || name == nullptr)
+    if (any_null(database, name, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -848,7 +848,7 @@ scid_database_game_halfmove_count_get(
     size_t               index,
     size_t*              out_count)
 {
-    if (database == nullptr || out_count == nullptr)
+    if (any_null(database, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -882,7 +882,7 @@ scid_database_game_number_get(
     size_t               index,
     size_t*              out_number)
 {
-    if (database == nullptr || out_number == nullptr)
+    if (any_null(database, out_number))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -910,7 +910,7 @@ scid_database_game_deleted_get(
     size_t               index,
     int*                 out_deleted)
 {
-    if (database == nullptr || out_deleted == nullptr)
+    if (any_null(database, out_deleted))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -940,7 +940,7 @@ scid_database_game_result_get(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (database == nullptr)
+    if (any_null(database, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -969,7 +969,7 @@ scid_database_game_eco_get(
     size_t               index,
     scid_eco_code*       out_code)
 {
-    if (database == nullptr || out_code == nullptr)
+    if (any_null(database, out_code))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1000,7 +1000,7 @@ scid_database_game_date_get(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (database == nullptr)
+    if (any_null(database, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }

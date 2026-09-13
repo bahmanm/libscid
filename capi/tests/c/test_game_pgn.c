@@ -5,8 +5,8 @@
 #include <stddef.h>
 #include <string.h>
 
-void
-test_pgn_contract(void)
+static void
+test_game_pgn_serialisation_and_options(void)
 {
     const char*            input = "[Event \"Original\"]\n"
                                    "[Site \"Internet\"]\n"
@@ -98,6 +98,17 @@ test_pgn_contract(void)
     TEST_ASSERT(strstr(pgn, "$1") == NULL);
     TEST_ASSERT(strstr(pgn, " ! ") == NULL);
     TEST_ASSERT(strstr(pgn, "Nc3") != NULL);
+
+    TEST_ASSERT(scid_game_pgn_options_supplemental_tags_set(pgn_options, 0) == SCID_OK);
+    TEST_ASSERT(scid_game_to_pgn(game, pgn_options, pgn, sizeof(pgn), &text_size) == SCID_OK);
+    TEST_ASSERT(strstr(pgn, "[Annotator \"C ABI\"]") == NULL);
+
+    TEST_ASSERT(scid_game_pgn_options_line_width_set(pgn_options, 40) == SCID_OK);
+    TEST_ASSERT(scid_game_to_pgn(game, pgn_options, pgn, sizeof(pgn), &text_size) == SCID_OK);
+
+    TEST_ASSERT(scid_game_pgn_options_line_width_set(pgn_options, 0) == SCID_OK);
+    TEST_ASSERT(scid_game_to_pgn(game, pgn_options, pgn, sizeof(pgn), &text_size) == SCID_OK);
+
     scid_game_pgn_options_free(pgn_options);
     pgn_options = NULL;
 
@@ -161,4 +172,10 @@ test_pgn_contract(void)
     scid_game_cursor_free(cursor);
     scid_game_cursor_free(next_cursor);
     scid_game_free(reparsed);
+}
+
+void
+test_game_pgn(void)
+{
+    test_game_pgn_serialisation_and_options();
 }

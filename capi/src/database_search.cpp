@@ -441,7 +441,7 @@ scid_database_search_headers(
     scid_should_cancel_fn              should_cancel,
     void*                              should_cancel_user_data)
 {
-    if (database == nullptr || criteria == nullptr ||
+    if (any_null(database, criteria) ||
         destination_filter_id == SCID_FILTER_ALL_GAMES || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
@@ -504,7 +504,7 @@ scid_database_search_position(
     scid_should_cancel_fn         should_cancel,
     void*                         should_cancel_user_data)
 {
-    if (database == nullptr || position == nullptr ||
+    if (any_null(database, position) ||
         destination_filter_id == SCID_FILTER_ALL_GAMES || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
@@ -552,7 +552,7 @@ scid_database_search_board(
     scid_should_cancel_fn             should_cancel,
     void*                             should_cancel_user_data)
 {
-    if (database == nullptr || criteria == nullptr || !criteria->position.has_value() ||
+    if (any_null(database, criteria) || !criteria->position.has_value() ||
         destination_filter_id == SCID_FILTER_ALL_GAMES || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
@@ -627,7 +627,7 @@ scid_database_search_board(
 scid_error
 scid_search_header_criteria_create(scid_search_header_criteria** out_criteria)
 {
-    if (out_criteria == nullptr)
+    if (any_null(out_criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -657,7 +657,7 @@ scid_search_header_criteria_player_set(
     scid_search_header_criteria* criteria,
     const char*                  player)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -674,7 +674,7 @@ scid_search_header_criteria_player_get(
     size_t                             out_text_capacity,
     size_t*                            out_text_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -688,7 +688,7 @@ scid_search_header_criteria_white_set(
     scid_search_header_criteria* criteria,
     const char*                  white)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -705,7 +705,7 @@ scid_search_header_criteria_white_get(
     size_t                             out_text_capacity,
     size_t*                            out_text_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -719,7 +719,7 @@ scid_search_header_criteria_black_set(
     scid_search_header_criteria* criteria,
     const char*                  black)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -736,7 +736,7 @@ scid_search_header_criteria_black_get(
     size_t                             out_text_capacity,
     size_t*                            out_text_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -750,7 +750,7 @@ scid_search_header_criteria_event_set(
     scid_search_header_criteria* criteria,
     const char*                  event)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -767,7 +767,7 @@ scid_search_header_criteria_event_get(
     size_t                             out_text_capacity,
     size_t*                            out_text_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -781,7 +781,7 @@ scid_search_header_criteria_site_set(
     scid_search_header_criteria* criteria,
     const char*                  site)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -798,7 +798,7 @@ scid_search_header_criteria_site_get(
     size_t                             out_text_capacity,
     size_t*                            out_text_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -812,7 +812,7 @@ scid_search_header_criteria_site_country_set(
     scid_search_header_criteria* criteria,
     const char*                  site_country)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -829,7 +829,7 @@ scid_search_header_criteria_site_country_get(
     size_t                             out_text_capacity,
     size_t*                            out_text_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -843,7 +843,7 @@ scid_search_header_criteria_round_set(
     scid_search_header_criteria* criteria,
     const char*                  round)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -860,7 +860,7 @@ scid_search_header_criteria_round_get(
     size_t                             out_text_capacity,
     size_t*                            out_text_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -875,7 +875,7 @@ scid_search_header_criteria_date_range_set(
     const char*                  date_min,
     const char*                  date_max)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -896,7 +896,7 @@ scid_search_header_criteria_date_range_get(
     size_t                             out_date_max_capacity,
     size_t*                            out_date_max_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_date_min_size, out_date_max_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -918,7 +918,7 @@ scid_search_header_criteria_event_date_range_set(
     const char*                  event_date_min,
     const char*                  event_date_max)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -939,7 +939,7 @@ scid_search_header_criteria_event_date_range_get(
     size_t                             out_event_date_max_capacity,
     size_t*                            out_event_date_max_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_event_date_min_size, out_event_date_max_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -964,7 +964,7 @@ scid_search_header_criteria_eco_range_set(
     const char*                  eco_min,
     const char*                  eco_max)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -985,7 +985,7 @@ scid_search_header_criteria_eco_range_get(
     size_t                             out_eco_max_capacity,
     size_t*                            out_eco_max_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_eco_min_size, out_eco_max_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1006,7 +1006,7 @@ scid_search_header_criteria_result_set(
     scid_search_header_criteria* criteria,
     const char*                  result)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1023,7 +1023,7 @@ scid_search_header_criteria_result_get(
     size_t                             out_text_capacity,
     size_t*                            out_text_size)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1038,7 +1038,7 @@ scid_search_header_criteria_game_number_range_set(
     size_t                       min,
     size_t                       max)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1055,7 +1055,7 @@ scid_search_header_criteria_game_number_range_get(
     size_t*                            out_min,
     size_t*                            out_max)
 {
-    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    if (any_null(criteria, out_min, out_max))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1072,7 +1072,7 @@ scid_search_header_criteria_halfmove_count_range_set(
     size_t                       min,
     size_t                       max)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1089,7 +1089,7 @@ scid_search_header_criteria_halfmove_count_range_get(
     size_t*                            out_min,
     size_t*                            out_max)
 {
-    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    if (any_null(criteria, out_min, out_max))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1106,7 +1106,7 @@ scid_search_header_criteria_white_elo_range_set(
     size_t                       min,
     size_t                       max)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1123,7 +1123,7 @@ scid_search_header_criteria_white_elo_range_get(
     size_t*                            out_min,
     size_t*                            out_max)
 {
-    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    if (any_null(criteria, out_min, out_max))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1140,7 +1140,7 @@ scid_search_header_criteria_black_elo_range_set(
     size_t                       min,
     size_t                       max)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1157,7 +1157,7 @@ scid_search_header_criteria_black_elo_range_get(
     size_t*                            out_min,
     size_t*                            out_max)
 {
-    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    if (any_null(criteria, out_min, out_max))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1174,7 +1174,7 @@ scid_search_header_criteria_elo_difference_range_set(
     int                          min,
     int                          max)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1191,7 +1191,7 @@ scid_search_header_criteria_elo_difference_range_get(
     int*                               out_min,
     int*                               out_max)
 {
-    if (criteria == nullptr || out_min == nullptr || out_max == nullptr)
+    if (any_null(criteria, out_min, out_max))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1207,7 +1207,7 @@ scid_search_header_criteria_has_variations_set(
     scid_search_header_criteria* criteria,
     int                          enabled)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1222,7 +1222,7 @@ scid_search_header_criteria_has_variations_get(
     const scid_search_header_criteria* criteria,
     int*                               out_enabled)
 {
-    if (criteria == nullptr || out_enabled == nullptr)
+    if (any_null(criteria, out_enabled))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1237,7 +1237,7 @@ scid_search_header_criteria_has_comments_set(
     scid_search_header_criteria* criteria,
     int                          enabled)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1252,7 +1252,7 @@ scid_search_header_criteria_has_comments_get(
     const scid_search_header_criteria* criteria,
     int*                               out_enabled)
 {
-    if (criteria == nullptr || out_enabled == nullptr)
+    if (any_null(criteria, out_enabled))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1267,7 +1267,7 @@ scid_search_header_criteria_has_nags_set(
     scid_search_header_criteria* criteria,
     int                          enabled)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1282,7 +1282,7 @@ scid_search_header_criteria_has_nags_get(
     const scid_search_header_criteria* criteria,
     int*                               out_enabled)
 {
-    if (criteria == nullptr || out_enabled == nullptr)
+    if (any_null(criteria, out_enabled))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1295,7 +1295,7 @@ scid_search_header_criteria_has_nags_get(
 scid_error
 scid_search_board_criteria_create(scid_search_board_criteria** out_criteria)
 {
-    if (out_criteria == nullptr)
+    if (any_null(out_criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1325,7 +1325,7 @@ scid_search_board_criteria_position_set(
     scid_search_board_criteria* criteria,
     const scid_position*        position)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1347,7 +1347,7 @@ scid_search_board_criteria_position_get(
     const scid_search_board_criteria* criteria,
     scid_position*                    out_position)
 {
-    if (criteria == nullptr || out_position == nullptr || !criteria->position.has_value())
+    if (any_null(criteria, out_position) || !criteria->position.has_value())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1361,7 +1361,7 @@ scid_search_board_criteria_match_set(
     scid_search_board_criteria* criteria,
     scid_board_search_match     match)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1382,7 +1382,7 @@ scid_search_board_criteria_match_get(
     const scid_search_board_criteria* criteria,
     scid_board_search_match*          out_match)
 {
-    if (criteria == nullptr || out_match == nullptr)
+    if (any_null(criteria, out_match))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1397,7 +1397,7 @@ scid_search_board_criteria_include_variations_set(
     scid_search_board_criteria* criteria,
     int                         enabled)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1412,7 +1412,7 @@ scid_search_board_criteria_include_variations_get(
     const scid_search_board_criteria* criteria,
     int*                              out_enabled)
 {
-    if (criteria == nullptr || out_enabled == nullptr)
+    if (any_null(criteria, out_enabled))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1427,7 +1427,7 @@ scid_search_board_criteria_include_flipped_set(
     scid_search_board_criteria* criteria,
     int                         enabled)
 {
-    if (criteria == nullptr)
+    if (any_null(criteria))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -1442,7 +1442,7 @@ scid_search_board_criteria_include_flipped_get(
     const scid_search_board_criteria* criteria,
     int*                              out_enabled)
 {
-    if (criteria == nullptr || out_enabled == nullptr)
+    if (any_null(criteria, out_enabled))
     {
         return SCID_ERROR_BAD_ARG;
     }
