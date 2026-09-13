@@ -19,6 +19,7 @@ main(void)
     test_database_filters();
     test_database_search();
     test_eco();
+    test_eco_nullguards();
 
     return 0;
 }

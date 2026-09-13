@@ -104,6 +104,8 @@ test_database_search(void);
 void
 test_eco(void);
 void
+test_eco_nullguards(void);
+void
 test_game(void);
 void
 test_game_nullguards(void);
