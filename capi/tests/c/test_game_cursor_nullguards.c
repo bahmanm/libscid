@@ -134,8 +134,7 @@ test_game_cursor_comment_nullguards(void)
         scid_game_cursor_comment_get(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_game_cursor_comment_get(cursor, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_comment_get(NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_comment_get(NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(scid_game_cursor_comment_set(NULL, cursor, "comment") == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_cursor_comment_set(game, NULL, "comment") == SCID_ERROR_BAD_ARG);
@@ -172,8 +171,7 @@ test_game_cursor_previous_move_nullguards(void)
     TEST_ASSERT(
         scid_game_cursor_previous_move_san_get(cursor, text, sizeof(text), NULL) ==
         SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_previous_move_san_get(NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_previous_move_san_get(NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(
         scid_game_cursor_previous_move_comment_get(NULL, text, sizeof(text), &text_size) ==
@@ -218,10 +216,8 @@ test_game_cursor_next_move_nullguards(void)
         scid_game_cursor_next_move_san_get(NULL, text, sizeof(text), &text_size) ==
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), NULL) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_next_move_san_get(NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+        scid_game_cursor_next_move_san_get(cursor, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_next_move_san_get(NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(
         scid_game_cursor_next_move_comment_get(NULL, text, sizeof(text), &text_size) ==
@@ -229,8 +225,7 @@ test_game_cursor_next_move_nullguards(void)
     TEST_ASSERT(
         scid_game_cursor_next_move_comment_get(cursor, text, sizeof(text), NULL) ==
         SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_next_move_comment_get(NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_next_move_comment_get(NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(scid_game_cursor_next_move_nag_count_get(NULL, &count) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_cursor_next_move_nag_count_get(cursor, NULL) == SCID_ERROR_BAD_ARG);
@@ -282,19 +277,13 @@ test_game_cursor_navigation_nullguards(void)
         scid_game_cursor_variation_enter(NULL, 0, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_game_cursor_variation_enter(cursor, 0, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_variation_enter(cursor, 0, &truth, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_variation_enter(NULL, 0, NULL, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_variation_enter(cursor, 0, &truth, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_variation_enter(NULL, 0, NULL, NULL) == SCID_ERROR_BAD_ARG);
 
-    TEST_ASSERT(
-        scid_game_cursor_variation_exit(NULL, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_variation_exit(cursor, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_variation_exit(cursor, &truth, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_variation_exit(NULL, NULL, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_variation_exit(NULL, &truth, &next_cursor) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_variation_exit(cursor, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_variation_exit(cursor, &truth, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_variation_exit(NULL, NULL, NULL) == SCID_ERROR_BAD_ARG);
 
     scid_game_cursor_free(cursor);
     scid_game_free(game);
@@ -326,8 +315,7 @@ test_game_cursor_mutation_nullguards(void)
         scid_game_cursor_variation_add(game, cursor, "", NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_game_cursor_variation_add(game, cursor, "", &truth, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_variation_add(NULL, NULL, "", NULL, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_variation_add(NULL, NULL, "", NULL, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(scid_game_cursor_nag_add(NULL, cursor, 1, &truth) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_cursor_nag_add(game, NULL, 1, &truth) == SCID_ERROR_BAD_ARG);
@@ -383,8 +371,7 @@ test_game_cursor_mutation_nullguards(void)
         scid_game_cursor_variation_delete(game, cursor, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_game_cursor_variation_delete(game, cursor, &truth, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_variation_delete(NULL, NULL, NULL, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_variation_delete(NULL, NULL, NULL, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(scid_game_cursor_truncate(NULL, cursor, &next_cursor) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_cursor_truncate(game, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
@@ -395,10 +382,8 @@ test_game_cursor_mutation_nullguards(void)
         scid_game_cursor_truncate_before_cursor(NULL, cursor, &next_cursor) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_game_cursor_truncate_before_cursor(game, NULL, &next_cursor) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_truncate_before_cursor(game, cursor, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_cursor_truncate_before_cursor(NULL, NULL, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_truncate_before_cursor(game, cursor, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_cursor_truncate_before_cursor(NULL, NULL, NULL) == SCID_ERROR_BAD_ARG);
 
     scid_game_cursor_free(cursor);
     scid_game_free(game);

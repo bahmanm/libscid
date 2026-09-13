@@ -441,8 +441,8 @@ scid_database_search_headers(
     scid_should_cancel_fn              should_cancel,
     void*                              should_cancel_user_data)
 {
-    if (any_null(database, criteria) ||
-        destination_filter_id == SCID_FILTER_ALL_GAMES || !database->value.isOpen())
+    if (any_null(database, criteria) || destination_filter_id == SCID_FILTER_ALL_GAMES ||
+        !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -504,8 +504,8 @@ scid_database_search_position(
     scid_should_cancel_fn         should_cancel,
     void*                         should_cancel_user_data)
 {
-    if (any_null(database, position) ||
-        destination_filter_id == SCID_FILTER_ALL_GAMES || !database->value.isOpen())
+    if (any_null(database, position) || destination_filter_id == SCID_FILTER_ALL_GAMES ||
+        !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }

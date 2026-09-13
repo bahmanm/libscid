@@ -25,7 +25,8 @@ test_position_create_with_san_nullguards(void)
     TEST_ASSERT(position != NULL);
 
     TEST_ASSERT(scid_position_create_with_san(NULL, "e4", &next_position) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_position_create_with_san(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_create_with_san(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_create_with_san(position, "e4", NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_create_with_san(NULL, NULL, &next_position) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_create_with_san(NULL, "e4", NULL) == SCID_ERROR_BAD_ARG);
@@ -45,7 +46,8 @@ test_position_create_with_uci_nullguards(void)
     TEST_ASSERT(position != NULL);
 
     TEST_ASSERT(scid_position_create_with_uci(NULL, "e2e4", &next_position) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_position_create_with_uci(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_create_with_uci(position, NULL, &next_position) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_create_with_uci(position, "e2e4", NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_create_with_uci(NULL, NULL, &next_position) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_create_with_uci(NULL, "e2e4", NULL) == SCID_ERROR_BAD_ARG);
@@ -71,7 +73,8 @@ test_position_to_fen_nullguards(void)
     TEST_ASSERT(test_position_create_standard(&position) == SCID_OK);
     TEST_ASSERT(position != NULL);
 
-    TEST_ASSERT(scid_position_to_fen(NULL, buffer, sizeof(buffer), &text_size) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_to_fen(NULL, buffer, sizeof(buffer), &text_size) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_to_fen(position, buffer, sizeof(buffer), NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_to_fen(NULL, buffer, sizeof(buffer), NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_to_fen(NULL, NULL, 0, &text_size) == SCID_ERROR_BAD_ARG);
@@ -123,13 +126,25 @@ test_position_legal_moves_nullguards(void)
     TEST_ASSERT(test_position_create_standard(&position) == SCID_OK);
     TEST_ASSERT(position != NULL);
 
-    TEST_ASSERT(scid_position_legal_moves(NULL, moves, SCID_MAX_LEGAL_MOVES, &move_count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_position_legal_moves(position, NULL, SCID_MAX_LEGAL_MOVES, &move_count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_position_legal_moves(NULL, NULL, SCID_MAX_LEGAL_MOVES, &move_count) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_position_legal_moves(NULL, moves, SCID_MAX_LEGAL_MOVES, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_position_legal_moves(position, NULL, SCID_MAX_LEGAL_MOVES, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_position_legal_moves(NULL, NULL, SCID_MAX_LEGAL_MOVES, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_legal_moves(NULL, moves, SCID_MAX_LEGAL_MOVES, &move_count) ==
+        SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_legal_moves(position, NULL, SCID_MAX_LEGAL_MOVES, &move_count) ==
+        SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_legal_moves(position, moves, SCID_MAX_LEGAL_MOVES, NULL) ==
+        SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_legal_moves(NULL, NULL, SCID_MAX_LEGAL_MOVES, &move_count) ==
+        SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_legal_moves(NULL, moves, SCID_MAX_LEGAL_MOVES, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_legal_moves(position, NULL, SCID_MAX_LEGAL_MOVES, NULL) ==
+        SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_position_legal_moves(NULL, NULL, SCID_MAX_LEGAL_MOVES, NULL) == SCID_ERROR_BAD_ARG);
 
     scid_position_free(position);
 }

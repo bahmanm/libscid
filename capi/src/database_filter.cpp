@@ -105,8 +105,7 @@ scid_database_filter_game_indices_get(
     size_t               out_game_indices_capacity,
     size_t*              out_game_indices_count)
 {
-    if (any_null(database, sort_criteria, out_game_indices_count) ||
-        !database->value.isOpen())
+    if (any_null(database, sort_criteria, out_game_indices_count) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -176,8 +175,7 @@ scid_database_filter_game_row_for_index_get(
     size_t               game_index,
     size_t*              out_row)
 {
-    if (any_null(database, sort_criteria, out_row) ||
-        !database->value.isOpen())
+    if (any_null(database, sort_criteria, out_row) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }

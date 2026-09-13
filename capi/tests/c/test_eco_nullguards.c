@@ -84,22 +84,16 @@ test_eco_book_lookup_nullguards(void)
         scid_eco_book_name_find(NULL, position, text, sizeof(text), &text_size) ==
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_eco_book_name_find(book, NULL, text, sizeof(text), &text_size) ==
-        SCID_ERROR_BAD_ARG);
+        scid_eco_book_name_find(book, NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_eco_book_name_find(book, position, text, sizeof(text), NULL) ==
-        SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_eco_book_name_find(NULL, NULL, NULL, 0, NULL) ==
-        SCID_ERROR_BAD_ARG);
+        scid_eco_book_name_find(book, position, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_eco_book_name_find(NULL, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(
-        scid_eco_book_name_find(book, position, NULL, 0, &text_size) ==
-        SCID_ERROR_BUFFER_FULL);
+        scid_eco_book_name_find(book, position, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
     TEST_ASSERT(text_size > 0);
     TEST_ASSERT(
-        scid_eco_book_name_find(book, position, text, 1, &text_size) ==
-        SCID_ERROR_BUFFER_FULL);
+        scid_eco_book_name_find(book, position, text, 1, &text_size) == SCID_ERROR_BUFFER_FULL);
 
     scid_position_free(position);
     scid_eco_book_free(book);

@@ -29,11 +29,9 @@ test_search_header_criteria_text_nullguards(void)
     TEST_ASSERT(
         scid_search_header_criteria_player_get(criteria, text, sizeof(text), NULL) ==
         SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_search_header_criteria_player_set(criteria, "Kasparov") == SCID_OK);
     TEST_ASSERT(
-        scid_search_header_criteria_player_set(criteria, "Kasparov") == SCID_OK);
-    TEST_ASSERT(
-        scid_search_header_criteria_player_get(criteria, NULL, 0, &size) ==
-        SCID_ERROR_BUFFER_FULL);
+        scid_search_header_criteria_player_get(criteria, NULL, 0, &size) == SCID_ERROR_BUFFER_FULL);
     TEST_ASSERT(size == strlen("Kasparov"));
 
     TEST_ASSERT(scid_search_header_criteria_white_set(NULL, "a") == SCID_ERROR_BAD_ARG);
@@ -45,8 +43,7 @@ test_search_header_criteria_text_nullguards(void)
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_search_header_criteria_white_set(criteria, "Carlsen") == SCID_OK);
     TEST_ASSERT(
-        scid_search_header_criteria_white_get(criteria, NULL, 0, &size) ==
-        SCID_ERROR_BUFFER_FULL);
+        scid_search_header_criteria_white_get(criteria, NULL, 0, &size) == SCID_ERROR_BUFFER_FULL);
 
     TEST_ASSERT(scid_search_header_criteria_black_set(NULL, "a") == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
@@ -57,8 +54,7 @@ test_search_header_criteria_text_nullguards(void)
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_search_header_criteria_black_set(criteria, "Nakamura") == SCID_OK);
     TEST_ASSERT(
-        scid_search_header_criteria_black_get(criteria, NULL, 0, &size) ==
-        SCID_ERROR_BUFFER_FULL);
+        scid_search_header_criteria_black_get(criteria, NULL, 0, &size) == SCID_ERROR_BUFFER_FULL);
 
     TEST_ASSERT(scid_search_header_criteria_event_set(NULL, "a") == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
@@ -69,8 +65,7 @@ test_search_header_criteria_text_nullguards(void)
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_search_header_criteria_event_set(criteria, "Match") == SCID_OK);
     TEST_ASSERT(
-        scid_search_header_criteria_event_get(criteria, NULL, 0, &size) ==
-        SCID_ERROR_BUFFER_FULL);
+        scid_search_header_criteria_event_get(criteria, NULL, 0, &size) == SCID_ERROR_BUFFER_FULL);
 
     TEST_ASSERT(scid_search_header_criteria_site_set(NULL, "a") == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
@@ -81,8 +76,7 @@ test_search_header_criteria_text_nullguards(void)
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_search_header_criteria_site_set(criteria, "London") == SCID_OK);
     TEST_ASSERT(
-        scid_search_header_criteria_site_get(criteria, NULL, 0, &size) ==
-        SCID_ERROR_BUFFER_FULL);
+        scid_search_header_criteria_site_get(criteria, NULL, 0, &size) == SCID_ERROR_BUFFER_FULL);
 
     TEST_ASSERT(scid_search_header_criteria_site_country_set(NULL, "a") == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
@@ -105,8 +99,7 @@ test_search_header_criteria_text_nullguards(void)
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_search_header_criteria_round_set(criteria, "1") == SCID_OK);
     TEST_ASSERT(
-        scid_search_header_criteria_round_get(criteria, NULL, 0, &size) ==
-        SCID_ERROR_BUFFER_FULL);
+        scid_search_header_criteria_round_get(criteria, NULL, 0, &size) == SCID_ERROR_BUFFER_FULL);
 
     TEST_ASSERT(scid_search_header_criteria_result_set(NULL, "a") == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
@@ -117,8 +110,7 @@ test_search_header_criteria_text_nullguards(void)
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_search_header_criteria_result_set(criteria, "1-0") == SCID_OK);
     TEST_ASSERT(
-        scid_search_header_criteria_result_get(criteria, NULL, 0, &size) ==
-        SCID_ERROR_BUFFER_FULL);
+        scid_search_header_criteria_result_get(criteria, NULL, 0, &size) == SCID_ERROR_BUFFER_FULL);
 
     scid_search_header_criteria_free(criteria);
 }
@@ -194,7 +186,8 @@ test_search_header_criteria_ranges_and_flags_nullguards(void)
             criteria, min_text, sizeof(min_text), &min_size, max_text, sizeof(max_text), NULL) ==
         SCID_ERROR_BAD_ARG);
 
-    TEST_ASSERT(scid_search_header_criteria_eco_range_set(NULL, "A00", "E99") == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_search_header_criteria_eco_range_set(NULL, "A00", "E99") == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_search_header_criteria_eco_range_set(criteria, "A00", "E99") == SCID_OK);
     TEST_ASSERT(
         scid_search_header_criteria_eco_range_get(
@@ -280,7 +273,8 @@ test_search_header_criteria_ranges_and_flags_nullguards(void)
 
     TEST_ASSERT(scid_search_header_criteria_has_variations_set(NULL, 1) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_search_header_criteria_has_variations_get(NULL, &flag) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_search_header_criteria_has_variations_get(criteria, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_search_header_criteria_has_variations_get(criteria, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(scid_search_header_criteria_has_comments_set(NULL, 1) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_search_header_criteria_has_comments_get(NULL, &flag) == SCID_ERROR_BAD_ARG);

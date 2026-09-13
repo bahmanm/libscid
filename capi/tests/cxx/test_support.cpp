@@ -7,17 +7,22 @@
 using namespace scid::libscid;
 
 template <typename... Args>
-concept NullCheckable = requires(Args... args) {
-    any_null(args...);
-};
+concept NullCheckable = requires(Args... args) { any_null(args...); };
 
 static_assert(NullCheckable<int*>);
-static_assert(NullCheckable<const char*, void*, int**>);
+static_assert(NullCheckable<
+              const char*,
+              void*,
+              int**>);
 static_assert(NullCheckable<std::nullptr_t>);
-static_assert(NullCheckable<int*, std::nullptr_t>);
+static_assert(NullCheckable<
+              int*,
+              std::nullptr_t>);
 
 static_assert(!NullCheckable<int>);
-static_assert(!NullCheckable<int*, int>);
+static_assert(!NullCheckable<
+              int*,
+              int>);
 static_assert(!NullCheckable<std::string_view>);
 
 namespace
@@ -31,13 +36,30 @@ namespace
     static_assert(any_null(static_cast<const int*>(nullptr)));
     static_assert(any_null(nullptr));
 
-    static_assert(!any_null(&a, &b));
-    static_assert(!any_null(&a, &b, &c));
+    static_assert(!any_null(
+        &a,
+        &b));
+    static_assert(!any_null(
+        &a,
+        &b,
+        &c));
 
-    static_assert(any_null(nullptr, &b, &c));
-    static_assert(any_null(&a, nullptr, &c));
-    static_assert(any_null(&a, &b, nullptr));
-    static_assert(any_null(nullptr, nullptr, nullptr));
+    static_assert(any_null(
+        nullptr,
+        &b,
+        &c));
+    static_assert(any_null(
+        &a,
+        nullptr,
+        &c));
+    static_assert(any_null(
+        &a,
+        &b,
+        nullptr));
+    static_assert(any_null(
+        nullptr,
+        nullptr,
+        nullptr));
 }
 
 int
@@ -60,7 +82,7 @@ main()
     assert(any_null(p_null, p_null));
 
     const char* str = "test";
-    void* raw = &val_a;
+    void*       raw = &val_a;
     assert(!any_null(str, raw, p_a));
     assert(any_null(str, nullptr, p_a));
 

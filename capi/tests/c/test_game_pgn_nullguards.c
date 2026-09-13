@@ -43,21 +43,15 @@ test_game_to_pgn_nullguards(void)
 
     TEST_ASSERT(
         scid_game_to_pgn(NULL, options, pgn, sizeof(pgn), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_to_pgn(NULL, NULL, pgn, sizeof(pgn), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_to_pgn(game, options, pgn, sizeof(pgn), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_to_pgn(game, NULL, pgn, sizeof(pgn), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_to_pgn(NULL, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_to_pgn(NULL, NULL, pgn, sizeof(pgn), &text_size) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_to_pgn(game, options, pgn, sizeof(pgn), NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_to_pgn(game, NULL, pgn, sizeof(pgn), NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_to_pgn(NULL, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
-    TEST_ASSERT(
-        scid_game_to_pgn(game, NULL, pgn, sizeof(pgn), &text_size) == SCID_OK);
+    TEST_ASSERT(scid_game_to_pgn(game, NULL, pgn, sizeof(pgn), &text_size) == SCID_OK);
     TEST_ASSERT(text_size > 0);
 
-    TEST_ASSERT(
-        scid_game_to_pgn(game, NULL, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
+    TEST_ASSERT(scid_game_to_pgn(game, NULL, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
     TEST_ASSERT(text_size > 0);
 
     scid_game_pgn_options_free(options);

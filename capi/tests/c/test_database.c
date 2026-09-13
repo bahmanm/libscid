@@ -29,10 +29,10 @@ remove_file(const char* path)
 
 struct progress_report_data
 {
-    size_t calls;
-    size_t last_done;
-    size_t last_total;
-    int    saw_message;
+        size_t calls;
+        size_t last_done;
+        size_t last_total;
+        int    saw_message;
 };
 
 static void
@@ -52,8 +52,8 @@ progress_report(
 
 struct should_cancel_data
 {
-    size_t calls;
-    size_t cancel_after_calls;
+        size_t calls;
+        size_t cancel_after_calls;
 };
 
 static int

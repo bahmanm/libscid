@@ -73,8 +73,7 @@ test_database_filter_query_nullguards(void)
     TEST_ASSERT(
         scid_database_filter_game_count_get(NULL, SCID_FILTER_ALL_GAMES, &count) ==
         SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_database_filter_game_count_get(database, 9999, &count) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_database_filter_game_count_get(database, 9999, &count) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_database_filter_game_count_get(database, SCID_FILTER_ALL_GAMES, NULL) ==
         SCID_ERROR_BAD_ARG);
@@ -128,8 +127,8 @@ test_database_filter_query_nullguards(void)
         scid_database_filter_game_row_for_index_get(
             NULL, SCID_FILTER_ALL_GAMES, "d+", 0, &sorted_position) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_database_filter_game_row_for_index_get(
-            database, 9999, "d+", 0, &sorted_position) == SCID_ERROR_BAD_ARG);
+        scid_database_filter_game_row_for_index_get(database, 9999, "d+", 0, &sorted_position) ==
+        SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_database_filter_game_row_for_index_get(
             database, SCID_FILTER_ALL_GAMES, NULL, 0, &sorted_position) == SCID_ERROR_BAD_ARG);
@@ -140,8 +139,8 @@ test_database_filter_query_nullguards(void)
         scid_database_filter_game_row_for_index_get(
             database, SCID_FILTER_ALL_GAMES, "d+", 0, NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_database_filter_game_row_for_index_get(
-            NULL, SCID_FILTER_ALL_GAMES, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+        scid_database_filter_game_row_for_index_get(NULL, SCID_FILTER_ALL_GAMES, NULL, 0, NULL) ==
+        SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(scid_database_close(database) == SCID_OK);
     TEST_ASSERT(

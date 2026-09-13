@@ -453,8 +453,7 @@ scid_database_stats_date_range_get(
     size_t               out_max_date_capacity,
     size_t*              out_max_date_size)
 {
-    if (any_null(database, out_min_date_size, out_max_date_size) ||
-        !database->value.isOpen())
+    if (any_null(database, out_min_date_size, out_max_date_size) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -487,8 +486,7 @@ scid_database_stats_result_count_get(
     const char*          result,
     size_t*              out_count)
 {
-    if (any_null(database, result, out_count) ||
-        !database->value.isOpen())
+    if (any_null(database, result, out_count) || !database->value.isOpen())
     {
         return SCID_ERROR_BAD_ARG;
     }

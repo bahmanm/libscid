@@ -33,8 +33,10 @@ test_game_create_nullguards(void)
     TEST_ASSERT(position != NULL);
 
     TEST_ASSERT(scid_game_create(NULL, pgn, pgn_size, &game, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_game_create(position, NULL, pgn_size, &game, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_game_create(position, pgn, pgn_size, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_game_create(position, NULL, pgn_size, &game, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_game_create(position, pgn, pgn_size, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_create(NULL, NULL, pgn_size, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
     scid_position_free(position);
@@ -56,10 +58,13 @@ test_game_tag_get_nullguards(void)
     TEST_ASSERT(test_game_create_blank(&game) == SCID_OK);
     TEST_ASSERT(game != NULL);
 
-    TEST_ASSERT(scid_game_tag_get(NULL, "Event", text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_game_tag_get(game, NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_game_tag_get(NULL, "Event", text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_game_tag_get(game, NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_tag_get(game, "Event", text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_game_tag_get(NULL, NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_game_tag_get(NULL, NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_tag_get(game, "Event", NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_tag_get(NULL, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
@@ -111,16 +116,17 @@ test_game_tag_at_get_nullguards(void)
     TEST_ASSERT(game != NULL);
 
     TEST_ASSERT(
-        scid_game_tag_at_get(NULL, 0, name, sizeof(name), &name_size, value, sizeof(value), &value_size) ==
+        scid_game_tag_at_get(
+            NULL, 0, name, sizeof(name), &name_size, value, sizeof(value), &value_size) ==
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_game_tag_at_get(game, 0, name, sizeof(name), NULL, value, sizeof(value), &value_size) ==
+        scid_game_tag_at_get(
+            game, 0, name, sizeof(name), NULL, value, sizeof(value), &value_size) ==
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_game_tag_at_get(game, 0, name, sizeof(name), &name_size, value, sizeof(value), NULL) ==
         SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(
-        scid_game_tag_at_get(NULL, 0, NULL, 0, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(scid_game_tag_at_get(NULL, 0, NULL, 0, NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
     scid_game_free(game);
 }
@@ -168,8 +174,10 @@ test_game_initial_comment_get_nullguards(void)
     TEST_ASSERT(test_game_create_blank(&game) == SCID_OK);
     TEST_ASSERT(game != NULL);
 
-    TEST_ASSERT(scid_game_initial_comment_get(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_game_initial_comment_get(game, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_game_initial_comment_get(NULL, text, sizeof(text), &text_size) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_game_initial_comment_get(game, text, sizeof(text), NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_initial_comment_get(game, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_game_initial_comment_get(NULL, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
@@ -215,16 +223,20 @@ test_game_merge_moves_nullguards(void)
     TEST_ASSERT(target_cursor != NULL);
 
     TEST_ASSERT(
-        scid_game_merge_moves(NULL, target_cursor, source_game, SCID_GAME_MERGE_MOVES_APPEND, &out_cursor) ==
+        scid_game_merge_moves(
+            NULL, target_cursor, source_game, SCID_GAME_MERGE_MOVES_APPEND, &out_cursor) ==
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_game_merge_moves(target_game, NULL, source_game, SCID_GAME_MERGE_MOVES_APPEND, &out_cursor) ==
+        scid_game_merge_moves(
+            target_game, NULL, source_game, SCID_GAME_MERGE_MOVES_APPEND, &out_cursor) ==
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_game_merge_moves(target_game, target_cursor, NULL, SCID_GAME_MERGE_MOVES_APPEND, &out_cursor) ==
+        scid_game_merge_moves(
+            target_game, target_cursor, NULL, SCID_GAME_MERGE_MOVES_APPEND, &out_cursor) ==
         SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
-        scid_game_merge_moves(target_game, target_cursor, source_game, SCID_GAME_MERGE_MOVES_APPEND, NULL) ==
+        scid_game_merge_moves(
+            target_game, target_cursor, source_game, SCID_GAME_MERGE_MOVES_APPEND, NULL) ==
         SCID_ERROR_BAD_ARG);
 
     scid_game_cursor_free(target_cursor);

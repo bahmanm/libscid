@@ -68,13 +68,17 @@ test_movespec_to_san_nullguards(void)
     TEST_ASSERT(position != NULL);
     TEST_ASSERT(scid_movespec_create(12, 28, SCID_PIECE_NONE, 0, &move) == SCID_OK);
 
-    TEST_ASSERT(scid_movespec_to_san(NULL, move, buffer, sizeof(buffer), &text_size) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_movespec_to_san(position, move, buffer, sizeof(buffer), NULL) == SCID_ERROR_BAD_ARG);
-    TEST_ASSERT(scid_movespec_to_san(NULL, move, buffer, sizeof(buffer), NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_movespec_to_san(NULL, move, buffer, sizeof(buffer), &text_size) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_movespec_to_san(position, move, buffer, sizeof(buffer), NULL) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
+        scid_movespec_to_san(NULL, move, buffer, sizeof(buffer), NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_movespec_to_san(NULL, move, NULL, 0, &text_size) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_movespec_to_san(position, move, NULL, 0, NULL) == SCID_ERROR_BAD_ARG);
 
-    TEST_ASSERT(scid_movespec_to_san(position, move, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
+    TEST_ASSERT(
+        scid_movespec_to_san(position, move, NULL, 0, &text_size) == SCID_ERROR_BUFFER_FULL);
     TEST_ASSERT(text_size == 2);
 
     scid_position_free(position);
