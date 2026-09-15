@@ -11,5 +11,6 @@ main()
     test_game_cursor_exceptions();
     test_game_pgn_exceptions();
     test_eco_exceptions();
+    test_database_exceptions();
     return 0;
 }

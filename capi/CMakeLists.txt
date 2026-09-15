@@ -150,7 +150,8 @@ if( BUILD_TESTING )
         "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_game_exceptions.cpp"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_game_cursor_exceptions.cpp"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_game_pgn_exceptions.cpp"
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_eco_exceptions.cpp" )
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_eco_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_database_exceptions.cpp" )
 
     add_executable(
         scid_tests_cxx
