@@ -37,7 +37,9 @@ namespace scid::libscid
     }
 
     template <typename F>
-        requires std::is_invocable_r_v<scid_error, F>
+        requires std::is_invocable_r_v<
+            scid_error,
+            F>
     [[nodiscard]] scid_error
     abi_guard(F&& fn) noexcept
     {
@@ -81,8 +83,7 @@ namespace scid::libscid
             fn();
         }
         catch (...)
-        {
-        }
+        {}
     }
 
     bool

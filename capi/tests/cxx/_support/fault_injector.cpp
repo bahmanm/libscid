@@ -86,7 +86,7 @@ operator delete[](void* p) noexcept
 
 void
 operator delete(
-    void*       p,
+    void* p,
     std::size_t) noexcept
 {
     std::free(p);
@@ -94,7 +94,7 @@ operator delete(
 
 void
 operator delete[](
-    void*       p,
+    void* p,
     std::size_t) noexcept
 {
     std::free(p);

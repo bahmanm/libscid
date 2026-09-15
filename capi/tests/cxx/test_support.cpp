@@ -120,68 +120,56 @@ namespace
     void
     test_abi_guard_success()
     {
-        const scid_error ok_res = abi_guard([] {
-            return SCID_OK;
-        });
+        const scid_error ok_res = abi_guard([] { return SCID_OK; });
         assert(ok_res == SCID_OK);
 
-        const scid_error err_res = abi_guard([] {
-            return SCID_ERROR_INVALID_FEN;
-        });
+        const scid_error err_res = abi_guard([] { return SCID_ERROR_INVALID_FEN; });
         assert(err_res == SCID_ERROR_INVALID_FEN);
     }
 
     void
     test_abi_guard_bad_alloc()
     {
-        const scid_error res = abi_guard([]() -> scid_error {
-            throw std::bad_alloc();
-        });
+        const scid_error res = abi_guard([]() -> scid_error { throw std::bad_alloc(); });
         assert(res == SCID_ERROR_NO_MEMORY);
     }
 
     void
     test_abi_guard_out_of_range()
     {
-        const scid_error res = abi_guard([]() -> scid_error {
-            throw std::out_of_range("index out of bounds");
-        });
+        const scid_error res =
+            abi_guard([]() -> scid_error { throw std::out_of_range("index out of bounds"); });
         assert(res == SCID_ERROR_BAD_ARG);
     }
 
     void
     test_abi_guard_invalid_argument()
     {
-        const scid_error res = abi_guard([]() -> scid_error {
-            throw std::invalid_argument("invalid parameter");
-        });
+        const scid_error res =
+            abi_guard([]() -> scid_error { throw std::invalid_argument("invalid parameter"); });
         assert(res == SCID_ERROR_BAD_ARG);
     }
 
     void
     test_abi_guard_length_error()
     {
-        const scid_error res = abi_guard([]() -> scid_error {
-            throw std::length_error("buffer length exceeded");
-        });
+        const scid_error res =
+            abi_guard([]() -> scid_error { throw std::length_error("buffer length exceeded"); });
         assert(res == SCID_ERROR_BUFFER_FULL);
     }
 
     void
     test_abi_guard_generic_exception()
     {
-        const scid_error res = abi_guard([]() -> scid_error {
-            throw std::runtime_error("general failure");
-        });
+        const scid_error res =
+            abi_guard([]() -> scid_error { throw std::runtime_error("general failure"); });
         assert(res == SCID_ERROR);
     }
 
     void
     test_abi_guard_unknown_exception()
     {
-        const scid_error res = abi_guard([]() -> scid_error {
-            throw 42;
-        });
+        const scid_error res = abi_guard([]() -> scid_error { throw 42; });
         assert(res == SCID_ERROR);
     }
 
@@ -189,20 +177,12 @@ namespace
     test_abi_guard_void()
     {
         bool executed = false;
-        abi_guard_void([&] {
-            executed = true;
-        });
+        abi_guard_void([&] { executed = true; });
         assert(executed);
 
-        abi_guard_void([] {
-            throw std::bad_alloc();
-        });
-        abi_guard_void([] {
-            throw std::runtime_error("failed cleanup");
-        });
-        abi_guard_void([] {
-            throw "foreign error";
-        });
+        abi_guard_void([] { throw std::bad_alloc(); });
+        abi_guard_void([] { throw std::runtime_error("failed cleanup"); });
+        abi_guard_void([] { throw "foreign error"; });
     }
 }
 
