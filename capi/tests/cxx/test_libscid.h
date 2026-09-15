@@ -19,4 +19,7 @@ test_game_exceptions();
 void
 test_game_cursor_exceptions();
 
+void
+test_game_pgn_exceptions();
+
 #endif // LIBSCID_TEST_CXX_LIBSCID_H
