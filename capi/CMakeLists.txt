@@ -140,9 +140,15 @@ if( BUILD_TESTING )
         libscid_c_test
         PROPERTIES LABELS "c;capi" )
 
+    set( CXX_TEST_SOURCES
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_libscid.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/_support/fault_injector.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_support.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_primitives_exceptions.cpp" )
+
     add_executable(
         scid_tests_cxx
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_support.cpp" )
+        ${CXX_TEST_SOURCES} )
     target_compile_features(
         scid_tests_cxx
         PRIVATE cxx_std_23 )
@@ -150,7 +156,8 @@ if( BUILD_TESTING )
         scid_tests_cxx
         PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/src/include"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+            "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx" )
     target_link_libraries(
         scid_tests_cxx
         PRIVATE

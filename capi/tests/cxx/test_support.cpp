@@ -1,5 +1,7 @@
 #include "scid/libscid/support.h"
 
+#include "test_libscid.h"
+
 #include <cassert>
 #include <concepts>
 #include <cstddef>
@@ -204,8 +206,8 @@ namespace
     }
 }
 
-int
-main()
+void
+test_support()
 {
     test_any_null_runtime();
     test_abi_guard_success();
@@ -216,6 +218,4 @@ main()
     test_abi_guard_generic_exception();
     test_abi_guard_unknown_exception();
     test_abi_guard_void();
-
-    return 0;
 }
