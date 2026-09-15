@@ -26,7 +26,16 @@ scid_database_create_memory(
     const char*     name,
     scid_database** out_database)
 {
-    return database_open("MEMORY", scid::database::FMODE_Create, name, out_database);
+    if (any_null(name, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        return database_open("MEMORY", scid::database::FMODE_Create, name, out_database);
+    });
 }
 
 
@@ -35,7 +44,16 @@ scid_database_create_scid5(
     const char*     path,
     scid_database** out_database)
 {
-    return database_open("SCID5", scid::database::FMODE_Create, path, out_database);
+    if (any_null(path, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        return database_open("SCID5", scid::database::FMODE_Create, path, out_database);
+    });
 }
 
 
@@ -48,9 +66,18 @@ scid_database_open_scid5(
     void*                         should_cancel_user_data,
     scid_database**               out_database)
 {
-    scid::database::Progress progress(new CallbackProgress(
-        progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
-    return database_open("SCID5", scid::database::FMODE_Both, path, out_database, &progress);
+    if (any_null(path, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        scid::database::Progress progress(new CallbackProgress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        return database_open("SCID5", scid::database::FMODE_Both, path, out_database, &progress);
+    });
 }
 
 
@@ -63,9 +90,19 @@ scid_database_open_scid5_read_only(
     void*                         should_cancel_user_data,
     scid_database**               out_database)
 {
-    scid::database::Progress progress(new CallbackProgress(
-        progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
-    return database_open("SCID5", scid::database::FMODE_ReadOnly, path, out_database, &progress);
+    if (any_null(path, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        scid::database::Progress progress(new CallbackProgress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        return database_open(
+            "SCID5", scid::database::FMODE_ReadOnly, path, out_database, &progress);
+    });
 }
 
 
@@ -78,9 +115,18 @@ scid_database_open_pgn_read_only(
     void*                         should_cancel_user_data,
     scid_database**               out_database)
 {
-    scid::database::Progress progress(new CallbackProgress(
-        progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
-    return database_open("PGN", scid::database::FMODE_ReadOnly, path, out_database, &progress);
+    if (any_null(path, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        scid::database::Progress progress(new CallbackProgress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        return database_open("PGN", scid::database::FMODE_ReadOnly, path, out_database, &progress);
+    });
 }
 
 

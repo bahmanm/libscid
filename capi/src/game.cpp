@@ -624,12 +624,16 @@ scid_game_cursor_clone(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (const scid_error error = validate_cursor_game(game, source_cursor); error != SCID_OK)
-    {
-        return error;
-    }
+    *out_cursor = nullptr;
 
-    return create_cursor_copy(source_cursor, out_cursor);
+    return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, source_cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        return create_cursor_copy(source_cursor, out_cursor);
+    });
 }
 
 
