@@ -13,4 +13,7 @@ test_movespec_exceptions();
 void
 test_position_exceptions();
 
+void
+test_game_exceptions();
+
 #endif // LIBSCID_TEST_CXX_LIBSCID_H
