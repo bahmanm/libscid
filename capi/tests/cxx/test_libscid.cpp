@@ -8,5 +8,6 @@ main()
     test_movespec_exceptions();
     test_position_exceptions();
     test_game_exceptions();
+    test_game_cursor_exceptions();
     return 0;
 }
