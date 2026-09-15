@@ -86,6 +86,29 @@ namespace scid::libscid
         {}
     }
 
+    template <
+        typename T,
+        typename F>
+        requires std::is_invocable_r_v<
+                     T,
+                     F> &&
+                 (!std::is_same_v<
+                     T,
+                     scid_error>)
+    [[nodiscard]] T abi_guard(
+        T   fallback,
+        F&& fn) noexcept
+    {
+        try
+        {
+            return fn();
+        }
+        catch (...)
+        {
+            return fallback;
+        }
+    }
+
     bool
     square_is_valid(scid_square square);
 

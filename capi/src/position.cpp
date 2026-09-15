@@ -146,7 +146,7 @@ scid_position_create_with_uci(
 void
 scid_position_free(scid_position* position)
 {
-    delete position;
+    abi_guard_void([&] { delete position; });
 }
 
 
@@ -265,7 +265,10 @@ scid_position_is_start(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_bool(position->value.IsStdStart(), out_is_start);
+    *out_is_start = 0;
+
+    return abi_guard(
+        [&]() -> scid_error { return write_bool(position->value.IsStdStart(), out_is_start); });
 }
 
 
@@ -330,8 +333,13 @@ scid_position_side_to_move_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_side_to_move = position->value.GetToMove() == scid::core::WHITE ? SCID_WHITE : SCID_BLACK;
-    return SCID_OK;
+    *out_side_to_move = SCID_WHITE;
+
+    return abi_guard([&]() -> scid_error {
+        *out_side_to_move =
+            position->value.GetToMove() == scid::core::WHITE ? SCID_WHITE : SCID_BLACK;
+        return SCID_OK;
+    });
 }
 
 
@@ -345,8 +353,12 @@ scid_position_fullmove_number_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_fullmove_number = position->value.GetFullMoveCount();
-    return SCID_OK;
+    *out_fullmove_number = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_fullmove_number = position->value.GetFullMoveCount();
+        return SCID_OK;
+    });
 }
 
 
@@ -360,8 +372,12 @@ scid_position_halfmove_clock_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_halfmove_clock = position->value.GetHalfMoveClock();
-    return SCID_OK;
+    *out_halfmove_clock = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_halfmove_clock = position->value.GetHalfMoveClock();
+        return SCID_OK;
+    });
 }
 
 
@@ -376,11 +392,15 @@ scid_position_piece_at_get(
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_piece = SCID_PIECE_NONE;
+
     if (!square_is_valid(square))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_piece = piece_to_c(position->value.GetPiece(square));
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        *out_piece = piece_to_c(position->value.GetPiece(square));
+        return SCID_OK;
+    });
 }

@@ -631,7 +631,7 @@ scid_search_header_criteria_create(scid_search_header_criteria** out_criteria)
 void
 scid_search_header_criteria_free(scid_search_header_criteria* criteria)
 {
-    delete criteria;
+    abi_guard_void([&] { delete criteria; });
 }
 
 
@@ -645,8 +645,10 @@ scid_search_header_criteria_player_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->player = player == nullptr ? "" : player;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->player = player == nullptr ? "" : player;
+        return SCID_OK;
+    });
 }
 
 
@@ -662,7 +664,9 @@ scid_search_header_criteria_player_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_text(criteria->player, out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_text(criteria->player, out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -676,8 +680,10 @@ scid_search_header_criteria_white_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->white = white == nullptr ? "" : white;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->white = white == nullptr ? "" : white;
+        return SCID_OK;
+    });
 }
 
 
@@ -693,7 +699,9 @@ scid_search_header_criteria_white_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_text(criteria->white, out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_text(criteria->white, out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -707,8 +715,10 @@ scid_search_header_criteria_black_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->black = black == nullptr ? "" : black;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->black = black == nullptr ? "" : black;
+        return SCID_OK;
+    });
 }
 
 
@@ -724,7 +734,9 @@ scid_search_header_criteria_black_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_text(criteria->black, out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_text(criteria->black, out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -738,8 +750,10 @@ scid_search_header_criteria_event_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->event = event == nullptr ? "" : event;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->event = event == nullptr ? "" : event;
+        return SCID_OK;
+    });
 }
 
 
@@ -755,7 +769,9 @@ scid_search_header_criteria_event_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_text(criteria->event, out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_text(criteria->event, out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -769,8 +785,10 @@ scid_search_header_criteria_site_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->site = site == nullptr ? "" : site;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->site = site == nullptr ? "" : site;
+        return SCID_OK;
+    });
 }
 
 
@@ -786,7 +804,9 @@ scid_search_header_criteria_site_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_text(criteria->site, out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_text(criteria->site, out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -800,8 +820,10 @@ scid_search_header_criteria_site_country_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->site_country = site_country == nullptr ? "" : site_country;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->site_country = site_country == nullptr ? "" : site_country;
+        return SCID_OK;
+    });
 }
 
 
@@ -817,7 +839,9 @@ scid_search_header_criteria_site_country_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_text(criteria->site_country, out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_text(criteria->site_country, out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -831,8 +855,10 @@ scid_search_header_criteria_round_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->round = round == nullptr ? "" : round;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->round = round == nullptr ? "" : round;
+        return SCID_OK;
+    });
 }
 
 
@@ -848,7 +874,9 @@ scid_search_header_criteria_round_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_text(criteria->round, out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_text(criteria->round, out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -863,9 +891,11 @@ scid_search_header_criteria_date_range_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->date_min = date_min == nullptr ? "" : date_min;
-    criteria->date_max = date_max == nullptr ? "" : date_max;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->date_min = date_min == nullptr ? "" : date_min;
+        criteria->date_max = date_max == nullptr ? "" : date_max;
+        return SCID_OK;
+    });
 }
 
 
@@ -884,14 +914,17 @@ scid_search_header_criteria_date_range_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (const scid_error error =
-            write_text(criteria->date_min, out_date_min, out_date_min_capacity, out_date_min_size);
-        error != SCID_OK)
-    {
-        return error;
-    }
+    return abi_guard([&]() -> scid_error {
+        if (const scid_error error = write_text(
+                criteria->date_min, out_date_min, out_date_min_capacity, out_date_min_size);
+            error != SCID_OK)
+        {
+            return error;
+        }
 
-    return write_text(criteria->date_max, out_date_max, out_date_max_capacity, out_date_max_size);
+        return write_text(
+            criteria->date_max, out_date_max, out_date_max_capacity, out_date_max_size);
+    });
 }
 
 
@@ -906,9 +939,11 @@ scid_search_header_criteria_event_date_range_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->event_date_min = event_date_min == nullptr ? "" : event_date_min;
-    criteria->event_date_max = event_date_max == nullptr ? "" : event_date_max;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->event_date_min = event_date_min == nullptr ? "" : event_date_min;
+        criteria->event_date_max = event_date_max == nullptr ? "" : event_date_max;
+        return SCID_OK;
+    });
 }
 
 
@@ -927,17 +962,19 @@ scid_search_header_criteria_event_date_range_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (const scid_error error = write_text(
-            criteria->event_date_min, out_event_date_min, out_event_date_min_capacity,
-            out_event_date_min_size);
-        error != SCID_OK)
-    {
-        return error;
-    }
+    return abi_guard([&]() -> scid_error {
+        if (const scid_error error = write_text(
+                criteria->event_date_min, out_event_date_min, out_event_date_min_capacity,
+                out_event_date_min_size);
+            error != SCID_OK)
+        {
+            return error;
+        }
 
-    return write_text(
-        criteria->event_date_max, out_event_date_max, out_event_date_max_capacity,
-        out_event_date_max_size);
+        return write_text(
+            criteria->event_date_max, out_event_date_max, out_event_date_max_capacity,
+            out_event_date_max_size);
+    });
 }
 
 
@@ -952,9 +989,11 @@ scid_search_header_criteria_eco_range_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->eco_min = eco_min == nullptr ? "" : eco_min;
-    criteria->eco_max = eco_max == nullptr ? "" : eco_max;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->eco_min = eco_min == nullptr ? "" : eco_min;
+        criteria->eco_max = eco_max == nullptr ? "" : eco_max;
+        return SCID_OK;
+    });
 }
 
 
@@ -973,14 +1012,16 @@ scid_search_header_criteria_eco_range_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (const scid_error error =
-            write_text(criteria->eco_min, out_eco_min, out_eco_min_capacity, out_eco_min_size);
-        error != SCID_OK)
-    {
-        return error;
-    }
+    return abi_guard([&]() -> scid_error {
+        if (const scid_error error =
+                write_text(criteria->eco_min, out_eco_min, out_eco_min_capacity, out_eco_min_size);
+            error != SCID_OK)
+        {
+            return error;
+        }
 
-    return write_text(criteria->eco_max, out_eco_max, out_eco_max_capacity, out_eco_max_size);
+        return write_text(criteria->eco_max, out_eco_max, out_eco_max_capacity, out_eco_max_size);
+    });
 }
 
 
@@ -994,8 +1035,10 @@ scid_search_header_criteria_result_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->result = result == nullptr ? "" : result;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->result = result == nullptr ? "" : result;
+        return SCID_OK;
+    });
 }
 
 
@@ -1011,7 +1054,9 @@ scid_search_header_criteria_result_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_text(criteria->result, out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_text(criteria->result, out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -1026,9 +1071,11 @@ scid_search_header_criteria_game_number_range_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->game_number_min = min;
-    criteria->game_number_max = max;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->game_number_min = min;
+        criteria->game_number_max = max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1043,9 +1090,14 @@ scid_search_header_criteria_game_number_range_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_min = criteria->game_number_min;
-    *out_max = criteria->game_number_max;
-    return SCID_OK;
+    *out_min = 0;
+    *out_max = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_min = criteria->game_number_min;
+        *out_max = criteria->game_number_max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1060,9 +1112,11 @@ scid_search_header_criteria_halfmove_count_range_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->halfmove_count_min = min;
-    criteria->halfmove_count_max = max;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->halfmove_count_min = min;
+        criteria->halfmove_count_max = max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1077,9 +1131,14 @@ scid_search_header_criteria_halfmove_count_range_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_min = criteria->halfmove_count_min;
-    *out_max = criteria->halfmove_count_max;
-    return SCID_OK;
+    *out_min = 0;
+    *out_max = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_min = criteria->halfmove_count_min;
+        *out_max = criteria->halfmove_count_max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1094,9 +1153,11 @@ scid_search_header_criteria_white_elo_range_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->white_elo_min = min;
-    criteria->white_elo_max = max;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->white_elo_min = min;
+        criteria->white_elo_max = max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1111,9 +1172,14 @@ scid_search_header_criteria_white_elo_range_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_min = criteria->white_elo_min;
-    *out_max = criteria->white_elo_max;
-    return SCID_OK;
+    *out_min = 0;
+    *out_max = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_min = criteria->white_elo_min;
+        *out_max = criteria->white_elo_max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1128,9 +1194,11 @@ scid_search_header_criteria_black_elo_range_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->black_elo_min = min;
-    criteria->black_elo_max = max;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->black_elo_min = min;
+        criteria->black_elo_max = max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1145,9 +1213,14 @@ scid_search_header_criteria_black_elo_range_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_min = criteria->black_elo_min;
-    *out_max = criteria->black_elo_max;
-    return SCID_OK;
+    *out_min = 0;
+    *out_max = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_min = criteria->black_elo_min;
+        *out_max = criteria->black_elo_max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1162,9 +1235,11 @@ scid_search_header_criteria_elo_difference_range_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->elo_difference_min = min;
-    criteria->elo_difference_max = max;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->elo_difference_min = min;
+        criteria->elo_difference_max = max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1179,9 +1254,14 @@ scid_search_header_criteria_elo_difference_range_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_min = criteria->elo_difference_min;
-    *out_max = criteria->elo_difference_max;
-    return SCID_OK;
+    *out_min = 0;
+    *out_max = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_min = criteria->elo_difference_min;
+        *out_max = criteria->elo_difference_max;
+        return SCID_OK;
+    });
 }
 
 
@@ -1195,8 +1275,10 @@ scid_search_header_criteria_has_variations_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->has_variations = (enabled != 0);
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->has_variations = (enabled != 0);
+        return SCID_OK;
+    });
 }
 
 
@@ -1210,8 +1292,12 @@ scid_search_header_criteria_has_variations_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_enabled = criteria->has_variations ? 1 : 0;
-    return SCID_OK;
+    *out_enabled = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_enabled = criteria->has_variations ? 1 : 0;
+        return SCID_OK;
+    });
 }
 
 
@@ -1225,8 +1311,10 @@ scid_search_header_criteria_has_comments_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->has_comments = (enabled != 0);
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->has_comments = (enabled != 0);
+        return SCID_OK;
+    });
 }
 
 
@@ -1240,8 +1328,12 @@ scid_search_header_criteria_has_comments_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_enabled = criteria->has_comments ? 1 : 0;
-    return SCID_OK;
+    *out_enabled = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_enabled = criteria->has_comments ? 1 : 0;
+        return SCID_OK;
+    });
 }
 
 
@@ -1255,8 +1347,10 @@ scid_search_header_criteria_has_nags_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->has_nags = (enabled != 0);
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->has_nags = (enabled != 0);
+        return SCID_OK;
+    });
 }
 
 
@@ -1270,8 +1364,12 @@ scid_search_header_criteria_has_nags_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_enabled = criteria->has_nags ? 1 : 0;
-    return SCID_OK;
+    *out_enabled = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_enabled = criteria->has_nags ? 1 : 0;
+        return SCID_OK;
+    });
 }
 
 
@@ -1296,7 +1394,7 @@ scid_search_board_criteria_create(scid_search_board_criteria** out_criteria)
 void
 scid_search_board_criteria_free(scid_search_board_criteria* criteria)
 {
-    delete criteria;
+    abi_guard_void([&] { delete criteria; });
 }
 
 
@@ -1310,15 +1408,17 @@ scid_search_board_criteria_position_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (position == nullptr)
-    {
-        criteria->position.reset();
-    }
-    else
-    {
-        criteria->position = position->value;
-    }
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        if (position == nullptr)
+        {
+            criteria->position.reset();
+        }
+        else
+        {
+            criteria->position = position->value;
+        }
+        return SCID_OK;
+    });
 }
 
 
@@ -1332,7 +1432,8 @@ scid_search_board_criteria_position_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_position(*criteria->position, out_position);
+    return abi_guard(
+        [&]() -> scid_error { return write_position(*criteria->position, out_position); });
 }
 
 
@@ -1352,8 +1453,10 @@ scid_search_board_criteria_match_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->match = match;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->match = match;
+        return SCID_OK;
+    });
 }
 
 
@@ -1367,8 +1470,12 @@ scid_search_board_criteria_match_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_match = criteria->match;
-    return SCID_OK;
+    *out_match = SCID_BOARD_SEARCH_MATCH_EXACT;
+
+    return abi_guard([&]() -> scid_error {
+        *out_match = criteria->match;
+        return SCID_OK;
+    });
 }
 
 
@@ -1382,8 +1489,10 @@ scid_search_board_criteria_include_variations_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->include_variations = (enabled != 0);
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->include_variations = (enabled != 0);
+        return SCID_OK;
+    });
 }
 
 
@@ -1397,8 +1506,12 @@ scid_search_board_criteria_include_variations_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_enabled = criteria->include_variations ? 1 : 0;
-    return SCID_OK;
+    *out_enabled = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_enabled = criteria->include_variations ? 1 : 0;
+        return SCID_OK;
+    });
 }
 
 
@@ -1412,8 +1525,10 @@ scid_search_board_criteria_include_flipped_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    criteria->include_flipped = (enabled != 0);
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        criteria->include_flipped = (enabled != 0);
+        return SCID_OK;
+    });
 }
 
 
@@ -1427,6 +1542,10 @@ scid_search_board_criteria_include_flipped_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_enabled = criteria->include_flipped ? 1 : 0;
-    return SCID_OK;
+    *out_enabled = 0;
+
+    return abi_guard([&]() -> scid_error {
+        *out_enabled = criteria->include_flipped ? 1 : 0;
+        return SCID_OK;
+    });
 }

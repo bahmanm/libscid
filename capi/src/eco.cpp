@@ -84,7 +84,7 @@ scid_eco_book_load(
 void
 scid_eco_book_free(scid_eco_book* book)
 {
-    delete book;
+    abi_guard_void([&] { delete book; });
 }
 
 

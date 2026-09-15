@@ -43,9 +43,12 @@ scid_movespec_create(
         return SCID_ERROR_BAD_ARG;
     }
 
-    *out_move = {from, to, promotion, is_castling != 0};
+    *out_move = {0, 0, SCID_PIECE_NONE, 0};
 
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        *out_move = {from, to, promotion, is_castling != 0};
+        return SCID_OK;
+    });
 }
 
 
@@ -59,40 +62,44 @@ scid_movespec_create_from_uci(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (std::strcmp(text, "0000") == 0)
-    {
-        *out_move = {0, 0, SCID_PIECE_NONE, 0};
+    *out_move = {0, 0, SCID_PIECE_NONE, 0};
+
+    return abi_guard([&]() -> scid_error {
+        if (std::strcmp(text, "0000") == 0)
+        {
+            *out_move = {0, 0, SCID_PIECE_NONE, 0};
+            return SCID_OK;
+        }
+
+        const bool has_promotion = text[0] != '\0' && text[1] != '\0' && text[2] != '\0' &&
+                                   text[3] != '\0' && text[4] != '\0' && text[5] == '\0';
+
+        const bool is_quiet = text[0] != '\0' && text[1] != '\0' && text[2] != '\0' &&
+                              text[3] != '\0' && text[4] == '\0';
+
+        if (!is_quiet && !has_promotion)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        scid_square from = 0;
+        scid_square to = 0;
+        scid_piece  promotion = SCID_PIECE_NONE;
+
+        if (parse_square_chars(text[0], text[1], &from) != SCID_OK ||
+            parse_square_chars(text[2], text[3], &to) != SCID_OK)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        if (has_promotion && promotion_from_char(text[4], &promotion) != SCID_OK)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        *out_move = {from, to, promotion, 0};
         return SCID_OK;
-    }
-
-    const bool has_promotion = text[0] != '\0' && text[1] != '\0' && text[2] != '\0' &&
-                               text[3] != '\0' && text[4] != '\0' && text[5] == '\0';
-
-    const bool is_quiet =
-        text[0] != '\0' && text[1] != '\0' && text[2] != '\0' && text[3] != '\0' && text[4] == '\0';
-
-    if (!is_quiet && !has_promotion)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    scid_square from = 0;
-    scid_square to = 0;
-    scid_piece  promotion = SCID_PIECE_NONE;
-
-    if (parse_square_chars(text[0], text[1], &from) != SCID_OK ||
-        parse_square_chars(text[2], text[3], &to) != SCID_OK)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    if (has_promotion && promotion_from_char(text[4], &promotion) != SCID_OK)
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    *out_move = {from, to, promotion, 0};
-    return SCID_OK;
+    });
 }
 
 
@@ -103,35 +110,37 @@ scid_movespec_to_uci(
     size_t        out_text_capacity,
     size_t*       out_text_size)
 {
-    if (!promotion_is_valid(move.promotion))
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
+    return abi_guard([&]() -> scid_error {
+        if (!promotion_is_valid(move.promotion))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
 
-    if (move.from == move.to && move.is_castling == 0)
-    {
-        return write_text("0000", out_text, out_text_capacity, out_text_size);
-    }
+        if (move.from == move.to && move.is_castling == 0)
+        {
+            return write_text("0000", out_text, out_text_capacity, out_text_size);
+        }
 
-    if (!square_is_valid(move.from) || !square_is_valid(move.to))
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
+        if (!square_is_valid(move.from) || !square_is_valid(move.to))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
 
-    char text[6] = {
-        static_cast<char>('a' + scid::core::square_Fyle(move.from)),
-        static_cast<char>('1' + scid::core::square_Rank(move.from)),
-        static_cast<char>('a' + scid::core::square_Fyle(move.to)),
-        static_cast<char>('1' + scid::core::square_Rank(move.to)),
-        '\0',
-        '\0'};
+        char text[6] = {
+            static_cast<char>('a' + scid::core::square_Fyle(move.from)),
+            static_cast<char>('1' + scid::core::square_Rank(move.from)),
+            static_cast<char>('a' + scid::core::square_Fyle(move.to)),
+            static_cast<char>('1' + scid::core::square_Rank(move.to)),
+            '\0',
+            '\0'};
 
-    if (move.promotion != SCID_PIECE_NONE)
-    {
-        text[4] = promotion_to_char(move.promotion);
-    }
+        if (move.promotion != SCID_PIECE_NONE)
+        {
+            text[4] = promotion_to_char(move.promotion);
+        }
 
-    return write_text(text, out_text, out_text_capacity, out_text_size);
+        return write_text(text, out_text, out_text_capacity, out_text_size);
+    });
 }
 
 

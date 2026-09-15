@@ -136,14 +136,18 @@ scid_database_filter_game_index_at_row_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    size_t           count = 0;
-    const scid_error error = scid_database_filter_game_indices_get(
-        database, filter_id, sort_criteria, row, 1, out_game_index, 1, &count);
-    if (error != SCID_OK)
-    {
-        return error;
-    }
-    return count == 1 ? SCID_OK : SCID_ERROR_BAD_ARG;
+    *out_game_index = 0;
+
+    return abi_guard([&]() -> scid_error {
+        size_t           count = 0;
+        const scid_error error = scid_database_filter_game_indices_get(
+            database, filter_id, sort_criteria, row, 1, out_game_index, 1, &count);
+        if (error != SCID_OK)
+        {
+            return error;
+        }
+        return count == 1 ? SCID_OK : SCID_ERROR_BAD_ARG;
+    });
 }
 
 

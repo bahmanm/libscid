@@ -106,7 +106,7 @@ scid_game_create(
 void
 scid_game_free(scid_game* game)
 {
-    delete game;
+    abi_guard_void([&] { delete game; });
 }
 
 
@@ -131,7 +131,7 @@ scid_game_pgn_options_create(scid_game_pgn_options** out_options)
 void
 scid_game_pgn_options_free(scid_game_pgn_options* options)
 {
-    delete options;
+    abi_guard_void([&] { delete options; });
 }
 
 
@@ -145,8 +145,10 @@ scid_game_pgn_options_symbolic_nags_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    options->value.symbolicNags = enabled != 0;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        options->value.symbolicNags = enabled != 0;
+        return SCID_OK;
+    });
 }
 
 
@@ -160,8 +162,10 @@ scid_game_pgn_options_supplemental_tags_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    options->value.includeSupplementalTags = enabled != 0;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        options->value.includeSupplementalTags = enabled != 0;
+        return SCID_OK;
+    });
 }
 
 
@@ -175,8 +179,10 @@ scid_game_pgn_options_comments_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    options->value.includeComments = enabled != 0;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        options->value.includeComments = enabled != 0;
+        return SCID_OK;
+    });
 }
 
 
@@ -190,8 +196,10 @@ scid_game_pgn_options_variations_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    options->value.includeVariations = enabled != 0;
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        options->value.includeVariations = enabled != 0;
+        return SCID_OK;
+    });
 }
 
 
@@ -205,15 +213,17 @@ scid_game_pgn_options_line_width_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (line_width == 0)
-    {
-        options->value.lineWidth = std::nullopt;
-    }
-    else
-    {
-        options->value.lineWidth = line_width;
-    }
-    return SCID_OK;
+    return abi_guard([&]() -> scid_error {
+        if (line_width == 0)
+        {
+            options->value.lineWidth = std::nullopt;
+        }
+        else
+        {
+            options->value.lineWidth = line_width;
+        }
+        return SCID_OK;
+    });
 }
 
 
@@ -640,7 +650,7 @@ scid_game_cursor_clone(
 void
 scid_game_cursor_free(scid_game_cursor* cursor)
 {
-    delete cursor;
+    abi_guard_void([&] { delete cursor; });
 }
 
 
@@ -682,7 +692,9 @@ scid_game_cursor_ply_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_size(cursor->value.ply(), out_ply);
+    *out_ply = 0;
+
+    return abi_guard([&]() -> scid_error { return write_size(cursor->value.ply(), out_ply); });
 }
 
 
@@ -696,7 +708,10 @@ scid_game_cursor_variation_count_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_size(cursor->value.variationCount(), out_count);
+    *out_count = 0;
+
+    return abi_guard(
+        [&]() -> scid_error { return write_size(cursor->value.variationCount(), out_count); });
 }
 
 
@@ -710,7 +725,10 @@ scid_game_cursor_variation_depth_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_size(cursor->value.variationDepth(), out_depth);
+    *out_depth = 0;
+
+    return abi_guard(
+        [&]() -> scid_error { return write_size(cursor->value.variationDepth(), out_depth); });
 }
 
 
@@ -724,7 +742,10 @@ scid_game_cursor_variation_index_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_size(cursor->value.variationIndex(), out_index);
+    *out_index = 0;
+
+    return abi_guard(
+        [&]() -> scid_error { return write_size(cursor->value.variationIndex(), out_index); });
 }
 
 
@@ -738,7 +759,11 @@ scid_game_cursor_is_line_start(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_bool(cursor->value.isAtLineStart(), out_is_line_start);
+    *out_is_line_start = 0;
+
+    return abi_guard([&]() -> scid_error {
+        return write_bool(cursor->value.isAtLineStart(), out_is_line_start);
+    });
 }
 
 
@@ -752,7 +777,10 @@ scid_game_cursor_is_line_end(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_bool(cursor->value.isAtLineEnd(), out_is_line_end);
+    *out_is_line_end = 0;
+
+    return abi_guard(
+        [&]() -> scid_error { return write_bool(cursor->value.isAtLineEnd(), out_is_line_end); });
 }
 
 
@@ -766,7 +794,11 @@ scid_game_cursor_is_game_start(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_bool(cursor->value.isAtGameStart(), out_is_game_start);
+    *out_is_game_start = 0;
+
+    return abi_guard([&]() -> scid_error {
+        return write_bool(cursor->value.isAtGameStart(), out_is_game_start);
+    });
 }
 
 
@@ -780,7 +812,10 @@ scid_game_cursor_is_game_end(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_bool(cursor->value.isAtGameEnd(), out_is_game_end);
+    *out_is_game_end = 0;
+
+    return abi_guard(
+        [&]() -> scid_error { return write_bool(cursor->value.isAtGameEnd(), out_is_game_end); });
 }
 
 
@@ -794,7 +829,11 @@ scid_game_cursor_is_variation_start(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_bool(cursor->value.isAtVariationStart(), out_is_variation_start);
+    *out_is_variation_start = 0;
+
+    return abi_guard([&]() -> scid_error {
+        return write_bool(cursor->value.isAtVariationStart(), out_is_variation_start);
+    });
 }
 
 
@@ -808,7 +847,11 @@ scid_game_cursor_is_variation_end(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_bool(cursor->value.isAtVariationEnd(), out_is_variation_end);
+    *out_is_variation_end = 0;
+
+    return abi_guard([&]() -> scid_error {
+        return write_bool(cursor->value.isAtVariationEnd(), out_is_variation_end);
+    });
 }
 
 
@@ -822,7 +865,11 @@ scid_game_cursor_is_variation_empty(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_bool(cursor->value.isAtEmptyVariation(), out_is_variation_empty);
+    *out_is_variation_empty = 0;
+
+    return abi_guard([&]() -> scid_error {
+        return write_bool(cursor->value.isAtEmptyVariation(), out_is_variation_empty);
+    });
 }
 
 
@@ -902,7 +949,10 @@ scid_game_cursor_previous_movespec_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_move_spec(cursor->value.previousMove(), out_move);
+    *out_move = {0, 0, SCID_PIECE_NONE, 0};
+
+    return abi_guard(
+        [&]() -> scid_error { return write_move_spec(cursor->value.previousMove(), out_move); });
 }
 
 
@@ -943,9 +993,10 @@ scid_game_cursor_previous_move_comment_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-
-    return write_move_comment(
-        cursor->value.previousMove(), out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_move_comment(
+            cursor->value.previousMove(), out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -959,7 +1010,11 @@ scid_game_cursor_previous_move_nag_count_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_move_nag_count(cursor->value.previousMove(), out_count);
+    *out_count = 0;
+
+    return abi_guard([&]() -> scid_error {
+        return write_move_nag_count(cursor->value.previousMove(), out_count);
+    });
 }
 
 
@@ -974,7 +1029,11 @@ scid_game_cursor_previous_move_nag_at_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_move_nag_at(cursor->value.previousMove(), index, out_nag);
+    *out_nag = 0;
+
+    return abi_guard([&]() -> scid_error {
+        return write_move_nag_at(cursor->value.previousMove(), index, out_nag);
+    });
 }
 
 
@@ -988,7 +1047,10 @@ scid_game_cursor_next_movespec_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_move_spec(cursor->value.nextMove(), out_move);
+    *out_move = {0, 0, SCID_PIECE_NONE, 0};
+
+    return abi_guard(
+        [&]() -> scid_error { return write_move_spec(cursor->value.nextMove(), out_move); });
 }
 
 
@@ -1029,7 +1091,10 @@ scid_game_cursor_next_move_comment_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_move_comment(cursor->value.nextMove(), out_text, out_text_capacity, out_text_size);
+    return abi_guard([&]() -> scid_error {
+        return write_move_comment(
+            cursor->value.nextMove(), out_text, out_text_capacity, out_text_size);
+    });
 }
 
 
@@ -1043,7 +1108,10 @@ scid_game_cursor_next_move_nag_count_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_move_nag_count(cursor->value.nextMove(), out_count);
+    *out_count = 0;
+
+    return abi_guard(
+        [&]() -> scid_error { return write_move_nag_count(cursor->value.nextMove(), out_count); });
 }
 
 
@@ -1058,7 +1126,11 @@ scid_game_cursor_next_move_nag_at_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    return write_move_nag_at(cursor->value.nextMove(), index, out_nag);
+    *out_nag = 0;
+
+    return abi_guard([&]() -> scid_error {
+        return write_move_nag_at(cursor->value.nextMove(), index, out_nag);
+    });
 }
 
 

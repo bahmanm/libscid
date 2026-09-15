@@ -152,7 +152,7 @@ scid_database_close(scid_database* database)
 void
 scid_database_free(scid_database* database)
 {
-    delete database;
+    abi_guard_void([&] { delete database; });
 }
 
 
