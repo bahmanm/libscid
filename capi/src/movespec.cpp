@@ -146,8 +146,7 @@ scid_movespec_create_from_san(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::core::MoveSpec move;
         const scid_error     error =
             const_cast<scid::core::Position&>(position->value).parseMoveSpec(move, text);
@@ -158,11 +157,7 @@ scid_movespec_create_from_san(
 
         *out_move = movespec_from_core(move);
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -179,8 +174,7 @@ scid_movespec_to_san(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::core::MoveSpec core_move;
         if (const scid_error error = movespec_to_core(move, &core_move); error != SCID_OK)
         {
@@ -195,9 +189,5 @@ scid_movespec_to_san(
         }
 
         return write_text(text, out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
