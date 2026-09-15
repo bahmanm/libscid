@@ -12,5 +12,7 @@ main()
     test_game_pgn_exceptions();
     test_eco_exceptions();
     test_database_exceptions();
+    test_database_filter_exceptions();
+    test_database_search_exceptions();
     return 0;
 }

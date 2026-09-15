@@ -28,4 +28,10 @@ test_eco_exceptions();
 void
 test_database_exceptions();
 
+void
+test_database_filter_exceptions();
+
+void
+test_database_search_exceptions();
+
 #endif // LIBSCID_TEST_CXX_LIBSCID_H
