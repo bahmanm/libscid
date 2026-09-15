@@ -16,12 +16,19 @@ scid_database_filter_create(
     scid_database*  database,
     scid_filter_id* out_filter_id)
 {
-    if (any_null(database, out_filter_id) || !database->value.isOpen())
+    if (any_null(database, out_filter_id))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_filter_id = 0;
+
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         const scid_filter_id filter_id = database->next_filter_id++;
         database->filters.emplace_back(filter_id, database->value.newFilter());
         *out_filter_id = filter_id;
@@ -35,12 +42,17 @@ scid_database_filter_delete(
     scid_database* database,
     scid_filter_id filter_id)
 {
-    if (any_null(database) || filter_id <= 0 || !database->value.isOpen())
+    if (any_null(database) || filter_id <= 0)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         const auto it = std::find_if(
             database->filters.begin(), database->filters.end(),
             [filter_id](const auto& entry) { return entry.first == filter_id; });
@@ -62,12 +74,17 @@ scid_database_filter_game_count_get(
     scid_filter_id       filter_id,
     size_t*              out_count)
 {
-    if (any_null(database, out_count) || !database->value.isOpen())
+    if (any_null(database, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         scid::database::HFilter filter(nullptr);
         if (!database_filter_get(database, filter_id, &filter))
         {
@@ -90,7 +107,7 @@ scid_database_filter_game_indices_get(
     size_t               out_game_indices_capacity,
     size_t*              out_game_indices_count)
 {
-    if (any_null(database, sort_criteria, out_game_indices_count) || !database->value.isOpen())
+    if (any_null(database, sort_criteria, out_game_indices_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
@@ -102,6 +119,11 @@ scid_database_filter_game_indices_get(
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         scid::database::HFilter filter(nullptr);
         if (!database_filter_get(database, filter_id, &filter))
         {
@@ -159,12 +181,19 @@ scid_database_filter_game_row_for_index_get(
     size_t               game_index,
     size_t*              out_row)
 {
-    if (any_null(database, sort_criteria, out_row) || !database->value.isOpen())
+    if (any_null(database, sort_criteria, out_row))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_row = 0;
+
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         scid::database::gamenumT core_game_index = 0;
         if (!database_game_index_is_valid(database->value, game_index, &core_game_index))
         {

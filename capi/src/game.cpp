@@ -922,12 +922,12 @@ scid_game_cursor_comment_set(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         scid::core::MovetextCursor edit_cursor(game->value);
         if (!edit_cursor.restore(cursor->value.location()))
         {
@@ -1343,23 +1343,23 @@ scid_game_cursor_move_add(
 
     *out_next_cursor = nullptr;
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
-    scid::core::MoveSpec core_move;
-    if (const scid_error error = movespec_to_core(move, &core_move); error != SCID_OK)
-    {
-        return error;
-    }
-
-    if (const scid_error error = validate_move_at_cursor(cursor, core_move); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
+        scid::core::MoveSpec core_move;
+        if (const scid_error error = movespec_to_core(move, &core_move); error != SCID_OK)
+        {
+            return error;
+        }
+
+        if (const scid_error error = validate_move_at_cursor(cursor, core_move); error != SCID_OK)
+        {
+            return error;
+        }
+
         auto next_cursor = std::make_unique<scid_game_cursor>(game);
         if (!next_cursor->value.restore(cursor->value.location()))
         {
@@ -1388,12 +1388,12 @@ scid_game_cursor_variation_add(
 
     *out_variation_cursor = nullptr;
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         auto variation_cursor = std::make_unique<scid_game_cursor>(game);
         if (!variation_cursor->value.restore(cursor->value.location()))
         {
@@ -1424,12 +1424,12 @@ scid_game_cursor_nag_add(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         scid::core::MovetextCursor edit_cursor(game->value);
         if (!edit_cursor.restore(cursor->value.location()))
         {
@@ -1458,12 +1458,12 @@ scid_game_cursor_nag_remove(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         scid::core::MovetextCursor edit_cursor(game->value);
         if (!edit_cursor.restore(cursor->value.location()))
         {
@@ -1498,12 +1498,12 @@ scid_game_cursor_nag_clear(
     scid_game*              game,
     const scid_game_cursor* cursor)
 {
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         scid::core::MovetextCursor edit_cursor(game->value);
         if (!edit_cursor.restore(cursor->value.location()))
         {
@@ -1530,12 +1530,12 @@ scid_game_cursor_variation_promote_to_first(
 
     *out_promoted_cursor = nullptr;
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         auto promoted_cursor = std::make_unique<scid_game_cursor>(game);
         if (!promoted_cursor->value.restore(cursor->value.location()))
         {
@@ -1567,12 +1567,12 @@ scid_game_cursor_variation_promote_to_mainline(
 
     *out_mainline_cursor = nullptr;
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         auto mainline_cursor = std::make_unique<scid_game_cursor>(game);
         if (!mainline_cursor->value.restore(cursor->value.location()))
         {
@@ -1604,12 +1604,12 @@ scid_game_cursor_variation_delete(
 
     *out_parent_cursor = nullptr;
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         auto parent_cursor = std::make_unique<scid_game_cursor>(game);
         if (!parent_cursor->value.restore(cursor->value.location()))
         {
@@ -1640,12 +1640,12 @@ scid_game_cursor_truncate(
 
     *out_cursor = nullptr;
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         auto result_cursor = std::make_unique<scid_game_cursor>(game);
         if (!result_cursor->value.restore(cursor->value.location()))
         {
@@ -1672,12 +1672,12 @@ scid_game_cursor_truncate_before_cursor(
 
     *out_cursor = nullptr;
 
-    if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
-    {
-        return error;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
+        {
+            return error;
+        }
+
         auto result_cursor = std::make_unique<scid_game_cursor>(game);
         if (!result_cursor->value.restore(cursor->value.location()))
         {

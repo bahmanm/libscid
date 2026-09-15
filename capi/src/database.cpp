@@ -181,12 +181,12 @@ scid_database_status_open_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (!database->value.isOpen())
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         *out_status = database->open_status;
         return SCID_OK;
     });
@@ -203,12 +203,12 @@ scid_database_status_bad_name_count_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (!database->value.isOpen())
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         *out_count = database->bad_name_count;
         return SCID_OK;
     });
@@ -225,13 +225,14 @@ scid_database_status_is_read_only(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (!database->value.isOpen())
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
 
-    return abi_guard(
-        [&]() -> scid_error { return write_bool(database->value.isReadOnly(), out_is_read_only); });
+        return write_bool(database->value.isReadOnly(), out_is_read_only);
+    });
 }
 
 
@@ -245,12 +246,14 @@ scid_database_status_is_dirty(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (!database->value.isOpen())
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
 
-    return abi_guard([&]() -> scid_error { return write_bool(false, out_is_dirty); });
+        return write_bool(false, out_is_dirty);
+    });
 }
 
 
@@ -326,12 +329,17 @@ scid_database_metadata_get(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (any_null(database, key, out_text_size) || !database->value.isOpen())
+    if (any_null(database, key, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         for (const auto& [name, value] : database->value.getExtraInfo())
         {
             if (std::strcmp(name, key) == 0)
@@ -351,12 +359,17 @@ scid_database_metadata_set(
     const char*    key,
     const char*    value)
 {
-    if (any_null(database, key, value) || !database->value.isOpen())
+    if (any_null(database, key, value))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         return database_error_to_c(database->value.setExtraInfo(key, value));
     });
 }
@@ -367,12 +380,17 @@ scid_database_metadata_count_get(
     const scid_database* database,
     size_t*              out_count)
 {
-    if (any_null(database, out_count) || !database->value.isOpen())
+    if (any_null(database, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         return write_size(database->value.getExtraInfo().size(), out_count);
     });
 }
@@ -389,12 +407,17 @@ scid_database_metadata_at_get(
     size_t               out_value_capacity,
     size_t*              out_value_size)
 {
-    if (any_null(database, out_key_size, out_value_size) || !database->value.isOpen())
+    if (any_null(database, out_key_size, out_value_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         const auto metadata = database->value.getExtraInfo();
         if (index >= metadata.size())
         {
@@ -423,12 +446,17 @@ scid_database_stats_date_range_get(
     size_t               out_max_date_capacity,
     size_t*              out_max_date_size)
 {
-    if (any_null(database, out_min_date_size, out_max_date_size) || !database->value.isOpen())
+    if (any_null(database, out_min_date_size, out_max_date_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         const auto& stats = database->value.getStats();
         if (const scid_error error = write_text(
                 date_to_string(stats.minDate), out_min_date, out_min_date_capacity,
@@ -450,12 +478,17 @@ scid_database_stats_result_count_get(
     const char*          result,
     size_t*              out_count)
 {
-    if (any_null(database, result, out_count) || !database->value.isOpen())
+    if (any_null(database, result, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         scid::core::resultT core_result = scid::core::RESULT_None;
         if (const scid_error error = result_from_string(result, &core_result); error != SCID_OK)
         {

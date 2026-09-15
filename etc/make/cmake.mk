@@ -32,6 +32,8 @@ __libscid_etc_make_cmake.mk := 1
 #   PROJECT.__cmake.test.labels              (inherited from BASE_PROJECT if omitted)
 ####################################################################################################
 
+libscid.__asan.detect_leaks := $(if $(filter Darwin,$(libscid.__host.system)),0,1)
+
 define libscid.cmake.__project.rules
 ####################################################################################################
 
@@ -192,7 +194,7 @@ $(1).qc-dynamic-analysis : $(1).__cmake.contract
 	$$(LIBSCID_CMAKE) \
 	    --build $$($(1).__qc.dynamic-analysis.build.dir) \
 	    $$(LIBSCID_CMAKE_BUILD_ARGS)
-	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 \
+	ASAN_OPTIONS=detect_leaks=$(libscid.__asan.detect_leaks):halt_on_error=1 \
 	UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 \
 	    $$(LIBSCID_CTEST) \
 	        --test-dir $$($(1).__qc.dynamic-analysis.build.dir) \

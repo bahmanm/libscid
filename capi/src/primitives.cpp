@@ -50,12 +50,12 @@ scid_square_to_string(
     size_t      out_text_capacity,
     size_t*     out_text_size)
 {
-    if (!square_is_valid(square))
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (!square_is_valid(square))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         char text[] = {
             static_cast<char>('a' + scid::core::square_Fyle(square)),
             static_cast<char>('1' + scid::core::square_Rank(square)), '\0'};

@@ -394,12 +394,12 @@ scid_position_piece_at_get(
 
     *out_piece = SCID_PIECE_NONE;
 
-    if (!square_is_valid(square))
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
     return abi_guard([&]() -> scid_error {
+        if (!square_is_valid(square))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         *out_piece = piece_to_c(position->value.GetPiece(square));
         return SCID_OK;
     });

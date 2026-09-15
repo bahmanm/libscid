@@ -442,13 +442,17 @@ scid_database_search_headers(
     scid_should_cancel_fn              should_cancel,
     void*                              should_cancel_user_data)
 {
-    if (any_null(database, criteria) || destination_filter_id == SCID_FILTER_ALL_GAMES ||
-        !database->value.isOpen())
+    if (any_null(database, criteria) || destination_filter_id == SCID_FILTER_ALL_GAMES)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         scid::database::HFilter source(nullptr);
         if (!database_filter_get(database, source_filter_id, &source))
         {
@@ -500,13 +504,17 @@ scid_database_search_position(
     scid_should_cancel_fn         should_cancel,
     void*                         should_cancel_user_data)
 {
-    if (any_null(database, position) || destination_filter_id == SCID_FILTER_ALL_GAMES ||
-        !database->value.isOpen())
+    if (any_null(database, position) || destination_filter_id == SCID_FILTER_ALL_GAMES)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         scid::database::HFilter source(nullptr);
         if (!database_filter_get(database, source_filter_id, &source))
         {
@@ -543,13 +551,16 @@ scid_database_search_board(
     scid_should_cancel_fn             should_cancel,
     void*                             should_cancel_user_data)
 {
-    if (any_null(database, criteria) || !criteria->position.has_value() ||
-        destination_filter_id == SCID_FILTER_ALL_GAMES || !database->value.isOpen())
+    if (any_null(database, criteria) || destination_filter_id == SCID_FILTER_ALL_GAMES)
     {
         return SCID_ERROR_BAD_ARG;
     }
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen() || !criteria->position.has_value())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
         scid::database::gameExactMatchT search_type = scid::database::GAME_EXACT_MATCH_Exact;
         if (!board_search_match_to_core(criteria->match, &search_type))
         {
@@ -1427,13 +1438,19 @@ scid_search_board_criteria_position_get(
     const scid_search_board_criteria* criteria,
     scid_position*                    out_position)
 {
-    if (any_null(criteria, out_position) || !criteria->position.has_value())
+    if (any_null(criteria, out_position))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
-    return abi_guard(
-        [&]() -> scid_error { return write_position(*criteria->position, out_position); });
+    return abi_guard([&]() -> scid_error {
+        if (!criteria->position.has_value())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return write_position(*criteria->position, out_position);
+    });
 }
 
 
