@@ -145,7 +145,8 @@ if( BUILD_TESTING )
         "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/_support/fault_injector.cpp"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_support.cpp"
         "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_primitives_exceptions.cpp"
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_movespec_exceptions.cpp" )
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_movespec_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_position_exceptions.cpp" )
 
     add_executable(
         scid_tests_cxx
