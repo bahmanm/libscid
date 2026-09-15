@@ -11,6 +11,7 @@
 #include "scid/database/scidbase.h"
 
 #include <cctype>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -447,8 +448,7 @@ scid_database_search_headers(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::HFilter source(nullptr);
         if (!database_filter_get(database, source_filter_id, &source))
         {
@@ -485,11 +485,7 @@ scid_database_search_headers(
             scid::database::search_index(
                 &database->value, destination, static_cast<int>(argv.size()), argv.data(),
                 progress));
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -510,8 +506,7 @@ scid_database_search_position(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::HFilter source(nullptr);
         if (!database_filter_get(database, source_filter_id, &source))
         {
@@ -533,11 +528,7 @@ scid_database_search_position(
         }
         intersect_with_snapshot(database->value, source_included, destination);
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -558,8 +549,7 @@ scid_database_search_board(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::gameExactMatchT search_type = scid::database::GAME_EXACT_MATCH_Exact;
         if (!board_search_match_to_core(criteria->match, &search_type))
         {
@@ -616,11 +606,7 @@ scid_database_search_board(
 
         return progress(game_count, game_count, "Searching board") ? SCID_OK
                                                                    : SCID_ERROR_USER_CANCEL;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -632,16 +618,13 @@ scid_search_header_criteria_create(scid_search_header_criteria** out_criteria)
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
-        *out_criteria = new scid_search_header_criteria;
+    *out_criteria = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        auto criteria = std::make_unique<scid_search_header_criteria>();
+        *out_criteria = criteria.release();
         return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_criteria = nullptr;
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -1300,16 +1283,13 @@ scid_search_board_criteria_create(scid_search_board_criteria** out_criteria)
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
-        *out_criteria = new scid_search_board_criteria;
+    *out_criteria = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        auto criteria = std::make_unique<scid_search_board_criteria>();
+        *out_criteria = criteria.release();
         return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_criteria = nullptr;
-        return SCID_ERROR;
-    }
+    });
 }
 
 

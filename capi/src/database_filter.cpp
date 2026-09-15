@@ -21,17 +21,12 @@ scid_database_filter_create(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         const scid_filter_id filter_id = database->next_filter_id++;
         database->filters.emplace_back(filter_id, database->value.newFilter());
         *out_filter_id = filter_id;
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -45,8 +40,7 @@ scid_database_filter_delete(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         const auto it = std::find_if(
             database->filters.begin(), database->filters.end(),
             [filter_id](const auto& entry) { return entry.first == filter_id; });
@@ -58,11 +52,7 @@ scid_database_filter_delete(
         database->value.deleteFilter(it->second.c_str());
         database->filters.erase(it);
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -77,8 +67,7 @@ scid_database_filter_game_count_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::HFilter filter(nullptr);
         if (!database_filter_get(database, filter_id, &filter))
         {
@@ -86,11 +75,7 @@ scid_database_filter_game_count_get(
         }
 
         return write_size(filter->size(), out_count);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -116,8 +101,7 @@ scid_database_filter_game_indices_get(
         return SCID_ERROR_BUFFER_FULL;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::HFilter filter(nullptr);
         if (!database_filter_get(database, filter_id, &filter))
         {
@@ -135,11 +119,7 @@ scid_database_filter_game_indices_get(
         }
 
         return write_size(listed, out_game_indices_count);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -180,8 +160,7 @@ scid_database_filter_game_row_for_index_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::gamenumT core_game_index = 0;
         if (!database_game_index_is_valid(database->value, game_index, &core_game_index))
         {
@@ -202,9 +181,5 @@ scid_database_filter_game_row_for_index_get(
         }
 
         return write_size(row, out_row);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }

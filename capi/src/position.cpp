@@ -23,6 +23,7 @@
 #include <cctype>
 #include <cstring>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -56,25 +57,19 @@ scid_position_create_from_fen(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
-        auto*            position = new scid_position;
+    *out_position = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        auto             position = std::make_unique<scid_position>();
         const scid_error error = position->value.ReadFromFEN(fen);
         if (error != SCID_OK)
         {
-            delete position;
-            *out_position = nullptr;
             return error;
         }
 
-        *out_position = position;
+        *out_position = position.release();
         return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_position = nullptr;
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -89,35 +84,27 @@ scid_position_create_with_san(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
-        auto* next_position = new scid_position;
+    *out_position = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        auto next_position = std::make_unique<scid_position>();
         next_position->value = position->value;
 
         scid::core::MoveSpec move;
         if (const scid_error error = next_position->value.parseMoveSpec(move, san);
             error != SCID_OK)
         {
-            delete next_position;
-            *out_position = nullptr;
             return error;
         }
 
         if (const scid_error error = next_position->value.applyMove(move); error != SCID_OK)
         {
-            delete next_position;
-            *out_position = nullptr;
             return error;
         }
 
-        *out_position = next_position;
+        *out_position = next_position.release();
         return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_position = nullptr;
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -132,35 +119,27 @@ scid_position_create_with_uci(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
-        auto* next_position = new scid_position;
+    *out_position = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        auto next_position = std::make_unique<scid_position>();
         next_position->value = position->value;
 
         scid::core::MoveSpec move;
         if (const scid_error error = next_position->value.readCoordinateMoveSpec(move, uci, false);
             error != SCID_OK)
         {
-            delete next_position;
-            *out_position = nullptr;
             return error;
         }
 
         if (const scid_error error = next_position->value.applyMove(move); error != SCID_OK)
         {
-            delete next_position;
-            *out_position = nullptr;
             return error;
         }
 
-        *out_position = next_position;
+        *out_position = next_position.release();
         return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_position = nullptr;
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -183,16 +162,11 @@ scid_position_to_fen(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         char fen[256];
         position->value.PrintFEN(fen, sizeof(fen));
         return write_text(fen, out_fen, out_fen_capacity, out_fen_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -206,8 +180,7 @@ scid_position_apply_san(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::core::MoveSpec move;
         if (const scid_error error = position->value.parseMoveSpec(move, san); error != SCID_OK)
         {
@@ -215,11 +188,7 @@ scid_position_apply_san(
         }
 
         return position->value.applyMove(move);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -233,8 +202,7 @@ scid_position_apply_uci(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::core::MoveSpec move;
         if (const scid_error error = position->value.readCoordinateMoveSpec(move, uci, false);
             error != SCID_OK)
@@ -243,11 +211,7 @@ scid_position_apply_uci(
         }
 
         return position->value.applyMove(move);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -270,8 +234,7 @@ scid_position_legal_moves(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::core::MoveList moves;
         const_cast<scid::core::Position&>(position->value).GenerateMoves(&moves);
         const auto move_count = static_cast<size_t>(moves.Size());
@@ -288,12 +251,7 @@ scid_position_legal_moves(
 
         *out_moves_size = written;
         return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_moves_size = 0;
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -321,15 +279,10 @@ scid_position_is_check(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         return write_bool(
             const_cast<scid::core::Position&>(position->value).IsKingInCheck(), out_is_check);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -343,15 +296,10 @@ scid_position_is_checkmate(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         return write_bool(
             const_cast<scid::core::Position&>(position->value).IsKingInMate(), out_is_checkmate);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -365,15 +313,10 @@ scid_position_is_legal(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         return write_bool(
             const_cast<scid::core::Position&>(position->value).IsLegal(), out_is_legal);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 

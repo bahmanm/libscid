@@ -116,15 +116,10 @@ scid_nag_create_from_string(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         *out_nag = scid::core::nagCode(scid::core::nagFromString(text));
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -136,15 +131,10 @@ scid_nag_to_string(
     size_t   out_text_capacity,
     size_t*  out_text_size)
 {
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         const std::string text =
             scid::core::nagToString(scid::core::nagFromCode(nag), as_symbol != 0);
 
         return write_text(text, out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
