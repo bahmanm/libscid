@@ -7,4 +7,7 @@ test_support();
 void
 test_primitives_exceptions();
 
+void
+test_movespec_exceptions();
+
 #endif // LIBSCID_TEST_CXX_LIBSCID_H
