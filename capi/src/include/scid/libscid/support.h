@@ -12,9 +12,13 @@
 #include "scid/database/scidbase.h"
 
 #include <cstddef>
+#include <exception>
+#include <new>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 
 struct scid_database;
 struct scid_game;
@@ -30,6 +34,55 @@ namespace scid::libscid
     any_null(Args... args) noexcept
     {
         return ((args == nullptr) || ...);
+    }
+
+    template <typename F>
+        requires std::is_invocable_r_v<scid_error, F>
+    [[nodiscard]] scid_error
+    abi_guard(F&& fn) noexcept
+    {
+        try
+        {
+            return fn();
+        }
+        catch (const std::bad_alloc&)
+        {
+            return SCID_ERROR_NO_MEMORY;
+        }
+        catch (const std::out_of_range&)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+        catch (const std::invalid_argument&)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+        catch (const std::length_error&)
+        {
+            return SCID_ERROR_BUFFER_FULL;
+        }
+        catch (const std::exception&)
+        {
+            return SCID_ERROR;
+        }
+        catch (...)
+        {
+            return SCID_ERROR;
+        }
+    }
+
+    template <typename F>
+        requires std::is_invocable_v<F>
+    void
+    abi_guard_void(F&& fn) noexcept
+    {
+        try
+        {
+            fn();
+        }
+        catch (...)
+        {
+        }
     }
 
     bool
