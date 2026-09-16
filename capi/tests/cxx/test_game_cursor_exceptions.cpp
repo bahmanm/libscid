@@ -24,16 +24,18 @@ namespace
         assert(game != nullptr);
 
         scid_game_cursor* cursor = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_game_cursor_create(game, &cursor);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            cursor = scid::test::dirty_pointer<scid_game_cursor>();
+            const scid_error res = scid_game_cursor_create(game, &cursor);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(cursor == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_game_cursor_free(cursor);
-        }
-
+        assert(cursor != nullptr);
+        scid_game_cursor_free(cursor);
         scid_game_free(game);
         scid_position_free(pos);
     }
@@ -56,16 +58,18 @@ namespace
         assert(cursor != nullptr);
 
         scid_game_cursor* clone = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_game_cursor_clone(game, cursor, &clone);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            clone = scid::test::dirty_pointer<scid_game_cursor>();
+            const scid_error res = scid_game_cursor_clone(game, cursor, &clone);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(clone == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_game_cursor_free(clone);
-        }
-
+        assert(clone != nullptr);
+        scid_game_cursor_free(clone);
         scid_game_cursor_free(cursor);
         scid_game_free(game);
         scid_position_free(pos);
@@ -249,11 +253,18 @@ namespace
         scid_position_free(pos);
     }
 
+    void
+    test_game_cursor_free_null()
+    {
+        scid_game_cursor_free(nullptr);
+    }
+
 } // namespace
 
 void
 test_game_cursor_exceptions()
 {
+    test_game_cursor_free_null();
     test_game_cursor_create_allocation_failure();
     test_game_cursor_clone_allocation_failure();
     test_game_cursor_navigation_allocation_failure();

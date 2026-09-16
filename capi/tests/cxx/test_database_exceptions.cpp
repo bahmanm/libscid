@@ -25,15 +25,18 @@ namespace
     test_database_create_memory_allocation_failure()
     {
         scid_database* db = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_database_create_memory("memdb_alloc_fail", &db);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            db = scid::test::dirty_pointer<scid_database>();
+            const scid_error res = scid_database_create_memory("memdb_alloc_fail", &db);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(db == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_database_free(db);
-        }
+        assert(db != nullptr);
+        scid_database_free(db);
     }
 
     void
@@ -43,17 +46,25 @@ namespace
         remove_scid5_files(path);
 
         scid_database* db = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_database_create_scid5(path, &db);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            db = scid::test::dirty_pointer<scid_database>();
+            const scid_error res = scid_database_create_scid5(path, &db);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(db == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_database_free(db);
-        }
-
+        assert(db != nullptr);
+        scid_database_free(db);
         remove_scid5_files(path);
+    }
+
+    void
+    test_database_free_null()
+    {
+        scid_database_free(nullptr);
     }
 
     void
@@ -193,6 +204,7 @@ namespace
 void
 test_database_exceptions()
 {
+    test_database_free_null();
     test_database_create_memory_allocation_failure();
     test_database_create_scid5_allocation_failure();
     test_database_game_add_allocation_failure();

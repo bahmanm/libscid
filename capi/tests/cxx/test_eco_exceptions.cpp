@@ -48,17 +48,25 @@ namespace
         write_test_eco_file(path);
 
         scid_eco_book* book = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_eco_book_load(path, &book);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            book = scid::test::dirty_pointer<scid_eco_book>();
+            const scid_error res = scid_eco_book_load(path, &book);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(book == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_eco_book_free(book);
-        }
-
+        assert(book != nullptr);
+        scid_eco_book_free(book);
         std::remove(path);
+    }
+
+    void
+    test_eco_book_free_null()
+    {
+        scid_eco_book_free(nullptr);
     }
 
     void
@@ -96,6 +104,7 @@ namespace
 void
 test_eco_exceptions()
 {
+    test_eco_book_free_null();
     test_eco_code_to_string_allocation_failure();
     test_eco_book_load_allocation_failure();
     test_eco_book_name_find_allocation_failure();

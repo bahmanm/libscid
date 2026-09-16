@@ -14,15 +14,24 @@ namespace
     test_game_pgn_options_create_allocation_failure()
     {
         scid_game_pgn_options* options = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_game_pgn_options_create(&options);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            options = scid::test::dirty_pointer<scid_game_pgn_options>();
+            const scid_error res = scid_game_pgn_options_create(&options);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(options == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_game_pgn_options_free(options);
-        }
+        assert(options != nullptr);
+        scid_game_pgn_options_free(options);
+    }
+
+    void
+    test_game_pgn_options_free_null()
+    {
+        scid_game_pgn_options_free(nullptr);
     }
 
     void
@@ -71,6 +80,7 @@ namespace
 void
 test_game_pgn_exceptions()
 {
+    test_game_pgn_options_free_null();
     test_game_pgn_options_create_allocation_failure();
     test_game_to_pgn_allocation_failure();
 }

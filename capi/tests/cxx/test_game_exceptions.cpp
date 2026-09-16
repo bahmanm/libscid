@@ -20,16 +20,18 @@ namespace
         assert(pos != nullptr);
 
         scid_game* game = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_game_create_blank(pos, &game);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            game = scid::test::dirty_pointer<scid_game>();
+            const scid_error res = scid_game_create_blank(pos, &game);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(game == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_game_free(game);
-        }
-
+        assert(game != nullptr);
+        scid_game_free(game);
         scid_position_free(pos);
     }
 
@@ -52,17 +54,19 @@ namespace
                           "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 1-0\n";
 
         scid_game* game = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res =
-            scid_game_create(pos, pgn, std::strlen(pgn), &game, nullptr, 0, nullptr);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            game = scid::test::dirty_pointer<scid_game>();
+            const scid_error res =
+                scid_game_create(pos, pgn, std::strlen(pgn), &game, nullptr, 0, nullptr);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(game == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_game_free(game);
-        }
-
+        assert(game != nullptr);
+        scid_game_free(game);
         scid_position_free(pos);
     }
 
@@ -195,11 +199,18 @@ namespace
         scid_position_free(pos);
     }
 
+    void
+    test_game_free_null()
+    {
+        scid_game_free(nullptr);
+    }
+
 } // namespace
 
 void
 test_game_exceptions()
 {
+    test_game_free_null();
     test_game_create_blank_allocation_failure();
     test_game_create_from_pgn_allocation_failure();
     test_game_tag_set_allocation_failure();

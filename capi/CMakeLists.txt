@@ -165,6 +165,9 @@ if( BUILD_TESTING )
         scid_tests_cxx
         PROPERTIES
         CXX_EXTENSIONS OFF )
+    target_compile_options(
+        scid_tests_cxx
+        PRIVATE -UNDEBUG )
     target_include_directories(
         scid_tests_cxx
         PRIVATE
