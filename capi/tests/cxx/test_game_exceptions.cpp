@@ -191,6 +191,9 @@ namespace
         if (res == SCID_ERROR_NO_MEMORY)
         {
             TEST_ASSERT(out_cursor == nullptr);
+            size_t var_count = 1;
+            TEST_ASSERT(scid_game_cursor_variation_count_get(cursor, &var_count) == SCID_OK);
+            TEST_ASSERT(var_count == 0);
         }
         else if (res == SCID_OK && out_cursor != nullptr)
         {

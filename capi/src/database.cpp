@@ -14,12 +14,104 @@
 
 #include <array>
 #include <cstring>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 using namespace scid::libscid;
+
+namespace
+{
+
+    std::array<std::string, 3>
+    scid5_constituent_paths(const char* base_path)
+    {
+        if (base_path == nullptr)
+        {
+            return {};
+        }
+
+        auto dbpath = std::filesystem::path(base_path);
+        if (dbpath.stem().empty())
+        {
+            return {};
+        }
+
+        std::string f0 = dbpath.extension().empty()
+                             ? dbpath.replace_extension("si5").string()
+                             : dbpath.string();
+        std::string f1 = dbpath.replace_extension("sg5").string();
+        std::string f2 = dbpath.replace_extension("sn5").string();
+        return {std::move(f0), std::move(f1), std::move(f2)};
+    }
+
+    class ScopedScid5CreationRollback
+    {
+    public:
+        explicit ScopedScid5CreationRollback(const char* path)
+        {
+            if (path == nullptr)
+            {
+                return;
+            }
+
+            const auto files = scid5_constituent_paths(path);
+            if (files[0].empty())
+            {
+                return;
+            }
+
+            std::error_code ec;
+            for (const auto& file : files)
+            {
+                if (std::filesystem::exists(file, ec) || ec)
+                {
+                    return;
+                }
+            }
+
+            files_ = files;
+            armed_ = true;
+        }
+
+        ~ScopedScid5CreationRollback() noexcept
+        {
+            if (armed_)
+            {
+                rollback();
+            }
+        }
+
+        void rollback() noexcept
+        {
+            if (!armed_)
+            {
+                return;
+            }
+            for (const auto& file : files_)
+            {
+                if (!file.empty())
+                {
+                    std::error_code ec;
+                    std::filesystem::remove(file, ec);
+                }
+            }
+            armed_ = false;
+        }
+
+        void disarm() noexcept
+        {
+            armed_ = false;
+        }
+
+    private:
+        std::array<std::string, 3> files_{};
+        bool                       armed_ = false;
+    };
+
+} // namespace
 
 scid_error
 scid_database_create_memory(
@@ -52,7 +144,16 @@ scid_database_create_scid5(
     *out_database = nullptr;
 
     return abi_guard([&]() -> scid_error {
-        return database_open("SCID5", scid::database::FMODE_Create, path, out_database);
+        ScopedScid5CreationRollback rollback(path);
+        const auto status =
+            database_open("SCID5", scid::database::FMODE_Create, path, out_database);
+        if (scid_is_error(status))
+        {
+            rollback.rollback();
+            return status;
+        }
+        rollback.disarm();
+        return status;
     });
 }
 
