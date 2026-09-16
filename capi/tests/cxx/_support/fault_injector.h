@@ -1,8 +1,8 @@
 #ifndef LIBSCID_TEST_FAULT_INJECTOR_H
 #define LIBSCID_TEST_FAULT_INJECTOR_H
 
-#include "test_libscid.h"
 #include "scid/primitives.h"
+#include "test_libscid.h"
 
 #include <cassert>
 #include <cstddef>

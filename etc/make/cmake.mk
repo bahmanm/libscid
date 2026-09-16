@@ -80,6 +80,7 @@ $(1).configure : $(1).__cmake.contract
 	    -DCMAKE_BUILD_TYPE=$$(LIBSCID_CMAKE_BUILD_TYPE) \
 	    $$(libscid.cmake.__c.compiler.arg) \
 	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    $$(libscid.cmake.__osx_sysroot.arg) \
 	    $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
 
 .PHONY : $(1).configure
@@ -122,6 +123,7 @@ $(1).qc-format : $(1).__cmake.contract
 	    $$(libscid.cmake.__generator.arg) \
 	    $$(libscid.cmake.__c.compiler.arg) \
 	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    $$(libscid.cmake.__osx_sysroot.arg) \
 	    "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
 	    $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
 	$$(LIBSCID_CMAKE) \
@@ -139,6 +141,7 @@ $(1).__qc-cppcheck : $(1).__cmake.contract
 	    -B $$($(1).__qc.analysis.build.dir) \
 	    $$(libscid.cmake.__c.compiler.arg) \
 	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    $$(libscid.cmake.__osx_sysroot.arg) \
 	    -DCMAKE_BUILD_TYPE=Debug \
 	    -DBUILD_TESTING=OFF \
 	    -DLIBSCID_INSTALL=OFF \
@@ -159,6 +162,7 @@ $(1).__qc-tidy : $(1).__cmake.contract
 	    -B $$($(1).__qc.analysis.build.dir) \
 	    $$(libscid.cmake.__c.compiler.arg) \
 	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    $$(libscid.cmake.__osx_sysroot.arg) \
 	    -DCMAKE_BUILD_TYPE=Debug \
 	    -DBUILD_TESTING=OFF \
 	    -DLIBSCID_INSTALL=OFF \
@@ -185,6 +189,7 @@ $(1).qc-dynamic-analysis : $(1).__cmake.contract
 	    -B $$($(1).__qc.dynamic-analysis.build.dir) \
 	    $$(libscid.cmake.__c.compiler.arg) \
 	    $$(libscid.cmake.__cxx.compiler.arg) \
+	    $$(libscid.cmake.__osx_sysroot.arg) \
 	    -DCMAKE_BUILD_TYPE=Debug \
 	    -DBUILD_TESTING=ON \
 	    -DLIBSCID_INSTALL=OFF \
