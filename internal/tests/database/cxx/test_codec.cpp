@@ -297,7 +297,7 @@ namespace
             scid::database::NameBase nb;
             auto                     err = scid::database::openCodec(
                 dbtype, fMode, filename, scid::database::Progress(), &idx, &nb);
-            auto codec = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
+            auto codec = std::move(err.first);
             ASSERT_NE(nullptr, codec);
             cleanup.filenames = codec->getFilenames();
             ASSERT_EQ(scid::core::OK, err.second);
@@ -316,7 +316,7 @@ namespace
             auto                     err = scid::database::openCodec(
                 dbtype, scid::database::FMODE_ReadOnly, filename, scid::database::Progress(), &idx,
                 &nb);
-            auto codec = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
+            auto codec = std::move(err.first);
             ASSERT_NE(nullptr, codec);
             ASSERT_EQ(scid::core::OK, err.second);
             ASSERT_EQ(gameGenerator.get().size(), size_t(idx.GetNumGames()));
@@ -358,7 +358,7 @@ TEST_P(
         scid::database::NameBase nb;
         auto                     err = scid::database::openCodec(
             dbtype, fmode, filename, scid::database::Progress(), &idx, &nb);
-        auto codec = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
+        auto codec = std::move(err.first);
 
         if (supports("FMODE" + std::to_string(fmode)))
         {
@@ -393,7 +393,7 @@ TEST_P(
     scid::database::NameBase nb;
     auto                     err = scid::database::openCodec(
         dbtype, scid::database::FMODE_Create, "", scid::database::Progress(), &idx, &nb);
-    auto codec = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
+    auto codec = std::move(err.first);
 
     if (!supports("empty_filename"))
     {
@@ -446,7 +446,7 @@ TEST_P(
         auto                     err = scid::database::openCodec(
             dbtype, scid::database::FMODE_Create, filename, scid::database::Progress(), &idx1,
             &nb1);
-        auto codec1 = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
+        auto codec1 = std::move(err.first);
         EXPECT_EQ(scid::core::OK, codec1->flush());
         ASSERT_NE(nullptr, codec1);
         ASSERT_EQ(scid::core::OK, err.second);
@@ -455,7 +455,7 @@ TEST_P(
         err = scid::database::openCodec(
             dbtype, scid::database::FMODE_Create, renamed_name.c_str(), scid::database::Progress(),
             &idx2, &nb2);
-        auto codec2 = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
+        auto codec2 = std::move(err.first);
         EXPECT_EQ(scid::core::OK, codec2->flush());
         ASSERT_NE(nullptr, codec2);
         ASSERT_EQ(scid::core::OK, err.second);
@@ -483,7 +483,7 @@ TEST_P(
         auto                     err = scid::database::openCodec(
             dbtype, scid::database::FMODE_ReadOnly, filename, scid::database::Progress(),
             &idx_reopen, &nb_reopen);
-        auto codec3 = std::unique_ptr<scid::database::ICodecDatabase>(err.first);
+        auto codec3 = std::move(err.first);
         ASSERT_NE(nullptr, codec3);
         ASSERT_EQ(scid::core::OK, err.second);
 
