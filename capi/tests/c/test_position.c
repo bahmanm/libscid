@@ -233,9 +233,12 @@ test_position(void)
     TEST_ASSERT(scid_position_fullmove_number_get(position, NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_halfmove_clock_get(NULL, &number) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_halfmove_clock_get(position, NULL) == SCID_ERROR_BAD_ARG);
+    piece = SCID_PIECE_WHITE_KNIGHT;
     TEST_ASSERT(scid_position_piece_at_get(NULL, 4, &piece) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(piece == SCID_PIECE_WHITE_KNIGHT);
     TEST_ASSERT(scid_position_piece_at_get(position, 4, NULL) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(scid_position_piece_at_get(position, 64, &piece) == SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(piece == SCID_PIECE_WHITE_KNIGHT);
     TEST_ASSERT(
         scid_position_legal_moves(NULL, moves, SCID_MAX_LEGAL_MOVES, &move_count) ==
         SCID_ERROR_BAD_ARG);
