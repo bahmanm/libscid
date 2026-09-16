@@ -96,6 +96,60 @@ scid_database_filter_game_count_get(
 }
 
 
+namespace
+{
+
+    scid_error
+    database_filter_list_games(
+        const scid_database*      database,
+        scid_filter_id            filter_id,
+        const char*               sort_criteria,
+        size_t                    start_row,
+        size_t                    row_count,
+        scid::database::gamenumT* out_games,
+        size_t*                   out_listed)
+    {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        auto&        mutable_database = const_cast<scid::database::scidBaseT&>(database->value);
+        const size_t listed =
+            mutable_database.listGames(sort_criteria, start_row, row_count, filter, out_games);
+
+        return write_size(listed, out_listed);
+    }
+
+
+    scid_error
+    database_filter_game_at_row(
+        const scid_database*      database,
+        scid_filter_id            filter_id,
+        const char*               sort_criteria,
+        size_t                    row,
+        scid::database::gamenumT* out_game)
+    {
+        size_t listed = 0;
+        if (const scid_error error = database_filter_list_games(
+                database, filter_id, sort_criteria, row, 1, out_game, &listed);
+            error != SCID_OK)
+        {
+            return error;
+        }
+
+        return (listed == 1) ? SCID_OK : SCID_ERROR_BAD_ARG;
+    }
+
+} // namespace
+
+
 scid_error
 scid_database_filter_game_indices_get(
     const scid_database* database,
@@ -119,21 +173,16 @@ scid_database_filter_game_indices_get(
     }
 
     return abi_guard([&]() -> scid_error {
-        if (!database->value.isOpen())
-        {
-            return SCID_ERROR_BAD_ARG;
-        }
-
-        scid::database::HFilter filter(nullptr);
-        if (!database_filter_get(database, filter_id, &filter))
-        {
-            return SCID_ERROR_BAD_ARG;
-        }
-
-        auto& mutable_database = const_cast<scid::database::scidBaseT&>(database->value);
         std::vector<scid::database::gamenumT> game_indices(row_count);
-        const size_t                          listed = mutable_database.listGames(
-            sort_criteria, start_row, row_count, filter, game_indices.data());
+        size_t                                listed = 0;
+
+        if (const scid_error error = database_filter_list_games(
+                database, filter_id, sort_criteria, start_row, row_count, game_indices.data(),
+                &listed);
+            error != SCID_OK)
+        {
+            return error;
+        }
 
         for (size_t i = 0; i < listed; ++i)
         {
@@ -161,14 +210,16 @@ scid_database_filter_game_index_at_row_get(
     *out_game_index = 0;
 
     return abi_guard([&]() -> scid_error {
-        size_t           count = 0;
-        const scid_error error = scid_database_filter_game_indices_get(
-            database, filter_id, sort_criteria, row, 1, out_game_index, 1, &count);
-        if (error != SCID_OK)
+        scid::database::gamenumT game_index = 0;
+        if (const scid_error error =
+                database_filter_game_at_row(database, filter_id, sort_criteria, row, &game_index);
+            error != SCID_OK)
         {
             return error;
         }
-        return count == 1 ? SCID_OK : SCID_ERROR_BAD_ARG;
+
+        *out_game_index = game_index;
+        return SCID_OK;
     });
 }
 
