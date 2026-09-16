@@ -44,7 +44,7 @@ namespace
         scid_game_merge_moves_mode          mode,
         scid_game_cursor**                  out_cursor)
     {
-        scid::core::Game staging = target_game->value;
+        scid::core::Game           staging = target_game->value;
         scid::core::MovetextCursor edit_cursor(staging);
         if (!edit_cursor.restore(target_location))
         {
@@ -89,15 +89,14 @@ namespace
         }
 
         const auto& source_movetext = source_game->value.movetext();
-        if (const scid_error error =
-                append_move_sequence(edit_cursor, source_movetext.mainline);
+        if (const scid_error error = append_move_sequence(edit_cursor, source_movetext.mainline);
             error != SCID_OK)
         {
             return error;
         }
 
         const auto location = edit_cursor.location();
-        auto staged_cursor = std::make_unique<scid_game_cursor>(target_game);
+        auto       staged_cursor = std::make_unique<scid_game_cursor>(target_game);
 
         target_game->value = std::move(staging);
 
@@ -538,8 +537,6 @@ scid_game_final_position_get(
         return write_position(*position, out_position);
     });
 }
-
-
 
 
 scid_error

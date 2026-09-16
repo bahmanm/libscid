@@ -274,14 +274,13 @@ namespace
         const int foreign_err_res = abi_guard(-1, []() -> int { throw 99; });
         assert(foreign_err_res == -1);
 
-        int dummy = 42;
+        int        dummy = 42;
         int* const ptr_res =
             abi_guard(static_cast<int*>(nullptr), [&]() -> int* { return &dummy; });
         assert(ptr_res == &dummy);
 
-        int* const ptr_fallback = abi_guard(static_cast<int*>(nullptr), []() -> int* {
-            throw std::runtime_error("failed");
-        });
+        int* const ptr_fallback = abi_guard(
+            static_cast<int*>(nullptr), []() -> int* { throw std::runtime_error("failed"); });
         assert(ptr_fallback == nullptr);
     }
 

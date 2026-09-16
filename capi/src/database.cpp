@@ -215,27 +215,28 @@ scid_database_status_bad_name_count_get(
 }
 
 
-namespace {
-
-scid_error
-database_is_read_only(
-    const scid_database* database,
-    int*                 out_read_only)
+namespace
 {
-    if (any_null(database, out_read_only))
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
 
-    return abi_guard([&]() -> scid_error {
-        if (!database->value.isOpen())
+    scid_error
+    database_is_read_only(
+        const scid_database* database,
+        int*                 out_read_only)
+    {
+        if (any_null(database, out_read_only))
         {
             return SCID_ERROR_BAD_ARG;
         }
 
-        return write_bool(database->value.isReadOnly(), out_read_only);
-    });
-}
+        return abi_guard([&]() -> scid_error {
+            if (!database->value.isOpen())
+            {
+                return SCID_ERROR_BAD_ARG;
+            }
+
+            return write_bool(database->value.isReadOnly(), out_read_only);
+        });
+    }
 
 } // namespace
 
