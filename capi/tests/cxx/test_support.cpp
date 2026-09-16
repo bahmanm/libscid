@@ -155,7 +155,7 @@ namespace
     {
         const scid_error res =
             abi_guard([]() -> scid_error { throw std::length_error("buffer length exceeded"); });
-        assert(res == SCID_ERROR_BUFFER_FULL);
+        assert(res == SCID_ERROR);
     }
 
     void

@@ -59,10 +59,6 @@ namespace scid::libscid
         {
             return SCID_ERROR_BAD_ARG;
         }
-        catch (const std::length_error&)
-        {
-            return SCID_ERROR_BUFFER_FULL;
-        }
         catch (const std::exception&)
         {
             return SCID_ERROR;
