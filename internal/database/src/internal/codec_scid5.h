@@ -372,23 +372,23 @@ namespace scid::database
 
                     struct Rollback
                     {
-                        CodecSCID5& codec;
-                        bool        armed = true;
+                            CodecSCID5& codec;
+                            bool        armed = true;
 
-                        ~Rollback()
-                        {
-                            if (armed)
+                            ~Rollback()
                             {
-                                codec.idxfile_.close();
-                                codec.gfile_.close();
-                                codec.nbfile_.close();
-                                for (auto const& fname : codec.filenames_)
+                                if (armed)
                                 {
-                                    std::error_code ec;
-                                    std::filesystem::remove(fname, ec);
+                                    codec.idxfile_.close();
+                                    codec.gfile_.close();
+                                    codec.nbfile_.close();
+                                    for (auto const& fname : codec.filenames_)
+                                    {
+                                        std::error_code ec;
+                                        std::filesystem::remove(fname, ec);
+                                    }
                                 }
                             }
-                        }
                     } rollback{*this};
 
                     if (auto err = idxfile_.Open(filenames_[0].c_str(), fmode))
