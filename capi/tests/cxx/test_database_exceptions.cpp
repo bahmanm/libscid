@@ -15,10 +15,13 @@ namespace
     void
     remove_scid5_files(const char* base_path)
     {
-        const std::string path(base_path);
-        std::remove((path + ".si5").c_str());
-        std::remove((path + ".sg5").c_str());
-        std::remove((path + ".sn5").c_str());
+        char buffer[512];
+        std::snprintf(buffer, sizeof(buffer), "%s.si5", base_path);
+        std::remove(buffer);
+        std::snprintf(buffer, sizeof(buffer), "%s.sg5", base_path);
+        std::remove(buffer);
+        std::snprintf(buffer, sizeof(buffer), "%s.sn5", base_path);
+        std::remove(buffer);
     }
 
     void
@@ -47,6 +50,7 @@ namespace
 
         scid_database* db = nullptr;
         scid::test::assert_allocation_resilience([&]() {
+            remove_scid5_files(path);
             db = scid::test::dirty_pointer<scid_database>();
             const scid_error res = scid_database_create_scid5(path, &db);
             if (res == SCID_ERROR_NO_MEMORY)

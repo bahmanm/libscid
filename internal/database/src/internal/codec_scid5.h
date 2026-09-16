@@ -370,13 +370,38 @@ namespace scid::database
                             return scid::core::ERROR_Exists;
                     }
 
+                    struct Rollback
+                    {
+                        CodecSCID5& codec;
+                        bool        armed = true;
+
+                        ~Rollback()
+                        {
+                            if (armed)
+                            {
+                                codec.idxfile_.close();
+                                codec.gfile_.close();
+                                codec.nbfile_.close();
+                                for (auto const& fname : codec.filenames_)
+                                {
+                                    std::error_code ec;
+                                    std::filesystem::remove(fname, ec);
+                                }
+                            }
+                        }
+                    } rollback{*this};
+
                     if (auto err = idxfile_.Open(filenames_[0].c_str(), fmode))
                         return err;
 
                     if (auto err = gfile_.open(filenames_[1], fmode))
                         return err;
 
-                    return nbfile_.open(filenames_[2], fmode);
+                    if (auto err = nbfile_.open(filenames_[2], fmode))
+                        return err;
+
+                    rollback.armed = false;
+                    return scid::core::OK;
                 }
 
                 auto read_names = std::async(
