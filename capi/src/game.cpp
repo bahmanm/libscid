@@ -101,17 +101,17 @@ namespace
         std::swap(target_game->value, staging);
         struct Rollback
         {
-            scid::core::Game& target;
-            scid::core::Game& backup;
-            bool              armed = true;
+                scid::core::Game& target;
+                scid::core::Game& backup;
+                bool              armed = true;
 
-            ~Rollback() noexcept
-            {
-                if (armed)
+                ~Rollback() noexcept
                 {
-                    std::swap(target, backup);
+                    if (armed)
+                    {
+                        std::swap(target, backup);
+                    }
                 }
-            }
         } rollback{target_game->value, staging};
 
         if (!staged_cursor->value.restore(location))

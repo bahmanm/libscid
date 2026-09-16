@@ -199,7 +199,7 @@ namespace
             assert(scid_database_create_memory("memdb_import_pgn", &db) == SCID_OK);
             assert(db != nullptr);
 
-            std::size_t      imported = 0;
+            std::size_t imported = 0;
             scid::test::enable_allocation_failure(fail_at);
             const scid_error res =
                 scid_database_import_pgn(db, pgn, std::strlen(pgn), nullptr, 0, nullptr, &imported);
