@@ -90,8 +90,10 @@ namespace scid::libscid
                      F> &&
                  (!std::is_same_v<
                      T,
-                     scid_error>)
-    [[nodiscard]] T abi_guard(
+                     scid_error>) &&
+                 std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_move_constructible_v<T>
+    [[nodiscard]] T
+    abi_guard(
         T   fallback,
         F&& fn) noexcept
     {

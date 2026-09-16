@@ -53,8 +53,48 @@ static_assert(AbiGuardVoidable<decltype([] {})>);
 static_assert(!AbiGuardVoidable<decltype([](int) {})>);
 static_assert(!AbiGuardVoidable<int>);
 
+template <typename T, typename F>
+concept AbiGuardFallbackable = requires(T fallback, F&& fn) {
+    { abi_guard(fallback, std::forward<F>(fn)) } -> std::same_as<T>;
+};
+
+struct ThrowingCopyType
+{
+        ThrowingCopyType() = default;
+        ThrowingCopyType(const ThrowingCopyType&) noexcept(false)
+        {}
+        ThrowingCopyType(ThrowingCopyType&&) noexcept = default;
+};
+
+struct ThrowingMoveType
+{
+        ThrowingMoveType() = default;
+        ThrowingMoveType(const ThrowingMoveType&) noexcept = default;
+        ThrowingMoveType(ThrowingMoveType&&) noexcept(false)
+        {}
+};
+
+static_assert(AbiGuardFallbackable<
+              int,
+              decltype([] { return 1; })>);
+static_assert(AbiGuardFallbackable<
+              const char*,
+              decltype([] { return "ok"; })>);
+static_assert(!AbiGuardFallbackable<
+              scid_error,
+              decltype([] { return SCID_OK; })>);
+static_assert(!AbiGuardFallbackable<
+              ThrowingCopyType,
+              decltype([] { return ThrowingCopyType{}; })>);
+static_assert(!AbiGuardFallbackable<
+              ThrowingMoveType,
+              decltype([] { return ThrowingMoveType{}; })>);
+
 static_assert(noexcept(abi_guard([] { return SCID_OK; })));
 static_assert(noexcept(abi_guard_void([] {})));
+static_assert(noexcept(abi_guard(
+    0,
+    [] { return 1; })));
 
 namespace
 {
