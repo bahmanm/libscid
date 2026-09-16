@@ -1,13 +1,29 @@
 #include "scid/libscid/support.h"
 
+#include "test_libscid.h"
+
 #include <cassert>
+#include <concepts>
 #include <cstddef>
+#include <new>
+#include <stdexcept>
 #include <string_view>
+#include <utility>
 
 using namespace scid::libscid;
 
 template <typename... Args>
 concept NullCheckable = requires(Args... args) { any_null(args...); };
+
+template <typename F>
+concept AbiGuardable = requires(F&& fn) {
+    { abi_guard(std::forward<F>(fn)) } -> std::same_as<scid_error>;
+};
+
+template <typename F>
+concept AbiGuardVoidable = requires(F&& fn) {
+    { abi_guard_void(std::forward<F>(fn)) } -> std::same_as<void>;
+};
 
 static_assert(NullCheckable<int*>);
 static_assert(NullCheckable<
@@ -24,6 +40,61 @@ static_assert(!NullCheckable<
               int*,
               int>);
 static_assert(!NullCheckable<std::string_view>);
+
+static_assert(AbiGuardable<scid_error (*)()>);
+static_assert(AbiGuardable<decltype([] { return SCID_OK; })>);
+static_assert(AbiGuardable<decltype([] { return SCID_ERROR; })>);
+static_assert(!AbiGuardable<void (*)()>);
+static_assert(!AbiGuardable<decltype([](int) { return SCID_OK; })>);
+static_assert(!AbiGuardable<int>);
+
+static_assert(AbiGuardVoidable<void (*)()>);
+static_assert(AbiGuardVoidable<decltype([] {})>);
+static_assert(!AbiGuardVoidable<decltype([](int) {})>);
+static_assert(!AbiGuardVoidable<int>);
+
+template <typename T, typename F>
+concept AbiGuardFallbackable = requires(T fallback, F&& fn) {
+    { abi_guard(fallback, std::forward<F>(fn)) } -> std::same_as<T>;
+};
+
+struct ThrowingCopyType
+{
+        ThrowingCopyType() = default;
+        ThrowingCopyType(const ThrowingCopyType&) noexcept(false)
+        {}
+        ThrowingCopyType(ThrowingCopyType&&) noexcept = default;
+};
+
+struct ThrowingMoveType
+{
+        ThrowingMoveType() = default;
+        ThrowingMoveType(const ThrowingMoveType&) noexcept = default;
+        ThrowingMoveType(ThrowingMoveType&&) noexcept(false)
+        {}
+};
+
+static_assert(AbiGuardFallbackable<
+              int,
+              decltype([] { return 1; })>);
+static_assert(AbiGuardFallbackable<
+              const char*,
+              decltype([] { return "ok"; })>);
+static_assert(!AbiGuardFallbackable<
+              scid_error,
+              decltype([] { return SCID_OK; })>);
+static_assert(!AbiGuardFallbackable<
+              ThrowingCopyType,
+              decltype([] { return ThrowingCopyType{}; })>);
+static_assert(!AbiGuardFallbackable<
+              ThrowingMoveType,
+              decltype([] { return ThrowingMoveType{}; })>);
+
+static_assert(noexcept(abi_guard([] { return SCID_OK; })));
+static_assert(noexcept(abi_guard_void([] {})));
+static_assert(noexcept(abi_guard(
+    0,
+    [] { return 1; })));
 
 namespace
 {
@@ -60,31 +131,184 @@ namespace
         nullptr,
         nullptr,
         nullptr));
+
+    void
+    test_any_null_runtime()
+    {
+        int val_a = 10;
+        int val_b = 20;
+
+        int* p_a = &val_a;
+        int* p_b = &val_b;
+        int* p_null = nullptr;
+
+        assert(!any_null());
+        assert(!any_null(p_a));
+        assert(any_null(p_null));
+
+        assert(!any_null(p_a, p_b));
+        assert(any_null(p_null, p_b));
+        assert(any_null(p_a, p_null));
+        assert(any_null(p_null, p_null));
+
+        const char* str = "test";
+        void*       raw = &val_a;
+        assert(!any_null(str, raw, p_a));
+        assert(any_null(str, nullptr, p_a));
+    }
+
+    void
+    test_abi_guard_success()
+    {
+        const scid_error ok_res = abi_guard([] { return SCID_OK; });
+        assert(ok_res == SCID_OK);
+
+        const scid_error err_res = abi_guard([] { return SCID_ERROR_INVALID_FEN; });
+        assert(err_res == SCID_ERROR_INVALID_FEN);
+    }
+
+    void
+    test_abi_guard_bad_alloc()
+    {
+        const scid_error res = abi_guard([]() -> scid_error { throw std::bad_alloc(); });
+        assert(res == SCID_ERROR_NO_MEMORY);
+    }
+
+    void
+    test_abi_guard_out_of_range()
+    {
+        const scid_error res =
+            abi_guard([]() -> scid_error { throw std::out_of_range("index out of bounds"); });
+        assert(res == SCID_ERROR_BAD_ARG);
+    }
+
+    void
+    test_abi_guard_invalid_argument()
+    {
+        const scid_error res =
+            abi_guard([]() -> scid_error { throw std::invalid_argument("invalid parameter"); });
+        assert(res == SCID_ERROR_BAD_ARG);
+    }
+
+    void
+    test_abi_guard_length_error()
+    {
+        const scid_error res =
+            abi_guard([]() -> scid_error { throw std::length_error("buffer length exceeded"); });
+        assert(res == SCID_ERROR);
+    }
+
+    void
+    test_abi_guard_generic_exception()
+    {
+        const scid_error res =
+            abi_guard([]() -> scid_error { throw std::runtime_error("general failure"); });
+        assert(res == SCID_ERROR);
+    }
+
+    void
+    test_abi_guard_unknown_exception()
+    {
+        const scid_error res = abi_guard([]() -> scid_error { throw 42; });
+        assert(res == SCID_ERROR);
+    }
+
+    void
+    test_abi_guard_void()
+    {
+        bool executed = false;
+        abi_guard_void([&] { executed = true; });
+        assert(executed);
+
+        abi_guard_void([] { throw std::bad_alloc(); });
+        abi_guard_void([] { throw std::runtime_error("failed cleanup"); });
+        abi_guard_void([] { throw "foreign error"; });
+    }
+
+    struct RvalueOnlyCallable
+    {
+            scid_error
+            operator()() &&
+            {
+                return SCID_OK;
+            }
+    };
+
+    struct RvalueOnlyVoidCallable
+    {
+            void
+            operator()() &&
+            {}
+    };
+
+    struct RvalueOnlyFallbackCallable
+    {
+            int
+            operator()() &&
+            {
+                return 42;
+            }
+    };
+
+    void
+    test_abi_guard_fallback()
+    {
+        const int ok_res = abi_guard(-1, [] { return 100; });
+        assert(ok_res == 100);
+
+        const int bad_alloc_res = abi_guard(-1, []() -> int { throw std::bad_alloc(); });
+        assert(bad_alloc_res == -1);
+
+        const int out_of_range_res =
+            abi_guard(-1, []() -> int { throw std::out_of_range("range error"); });
+        assert(out_of_range_res == -1);
+
+        const int invalid_arg_res =
+            abi_guard(-1, []() -> int { throw std::invalid_argument("invalid argument"); });
+        assert(invalid_arg_res == -1);
+
+        const int runtime_err_res =
+            abi_guard(-1, []() -> int { throw std::runtime_error("runtime error"); });
+        assert(runtime_err_res == -1);
+
+        const int foreign_err_res = abi_guard(-1, []() -> int { throw 99; });
+        assert(foreign_err_res == -1);
+
+        int        dummy = 42;
+        int* const ptr_res =
+            abi_guard(static_cast<int*>(nullptr), [&]() -> int* { return &dummy; });
+        assert(ptr_res == &dummy);
+
+        int* const ptr_fallback = abi_guard(
+            static_cast<int*>(nullptr), []() -> int* { throw std::runtime_error("failed"); });
+        assert(ptr_fallback == nullptr);
+    }
+
+    void
+    test_abi_guard_perfect_forwarding()
+    {
+        const scid_error res = abi_guard(RvalueOnlyCallable{});
+        assert(res == SCID_OK);
+
+        abi_guard_void(RvalueOnlyVoidCallable{});
+
+        const int fallback_res = abi_guard(0, RvalueOnlyFallbackCallable{});
+        assert(fallback_res == 42);
+    }
 }
 
-int
-main()
+void
+test_support()
 {
-    int val_a = 10;
-    int val_b = 20;
-
-    int* p_a = &val_a;
-    int* p_b = &val_b;
-    int* p_null = nullptr;
-
-    assert(!any_null());
-    assert(!any_null(p_a));
-    assert(any_null(p_null));
-
-    assert(!any_null(p_a, p_b));
-    assert(any_null(p_null, p_b));
-    assert(any_null(p_a, p_null));
-    assert(any_null(p_null, p_null));
-
-    const char* str = "test";
-    void*       raw = &val_a;
-    assert(!any_null(str, raw, p_a));
-    assert(any_null(str, nullptr, p_a));
-
-    return 0;
+    test_any_null_runtime();
+    test_abi_guard_success();
+    test_abi_guard_bad_alloc();
+    test_abi_guard_out_of_range();
+    test_abi_guard_invalid_argument();
+    test_abi_guard_length_error();
+    test_abi_guard_generic_exception();
+    test_abi_guard_unknown_exception();
+    test_abi_guard_void();
+    test_abi_guard_fallback();
+    test_abi_guard_perfect_forwarding();
 }

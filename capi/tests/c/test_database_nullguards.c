@@ -174,6 +174,7 @@ test_database_properties_and_metadata_nullguards(void)
         SCID_ERROR_BUFFER_FULL);
 
     TEST_ASSERT(scid_database_close(database) == SCID_OK);
+    TEST_ASSERT(scid_database_read_only_get(database, &read_only) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_database_metadata_get(database, "type", text, sizeof(text), &text_size) ==
         SCID_ERROR_BAD_ARG);
@@ -228,6 +229,7 @@ test_database_stats_nullguards(void)
     TEST_ASSERT(scid_database_game_count_get(NULL, NULL) == SCID_ERROR_BAD_ARG);
 
     TEST_ASSERT(scid_database_close(database) == SCID_OK);
+    TEST_ASSERT(scid_database_game_count_get(database, &count) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
         scid_database_stats_date_range_get(
             database, min_date, sizeof(min_date), &min_date_size, max_date, sizeof(max_date),

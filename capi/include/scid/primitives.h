@@ -54,6 +54,9 @@ extern "C"
         /** Invalid argument or NULL pointer supplied to function. */
         SCID_ERROR_BAD_ARG = 3,
 
+        /** Memory allocation failed. */
+        SCID_ERROR_NO_MEMORY = 4,
+
         /** Failed to open specified file on disk. */
         SCID_ERROR_FILE_OPEN = 101,
 

@@ -38,26 +38,11 @@ LIBSCID_CMAKE_CONFIGURE_ARGS ?=
 LIBSCID_CMAKE_GENERATOR ?=
 $(call bmakelib.enum.define,LIBSCID_LINKAGE_TYPE/shared,static)
 LIBSCID_LINKAGE_TYPE ?= shared
-LIBSCID_CMAKE_C_COMPILER ?= $(LIBSCID_C_COMPILER)
-LIBSCID_CMAKE_CXX_COMPILER ?= $(LIBSCID_CXX_COMPILER)
-
-libscid.__release.versions := $(call bmakelib.shell.error-if-nonzero,$(LIBSCID_CMAKE) -P "$(ROOT)etc/cmake/version.cmake")
-LIBSCID_RELEASE_PROJECT_VERSION ?= $(word 1,$(libscid.__release.versions))
-LIBSCID_RELEASE_VERSION ?= $(word 2,$(libscid.__release.versions))
-LIBSCID_RELEASE_PACKAGE_VERSION_LABEL ?= $(LIBSCID_RELEASE_VERSION)
-LIBSCID_RELEASE_PLATFORM ?= local
-
-libscid.cmake.__generator.arg := $(if $(LIBSCID_CMAKE_GENERATOR),-G "$(LIBSCID_CMAKE_GENERATOR)")
-libscid.cmake.__c.compiler.arg := $(if $(LIBSCID_CMAKE_C_COMPILER),"-DCMAKE_C_COMPILER=$(LIBSCID_CMAKE_C_COMPILER)")
-libscid.cmake.__cxx.compiler.arg := $(if $(LIBSCID_CMAKE_CXX_COMPILER),"-DCMAKE_CXX_COMPILER=$(LIBSCID_CMAKE_CXX_COMPILER)")
-libscid.cmake.__plantuml.jar.path.arg := $(if $(LIBSCID_PLANTUML_JAR_PATH),"-DLIBSCID_PLANTUML_JAR_PATH=$(LIBSCID_PLANTUML_JAR_PATH)")
-libscid.__make.word.escape = $(subst :,\:,$(1))
-
-####################################################################################################
-
 libscid.__host.system := $(shell uname -s 2>/dev/null || echo Windows)
 
 ifeq ($(libscid.__host.system),Darwin)
+LIBSCID_CMAKE_C_COMPILER ?= clang
+LIBSCID_CMAKE_CXX_COMPILER ?= clang++
 libscid.__library.name := libscid.dylib
 libscid.__venv.python := bin/python
 else ifneq ($(filter MINGW% MSYS% CYGWIN%,$(libscid.__host.system)),)
@@ -67,6 +52,21 @@ else
 libscid.__library.name := libscid.so
 libscid.__venv.python := bin/python
 endif
+
+LIBSCID_CMAKE_C_COMPILER ?= $(LIBSCID_C_COMPILER)
+LIBSCID_CMAKE_CXX_COMPILER ?= $(LIBSCID_CXX_COMPILER)
+
+libscid.__release.versions := $(call bmakelib.shell.error-if-nonzero,$(LIBSCID_CMAKE) -P "$(ROOT)etc/cmake/version.cmake")
+LIBSCID_RELEASE_PROJECT_VERSION ?= $(word 1,$(libscid.__release.versions))
+LIBSCID_RELEASE_VERSION ?= $(word 2,$(libscid.__release.versions))
+LIBSCID_RELEASE_PACKAGE_VERSION_LABEL ?= $(LIBSCID_RELEASE_VERSION)
+LIBSCID_RELEASE_PLATFORM ?= local
+
+libscid.cmake.__generator.arg = $(if $(LIBSCID_CMAKE_GENERATOR),-G "$(LIBSCID_CMAKE_GENERATOR)")
+libscid.cmake.__c.compiler.arg = $(if $(LIBSCID_CMAKE_C_COMPILER),"-DCMAKE_C_COMPILER=$(LIBSCID_CMAKE_C_COMPILER)")
+libscid.cmake.__cxx.compiler.arg = $(if $(LIBSCID_CMAKE_CXX_COMPILER),"-DCMAKE_CXX_COMPILER=$(LIBSCID_CMAKE_CXX_COMPILER)")
+libscid.cmake.__plantuml.jar.path.arg = $(if $(LIBSCID_PLANTUML_JAR_PATH),"-DLIBSCID_PLANTUML_JAR_PATH=$(LIBSCID_PLANTUML_JAR_PATH)")
+libscid.__make.word.escape = $(subst :,\:,$(1))
 
 ####################################################################################################
 

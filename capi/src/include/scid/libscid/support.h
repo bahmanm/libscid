@@ -12,9 +12,13 @@
 #include "scid/database/scidbase.h"
 
 #include <cstddef>
+#include <exception>
+#include <new>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 
 struct scid_database;
 struct scid_game;
@@ -30,6 +34,76 @@ namespace scid::libscid
     any_null(Args... args) noexcept
     {
         return ((args == nullptr) || ...);
+    }
+
+    template <typename F>
+        requires std::is_invocable_r_v<
+            scid_error,
+            F>
+    [[nodiscard]] scid_error
+    abi_guard(F&& fn) noexcept
+    {
+        try
+        {
+            return std::forward<F>(fn)();
+        }
+        catch (const std::bad_alloc&)
+        {
+            return SCID_ERROR_NO_MEMORY;
+        }
+        catch (const std::out_of_range&)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+        catch (const std::invalid_argument&)
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+        catch (const std::exception&)
+        {
+            return SCID_ERROR;
+        }
+        catch (...)
+        {
+            return SCID_ERROR;
+        }
+    }
+
+    template <typename F>
+        requires std::is_invocable_v<F>
+    void
+    abi_guard_void(F&& fn) noexcept
+    {
+        try
+        {
+            std::forward<F>(fn)();
+        }
+        catch (...)
+        {}
+    }
+
+    template <
+        typename T,
+        typename F>
+        requires std::is_invocable_r_v<
+                     T,
+                     F> &&
+                 (!std::is_same_v<
+                     T,
+                     scid_error>) &&
+                 std::is_nothrow_copy_constructible_v<T> && std::is_nothrow_move_constructible_v<T>
+    [[nodiscard]] T abi_guard(
+        T   fallback,
+        F&& fn) noexcept
+    {
+        try
+        {
+            return std::forward<F>(fn)();
+        }
+        catch (...)
+        {
+            return fallback;
+        }
     }
 
     bool

@@ -14,6 +14,7 @@
 
 #include <array>
 #include <cstring>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -25,7 +26,16 @@ scid_database_create_memory(
     const char*     name,
     scid_database** out_database)
 {
-    return database_open("MEMORY", scid::database::FMODE_Create, name, out_database);
+    if (any_null(name, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        return database_open("MEMORY", scid::database::FMODE_Create, name, out_database);
+    });
 }
 
 
@@ -34,7 +44,16 @@ scid_database_create_scid5(
     const char*     path,
     scid_database** out_database)
 {
-    return database_open("SCID5", scid::database::FMODE_Create, path, out_database);
+    if (any_null(path, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        return database_open("SCID5", scid::database::FMODE_Create, path, out_database);
+    });
 }
 
 
@@ -47,9 +66,18 @@ scid_database_open_scid5(
     void*                         should_cancel_user_data,
     scid_database**               out_database)
 {
-    scid::database::Progress progress(new CallbackProgress(
-        progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
-    return database_open("SCID5", scid::database::FMODE_Both, path, out_database, &progress);
+    if (any_null(path, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        scid::database::Progress progress(new CallbackProgress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        return database_open("SCID5", scid::database::FMODE_Both, path, out_database, &progress);
+    });
 }
 
 
@@ -62,9 +90,19 @@ scid_database_open_scid5_read_only(
     void*                         should_cancel_user_data,
     scid_database**               out_database)
 {
-    scid::database::Progress progress(new CallbackProgress(
-        progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
-    return database_open("SCID5", scid::database::FMODE_ReadOnly, path, out_database, &progress);
+    if (any_null(path, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        scid::database::Progress progress(new CallbackProgress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        return database_open(
+            "SCID5", scid::database::FMODE_ReadOnly, path, out_database, &progress);
+    });
 }
 
 
@@ -77,9 +115,18 @@ scid_database_open_pgn_read_only(
     void*                         should_cancel_user_data,
     scid_database**               out_database)
 {
-    scid::database::Progress progress(new CallbackProgress(
-        progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
-    return database_open("PGN", scid::database::FMODE_ReadOnly, path, out_database, &progress);
+    if (any_null(path, out_database))
+    {
+        return SCID_ERROR_BAD_ARG;
+    }
+
+    *out_database = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        scid::database::Progress progress(new CallbackProgress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        return database_open("PGN", scid::database::FMODE_ReadOnly, path, out_database, &progress);
+    });
 }
 
 
@@ -91,26 +138,21 @@ scid_database_close(scid_database* database)
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         if (database->value.isOpen())
         {
             database->value.Close();
         }
         database->type.clear();
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
 void
 scid_database_free(scid_database* database)
 {
-    delete database;
+    abi_guard_void([&] { delete database; });
 }
 
 
@@ -124,14 +166,8 @@ scid_database_is_open(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
-        return write_bool(database->value.isOpen(), out_is_open);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    return abi_guard(
+        [&]() -> scid_error { return write_bool(database->value.isOpen(), out_is_open); });
 }
 
 
@@ -145,20 +181,15 @@ scid_database_status_open_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (!database->value.isOpen())
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
 
-    try
-    {
         *out_status = database->open_status;
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -172,21 +203,42 @@ scid_database_status_bad_name_count_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (!database->value.isOpen())
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
 
-    try
-    {
         *out_count = database->bad_name_count;
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
+
+
+namespace
+{
+
+    scid_error
+    database_is_read_only(
+        const scid_database* database,
+        int*                 out_read_only)
+    {
+        if (any_null(database, out_read_only))
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        return abi_guard([&]() -> scid_error {
+            if (!database->value.isOpen())
+            {
+                return SCID_ERROR_BAD_ARG;
+            }
+
+            return write_bool(database->value.isReadOnly(), out_read_only);
+        });
+    }
+
+} // namespace
 
 
 scid_error
@@ -194,24 +246,7 @@ scid_database_status_is_read_only(
     const scid_database* database,
     int*                 out_is_read_only)
 {
-    if (any_null(database, out_is_read_only))
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    if (!database->value.isOpen())
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        return write_bool(database->value.isReadOnly(), out_is_read_only);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    return database_is_read_only(database, out_is_read_only);
 }
 
 
@@ -225,19 +260,14 @@ scid_database_status_is_dirty(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (!database->value.isOpen())
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
 
-    try
-    {
         return write_bool(false, out_is_dirty);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -253,15 +283,10 @@ scid_database_filename_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         return write_text(
             database->value.getFileName(), out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -277,14 +302,9 @@ scid_database_type_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         return write_text(database->type, out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -293,19 +313,7 @@ scid_database_read_only_get(
     const scid_database* database,
     int*                 out_read_only)
 {
-    if (any_null(database, out_read_only))
-    {
-        return SCID_ERROR_BAD_ARG;
-    }
-
-    try
-    {
-        return write_bool(database->value.isReadOnly(), out_read_only);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    return database_is_read_only(database, out_read_only);
 }
 
 
@@ -317,14 +325,7 @@ scid_database_save(scid_database* database)
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
-        return database_error_to_c(database->value.flush());
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    return abi_guard([&]() -> scid_error { return database_error_to_c(database->value.flush()); });
 }
 
 
@@ -336,13 +337,17 @@ scid_database_metadata_get(
     size_t               out_text_capacity,
     size_t*              out_text_size)
 {
-    if (any_null(database, key, out_text_size) || !database->value.isOpen())
+    if (any_null(database, key, out_text_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         for (const auto& [name, value] : database->value.getExtraInfo())
         {
             if (std::strcmp(name, key) == 0)
@@ -352,11 +357,7 @@ scid_database_metadata_get(
         }
 
         return write_text("", out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -366,19 +367,19 @@ scid_database_metadata_set(
     const char*    key,
     const char*    value)
 {
-    if (any_null(database, key, value) || !database->value.isOpen())
+    if (any_null(database, key, value))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         return database_error_to_c(database->value.setExtraInfo(key, value));
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -387,19 +388,19 @@ scid_database_metadata_count_get(
     const scid_database* database,
     size_t*              out_count)
 {
-    if (any_null(database, out_count) || !database->value.isOpen())
+    if (any_null(database, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         return write_size(database->value.getExtraInfo().size(), out_count);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -414,13 +415,17 @@ scid_database_metadata_at_get(
     size_t               out_value_capacity,
     size_t*              out_value_size)
 {
-    if (any_null(database, out_key_size, out_value_size) || !database->value.isOpen())
+    if (any_null(database, out_key_size, out_value_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         const auto metadata = database->value.getExtraInfo();
         if (index >= metadata.size())
         {
@@ -435,11 +440,7 @@ scid_database_metadata_at_get(
         }
 
         return write_text(value, out_value, out_value_capacity, out_value_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -453,13 +454,17 @@ scid_database_stats_date_range_get(
     size_t               out_max_date_capacity,
     size_t*              out_max_date_size)
 {
-    if (any_null(database, out_min_date_size, out_max_date_size) || !database->value.isOpen())
+    if (any_null(database, out_min_date_size, out_max_date_size))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         const auto& stats = database->value.getStats();
         if (const scid_error error = write_text(
                 date_to_string(stats.minDate), out_min_date, out_min_date_capacity,
@@ -469,14 +474,9 @@ scid_database_stats_date_range_get(
             return error;
         }
 
-
         return write_text(
             date_to_string(stats.maxDate), out_max_date, out_max_date_capacity, out_max_date_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -486,13 +486,17 @@ scid_database_stats_result_count_get(
     const char*          result,
     size_t*              out_count)
 {
-    if (any_null(database, result, out_count) || !database->value.isOpen())
+    if (any_null(database, result, out_count))
     {
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         scid::core::resultT core_result = scid::core::RESULT_None;
         if (const scid_error error = result_from_string(result, &core_result); error != SCID_OK)
         {
@@ -500,11 +504,7 @@ scid_database_stats_result_count_get(
         }
 
         return write_size(database->value.getStats().nResults[core_result], out_count);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -518,14 +518,16 @@ scid_database_game_count_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    *out_count = 0;
+
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         return write_size(database->value.numGames(), out_count);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -546,8 +548,12 @@ scid_database_import_pgn(
 
     *out_imported_count = 0;
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         std::vector<scid::core::Game> games;
         scid::core::pgn::ParseLog     log;
         size_t                        parsed_size = 0;
@@ -599,11 +605,7 @@ scid_database_import_pgn(
         }
 
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -618,15 +620,10 @@ scid_database_game_add(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         const auto error = database->value.addGame(game->value, flags == nullptr ? "" : flags);
         return database_error_to_c(error);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -642,22 +639,16 @@ scid_database_game_replace(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::gamenumT game_index = 0;
         if (!database_game_index_is_valid(database->value, index, &game_index))
         {
             return SCID_ERROR_BAD_ARG;
         }
 
-
         return database_error_to_c(
             database->value.saveGame(game->value, flags == nullptr ? "" : flags, game_index));
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -671,22 +662,16 @@ scid_database_game_delete(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::gamenumT game_index = 0;
         if (!database_game_index_is_valid(database->value, index, &game_index))
         {
             return SCID_ERROR_BAD_ARG;
         }
 
-
         return database_error_to_c(
             database->value.setFlag(true, 1u << scid::database::GAME_FLAG_DELETE, game_index));
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -700,22 +685,16 @@ scid_database_game_undelete(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::gamenumT game_index = 0;
         if (!database_game_index_is_valid(database->value, index, &game_index))
         {
             return SCID_ERROR_BAD_ARG;
         }
 
-
         return database_error_to_c(
             database->value.setFlag(false, 1u << scid::database::GAME_FLAG_DELETE, game_index));
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -733,16 +712,15 @@ scid_database_game_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
-        auto*                game = new scid_game;
+    *out_game = nullptr;
+
+    return abi_guard([&]() -> scid_error {
+        auto                 game = std::make_unique<scid_game>();
         std::array<char, 22> flags = {};
         const auto           error = database->value.loadGame(
             static_cast<scid::database::gamenumT>(index), game->value, flags.data(), flags.size());
         if (error != scid::core::OK)
         {
-            delete game;
-            *out_game = nullptr;
             return error == scid::core::ERROR_BadArg ? SCID_ERROR_BAD_ARG : SCID_ERROR;
         }
 
@@ -750,19 +728,12 @@ scid_database_game_get(
                 write_optional_text(flags.data(), out_flags, out_flags_capacity, out_flags_size);
             flags_error != SCID_OK)
         {
-            delete game;
-            *out_game = nullptr;
             return flags_error;
         }
 
-        *out_game = game;
+        *out_game = game.release();
         return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_game = nullptr;
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -779,8 +750,14 @@ scid_database_game_export_pgn(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    *out_text_size = 0;
+
+    return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         scid::database::gamenumT game_index = 0;
         if (!database_game_index_to_core(index, &game_index))
         {
@@ -797,11 +774,7 @@ scid_database_game_export_pgn(
         std::string pgn;
         scid::core::pgn::encode(game, pgn);
         return write_text(pgn, out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -819,8 +792,7 @@ scid_database_game_tag_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::gamenumT game_index = 0;
         if (!database_game_index_to_core(index, &game_index) ||
             !database->value.gameInfoBounds(game_index))
@@ -828,15 +800,10 @@ scid_database_game_tag_get(
             return SCID_ERROR_BAD_ARG;
         }
 
-
         return write_text(
             database_game_tag_value(database->value, game_index, name), out_text, out_text_capacity,
             out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -851,8 +818,7 @@ scid_database_game_halfmove_count_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::gamenumT game_index = 0;
         if (!database_game_index_to_core(index, &game_index))
         {
@@ -866,11 +832,7 @@ scid_database_game_halfmove_count_get(
         }
 
         return write_size(info->halfMoveCount, out_count);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -885,8 +847,7 @@ scid_database_game_number_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::GameInfo info;
         if (!database_game_info_get(database->value, index, &info))
         {
@@ -894,11 +855,7 @@ scid_database_game_number_get(
         }
 
         return write_size(index + 1, out_number);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -913,8 +870,7 @@ scid_database_game_deleted_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::GameInfo info;
         if (!database_game_info_get(database->value, index, &info))
         {
@@ -922,11 +878,7 @@ scid_database_game_deleted_get(
         }
 
         return write_bool(info.hasDeleteFlag(), out_deleted);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -943,8 +895,7 @@ scid_database_game_result_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::GameInfo info;
         if (!database_game_info_get(database->value, index, &info))
         {
@@ -953,11 +904,7 @@ scid_database_game_result_get(
 
         return write_text(
             scid::core::RESULT_LONGSTR[info.result], out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -972,8 +919,7 @@ scid_database_game_eco_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::GameInfo info;
         if (!database_game_info_get(database->value, index, &info))
         {
@@ -982,11 +928,7 @@ scid_database_game_eco_get(
 
         *out_code = static_cast<scid_eco_code>(info.ecoCode);
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -1003,8 +945,7 @@ scid_database_game_date_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::database::GameInfo info;
         if (!database_game_info_get(database->value, index, &info))
         {
@@ -1012,9 +953,5 @@ scid_database_game_date_get(
         }
 
         return write_text(date_to_string(info.date), out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }

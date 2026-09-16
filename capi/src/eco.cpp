@@ -7,6 +7,7 @@
 #include "scid/eco/book.h"
 #include "scid/eco/code.h"
 
+#include <memory>
 #include <utility>
 
 using namespace scid::libscid;
@@ -21,15 +22,10 @@ scid_eco_code_from_string(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         *out_code = scid::eco::fromString(text);
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -51,16 +47,11 @@ scid_eco_code_to_string(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         scid::eco::String text = {};
         scid::eco::toString(code, text, format == SCID_ECO_FORMAT_EXTENDED);
         return write_text(text, out_text, out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -74,30 +65,26 @@ scid_eco_book_load(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    *out_book = nullptr;
+
+    return abi_guard([&]() -> scid_error {
         auto book = scid::eco::Book::load(path);
         if (!book)
         {
-            *out_book = nullptr;
             return book.error();
         }
 
-        *out_book = new scid_eco_book{std::move(*book)};
+        auto book_handle = std::make_unique<scid_eco_book>(std::move(*book));
+        *out_book = book_handle.release();
         return SCID_OK;
-    }
-    catch (...)
-    {
-        *out_book = nullptr;
-        return SCID_ERROR;
-    }
+    });
 }
 
 
 void
 scid_eco_book_free(scid_eco_book* book)
 {
-    delete book;
+    abi_guard_void([&] { delete book; });
 }
 
 
@@ -112,15 +99,10 @@ scid_eco_book_code_find(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         *out_code = book->value.findEco(position->value);
         return SCID_OK;
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }
 
 
@@ -137,14 +119,9 @@ scid_eco_book_name_find(
         return SCID_ERROR_BAD_ARG;
     }
 
-    try
-    {
+    return abi_guard([&]() -> scid_error {
         return write_text(
             eco_name_from_line(book->value.findEcoString(position->value)), out_text,
             out_text_capacity, out_text_size);
-    }
-    catch (...)
-    {
-        return SCID_ERROR;
-    }
+    });
 }

@@ -140,17 +140,37 @@ if( BUILD_TESTING )
         libscid_c_test
         PROPERTIES LABELS "c;capi" )
 
+    set( CXX_TEST_SOURCES
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_libscid.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/_support/fault_injector.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_support.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_primitives_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_movespec_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_position_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_game_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_game_cursor_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_game_pgn_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_eco_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_database_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_database_filter_exceptions.cpp"
+        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_database_search_exceptions.cpp" )
+
     add_executable(
         scid_tests_cxx
-        "${LIBSCID_SOURCE_ROOT}/capi/tests/cxx/test_support.cpp" )
+        ${CXX_TEST_SOURCES} )
     target_compile_features(
         scid_tests_cxx
         PRIVATE cxx_std_23 )
+    set_target_properties(
+        scid_tests_cxx
+        PROPERTIES
+        CXX_EXTENSIONS OFF )
     target_include_directories(
         scid_tests_cxx
         PRIVATE
             "${CMAKE_CURRENT_SOURCE_DIR}/src/include"
-            "${CMAKE_CURRENT_SOURCE_DIR}/include" )
+            "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/cxx" )
     target_link_libraries(
         scid_tests_cxx
         PRIVATE

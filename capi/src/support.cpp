@@ -22,6 +22,7 @@
 #include <cctype>
 #include <cstring>
 #include <limits>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -419,24 +420,16 @@ namespace scid::libscid
             return SCID_ERROR_BAD_ARG;
         }
 
-        try
-        {
-            auto* cursor = new scid_game_cursor(game);
-            if (!cursor->value.restore(location))
-            {
-                delete cursor;
-                *out_cursor = nullptr;
-                return SCID_ERROR_BAD_ARG;
-            }
+        *out_cursor = nullptr;
 
-            *out_cursor = cursor;
-            return SCID_OK;
-        }
-        catch (...)
+        auto cursor = std::make_unique<scid_game_cursor>(game);
+        if (!cursor->value.restore(location))
         {
-            *out_cursor = nullptr;
-            return SCID_ERROR;
+            return SCID_ERROR_BAD_ARG;
         }
+
+        *out_cursor = cursor.release();
+        return SCID_OK;
     }
 
 
@@ -628,52 +621,45 @@ namespace scid::libscid
             return SCID_ERROR_BAD_ARG;
         }
 
-        try
+        *out_database = nullptr;
+
+        const scid::database::Progress default_progress;
+        const auto& selected_progress = progress == nullptr ? default_progress : *progress;
+        auto        database = std::make_unique<scid_database>();
+        const auto  error = database->value.open(db_type, mode, path, selected_progress);
+        const auto  open_status = database_error_to_c(error);
+        database->open_status = open_status;
+        if (scid_is_error(open_status))
         {
-            const scid::database::Progress default_progress;
-            const auto& selected_progress = progress == nullptr ? default_progress : *progress;
-            auto*       database = new scid_database;
-            const auto  error = database->value.open(db_type, mode, path, selected_progress);
-            const auto  open_status = database_error_to_c(error);
-            database->open_status = open_status;
-            if (scid_is_error(open_status))
-            {
-                delete database;
-                *out_database = nullptr;
-                return open_status;
-            }
-
-            if (database->open_status == SCID_WARNING_NAME_DATA_LOSS)
-            {
-                unsigned long long n_deleted = 0;
-                unsigned long long n_unused = 0;
-                unsigned long long n_sparse = 0;
-                unsigned long long n_badNameId = 0;
-                database->value.getCompactStat(&n_deleted, &n_unused, &n_sparse, &n_badNameId);
-                database->bad_name_count = static_cast<size_t>(n_badNameId);
-            }
-
-            if (db_type == "MEMORY")
-            {
-                database->type = "memory";
-            }
-            else if (db_type == "SCID5")
-            {
-                database->type = "scid5";
-            }
-            else
-            {
-                database->type.assign(db_type);
-            }
-
-            *out_database = database;
-            return database->open_status;
+            return open_status;
         }
-        catch (...)
+
+        if (database->open_status == SCID_WARNING_NAME_DATA_LOSS)
         {
-            *out_database = nullptr;
-            return SCID_ERROR;
+            unsigned long long n_deleted = 0;
+            unsigned long long n_unused = 0;
+            unsigned long long n_sparse = 0;
+            unsigned long long n_badNameId = 0;
+            database->value.getCompactStat(&n_deleted, &n_unused, &n_sparse, &n_badNameId);
+            database->bad_name_count = static_cast<size_t>(n_badNameId);
         }
+
+        if (db_type == "MEMORY")
+        {
+            database->type = "memory";
+        }
+        else if (db_type == "SCID5")
+        {
+            database->type = "scid5";
+        }
+        else
+        {
+            database->type.assign(db_type);
+        }
+
+        const auto status = database->open_status;
+        *out_database = database.release();
+        return status;
     }
 
 
