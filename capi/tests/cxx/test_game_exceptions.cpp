@@ -159,36 +159,40 @@ namespace
     test_game_merge_moves_allocation_failure()
     {
         scid_position* pos = nullptr;
-        assert(
+        TEST_ASSERT(
             scid_position_create_from_fen(
                 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", &pos) == SCID_OK);
-        assert(pos != nullptr);
+        TEST_ASSERT(pos != nullptr);
 
         const char* pgn1 = "1. e4 e5 *\n";
         const char* pgn2 = "1. e4 e5 2. Nf3 Nc6 *\n";
 
         scid_game* target_game = nullptr;
         scid_game* source_game = nullptr;
-        assert(
+        TEST_ASSERT(
             scid_game_create(pos, pgn1, std::strlen(pgn1), &target_game, nullptr, 0, nullptr) ==
             SCID_OK);
-        assert(
+        TEST_ASSERT(
             scid_game_create(pos, pgn2, std::strlen(pgn2), &source_game, nullptr, 0, nullptr) ==
             SCID_OK);
-        assert(target_game != nullptr && source_game != nullptr);
+        TEST_ASSERT(target_game != nullptr && source_game != nullptr);
 
         scid_game_cursor* cursor = nullptr;
-        assert(scid_game_cursor_create(target_game, &cursor) == SCID_OK);
-        assert(cursor != nullptr);
+        TEST_ASSERT(scid_game_cursor_create(target_game, &cursor) == SCID_OK);
+        TEST_ASSERT(cursor != nullptr);
 
-        scid_game_cursor* out_cursor = nullptr;
+        scid_game_cursor* out_cursor = scid::test::dirty_pointer<scid_game_cursor>();
         scid::test::enable_allocation_failure(1);
         const scid_error res = scid_game_merge_moves(
             target_game, cursor, source_game, SCID_GAME_MERGE_MOVES_INSERT_VARIATION, &out_cursor);
         scid::test::disable_allocation_failure();
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK && out_cursor != nullptr)
+        TEST_ASSERT(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
+        if (res == SCID_ERROR_NO_MEMORY)
+        {
+            TEST_ASSERT(out_cursor == nullptr);
+        }
+        else if (res == SCID_OK && out_cursor != nullptr)
         {
             scid_game_cursor_free(out_cursor);
         }

@@ -57,12 +57,12 @@ namespace
             const scid_error res = scid_database_filter_create(database, &filter_id);
             if (res == SCID_ERROR_NO_MEMORY)
             {
-                assert(filter_id == 0);
+                TEST_ASSERT(filter_id == 0);
             }
             return res;
         });
 
-        assert(filter_id != 0);
+        TEST_ASSERT(filter_id == 1);
         scid_database_filter_delete(database, filter_id);
         scid_database_free(database);
     }

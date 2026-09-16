@@ -29,8 +29,20 @@ scid_database_filter_create(
             return SCID_ERROR_BAD_ARG;
         }
 
-        const scid_filter_id filter_id = database->next_filter_id++;
-        database->filters.emplace_back(filter_id, database->value.newFilter());
+        const scid_filter_id filter_id = database->next_filter_id;
+        std::string          filter_name = database->value.newFilter();
+
+        try
+        {
+            database->filters.emplace_back(filter_id, filter_name);
+        }
+        catch (...)
+        {
+            database->value.deleteFilter(filter_name.c_str());
+            throw;
+        }
+
+        database->next_filter_id++;
         *out_filter_id = filter_id;
         return SCID_OK;
     });

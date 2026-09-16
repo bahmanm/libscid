@@ -98,10 +98,11 @@ namespace
         const auto location = edit_cursor.location();
         auto       staged_cursor = std::make_unique<scid_game_cursor>(target_game);
 
-        target_game->value = std::move(staging);
+        std::swap(target_game->value, staging);
 
         if (!staged_cursor->value.restore(location))
         {
+            std::swap(target_game->value, staging);
             return SCID_ERROR;
         }
 
