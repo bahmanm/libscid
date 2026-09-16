@@ -251,6 +251,41 @@ namespace
     };
 
     void
+    test_abi_guard_fallback()
+    {
+        const int ok_res = abi_guard(-1, [] { return 100; });
+        assert(ok_res == 100);
+
+        const int bad_alloc_res = abi_guard(-1, []() -> int { throw std::bad_alloc(); });
+        assert(bad_alloc_res == -1);
+
+        const int out_of_range_res =
+            abi_guard(-1, []() -> int { throw std::out_of_range("range error"); });
+        assert(out_of_range_res == -1);
+
+        const int invalid_arg_res =
+            abi_guard(-1, []() -> int { throw std::invalid_argument("invalid argument"); });
+        assert(invalid_arg_res == -1);
+
+        const int runtime_err_res =
+            abi_guard(-1, []() -> int { throw std::runtime_error("runtime error"); });
+        assert(runtime_err_res == -1);
+
+        const int foreign_err_res = abi_guard(-1, []() -> int { throw 99; });
+        assert(foreign_err_res == -1);
+
+        int dummy = 42;
+        int* const ptr_res =
+            abi_guard(static_cast<int*>(nullptr), [&]() -> int* { return &dummy; });
+        assert(ptr_res == &dummy);
+
+        int* const ptr_fallback = abi_guard(static_cast<int*>(nullptr), []() -> int* {
+            throw std::runtime_error("failed");
+        });
+        assert(ptr_fallback == nullptr);
+    }
+
+    void
     test_abi_guard_perfect_forwarding()
     {
         const scid_error res = abi_guard(RvalueOnlyCallable{});
@@ -275,5 +310,6 @@ test_support()
     test_abi_guard_generic_exception();
     test_abi_guard_unknown_exception();
     test_abi_guard_void();
+    test_abi_guard_fallback();
     test_abi_guard_perfect_forwarding();
 }
