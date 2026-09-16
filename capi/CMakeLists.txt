@@ -161,6 +161,10 @@ if( BUILD_TESTING )
     target_compile_features(
         scid_tests_cxx
         PRIVATE cxx_std_23 )
+    set_target_properties(
+        scid_tests_cxx
+        PROPERTIES
+        CXX_EXTENSIONS OFF )
     target_include_directories(
         scid_tests_cxx
         PRIVATE
