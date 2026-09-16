@@ -122,7 +122,7 @@ namespace scid::database
     }
 
     std::pair<
-        ICodecDatabase*,
+        std::unique_ptr<ICodecDatabase>,
         scid::core::errorT>
     openCodec(
         CodecType       codec,
@@ -132,41 +132,50 @@ namespace scid::database
         Index*          idx,
         NameBase*       nb)
     {
-        auto createCodec = [](auto codec) -> ICodecDatabase* {
+        auto createCodec = [](auto codec) -> std::unique_ptr<ICodecDatabase> {
             switch (codec)
             {
                 case CodecType::Memory:
-                    return new CodecMemory();
+                    return std::make_unique<CodecMemory>();
                 case CodecType::Scid4:
-                    return new CodecSCID4();
+                    return std::make_unique<CodecSCID4>();
                 case CodecType::Pgn:
-                    return new CodecPgn();
+                    return std::make_unique<CodecPgn>();
                 case CodecType::Scid5:
-                    return new CodecSCID5();
+                    return std::make_unique<CodecSCID5>();
             }
             ASSERT(0);
             return nullptr;
         };
 
         auto obj = createCodec(codec);
+        if (!obj)
+        {
+            return {nullptr, scid::core::ERROR_Corrupt};
+        }
         auto err = obj->dyn_open(fMode, filename, progress, idx, nb);
         if (err != scid::core::OK && err != scid::core::ERROR_NameDataLoss)
         {
-            delete obj;
-            obj = nullptr;
+            obj.reset();
         }
-        return {obj, err};
+        return {std::move(obj), err};
     }
 
     scidBaseT::scidBaseT()
         : inUse(false),
-          dbFilter(new Filter(0)),
-          storage_(std::make_unique<Storage>()),
-          idx(new Index),
-          nb_(new NameBase),
           fileMode_(FMODE_None),
-          stats_(NULL)
-    {}
+          stats_(nullptr)
+    {
+        auto filter = std::make_unique<Filter>(0);
+        auto storage = std::make_unique<Storage>();
+        auto index = std::make_unique<Index>();
+        auto namebase = std::make_unique<NameBase>();
+
+        dbFilter = filter.release();
+        storage_ = std::move(storage);
+        idx = index.release();
+        nb_ = namebase.release();
+    }
 
     scidBaseT::~scidBaseT()
     {
@@ -210,7 +219,7 @@ namespace scid::database
         auto [db, err] = openCodec(dbtype, fMode, filename, progress, idx, nb_);
         if (db)
         {
-            storage_->codec.reset(db);
+            storage_->codec = std::move(db);
             inUse = true;
             fileMode_ = (fMode == FMODE_Create) ? FMODE_Both : fMode;
             err_open_ = err;
@@ -1100,7 +1109,9 @@ namespace scid::database
         {
             newname = ++(newname[0]) + newname.substr(1);
         }
-        filters_.push_back(std::make_pair(newname, new Filter(numGames())));
+        auto filter = std::make_unique<Filter>(numGames());
+        filters_.push_back(std::make_pair(newname, filter.get()));
+        filter.release();
         return newname;
     }
 

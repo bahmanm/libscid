@@ -48,15 +48,18 @@ namespace
     test_search_header_criteria_create_allocation_failure()
     {
         scid_search_header_criteria* criteria = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_search_header_criteria_create(&criteria);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            criteria = scid::test::dirty_pointer<scid_search_header_criteria>();
+            const scid_error res = scid_search_header_criteria_create(&criteria);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(criteria == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK && criteria != nullptr)
-        {
-            scid_search_header_criteria_free(criteria);
-        }
+        assert(criteria != nullptr);
+        scid_search_header_criteria_free(criteria);
     }
 
     void
@@ -79,15 +82,25 @@ namespace
     test_search_board_criteria_create_allocation_failure()
     {
         scid_search_board_criteria* criteria = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_search_board_criteria_create(&criteria);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            criteria = scid::test::dirty_pointer<scid_search_board_criteria>();
+            const scid_error res = scid_search_board_criteria_create(&criteria);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(criteria == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK && criteria != nullptr)
-        {
-            scid_search_board_criteria_free(criteria);
-        }
+        assert(criteria != nullptr);
+        scid_search_board_criteria_free(criteria);
+    }
+
+    void
+    test_search_criteria_free_null()
+    {
+        scid_search_header_criteria_free(nullptr);
+        scid_search_board_criteria_free(nullptr);
     }
 
     void
@@ -192,6 +205,7 @@ namespace
 void
 test_database_search_exceptions()
 {
+    test_search_criteria_free_null();
     test_search_header_criteria_create_allocation_failure();
     test_search_header_criteria_player_set_allocation_failure();
     test_search_board_criteria_create_allocation_failure();

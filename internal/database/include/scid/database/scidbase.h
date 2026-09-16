@@ -1210,15 +1210,15 @@ namespace scid::database
         private:
             struct Storage;
 
-            bool                     inUse; // true if the database is open (in use).
-            Filter*                  dbFilter;
+            bool                     inUse = false; // true if the database is open (in use).
+            Filter*                  dbFilter = nullptr;
             std::unique_ptr<Storage> storage_;
-            Index*                   idx;
-            NameBase*                nb_;
-            fileModeT                fileMode_; // Read-only, write-only, or both.
+            Index*                   idx = nullptr;
+            NameBase*                nb_ = nullptr;
+            fileModeT                fileMode_ = FMODE_None; // Read-only, write-only, or both.
             std::vector<std::pair<std::string, Filter*>> filters_;
             mutable Filter                               all_filter_{0};
-            mutable Stats*                               stats_;
+            mutable Stats*                               stats_ = nullptr;
             std::array<std::vector<int>, NUM_NAME_TYPES> nameFreq_;
             // For each game: idx of duplicate game + 1 (0 if there is no duplicate).
             std::unique_ptr<gamenumT[]>                                duplicates_;

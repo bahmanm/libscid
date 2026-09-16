@@ -29,6 +29,7 @@
 #include "scid/database/common.h"
 #include "scid/database/game_id.h"
 #include "scid/database/namebase.h"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -57,7 +58,7 @@ namespace scid::database
             {}
 
             friend std::pair<
-                ICodecDatabase*,
+                std::unique_ptr<ICodecDatabase>,
                 scid::core::errorT>
             openCodec(
                 CodecType       codec,
@@ -208,7 +209,7 @@ namespace scid::database
      *          nullptr and the error code.
      */
     std::pair<
-        ICodecDatabase*,
+        std::unique_ptr<ICodecDatabase>,
         scid::core::errorT>
     openCodec(
         CodecType       codec,

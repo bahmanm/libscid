@@ -14,16 +14,19 @@ namespace
     {
         scid_position* pos = nullptr;
 
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_position_create_from_fen(
-            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", &pos);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            pos = scid::test::dirty_pointer<scid_position>();
+            const scid_error res = scid_position_create_from_fen(
+                "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", &pos);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(pos == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_position_free(pos);
-        }
+        assert(pos != nullptr);
+        scid_position_free(pos);
     }
 
     void
@@ -36,16 +39,18 @@ namespace
         assert(pos != nullptr);
 
         scid_position* next_pos = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_position_create_with_san(pos, "e4", &next_pos);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            next_pos = scid::test::dirty_pointer<scid_position>();
+            const scid_error res = scid_position_create_with_san(pos, "e4", &next_pos);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(next_pos == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_position_free(next_pos);
-        }
-
+        assert(next_pos != nullptr);
+        scid_position_free(next_pos);
         scid_position_free(pos);
     }
 
@@ -59,16 +64,18 @@ namespace
         assert(pos != nullptr);
 
         scid_position* next_pos = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_position_create_with_uci(pos, "e2e4", &next_pos);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            next_pos = scid::test::dirty_pointer<scid_position>();
+            const scid_error res = scid_position_create_with_uci(pos, "e2e4", &next_pos);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(next_pos == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_position_free(next_pos);
-        }
-
+        assert(next_pos != nullptr);
+        scid_position_free(next_pos);
         scid_position_free(pos);
     }
 
@@ -130,11 +137,18 @@ namespace
         scid_position_free(pos);
     }
 
+    void
+    test_position_free_null()
+    {
+        scid_position_free(nullptr);
+    }
+
 } // namespace
 
 void
 test_position_exceptions()
 {
+    test_position_free_null();
     test_position_create_from_fen_allocation_failure();
     test_position_create_with_san_allocation_failure();
     test_position_create_with_uci_allocation_failure();

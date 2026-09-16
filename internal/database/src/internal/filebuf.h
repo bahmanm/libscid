@@ -230,6 +230,8 @@ namespace scid::database
             std::streamoff filePos_;
 
         public:
+            using Filebuf::close;
+
             FilebufAppend()
                 : fileSz_(0),
                   filePos_(-1)

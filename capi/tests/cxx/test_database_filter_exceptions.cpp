@@ -52,16 +52,18 @@ namespace
         scid_database* database = create_test_database();
 
         scid_filter_id filter_id = 0;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_database_filter_create(database, &filter_id);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            filter_id = 0xbeef;
+            const scid_error res = scid_database_filter_create(database, &filter_id);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                TEST_ASSERT(filter_id == 0);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_database_filter_delete(database, filter_id);
-        }
-
+        TEST_ASSERT(filter_id == 1);
+        scid_database_filter_delete(database, filter_id);
         scid_database_free(database);
     }
 

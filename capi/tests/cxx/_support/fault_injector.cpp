@@ -32,6 +32,12 @@ namespace scid::test
         return g_fault_active;
     }
 
+    std::size_t
+    allocation_count() noexcept
+    {
+        return g_alloc_count;
+    }
+
     static void
     check_and_trigger_fault()
     {

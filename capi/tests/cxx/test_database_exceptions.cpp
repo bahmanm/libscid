@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
 #include <string>
 
 namespace
@@ -15,25 +16,31 @@ namespace
     void
     remove_scid5_files(const char* base_path)
     {
-        const std::string path(base_path);
-        std::remove((path + ".si5").c_str());
-        std::remove((path + ".sg5").c_str());
-        std::remove((path + ".sn5").c_str());
+        char buffer[512];
+        std::snprintf(buffer, sizeof(buffer), "%s.si5", base_path);
+        std::remove(buffer);
+        std::snprintf(buffer, sizeof(buffer), "%s.sg5", base_path);
+        std::remove(buffer);
+        std::snprintf(buffer, sizeof(buffer), "%s.sn5", base_path);
+        std::remove(buffer);
     }
 
     void
     test_database_create_memory_allocation_failure()
     {
         scid_database* db = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_database_create_memory("memdb_alloc_fail", &db);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            db = scid::test::dirty_pointer<scid_database>();
+            const scid_error res = scid_database_create_memory("memdb_alloc_fail", &db);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(db == nullptr);
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_database_free(db);
-        }
+        assert(db != nullptr);
+        scid_database_free(db);
     }
 
     void
@@ -43,17 +50,29 @@ namespace
         remove_scid5_files(path);
 
         scid_database* db = nullptr;
-        scid::test::enable_allocation_failure(1);
-        const scid_error res = scid_database_create_scid5(path, &db);
-        scid::test::disable_allocation_failure();
+        scid::test::assert_allocation_resilience([&]() {
+            db = scid::test::dirty_pointer<scid_database>();
+            const scid_error res = scid_database_create_scid5(path, &db);
+            if (res == SCID_ERROR_NO_MEMORY)
+            {
+                assert(db == nullptr);
+                std::error_code ec;
+                assert(!std::filesystem::exists(std::string(path) + ".si5", ec));
+                assert(!std::filesystem::exists(std::string(path) + ".sg5", ec));
+                assert(!std::filesystem::exists(std::string(path) + ".sn5", ec));
+            }
+            return res;
+        });
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
-        if (res == SCID_OK)
-        {
-            scid_database_free(db);
-        }
-
+        assert(db != nullptr);
+        scid_database_free(db);
         remove_scid5_files(path);
+    }
+
+    void
+    test_database_free_null()
+    {
+        scid_database_free(nullptr);
     }
 
     void
@@ -168,24 +187,28 @@ namespace
     void
     test_database_import_pgn_allocation_failure()
     {
-        scid_database* db = nullptr;
-        assert(scid_database_create_memory("memdb_import_pgn", &db) == SCID_OK);
-        assert(db != nullptr);
-
         const char* pgn = "[Event \"Imported\"]\n"
                           "[White \"Player 1\"]\n"
                           "[Black \"Player 2\"]\n"
                           "[Result \"*\"]\n\n"
                           "1. e4 e5 2. Nf3 Nc6 *\n";
 
-        std::size_t      imported = 0;
-        const scid_error res =
-            scid_database_import_pgn(db, pgn, std::strlen(pgn), nullptr, 0, nullptr, &imported);
-        scid::test::disable_allocation_failure();
+        for (int fail_at = 1; fail_at <= 5; ++fail_at)
+        {
+            scid_database* db = nullptr;
+            assert(scid_database_create_memory("memdb_import_pgn", &db) == SCID_OK);
+            assert(db != nullptr);
 
-        assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
+            std::size_t imported = 0;
+            scid::test::enable_allocation_failure(fail_at);
+            const scid_error res =
+                scid_database_import_pgn(db, pgn, std::strlen(pgn), nullptr, 0, nullptr, &imported);
+            scid::test::disable_allocation_failure();
 
-        scid_database_free(db);
+            assert(res == SCID_OK || res == SCID_ERROR_NO_MEMORY);
+
+            scid_database_free(db);
+        }
     }
 
 } // namespace
@@ -193,6 +216,7 @@ namespace
 void
 test_database_exceptions()
 {
+    test_database_free_null();
     test_database_create_memory_allocation_failure();
     test_database_create_scid5_allocation_failure();
     test_database_game_add_allocation_failure();

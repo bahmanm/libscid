@@ -98,13 +98,28 @@ namespace
         const auto location = edit_cursor.location();
         auto       staged_cursor = std::make_unique<scid_game_cursor>(target_game);
 
-        target_game->value = std::move(staging);
+        std::swap(target_game->value, staging);
+        struct Rollback
+        {
+                scid::core::Game& target;
+                scid::core::Game& backup;
+                bool              armed = true;
+
+                ~Rollback() noexcept
+                {
+                    if (armed)
+                    {
+                        std::swap(target, backup);
+                    }
+                }
+        } rollback{target_game->value, staging};
 
         if (!staged_cursor->value.restore(location))
         {
             return SCID_ERROR;
         }
 
+        rollback.armed = false;
         *out_cursor = staged_cursor.release();
         return SCID_OK;
     }

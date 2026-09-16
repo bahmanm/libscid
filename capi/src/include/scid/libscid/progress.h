@@ -5,6 +5,8 @@
 
 #include "scid/database/misc.h"
 
+#include <memory>
+
 namespace scid::libscid
 {
 
@@ -28,6 +30,23 @@ namespace scid::libscid
                 size_t      total,
                 const char* message) final;
     };
+
+    inline scid::database::Progress
+    make_callback_progress(
+        scid_progress_report_callback progress_report,
+        void*                         progress_report_user_data,
+        scid_should_cancel_fn         should_cancel,
+        void*                         should_cancel_user_data)
+    {
+        if (progress_report == nullptr && should_cancel == nullptr)
+        {
+            return scid::database::Progress();
+        }
+
+        auto impl = std::make_unique<CallbackProgress>(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data);
+        return scid::database::Progress(impl.release());
+    }
 
 } // namespace scid::libscid
 

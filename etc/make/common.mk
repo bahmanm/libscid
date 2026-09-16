@@ -45,6 +45,8 @@ LIBSCID_CMAKE_C_COMPILER ?= clang
 LIBSCID_CMAKE_CXX_COMPILER ?= clang++
 libscid.__library.name := libscid.dylib
 libscid.__venv.python := bin/python
+libscid.__osx.sysroot := $(shell xcrun --show-sdk-path 2>/dev/null)
+LIBSCID_CMAKE_OSX_SYSROOT ?= $(libscid.__osx.sysroot)
 else ifneq ($(filter MINGW% MSYS% CYGWIN%,$(libscid.__host.system)),)
 libscid.__library.name := scid.dll
 libscid.__venv.python := Scripts/python.exe
@@ -65,6 +67,7 @@ LIBSCID_RELEASE_PLATFORM ?= local
 libscid.cmake.__generator.arg = $(if $(LIBSCID_CMAKE_GENERATOR),-G "$(LIBSCID_CMAKE_GENERATOR)")
 libscid.cmake.__c.compiler.arg = $(if $(LIBSCID_CMAKE_C_COMPILER),"-DCMAKE_C_COMPILER=$(LIBSCID_CMAKE_C_COMPILER)")
 libscid.cmake.__cxx.compiler.arg = $(if $(LIBSCID_CMAKE_CXX_COMPILER),"-DCMAKE_CXX_COMPILER=$(LIBSCID_CMAKE_CXX_COMPILER)")
+libscid.cmake.__osx_sysroot.arg = $(if $(LIBSCID_CMAKE_OSX_SYSROOT),"-DCMAKE_OSX_SYSROOT=$(LIBSCID_CMAKE_OSX_SYSROOT)")
 libscid.cmake.__plantuml.jar.path.arg = $(if $(LIBSCID_PLANTUML_JAR_PATH),"-DLIBSCID_PLANTUML_JAR_PATH=$(LIBSCID_PLANTUML_JAR_PATH)")
 libscid.__make.word.escape = $(subst :,\:,$(1))
 

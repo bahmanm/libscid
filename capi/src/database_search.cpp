@@ -483,8 +483,8 @@ scid_database_search_headers(
         }
 
         copy_filter(database->value, source, destination);
-        scid::database::Progress progress(new CallbackProgress(
-            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        auto progress = make_callback_progress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data);
         return database_error_to_c(
             scid::database::search_index(
                 &database->value, destination, static_cast<int>(argv.size()), argv.data(),
@@ -527,9 +527,9 @@ scid_database_search_position(
             return SCID_ERROR_BAD_ARG;
         }
 
-        const auto               source_included = included_games_snapshot(database->value, source);
-        scid::database::Progress progress(new CallbackProgress(
-            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        const auto source_included = included_games_snapshot(database->value, source);
+        auto       progress = make_callback_progress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data);
         if (!database->value.setPositionSearchFilter(position->value, destination, progress))
         {
             return SCID_ERROR_USER_CANCEL;
@@ -582,11 +582,11 @@ scid_database_search_board(
         const auto source_included = included_games_snapshot(database->value, source);
         destination.clear();
 
-        scid::core::Game         scratch_game;
-        scid::core::Position     search_position = *criteria->position;
-        scid::core::Position     flipped_position = color_flipped_position(search_position);
-        scid::database::Progress progress(new CallbackProgress(
-            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data));
+        scid::core::Game     scratch_game;
+        scid::core::Position search_position = *criteria->position;
+        scid::core::Position flipped_position = color_flipped_position(search_position);
+        auto                 progress = make_callback_progress(
+            progress_report, progress_report_user_data, should_cancel, should_cancel_user_data);
 
         const auto game_count = database->value.numGames();
         for (scid::database::gamenumT index = 0; index < game_count; ++index)
