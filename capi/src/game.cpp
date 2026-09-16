@@ -1389,6 +1389,7 @@ scid_game_cursor_variation_add(
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_added = 0;
     *out_variation_cursor = nullptr;
 
     return abi_guard([&]() -> scid_error {
@@ -1427,6 +1428,8 @@ scid_game_cursor_nag_add(
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_added = 0;
+
     return abi_guard([&]() -> scid_error {
         if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
         {
@@ -1460,6 +1463,8 @@ scid_game_cursor_nag_remove(
     {
         return SCID_ERROR_BAD_ARG;
     }
+
+    *out_removed = 0;
 
     return abi_guard([&]() -> scid_error {
         if (const scid_error error = validate_cursor_game(game, cursor); error != SCID_OK)
@@ -1531,6 +1536,7 @@ scid_game_cursor_variation_promote_to_first(
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_promoted = 0;
     *out_promoted_cursor = nullptr;
 
     return abi_guard([&]() -> scid_error {
@@ -1568,6 +1574,7 @@ scid_game_cursor_variation_promote_to_mainline(
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_promoted = 0;
     *out_mainline_cursor = nullptr;
 
     return abi_guard([&]() -> scid_error {
@@ -1605,6 +1612,7 @@ scid_game_cursor_variation_delete(
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_deleted = 0;
     *out_parent_cursor = nullptr;
 
     return abi_guard([&]() -> scid_error {

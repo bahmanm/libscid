@@ -533,6 +533,11 @@ scid_database_import_pgn(
     *out_imported_count = 0;
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         std::vector<scid::core::Game> games;
         scid::core::pgn::ParseLog     log;
         size_t                        parsed_size = 0;
@@ -729,7 +734,14 @@ scid_database_game_export_pgn(
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_text_size = 0;
+
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
         scid::database::gamenumT game_index = 0;
         if (!database_game_index_to_core(index, &game_index))
         {

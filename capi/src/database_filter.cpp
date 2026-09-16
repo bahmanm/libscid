@@ -79,6 +79,8 @@ scid_database_filter_game_count_get(
         return SCID_ERROR_BAD_ARG;
     }
 
+    *out_count = 0;
+
     return abi_guard([&]() -> scid_error {
         if (!database->value.isOpen())
         {
@@ -166,13 +168,19 @@ scid_database_filter_game_indices_get(
         return SCID_ERROR_BAD_ARG;
     }
 
-    if (out_game_indices == nullptr || out_game_indices_capacity < row_count)
-    {
-        *out_game_indices_count = row_count;
-        return SCID_ERROR_BUFFER_FULL;
-    }
+    *out_game_indices_count = 0;
 
     return abi_guard([&]() -> scid_error {
+        if (!database->value.isOpen())
+        {
+            return SCID_ERROR_BAD_ARG;
+        }
+
+        if (out_game_indices == nullptr || out_game_indices_capacity < row_count)
+        {
+            *out_game_indices_count = row_count;
+            return SCID_ERROR_BUFFER_FULL;
+        }
         std::vector<scid::database::gamenumT> game_indices(row_count);
         size_t                                listed = 0;
 
