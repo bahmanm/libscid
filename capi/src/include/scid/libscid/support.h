@@ -45,7 +45,7 @@ namespace scid::libscid
     {
         try
         {
-            return fn();
+            return std::forward<F>(fn)();
         }
         catch (const std::bad_alloc&)
         {
@@ -76,7 +76,7 @@ namespace scid::libscid
     {
         try
         {
-            fn();
+            std::forward<F>(fn)();
         }
         catch (...)
         {}
@@ -97,7 +97,7 @@ namespace scid::libscid
     {
         try
         {
-            return fn();
+            return std::forward<F>(fn)();
         }
         catch (...)
         {

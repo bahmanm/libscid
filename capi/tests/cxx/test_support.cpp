@@ -184,6 +184,43 @@ namespace
         abi_guard_void([] { throw std::runtime_error("failed cleanup"); });
         abi_guard_void([] { throw "foreign error"; });
     }
+
+    struct RvalueOnlyCallable
+    {
+            scid_error
+            operator()() &&
+            {
+                return SCID_OK;
+            }
+    };
+
+    struct RvalueOnlyVoidCallable
+    {
+            void
+            operator()() &&
+            {}
+    };
+
+    struct RvalueOnlyFallbackCallable
+    {
+            int
+            operator()() &&
+            {
+                return 42;
+            }
+    };
+
+    void
+    test_abi_guard_perfect_forwarding()
+    {
+        const scid_error res = abi_guard(RvalueOnlyCallable{});
+        assert(res == SCID_OK);
+
+        abi_guard_void(RvalueOnlyVoidCallable{});
+
+        const int fallback_res = abi_guard(0, RvalueOnlyFallbackCallable{});
+        assert(fallback_res == 42);
+    }
 }
 
 void
@@ -198,4 +235,5 @@ test_support()
     test_abi_guard_generic_exception();
     test_abi_guard_unknown_exception();
     test_abi_guard_void();
+    test_abi_guard_perfect_forwarding();
 }
