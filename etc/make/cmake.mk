@@ -23,7 +23,7 @@ __libscid_etc_make_cmake.mk := 1
 #   PROJECT.__cmake.source.root              $(ROOT)
 #   PROJECT.__cmake.source.dir               BASE_PROJECT.__project.dir
 #   PROJECT.__cmake.linkage                  BASE_PROJECT.__cmake.linkage or $(LIBSCID_LINKAGE_TYPE)
-#   PROJECT.__cmake.install                  OFF
+#   PROJECT.__cmake.install                  ON
 #   PROJECT.__qc.format.build.dir            BASE_PROJECT.__project.dir + _build/format/
 #   PROJECT.__qc.analysis.build.dir          BASE_PROJECT.__project.dir + _build/analysis/
 #   PROJECT.__qc.dynamic-analysis.build.dir  BASE_PROJECT.__project.dir + _build/sanitisers/
@@ -40,6 +40,7 @@ define libscid.cmake.__project.rules
 $(1).__cmake.build.targets ?= $$($(2).__cmake.build.targets)
 $(1).__cmake.test.labels ?= $$($(2).__cmake.test.labels)
 $(1).__cmake.linkage ?= $$($(2).__cmake.linkage)
+$(1).__cmake.install ?= $$($(2).__cmake.install)
 
 $(1).__cmake.contract : \
   bmakelib.default-if-blank( $(1).__build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/) ) \
@@ -47,7 +48,7 @@ $(1).__cmake.contract : \
   bmakelib.default-if-blank( $(1).__cmake.source.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)) ) \
   bmakelib.default-if-blank( $(1).__cmake.linkage,$$(LIBSCID_LINKAGE_TYPE) ) \
   bmakelib.enum.error-unless-member( LIBSCID_LINKAGE_TYPE,$(1).__cmake.linkage ) \
-  bmakelib.default-if-blank( $(1).__cmake.install,OFF ) \
+  bmakelib.default-if-blank( $(1).__cmake.install,ON ) \
   bmakelib.default-if-blank( $(1).__qc.format.build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/format/) ) \
   bmakelib.default-if-blank( $(1).__qc.analysis.build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/analysis/) ) \
   bmakelib.default-if-blank( $(1).__qc.dynamic-analysis.build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/sanitisers/) ) \
@@ -109,6 +110,18 @@ $(1).test : $(1).build
 
 ####################################################################################################
 
+$(1).install : $(1).build
+	$$(if $$(filter ON,$$($(1).__cmake.install)),\
+	    DESTDIR="$$(DESTDIR)" $$(LIBSCID_CMAKE) \
+	        --install $$($(1).__build.dir) \
+	        --config $$(LIBSCID_CMAKE_BUILD_TYPE) \
+	        $$(if $$(PREFIX),--prefix "$$(PREFIX)") \
+	        $$(if $$(filter-out 0 false OFF,$$(LIBSCID_INSTALL_STRIP)),--strip))
+
+.PHONY : $(1).install
+
+####################################################################################################
+
 $(1).clean : $(1).__cmake.contract
 	-rm -rf $$($(1).__build.dir)
 
@@ -124,6 +137,9 @@ $(1).qc-format : $(1).__cmake.contract
 	    $$(libscid.cmake.__c.compiler.arg) \
 	    $$(libscid.cmake.__cxx.compiler.arg) \
 	    $$(libscid.cmake.__osx_sysroot.arg) \
+	    -DCMAKE_BUILD_TYPE=Debug \
+	    -DBUILD_TESTING=OFF \
+	    -DLIBSCID_INSTALL=OFF \
 	    "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
 	    $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
 	$$(LIBSCID_CMAKE) \

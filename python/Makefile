@@ -60,6 +60,12 @@ libscid.python.clean :
 
 ####################################################################################################
 
+libscid.python.install :
+
+.PHONY : libscid.python.install
+
+####################################################################################################
+
 libscid.python.__release-native-library : $(call libscid.__make.word.escape,$(libscid.python.__release.library))
 	mkdir -p $(libscid.python.__native.dir)
 	cp $(libscid.python.__release.library) $(libscid.python.__bundled.library)

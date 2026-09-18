@@ -17,6 +17,7 @@ libscid.capi.__cmake.test.labels := capi
 
 libscid.capi.static.__build.dir ?= $(libscid.capi.__project.dir)_build/static/
 libscid.capi.static.__cmake.linkage := static
+libscid.capi.static.__cmake.install := OFF
 
 libscid.capi.__docs.build.dir ?= $(libscid.capi.__project.dir)_build/docs/
 libscid.capi.__release.build.dir ?= $(libscid.capi.__project.dir)_build/release/
