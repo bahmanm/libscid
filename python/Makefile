@@ -20,6 +20,8 @@ libscid.python.__release.version ?= $(if $(LIBSCID_RELEASE_PYTHON_VERSION),$(LIB
 libscid.python.__bin.dir := $(libscid.python.__project.dir).venv/$(dir $(libscid.__venv.python))
 LIBSCID_UV_FLAGS ?=
 LIBSCID_PYTHON_BUILD_SDIST ?= true
+LIBSCID_PYTHON_INSTALL_BREAK_SYSTEM_PACKAGES ?= true
+LIBSCID_PYTHON_INSTALL_ARGS ?= $(if $(filter true 1,$(LIBSCID_PYTHON_INSTALL_BREAK_SYSTEM_PACKAGES)),--break-system-packages)
 libscid.python.__qc.paths := src tests hatch_build.py ../examples/python
 
 
@@ -60,7 +62,31 @@ libscid.python.clean :
 
 ####################################################################################################
 
-libscid.python.install :
+libscid.python.install : libscid.python.__release-wheel
+	shopt -s nullglob; \
+	wheels=( "$(libscid.python.__project.dir)"dist/*.whl ); \
+	[[ $${#wheels[@]} -gt 0 ]] || { echo "No wheel found to install" >&2; exit 1; }; \
+	wheel="$${wheels[$$(($${#wheels[@]} - 1))]}"; \
+	if [ -n "$${DESTDIR:-}" ]; then \
+		$(LIBSCID_PYTHON) -m pip install \
+			--no-deps \
+			$$(if [ -n "$${PREFIX:-}" ]; then echo "--prefix $${PREFIX}"; fi) \
+			--root "$${DESTDIR}" \
+			"$$wheel"; \
+	elif [ -n "$${PREFIX:-}" ]; then \
+		$(LIBSCID_UV) pip install \
+			--python "$(LIBSCID_PYTHON)" \
+			--no-deps \
+			--prefix "$${PREFIX}" \
+			$(LIBSCID_PYTHON_INSTALL_ARGS) \
+			"$$wheel"; \
+	else \
+		$(LIBSCID_UV) pip install \
+			--python "$(LIBSCID_PYTHON)" \
+			--no-deps \
+			$(LIBSCID_PYTHON_INSTALL_ARGS) \
+			"$$wheel"; \
+	fi
 
 .PHONY : libscid.python.install
 
