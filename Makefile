@@ -19,6 +19,9 @@ libscid.python.test : export LIBSCID_LIBRARY := $(libscid.capi.artefact)
 libscid.python.release : libscid.capi.release-library
 libscid.python.release : export LIBSCID_LIBRARY := $(libscid.capi.release.artefact)
 
+libscid.python.install : libscid.capi.release-library
+libscid.python.install : export LIBSCID_LIBRARY := $(libscid.capi.release.artefact)
+
 ####################################################################################################
 
 libscid.configure : $(libscid.__components:%=libscid.%.configure)
