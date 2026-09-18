@@ -30,14 +30,8 @@ set(
     "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/primitives.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/include/scid/scid.h" )
 
-set( SCID_LIBRARY_TYPE "" )
-if( DEFINED LIBSCID_INSTALL AND LIBSCID_INSTALL )
-    set( SCID_LIBRARY_TYPE SHARED )
-endif()
-
 add_library(
     scid
-    ${SCID_LIBRARY_TYPE}
     src/database.cpp
     src/database_filter.cpp
     src/database_search.cpp

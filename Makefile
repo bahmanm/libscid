@@ -51,6 +51,16 @@ libscid.test.all : libscid.test libscid.test.static
 
 ####################################################################################################
 
+libscid.install : $(libscid.__components:%=libscid.%.install)
+
+.PHONY : libscid.install
+
+install : libscid.install
+
+.PHONY : install
+
+####################################################################################################
+
 libscid.__docs.public.dir := $(ROOT)_build/docs/public/
 libscid.__docs.hub.dir := $(ROOT)docs/hub/
 libscid.__docs.assets.dir := $(ROOT)docs/assets/
