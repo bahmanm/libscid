@@ -91,10 +91,49 @@ def _platform_tag() -> str:
     raise RuntimeError(f"Unsupported platform for libscid wheel build: {sys.platform}")
 
 
+def _has_bundled_native_library(root: str) -> bool:
+    native_dir = os.path.join(root, "src", "libscid", "_native")
+    if not os.path.isdir(native_dir):
+        return False
+    return any(
+        fname.endswith((".so", ".dylib", ".dll")) for fname in os.listdir(native_dir)
+    )
+
+
+def _abort_unsupported_sdist_install() -> None:
+    system_name = sys.platform
+    try:
+        import platform
+
+        system_name = f"{platform.system()} ({platform.machine()})"
+    except Exception:
+        pass
+
+    message = (
+        "\n"
+        + "=" * 80
+        + "\n"
+        + "There are no prebuilt libscid packages for your platform, "
+        + f"i.e. {system_name}.\n"
+        + "\n"
+        + "Please visit the project repository to explore other installation methods,\n"
+        + "including building libscid from source:\n"
+        + "\n"
+        + "  https://github.com/bahmanm/libscid\n"
+        + "=" * 80
+        + "\n\n"
+    )
+    sys.stderr.write(message)
+    sys.exit(1)
+
+
 class LibScidBuildHook(BuildHookInterface):
     def initialize(self, version: str, build_data: dict[str, object]) -> None:
         if self.target_name != "wheel" or version != "standard":
             return
+
+        if not _has_bundled_native_library(self.root):
+            _abort_unsupported_sdist_install()
 
         build_data["pure_python"] = False
         build_data["tag"] = f"py3-none-{_platform_tag()}"
@@ -115,6 +154,9 @@ class LibScidMetadataHook(MetadataHookInterface):
                     os.path.dirname(__file__), "..", "etc", "cmake", "version.cmake"
                 )
             )
+            if not os.path.exists(version_cmake):
+                _abort_unsupported_sdist_install()
+
             result = subprocess.run(
                 ["cmake", "-P", version_cmake],
                 capture_output=True,

@@ -19,7 +19,9 @@ libscid.python.__release.artefact.dir ?= $(LIBSCID_RELEASE_ROOT)
 libscid.python.__release.version ?= $(if $(LIBSCID_RELEASE_PYTHON_VERSION),$(LIBSCID_RELEASE_PYTHON_VERSION),$(LIBSCID_RELEASE_VERSION))
 libscid.python.__bin.dir := $(libscid.python.__project.dir).venv/$(dir $(libscid.__venv.python))
 LIBSCID_UV_FLAGS ?=
+LIBSCID_PYTHON_BUILD_SDIST ?= true
 libscid.python.__qc.paths := src tests hatch_build.py ../examples/python
+
 
 ####################################################################################################
 
@@ -68,13 +70,27 @@ libscid.python.__release-native-library : $(call libscid.__make.word.escape,$(li
 
 libscid.python.__release-wheel : libscid.python.__release-native-library
 	cd $(libscid.python.__project.dir) \
-	&& rm -rf dist \
+	&& mkdir -p dist \
+	&& rm -f dist/*.whl \
 	&& LIBSCID_PYTHON_VERSION=$(libscid.python.__release.version) $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build --wheel
 	mkdir -p $(libscid.python.__release.artefact.dir)
 	rm -f $(libscid.python.__release.artefact.dir)/libscid-*.whl
 	cp $(libscid.python.__project.dir)dist/*.whl $(libscid.python.__release.artefact.dir)
 
 .PHONY : libscid.python.__release-wheel
+
+####################################################################################################
+
+libscid.python.__release-sdist :
+	cd $(libscid.python.__project.dir) \
+	&& mkdir -p dist \
+	&& rm -f dist/*.tar.gz \
+	&& LIBSCID_PYTHON_VERSION=$(libscid.python.__release.version) $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build --sdist
+	mkdir -p $(libscid.python.__release.artefact.dir)
+	rm -f $(libscid.python.__release.artefact.dir)/libscid-*.tar.gz
+	cp $(libscid.python.__project.dir)dist/*.tar.gz $(libscid.python.__release.artefact.dir)
+
+.PHONY : libscid.python.__release-sdist
 
 ####################################################################################################
 
@@ -95,9 +111,30 @@ libscid.python.__release-smoke-test : libscid.python.__release-wheel
 
 ####################################################################################################
 
-libscid.python.release : libscid.python.__release-wheel libscid.python.__release-smoke-test
+libscid.python.__release-sdist-smoke-test : libscid.python.__release-sdist
+	shopt -s nullglob; \
+	sdists=( "$(libscid.python.__project.dir)"dist/*.tar.gz ); \
+	[[ $${#sdists[@]} -gt 0 ]]; \
+	sdist="$${sdists[$$(($${#sdists[@]} - 1))]}"; \
+	rm -rf $(libscid.python.__release.smoke-test.dir); \
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) venv $(libscid.python.__release.smoke-test.dir); \
+	output=$$($(LIBSCID_UV) $(LIBSCID_UV_FLAGS) pip install --python $(libscid.python.__release.smoke-test.dir)$(libscid.__venv.python) "$$sdist" 2>&1 || true); \
+	echo "$$output"; \
+	echo "$$output" | grep -q "There are no prebuilt libscid packages for your platform"
+
+.PHONY : libscid.python.__release-sdist-smoke-test
+
+####################################################################################################
+
+libscid.python.__release.sdist.targets :=
+ifeq ($(LIBSCID_PYTHON_BUILD_SDIST),true)
+libscid.python.__release.sdist.targets := libscid.python.__release-sdist libscid.python.__release-sdist-smoke-test
+endif
+
+libscid.python.release : libscid.python.__release-wheel libscid.python.__release-smoke-test $(libscid.python.__release.sdist.targets)
 
 .PHONY : libscid.python.release
+
 
 ####################################################################################################
 
