@@ -113,7 +113,8 @@ def _abort_unsupported_sdist_install() -> None:
         "\n"
         + "=" * 80
         + "\n"
-        + f"There are no prebuilt libscid packages for your platform ({system_name}).\n"
+        + "There are no prebuilt libscid packages for your platform, "
+        + f"i.e. {system_name}.\n"
         + "\n"
         + "Please visit the project repository to explore other installation methods,\n"
         + "including building libscid from source:\n"
