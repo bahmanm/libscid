@@ -137,6 +137,9 @@ $(1).qc-format : $(1).__cmake.contract
 	    $$(libscid.cmake.__c.compiler.arg) \
 	    $$(libscid.cmake.__cxx.compiler.arg) \
 	    $$(libscid.cmake.__osx_sysroot.arg) \
+	    -DCMAKE_BUILD_TYPE=Debug \
+	    -DBUILD_TESTING=OFF \
+	    -DLIBSCID_INSTALL=OFF \
 	    "-DLIBSCID_SOURCE_ROOT=$$($(1).__cmake.source.root)" \
 	    $$(LIBSCID_CMAKE_CONFIGURE_ARGS)
 	$$(LIBSCID_CMAKE) \
