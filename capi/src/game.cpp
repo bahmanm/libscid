@@ -109,7 +109,12 @@ namespace
                 {
                     if (armed)
                     {
-                        std::swap(target, backup);
+                        try
+                        {
+                            std::swap(target, backup);
+                        }
+                        catch (...)
+                        {}
                     }
                 }
         } rollback{target_game->value, staging};

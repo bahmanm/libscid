@@ -65,21 +65,28 @@ main()
 
     std::set_terminate([]() {
         std::fprintf(stderr, "\n=== std::terminate called ===\n");
-        try
+        const std::exception_ptr e = std::current_exception();
+        if (e)
         {
-            const std::exception_ptr e = std::current_exception();
-            if (e)
+            try
             {
                 std::rethrow_exception(e);
             }
+            catch (const std::exception& ex)
+            {
+                std::fprintf(stderr, "Exception what(): %s\n", ex.what());
+            }
+            catch (...)
+            {
+                std::fprintf(stderr, "Unknown non-standard exception thrown.\n");
+            }
         }
-        catch (const std::exception& ex)
+        else
         {
-            std::fprintf(stderr, "Exception what(): %s\n", ex.what());
-        }
-        catch (...)
-        {
-            std::fprintf(stderr, "Unknown non-standard exception thrown.\n");
+            std::fprintf(
+                stderr, "No active exception (std::current_exception() is null).\n"
+                        "Cause: noexcept specification violation or throwing destructor during "
+                        "unwinding.\n");
         }
         std::fflush(stderr);
         std::abort();

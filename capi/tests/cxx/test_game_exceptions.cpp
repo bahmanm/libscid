@@ -216,11 +216,31 @@ namespace
 void
 test_game_exceptions()
 {
+    std::fprintf(stderr, "  [TEST 1/7] test_game_free_null\n");
+    std::fflush(stderr);
     test_game_free_null();
+
+    std::fprintf(stderr, "  [TEST 2/7] test_game_create_blank_allocation_failure\n");
+    std::fflush(stderr);
     test_game_create_blank_allocation_failure();
+
+    std::fprintf(stderr, "  [TEST 3/7] test_game_create_from_pgn_allocation_failure\n");
+    std::fflush(stderr);
     test_game_create_from_pgn_allocation_failure();
+
+    std::fprintf(stderr, "  [TEST 4/7] test_game_tag_set_allocation_failure\n");
+    std::fflush(stderr);
     test_game_tag_set_allocation_failure();
+
+    std::fprintf(stderr, "  [TEST 5/7] test_game_tag_at_get_allocation_failure\n");
+    std::fflush(stderr);
     test_game_tag_at_get_allocation_failure();
+
+    std::fprintf(stderr, "  [TEST 6/7] test_game_final_position_get_allocation_failure\n");
+    std::fflush(stderr);
     test_game_final_position_get_allocation_failure();
+
+    std::fprintf(stderr, "  [TEST 7/7] test_game_merge_moves_allocation_failure\n");
+    std::fflush(stderr);
     test_game_merge_moves_allocation_failure();
 }
