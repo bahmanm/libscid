@@ -127,6 +127,7 @@ $(1).test : $(1).build
 	    --test-dir $$($(1).__build.dir) \
 	    -C $$(LIBSCID_CMAKE_BUILD_TYPE) \
 	    $$(if $$($(1).__cmake.test.labels),-L '$$($(1).__cmake.test.labels)') \
+	    --timeout $$(LIBSCID_CTEST_TIMEOUT) \
 	    --output-on-failure
 
 .PHONY : $(1).test
@@ -245,6 +246,7 @@ $(1).qc-dynamic-analysis : $(1).__cmake.contract
 	UBSAN_OPTIONS=print_stacktrace=1:halt_on_error=1 \
 	    $$(LIBSCID_CTEST) \
 	        --test-dir $$($(1).__qc.dynamic-analysis.build.dir) \
+	        --timeout $$(LIBSCID_CTEST_TIMEOUT) \
 	        --output-on-failure
 
 .PHONY : $(1).qc-dynamic-analysis
