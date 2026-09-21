@@ -40,11 +40,11 @@ libscid.__asan.detect_leaks := $(if $(filter Darwin,$(libscid.__host.system)),0,
 define libscid.cmake.__project.rules
 ####################################################################################################
 
-$(1).__component ?= $(or $$($(2).__component),$$(word 2,$$(subst ., ,$(1))))
-$(1).__cmake.profile ?= $(or $$($(2).__cmake.profile),$$(LIBSCID_PROFILE))
+$(1).__component ?= $(if $(2),$$($(2).__component),$(word 2,$(subst ., ,$(1))))
+$(1).__cmake.profile ?= $(if $(2),$$($(2).__cmake.profile),$$(LIBSCID_PROFILE))
 $(1).__cmake.build.targets ?= $$($(2).__cmake.build.targets)
 $(1).__cmake.test.labels ?= $$($(2).__cmake.test.labels)
-$(1).__cmake.linkage ?= $(or $$($(2).__cmake.linkage),$$(LIBSCID_LINKAGE_TYPE))
+$(1).__cmake.linkage ?= $(if $(2),$$($(2).__cmake.linkage),$$(LIBSCID_LINKAGE_TYPE))
 $(1).__cmake.install ?= $$($(2).__cmake.install)
 
 $(1).__build.dir ?= $$(LIBSCID_STAGING_BUILD_DIR)$$($(1).__component)/$$($(1).__cmake.profile)/$$($(1).__cmake.linkage)/
