@@ -16,6 +16,7 @@
                 "  File: %s:%d\n"                                                                  \
                 "  Function: %s()\n",                                                              \
                 #expr, __FILE__, __LINE__, __func__);                                              \
+            std::fflush(stderr);                                                                   \
             std::abort();                                                                          \
         }                                                                                          \
     } while (0)

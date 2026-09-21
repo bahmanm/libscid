@@ -12,6 +12,10 @@ set( CMAKE_C_VISIBILITY_PRESET hidden )
 set( CMAKE_CXX_VISIBILITY_PRESET hidden )
 set( CMAKE_VISIBILITY_INLINES_HIDDEN ON )
 
+if( MSVC )
+    add_compile_definitions( _ITERATOR_DEBUG_LEVEL=0 )
+endif()
+
 
 option( LIBSCID_INSTALL "Install libscid targets and CMake package files." "${PROJECT_IS_TOP_LEVEL}" )
 option( LIBSCID_BUILD_DOCS "Build libscid API documentation." OFF )

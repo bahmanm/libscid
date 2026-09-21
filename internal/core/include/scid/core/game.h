@@ -96,6 +96,18 @@ namespace scid::core
             std::string eco;
             /** Supplemental PGN tags outside the typed header fields. */
             std::vector<TagPair> tags;
+
+            /**
+             * Resets all header fields to their initial empty states without reallocating.
+             */
+            void
+            clear() noexcept;
+
+            /**
+             * Swaps header contents with another instance.
+             */
+            void
+            swap(GameHeader& other) noexcept;
     };
 
     /**
@@ -184,6 +196,18 @@ namespace scid::core
             std::string initialComment;
             /** The primary line of play. */
             MoveSequence mainline;
+
+            /**
+             * Resets the comment and move sequence to empty defaults.
+             */
+            void
+            clear() noexcept;
+
+            /**
+             * Swaps movetext contents with another instance.
+             */
+            void
+            swap(Movetext& other) noexcept;
     };
 
     /**
@@ -207,6 +231,12 @@ namespace scid::core
              */
             void
             clear();
+
+            /**
+             * Swaps game state with another game instance.
+             */
+            void
+            swap(Game& other) noexcept;
 
             /**
              * Returns the structured game header.
@@ -541,9 +571,42 @@ namespace scid::core
             std::string*
             findStandardTag(std::string_view tag);
 
-            GameHeader                          header_;
-            Movetext                            movetext_;
-            std::optional<scid::core::Position> startPosition_;
+            GameHeader                          header_{};
+            Movetext                            movetext_{};
+            std::optional<scid::core::Position> startPosition_{};
     };
+
+    /**
+     * Swaps two GameHeader instances.
+     */
+    inline void
+    swap(
+        GameHeader& a,
+        GameHeader& b) noexcept
+    {
+        a.swap(b);
+    }
+
+    /**
+     * Swaps two Movetext instances.
+     */
+    inline void
+    swap(
+        Movetext& a,
+        Movetext& b) noexcept
+    {
+        a.swap(b);
+    }
+
+    /**
+     * Swaps two Game instances.
+     */
+    inline void
+    swap(
+        Game& a,
+        Game& b) noexcept
+    {
+        a.swap(b);
+    }
 
 } // namespace scid::core

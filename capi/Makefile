@@ -59,6 +59,7 @@ libscid.capi.__release-% : export LIBSCID_HOST_SYSTEM := $(libscid.__host.system
 libscid.capi.__release-% : export LIBSCID_CMAKE := $(LIBSCID_CMAKE)
 libscid.capi.__release-% : export LIBSCID_CPACK := $(LIBSCID_CPACK)
 libscid.capi.__release-% : export LIBSCID_CTEST := $(LIBSCID_CTEST)
+libscid.capi.__release-% : export LIBSCID_CTEST_TIMEOUT := $(LIBSCID_CTEST_TIMEOUT)
 libscid.capi.__release-% : export LIBSCID_CMAKE_BUILD_ARGS := $(LIBSCID_CMAKE_BUILD_ARGS)
 libscid.capi.__release-% : export LIBSCID_CMAKE_CONFIGURE_ARGS := $(LIBSCID_CMAKE_CONFIGURE_ARGS)
 libscid.capi.__release-% : export LIBSCID_CMAKE_GENERATOR := $(LIBSCID_CMAKE_GENERATOR)

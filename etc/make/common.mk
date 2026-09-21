@@ -37,6 +37,7 @@ $(call bmakelib.enum.error-unless-member,LIBSCID_PROFILE,LIBSCID_PROFILE)
 LIBSCID_CMAKE ?= cmake
 LIBSCID_CPACK ?= cpack
 LIBSCID_CTEST ?= ctest
+LIBSCID_CTEST_TIMEOUT ?= 60
 LIBSCID_UV ?= uv
 LIBSCID_TOX ?= tox
 LIBSCID_PYTHON ?= $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)

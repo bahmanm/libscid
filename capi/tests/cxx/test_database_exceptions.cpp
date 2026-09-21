@@ -3,7 +3,6 @@
 
 #include "scid/scid.h"
 
-#include <cassert>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>

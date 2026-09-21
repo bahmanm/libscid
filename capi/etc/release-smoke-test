@@ -135,4 +135,4 @@ case "$LIBSCID_HOST_SYSTEM" in
         ;;
 esac
 
-"$LIBSCID_CTEST" --test-dir "$examples_build_dir" --output-on-failure
+"$LIBSCID_CTEST" --test-dir "$examples_build_dir" --timeout "${LIBSCID_CTEST_TIMEOUT:-60}" --output-on-failure
