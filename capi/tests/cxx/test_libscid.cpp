@@ -96,52 +96,17 @@ main()
     disable_interactive_crash_dialogs();
 #endif
 
-    std::fprintf(stderr, "[SUITE 01/11] test_support\n");
-    std::fflush(stderr);
     test_support();
-
-    std::fprintf(stderr, "[SUITE 02/11] test_primitives_exceptions\n");
-    std::fflush(stderr);
     test_primitives_exceptions();
-
-    std::fprintf(stderr, "[SUITE 03/11] test_movespec_exceptions\n");
-    std::fflush(stderr);
     test_movespec_exceptions();
-
-    std::fprintf(stderr, "[SUITE 04/11] test_position_exceptions\n");
-    std::fflush(stderr);
     test_position_exceptions();
-
-    std::fprintf(stderr, "[SUITE 05/11] test_game_exceptions\n");
-    std::fflush(stderr);
     test_game_exceptions();
-
-    std::fprintf(stderr, "[SUITE 06/11] test_game_cursor_exceptions\n");
-    std::fflush(stderr);
     test_game_cursor_exceptions();
-
-    std::fprintf(stderr, "[SUITE 07/11] test_game_pgn_exceptions\n");
-    std::fflush(stderr);
     test_game_pgn_exceptions();
-
-    std::fprintf(stderr, "[SUITE 08/11] test_eco_exceptions\n");
-    std::fflush(stderr);
     test_eco_exceptions();
-
-    std::fprintf(stderr, "[SUITE 09/11] test_database_exceptions\n");
-    std::fflush(stderr);
     test_database_exceptions();
-
-    std::fprintf(stderr, "[SUITE 10/11] test_database_filter_exceptions\n");
-    std::fflush(stderr);
     test_database_filter_exceptions();
-
-    std::fprintf(stderr, "[SUITE 11/11] test_database_search_exceptions\n");
-    std::fflush(stderr);
     test_database_search_exceptions();
-
-    std::fprintf(stderr, "[SUITE DONE] All C++ CAPI exception suites completed successfully.\n");
-    std::fflush(stderr);
 
     return 0;
 }
