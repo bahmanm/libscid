@@ -1,46 +1,13 @@
 #include "test_libscid.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <exception>
-
 #if defined(_WIN32)
 #include <crtdbg.h>
+#include <cstdlib>
 #include <windows.h>
-
-static int
-custom_report_hook(
-    int   report_type,
-    char* message,
-    int*  return_value)
-{
-    std::fprintf(
-        stderr, "\n=== CRT REPORT [type=%d] ===\n%s\n", report_type, message ? message : "(null)");
-    std::fflush(stderr);
-    if (return_value != nullptr)
-    {
-        *return_value = 0;
-    }
-    return 1;
-}
-
-static LONG WINAPI
-custom_seh_filter(EXCEPTION_POINTERS* info)
-{
-    const DWORD code = (info && info->ExceptionRecord) ? info->ExceptionRecord->ExceptionCode : 0;
-    void* const addr =
-        (info && info->ExceptionRecord) ? info->ExceptionRecord->ExceptionAddress : nullptr;
-    std::fprintf(
-        stderr, "\n=== UNHANDLED WIN32 EXCEPTION: code=0x%08lX at address=%p ===\n", code, addr);
-    std::fflush(stderr);
-    return EXCEPTION_EXECUTE_HANDLER;
-}
 
 static void
 disable_interactive_crash_dialogs()
 {
-    _CrtSetReportHook2(_CRT_RPTHOOK_INSTALL, custom_report_hook);
-
     _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
     _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
 
@@ -53,45 +20,12 @@ disable_interactive_crash_dialogs()
     _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
 
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
-    SetUnhandledExceptionFilter(custom_seh_filter);
 }
 #endif
 
 int
 main()
 {
-    std::setvbuf(stdout, nullptr, _IONBF, 0);
-    std::setvbuf(stderr, nullptr, _IONBF, 0);
-
-    std::set_terminate([]() {
-        std::fprintf(stderr, "\n=== std::terminate called ===\n");
-        const std::exception_ptr e = std::current_exception();
-        if (e)
-        {
-            try
-            {
-                std::rethrow_exception(e);
-            }
-            catch (const std::exception& ex)
-            {
-                std::fprintf(stderr, "Exception what(): %s\n", ex.what());
-            }
-            catch (...)
-            {
-                std::fprintf(stderr, "Unknown non-standard exception thrown.\n");
-            }
-        }
-        else
-        {
-            std::fprintf(
-                stderr, "No active exception (std::current_exception() is null).\n"
-                        "Cause: noexcept specification violation or throwing destructor during "
-                        "unwinding.\n");
-        }
-        std::fflush(stderr);
-        std::abort();
-    });
-
 #if defined(_WIN32)
     disable_interactive_crash_dialogs();
 #endif
