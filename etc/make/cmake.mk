@@ -19,14 +19,17 @@ __libscid_etc_make_cmake.mk := 1
 #   PROJECT.__cmake.build.targets (inherited from BASE_PROJECT if omitted)
 #
 # Optional project variables with defaults:
-#   PROJECT.__build.dir                      BASE_PROJECT.__project.dir + _build/
+#   PROJECT.__component                      Derived from PROJECT (e.g. capi, internal)
+#   PROJECT.__cmake.profile                  BASE_PROJECT.__cmake.profile or $(LIBSCID_PROFILE)
+#   PROJECT.__cmake.linkage                  BASE_PROJECT.__cmake.linkage or $(LIBSCID_LINKAGE_TYPE)
+#   PROJECT.__build.dir                      $(LIBSCID_STAGING_BUILD_DIR)$(PROJECT.__component)/$(PROJECT.__cmake.profile)/$(PROJECT.__cmake.linkage)/
+#   PROJECT.__install.dir                    $(LIBSCID_STAGING_INSTALL_DIR)$(PROJECT.__component)/$(PROJECT.__cmake.profile)/
 #   PROJECT.__cmake.source.root              $(ROOT)
 #   PROJECT.__cmake.source.dir               BASE_PROJECT.__project.dir
-#   PROJECT.__cmake.linkage                  BASE_PROJECT.__cmake.linkage or $(LIBSCID_LINKAGE_TYPE)
 #   PROJECT.__cmake.install                  ON
-#   PROJECT.__qc.format.build.dir            BASE_PROJECT.__project.dir + _build/format/
-#   PROJECT.__qc.analysis.build.dir          BASE_PROJECT.__project.dir + _build/analysis/
-#   PROJECT.__qc.dynamic-analysis.build.dir  BASE_PROJECT.__project.dir + _build/sanitisers/
+#   PROJECT.__qc.format.build.dir            $(LIBSCID_STAGING_BUILD_DIR)$(PROJECT.__component)/qc/format/
+#   PROJECT.__qc.analysis.build.dir          $(LIBSCID_STAGING_BUILD_DIR)$(PROJECT.__component)/qc/analysis/
+#   PROJECT.__qc.dynamic-analysis.build.dir  $(LIBSCID_STAGING_BUILD_DIR)$(PROJECT.__component)/qc/sanitisers/
 #
 # Optional project variables without defaults:
 #   PROJECT.__cmake.test.labels              (inherited from BASE_PROJECT if omitted)
@@ -37,24 +40,39 @@ libscid.__asan.detect_leaks := $(if $(filter Darwin,$(libscid.__host.system)),0,
 define libscid.cmake.__project.rules
 ####################################################################################################
 
+$(1).__component ?= $(or $$($(2).__component),$$(word 2,$$(subst ., ,$(1))))
+$(1).__cmake.profile ?= $(or $$($(2).__cmake.profile),$$(LIBSCID_PROFILE))
 $(1).__cmake.build.targets ?= $$($(2).__cmake.build.targets)
 $(1).__cmake.test.labels ?= $$($(2).__cmake.test.labels)
-$(1).__cmake.linkage ?= $$($(2).__cmake.linkage)
+$(1).__cmake.linkage ?= $(or $$($(2).__cmake.linkage),$$(LIBSCID_LINKAGE_TYPE))
 $(1).__cmake.install ?= $$($(2).__cmake.install)
 
+$(1).__build.dir ?= $$(LIBSCID_STAGING_BUILD_DIR)$$($(1).__component)/$$($(1).__cmake.profile)/$$($(1).__cmake.linkage)/
+$(1).__install.dir ?= $$(LIBSCID_STAGING_INSTALL_DIR)$$($(1).__component)/$$($(1).__cmake.profile)/
+$(1).__qc.format.build.dir ?= $$(LIBSCID_STAGING_BUILD_DIR)$$($(1).__component)/qc/format/
+$(1).__qc.analysis.build.dir ?= $$(LIBSCID_STAGING_BUILD_DIR)$$($(1).__component)/qc/analysis/
+$(1).__qc.dynamic-analysis.build.dir ?= $$(LIBSCID_STAGING_BUILD_DIR)$$($(1).__component)/qc/sanitisers/
+
 $(1).__cmake.contract : \
-  bmakelib.default-if-blank( $(1).__build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/) ) \
-  bmakelib.default-if-blank( $(1).__cmake.source.root,$$(call libscid.__make.word.escape,$$(ROOT)) ) \
-  bmakelib.default-if-blank( $(1).__cmake.source.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)) ) \
+  bmakelib.default-if-blank( $(1).__component,$$(word 2,$$(subst ., ,$(1))) ) \
+  bmakelib.default-if-blank( $(1).__cmake.profile,$$(LIBSCID_PROFILE) ) \
+  bmakelib.enum.error-unless-member( LIBSCID_PROFILE,$(1).__cmake.profile ) \
   bmakelib.default-if-blank( $(1).__cmake.linkage,$$(LIBSCID_LINKAGE_TYPE) ) \
   bmakelib.enum.error-unless-member( LIBSCID_LINKAGE_TYPE,$(1).__cmake.linkage ) \
+  bmakelib.default-if-blank( $(1).__build.dir,$$(call libscid.__make.word.escape,$$(LIBSCID_STAGING_BUILD_DIR)$$($(1).__component)/$$($(1).__cmake.profile)/$$($(1).__cmake.linkage)/) ) \
+  bmakelib.default-if-blank( $(1).__install.dir,$$(call libscid.__make.word.escape,$$(LIBSCID_STAGING_INSTALL_DIR)$$($(1).__component)/$$($(1).__cmake.profile)/) ) \
+  bmakelib.default-if-blank( $(1).__cmake.source.root,$$(call libscid.__make.word.escape,$$(ROOT)) ) \
+  bmakelib.default-if-blank( $(1).__cmake.source.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)) ) \
   bmakelib.default-if-blank( $(1).__cmake.install,ON ) \
-  bmakelib.default-if-blank( $(1).__qc.format.build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/format/) ) \
-  bmakelib.default-if-blank( $(1).__qc.analysis.build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/analysis/) ) \
-  bmakelib.default-if-blank( $(1).__qc.dynamic-analysis.build.dir,$$(call libscid.__make.word.escape,$$($(or $(2),$(1)).__project.dir)_build/sanitisers/) ) \
+  bmakelib.default-if-blank( $(1).__qc.format.build.dir,$$(call libscid.__make.word.escape,$$(LIBSCID_STAGING_BUILD_DIR)$$($(1).__component)/qc/format/) ) \
+  bmakelib.default-if-blank( $(1).__qc.analysis.build.dir,$$(call libscid.__make.word.escape,$$(LIBSCID_STAGING_BUILD_DIR)$$($(1).__component)/qc/analysis/) ) \
+  bmakelib.default-if-blank( $(1).__qc.dynamic-analysis.build.dir,$$(call libscid.__make.word.escape,$$(LIBSCID_STAGING_BUILD_DIR)$$($(1).__component)/qc/sanitisers/) ) \
   .WAIT \
   bmakelib.error-if-blank( \
+    $(1).__component \
+    $(1).__cmake.profile \
     $(1).__build.dir \
+    $(1).__install.dir \
     $(1).__cmake.source.root \
     $(1).__cmake.source.dir \
     $(1).__cmake.build.targets \
@@ -94,6 +112,11 @@ $(1).build : $(1).configure
 	    --config $$(LIBSCID_CMAKE_BUILD_TYPE) \
 	    $$(foreach target,$$($(1).__cmake.build.targets),--target $$(target)) \
 	    $$(LIBSCID_CMAKE_BUILD_ARGS)
+	$$(if $$(filter ON,$$($(1).__cmake.install)),\
+	    $$(LIBSCID_CMAKE) \
+	        --install $$($(1).__build.dir) \
+	        --config $$(LIBSCID_CMAKE_BUILD_TYPE) \
+	        --prefix "$$($(1).__install.dir)")
 
 .PHONY : $(1).build
 
@@ -112,11 +135,10 @@ $(1).test : $(1).build
 
 $(1).install : $(1).build
 	$$(if $$(filter ON,$$($(1).__cmake.install)),\
-	    DESTDIR="$$(DESTDIR)" $$(LIBSCID_CMAKE) \
-	        --install $$($(1).__build.dir) \
-	        --config $$(LIBSCID_CMAKE_BUILD_TYPE) \
-	        $$(if $$(PREFIX),--prefix "$$(PREFIX)") \
-	        $$(if $$(filter-out 0 false OFF,$$(LIBSCID_INSTALL_STRIP)),--strip))
+	    $$(if $$(PREFIX),,\
+	        $$(error PREFIX must be set to install $(1))) \
+	    mkdir -p "$$(DESTDIR)$$(PREFIX)" && \
+	    cp -R "$$($(1).__install.dir)". "$$(DESTDIR)$$(PREFIX)")
 
 .PHONY : $(1).install
 
@@ -124,6 +146,10 @@ $(1).install : $(1).build
 
 $(1).clean : $(1).__cmake.contract
 	-rm -rf $$($(1).__build.dir)
+	-rm -rf $$($(1).__install.dir)
+	-rm -rf $$($(1).__qc.format.build.dir)
+	-rm -rf $$($(1).__qc.analysis.build.dir)
+	-rm -rf $$($(1).__qc.dynamic-analysis.build.dir)
 
 .PHONY : $(1).clean
 
