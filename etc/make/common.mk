@@ -21,8 +21,18 @@ export LIBSCID_BMAKELIB
 
 ####################################################################################################
 
-LIBSCID_BUILD_ROOT ?= $(ROOT)_build/
-LIBSCID_RELEASE_ROOT ?= $(ROOT)_release/
+LIBSCID_STAGING_ROOT ?= $(ROOT)_staging/
+LIBSCID_STAGING_BUILD_DIR ?= $(LIBSCID_STAGING_ROOT)build/
+LIBSCID_STAGING_INSTALL_DIR ?= $(LIBSCID_STAGING_ROOT)install/
+LIBSCID_STAGING_RELEASE_DIR ?= $(LIBSCID_STAGING_ROOT)release/
+
+LIBSCID_BUILD_ROOT ?= $(LIBSCID_STAGING_BUILD_DIR)
+LIBSCID_RELEASE_ROOT ?= $(LIBSCID_STAGING_RELEASE_DIR)
+
+$(call bmakelib.enum.define,LIBSCID_PROFILE/debug,release)
+LIBSCID_PROFILE ?= $(or $(PROFILE),debug)
+PROFILE := $(LIBSCID_PROFILE)
+$(call bmakelib.enum.error-unless-member,LIBSCID_PROFILE,LIBSCID_PROFILE)
 
 LIBSCID_CMAKE ?= cmake
 LIBSCID_CPACK ?= cpack
@@ -32,7 +42,12 @@ LIBSCID_TOX ?= tox
 LIBSCID_PYTHON ?= $(shell command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 LIBSCID_PLANTUML_JAR_PATH ?=
 
+ifeq ($(LIBSCID_PROFILE),release)
 LIBSCID_CMAKE_BUILD_TYPE ?= Release
+else
+LIBSCID_CMAKE_BUILD_TYPE ?= Debug
+endif
+
 LIBSCID_CMAKE_BUILD_ARGS ?=
 LIBSCID_CMAKE_CONFIGURE_ARGS ?=
 LIBSCID_CMAKE_GENERATOR ?=

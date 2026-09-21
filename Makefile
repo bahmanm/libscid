@@ -64,13 +64,14 @@ install : libscid.install
 
 ####################################################################################################
 
-libscid.__docs.public.dir := $(ROOT)_build/docs/public/
+libscid.__docs.public.dir := $(LIBSCID_STAGING_BUILD_DIR)docs/public/
 libscid.__docs.hub.dir := $(ROOT)docs/hub/
 libscid.__docs.assets.dir := $(ROOT)docs/assets/
 
 libscid.clean : $(libscid.__components:%=libscid.%.clean)
-	-rm -rf $(LIBSCID_RELEASE_ROOT)
-	-rm -rf $(libscid.__docs.public.dir)
+	-rm -rf $(LIBSCID_STAGING_ROOT)
+	-rm -rf $(ROOT)_build/
+	-rm -rf $(ROOT)_release/
 
 .PHONY : libscid.clean
 
@@ -82,7 +83,7 @@ libscid.docs : $(libscid.__components:%=libscid.%.docs)
 	mkdir -p $(libscid.__docs.public.dir)python/
 	cp $(libscid.__docs.hub.dir)index.html $(libscid.__docs.public.dir)
 	cp -r $(libscid.__docs.assets.dir)img/* $(libscid.__docs.public.dir)assets/img/
-	cp -r $(ROOT)capi/_build/docs/site/* $(libscid.__docs.public.dir)capi/
+	cp -r $(LIBSCID_STAGING_BUILD_DIR)capi/docs/site/* $(libscid.__docs.public.dir)capi/
 	cp -r $(ROOT)python/_build/docs/site/* $(libscid.__docs.public.dir)python/
 
 .PHONY : libscid.docs
