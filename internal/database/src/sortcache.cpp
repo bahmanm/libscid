@@ -187,11 +187,12 @@ namespace scid::database
         gamenumT*      result) const
     {
         ASSERT(filter != NULL && filter->size() <= nGames_);
-        ASSERT(result != NULL);
 
         const size_t maxResults = filter->size();
         if (row_count == 0 || row_offset >= maxResults)
             return 0;
+
+        ASSERT(result != NULL);
 
         size_t row_end = std::min(row_offset + row_count, maxResults);
 

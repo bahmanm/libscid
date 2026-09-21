@@ -193,6 +193,12 @@ scid_database_filter_game_indices_get(
             *out_game_indices_count = row_count;
             return SCID_ERROR_BUFFER_FULL;
         }
+
+        if (row_count == 0)
+        {
+            return write_size(0, out_game_indices_count);
+        }
+
         std::vector<scid::database::gamenumT> game_indices(row_count);
         size_t                                listed = 0;
 
