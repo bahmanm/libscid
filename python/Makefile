@@ -17,6 +17,8 @@ libscid.python.__install.dir ?= $(LIBSCID_STAGING_INSTALL_DIR)python/$(LIBSCID_P
 libscid.python.__native.dir := $(libscid.python.__project.dir)src/libscid/_native/
 libscid.python.__release.library ?= $(if $(LIBSCID_LIBRARY_PATH),$(LIBSCID_LIBRARY_PATH),$(LIBSCID_STAGING_INSTALL_DIR)capi/release/lib/$(libscid.__library.name))
 libscid.python.__release.smoke-test.dir ?= $(libscid.python.__build.dir)release-smoke-test/
+libscid.python.__release.source-smoke-test.dir ?= $(libscid.python.__build.dir)release-source-smoke-test/
+libscid.python.__release.source-smoke-test.src.dir ?= $(libscid.capi.__release.source-smoke-test.dir)src/
 libscid.python.__release.artefact.dir ?= $(LIBSCID_STAGING_RELEASE_DIR)python/
 libscid.python.__release.version ?= $(if $(LIBSCID_RELEASE_PYTHON_VERSION),$(LIBSCID_RELEASE_PYTHON_VERSION),$(LIBSCID_RELEASE_VERSION))
 libscid.python.__bin.dir := $(libscid.python.__project.dir).venv/$(dir $(libscid.__venv.python))
@@ -162,12 +164,33 @@ libscid.python.__release-sdist-smoke-test : libscid.python.__release-sdist
 
 ####################################################################################################
 
+####################################################################################################
+
+libscid.python.__release-source-smoke-test : libscid.capi.__release-source-smoke-test
+	$(MAKE) -C $(libscid.python.__release.source-smoke-test.src.dir) libscid.python.__release-wheel
+	shopt -s nullglob; \
+	wheels=( "$(libscid.python.__release.source-smoke-test.src.dir)_staging/release/python/"libscid-*.whl ); \
+	[[ $${#wheels[@]} -gt 0 ]] || { echo "No wheel found to test in source smoke test" >&2; exit 1; }; \
+	wheel="$${wheels[$$(($${#wheels[@]} - 1))]}"; \
+	rm -rf $(libscid.python.__release.source-smoke-test.dir); \
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) venv $(libscid.python.__release.source-smoke-test.dir); \
+	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) pip install --python $(libscid.python.__release.source-smoke-test.dir)$(libscid.__venv.python) "$$wheel"; \
+	cd $(ROOT); \
+	unset LIBSCID_LIBRARY_PATH; \
+	unset LIBSCID_LIBRARY_PREFIX; \
+	$(libscid.python.__release.source-smoke-test.dir)$(libscid.__venv.python) -c \
+	    "import libscid; game = libscid.Game.from_pgn('1. e4 e5 *'); assert game.mainline_move_count == 2"
+
+.PHONY : libscid.python.__release-source-smoke-test
+
+####################################################################################################
+
 libscid.python.__release.sdist.targets :=
 ifeq ($(LIBSCID_PYTHON_BUILD_SDIST),true)
 libscid.python.__release.sdist.targets := libscid.python.__release-sdist libscid.python.__release-sdist-smoke-test
 endif
 
-libscid.python.release : libscid.python.__release-wheel libscid.python.__release-smoke-test $(libscid.python.__release.sdist.targets)
+libscid.python.release : libscid.python.__release-wheel libscid.python.__release-smoke-test libscid.python.__release-source-smoke-test $(libscid.python.__release.sdist.targets)
 
 .PHONY : libscid.python.release
 
