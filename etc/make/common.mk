@@ -30,9 +30,15 @@ LIBSCID_BUILD_ROOT ?= $(LIBSCID_STAGING_BUILD_DIR)
 LIBSCID_RELEASE_ROOT ?= $(LIBSCID_STAGING_RELEASE_DIR)
 
 $(call bmakelib.enum.define,LIBSCID_PROFILE/debug,release)
+ifneq ($(filter install libscid.install libscid.capi.install libscid.python.install,$(MAKECMDGOALS)),)
+LIBSCID_PROFILE ?= $(or $(PROFILE),release)
+else
 LIBSCID_PROFILE ?= $(or $(PROFILE),debug)
+endif
 PROFILE := $(LIBSCID_PROFILE)
 $(call bmakelib.enum.error-unless-member,LIBSCID_PROFILE,LIBSCID_PROFILE)
+
+PREFIX ?= $(HOME)/.local/opt/libscid
 
 LIBSCID_CMAKE ?= cmake
 LIBSCID_CPACK ?= cpack
