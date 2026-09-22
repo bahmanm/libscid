@@ -45,7 +45,7 @@ file(
 list(
     FILTER LIBSCID_FORMAT_SOURCES
     EXCLUDE REGEX
-    "/(_build[^/]*|build|CMakeFiles)/" )
+    "/(_build[^/]*|build|CMakeFiles|\\.venv)/" )
 
 add_custom_target(
     format

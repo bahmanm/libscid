@@ -24,7 +24,9 @@ def test_candidate_staging_directories_handles_root_path(monkeypatch):
     assert staging_dirs == ()
 
 
-def test_candidate_staging_directories_handles_missing_staging_dir(tmp_path, monkeypatch):
+def test_candidate_staging_directories_handles_missing_staging_dir(
+    tmp_path, monkeypatch
+):
     deep_file = tmp_path / "a" / "b" / "c" / "libscid" / "_native" / "_loader.py"
     deep_file.parent.mkdir(parents=True)
     deep_file.touch()
