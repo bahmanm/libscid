@@ -467,4 +467,90 @@ namespace
         EXPECT_EQ("Reykjavik 1972", game2.event());
     }
 
+    TEST(
+        CoreGameTest,
+        PlayerLifecycleAndSwap)
+    {
+        scid::core::Player p1{"Tal", {2705, scid::core::RATING_Elo}};
+        scid::core::Player p2{"Botvinnik", {2720, scid::core::RATING_Elo}};
+
+        p1.swap(p2);
+        EXPECT_EQ("Botvinnik", p1.name);
+        EXPECT_EQ(2720, p1.rating.value);
+        EXPECT_EQ("Tal", p2.name);
+        EXPECT_EQ(2705, p2.rating.value);
+
+        using std::swap;
+        swap(p1, p2);
+        EXPECT_EQ("Tal", p1.name);
+        EXPECT_EQ("Botvinnik", p2.name);
+
+        p1.clear();
+        EXPECT_TRUE(p1.name.empty());
+        EXPECT_EQ(0, p1.rating.value);
+    }
+
+    TEST(
+        CoreGameTest,
+        EventInfoLifecycleAndSwap)
+    {
+        scid::core::EventInfo e1;
+        e1.name = "Candidates";
+        e1.site = "Curacao";
+        e1.round = "1";
+        e1.date = scid::core::date_parsePGNTag("1962.05.02", 10);
+        e1.eventDate = scid::core::date_parsePGNTag("1962.05.01", 10);
+
+        scid::core::EventInfo e2;
+        e2.name = "Interzonal";
+        e2.site = "Stockholm";
+        e2.round = "3";
+        e2.date = scid::core::date_parsePGNTag("1962.02.05", 10);
+        e2.eventDate = scid::core::date_parsePGNTag("1962.02.01", 10);
+
+        e1.swap(e2);
+        EXPECT_EQ("Interzonal", e1.name);
+        EXPECT_EQ("Stockholm", e1.site);
+        EXPECT_EQ("Candidates", e2.name);
+        EXPECT_EQ("Curacao", e2.site);
+
+        using std::swap;
+        swap(e1, e2);
+        EXPECT_EQ("Candidates", e1.name);
+
+        e1.clear();
+        EXPECT_TRUE(e1.name.empty());
+        EXPECT_TRUE(e1.site.empty());
+        EXPECT_TRUE(e1.round.empty());
+        EXPECT_EQ(scid::core::ZERO_DATE, e1.date);
+        EXPECT_EQ(scid::core::ZERO_DATE, e1.eventDate);
+    }
+
+    TEST(
+        CoreGameTest,
+        MoveSequenceLifecycleAndSwap)
+    {
+        scid::core::MoveSequence s1;
+        s1.appendMove({scid::core::E2, scid::core::E4, scid::core::EMPTY});
+        s1.appendMove({scid::core::E7, scid::core::E5, scid::core::EMPTY});
+        ASSERT_EQ(2U, s1.moves.size());
+
+        scid::core::MoveSequence s2;
+        s2.appendMove({scid::core::D2, scid::core::D4, scid::core::EMPTY});
+        ASSERT_EQ(1U, s2.moves.size());
+
+        s1.swap(s2);
+        ASSERT_EQ(1U, s1.moves.size());
+        EXPECT_EQ(scid::core::D2, s1.moves[0].spec.from);
+        ASSERT_EQ(2U, s2.moves.size());
+        EXPECT_EQ(scid::core::E2, s2.moves[0].spec.from);
+
+        using std::swap;
+        swap(s1, s2);
+        ASSERT_EQ(2U, s1.moves.size());
+
+        s1.clear();
+        EXPECT_TRUE(s1.moves.empty());
+    }
+
 } // namespace

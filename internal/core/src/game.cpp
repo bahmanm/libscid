@@ -49,17 +49,65 @@ namespace scid::core
     } // namespace
 
     void
+    Player::clear() noexcept
+    {
+        name.clear();
+        rating = {};
+    }
+
+
+    void
+    Player::swap(Player& other) noexcept
+    {
+        using std::swap;
+        swap(name, other.name);
+        swap(rating, other.rating);
+    }
+
+
+    void
+    EventInfo::clear() noexcept
+    {
+        name.clear();
+        site.clear();
+        round.clear();
+        date = scid::core::ZERO_DATE;
+        eventDate = scid::core::ZERO_DATE;
+    }
+
+
+    void
+    EventInfo::swap(EventInfo& other) noexcept
+    {
+        using std::swap;
+        swap(name, other.name);
+        swap(site, other.site);
+        swap(round, other.round);
+        swap(date, other.date);
+        swap(eventDate, other.eventDate);
+    }
+
+
+    void
+    MoveSequence::clear() noexcept
+    {
+        moves.clear();
+    }
+
+
+    void
+    MoveSequence::swap(MoveSequence& other) noexcept
+    {
+        moves.swap(other.moves);
+    }
+
+
+    void
     GameHeader::clear() noexcept
     {
-        event.name.clear();
-        event.site.clear();
-        event.round.clear();
-        event.date = scid::core::ZERO_DATE;
-        event.eventDate = scid::core::ZERO_DATE;
-        white.name.clear();
-        white.rating = {};
-        black.name.clear();
-        black.rating = {};
+        event.clear();
+        white.clear();
+        black.clear();
         result = scid::core::RESULT_None;
         eco.clear();
         tags.clear();
@@ -70,15 +118,9 @@ namespace scid::core
     GameHeader::swap(GameHeader& other) noexcept
     {
         using std::swap;
-        swap(event.name, other.event.name);
-        swap(event.site, other.event.site);
-        swap(event.round, other.event.round);
-        swap(event.date, other.event.date);
-        swap(event.eventDate, other.event.eventDate);
-        swap(white.name, other.white.name);
-        swap(white.rating, other.white.rating);
-        swap(black.name, other.black.name);
-        swap(black.rating, other.black.rating);
+        swap(event, other.event);
+        swap(white, other.white);
+        swap(black, other.black);
         swap(result, other.result);
         swap(eco, other.eco);
         swap(tags, other.tags);
@@ -89,7 +131,7 @@ namespace scid::core
     Movetext::clear() noexcept
     {
         initialComment.clear();
-        mainline.moves.clear();
+        mainline.clear();
     }
 
 
@@ -98,7 +140,7 @@ namespace scid::core
     {
         using std::swap;
         swap(initialComment, other.initialComment);
-        swap(mainline.moves, other.mainline.moves);
+        swap(mainline, other.mainline);
     }
 
 
@@ -106,7 +148,7 @@ namespace scid::core
 
 
     void
-    Game::clear()
+    Game::clear() noexcept
     {
         header_.clear();
         movetext_.clear();

@@ -53,6 +53,18 @@ namespace scid::core
             std::string name;
             /** The player's rating metadata. */
             Rating rating;
+
+            /**
+             * Resets the player name and rating to default values.
+             */
+            void
+            clear() noexcept;
+
+            /**
+             * Swaps player data with another instance.
+             */
+            void
+            swap(Player& other) noexcept;
     };
 
     /**
@@ -74,6 +86,18 @@ namespace scid::core
             scid::core::dateT date = scid::core::ZERO_DATE;
             /** The date associated with the event as a whole. */
             scid::core::dateT eventDate = scid::core::ZERO_DATE;
+
+            /**
+             * Resets the event name, site, round, and dates to default values.
+             */
+            void
+            clear() noexcept;
+
+            /**
+             * Swaps event metadata with another instance.
+             */
+            void
+            swap(EventInfo& other) noexcept;
     };
 
     /**
@@ -169,6 +193,18 @@ namespace scid::core
             Move&
             appendMove(MoveSpec spec);
 
+            /**
+             * Clears all moves from the sequence.
+             */
+            void
+            clear() noexcept;
+
+            /**
+             * Swaps move sequence contents with another instance.
+             */
+            void
+            swap(MoveSequence& other) noexcept;
+
             /** The moves in this line, in playback order. */
             std::vector<Move> moves;
     };
@@ -230,7 +266,7 @@ namespace scid::core
              * Resets the header, movetext, and start position to their empty defaults.
              */
             void
-            clear();
+            clear() noexcept;
 
             /**
              * Swaps game state with another game instance.
@@ -575,6 +611,39 @@ namespace scid::core
             Movetext                            movetext_{};
             std::optional<scid::core::Position> startPosition_{};
     };
+
+    /**
+     * Swaps two Player instances.
+     */
+    inline void
+    swap(
+        Player& a,
+        Player& b) noexcept
+    {
+        a.swap(b);
+    }
+
+    /**
+     * Swaps two EventInfo instances.
+     */
+    inline void
+    swap(
+        EventInfo& a,
+        EventInfo& b) noexcept
+    {
+        a.swap(b);
+    }
+
+    /**
+     * Swaps two MoveSequence instances.
+     */
+    inline void
+    swap(
+        MoveSequence& a,
+        MoveSequence& b) noexcept
+    {
+        a.swap(b);
+    }
 
     /**
      * Swaps two GameHeader instances.

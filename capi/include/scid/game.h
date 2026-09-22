@@ -406,6 +406,9 @@ extern "C"
      * position does not satisfy preconditions for @p mode.
      * @retval SCID_ERROR_INVALID_MOVE If board positions do not match or illegal moves are
      * encountered.
+     * @note Mutating @p target_game invalidates any existing cursors pointing into it (including
+     * @p target_cursor). Callers must use @p out_cursor or create a new cursor via @ref
+     * scid_game_cursor_create() for further operations.
      *
      * @note The caller acquires ownership of @p out_cursor and must release it with @ref
      * scid_game_cursor_free().

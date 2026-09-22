@@ -94,7 +94,7 @@ def _platform_tag() -> str:
 def _candidate_library_names() -> tuple[str, ...]:
     if sys.platform == "darwin":
         return ("libscid.dylib",)
-    if sys.platform.startswith("win") or sys.platform == "win32" or os.name == "nt":
+    if sys.platform.startswith("win") or os.name == "nt":
         return ("scid.dll", "libscid.dll")
     return ("libscid.so",)
 
