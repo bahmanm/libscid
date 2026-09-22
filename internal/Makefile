@@ -15,7 +15,6 @@ libscid.internal.__cmake.build.targets := scid_tests_core_cpp scid_tests_databas
 libscid.internal.__cmake.test.labels := core|database|eco|spelling
 libscid.internal.__cmake.install := OFF
 
-libscid.internal.static.__build.dir ?= $(libscid.internal.__project.dir)_build/static/
 libscid.internal.static.__cmake.linkage := static
 libscid.internal.static.__cmake.install := OFF
 

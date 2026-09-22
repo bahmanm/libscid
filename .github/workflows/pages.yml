@@ -41,14 +41,14 @@ jobs:
 
       - name: Verify documentation output
         run: |
-          test -f _build/docs/public/index.html
-          test -f _build/docs/public/capi/index.html
-          test -f _build/docs/public/python/index.html
+          test -f _staging/build/docs/public/index.html
+          test -f _staging/build/docs/public/capi/index.html
+          test -f _staging/build/docs/public/python/index.html
 
       - name: Upload GitHub Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: _build/docs/public
+          path: _staging/build/docs/public
 
   pages__deploy:
     needs: pages__build

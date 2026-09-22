@@ -1,7 +1,3 @@
-#include "scid/libscid/support.h"
-
-#include "test_libscid.h"
-
 #include <cassert>
 #include <concepts>
 #include <cstddef>
@@ -9,6 +5,9 @@
 #include <stdexcept>
 #include <string_view>
 #include <utility>
+
+#include "scid/libscid/support.h"
+#include "test_libscid.h"
 
 using namespace scid::libscid;
 

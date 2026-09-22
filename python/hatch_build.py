@@ -91,13 +91,72 @@ def _platform_tag() -> str:
     raise RuntimeError(f"Unsupported platform for libscid wheel build: {sys.platform}")
 
 
-def _has_bundled_native_library(root: str) -> bool:
-    native_dir = os.path.join(root, "src", "libscid", "_native")
-    if not os.path.isdir(native_dir):
-        return False
-    return any(
-        fname.endswith((".so", ".dylib", ".dll")) for fname in os.listdir(native_dir)
+def _candidate_library_names() -> tuple[str, ...]:
+    if sys.platform == "darwin":
+        return ("libscid.dylib",)
+    if sys.platform.startswith("win") or sys.platform == "win32" or os.name == "nt":
+        return ("scid.dll", "libscid.dll")
+    return ("libscid.so",)
+
+
+def _prefix_candidate_directories(prefix: str) -> tuple[str, ...]:
+    prefix_path = os.path.abspath(prefix)
+    return (
+        os.path.join(prefix_path, "lib"),
+        os.path.join(prefix_path, "lib64"),
+        os.path.join(prefix_path, "bin"),
+        prefix_path,
     )
+
+
+def _find_native_library(root: str) -> str | None:
+    # 1. LIBSCID_LIBRARY_PATH: explicit path to the library file
+    library_path = os.environ.get("LIBSCID_LIBRARY_PATH")
+    if library_path:
+        path = os.path.abspath(library_path)
+        if os.path.isfile(path):
+            return path
+        return None
+
+    library_names = _candidate_library_names()
+
+    # 2. LIBSCID_LIBRARY_PREFIX: installation prefix
+    prefix = os.environ.get("LIBSCID_LIBRARY_PREFIX")
+    if prefix:
+        for directory in _prefix_candidate_directories(prefix):
+            if not os.path.isdir(directory):
+                continue
+            for name in library_names:
+                candidate = os.path.join(directory, name)
+                if os.path.isfile(candidate):
+                    return candidate
+        return None
+
+    # 3. Staging directory
+    repo_root = os.path.abspath(os.path.join(root, ".."))
+    staging_dirs = (
+        os.path.join(repo_root, "_staging", "install", "capi", "release", "lib"),
+        os.path.join(repo_root, "_staging", "install", "capi", "debug", "lib"),
+        os.path.join(repo_root, "_staging", "build", "capi", "release", "shared"),
+        os.path.join(repo_root, "_staging", "build", "capi", "debug", "shared"),
+    )
+    for directory in staging_dirs:
+        if not os.path.isdir(directory):
+            continue
+        for name in library_names:
+            candidate = os.path.join(directory, name)
+            if os.path.isfile(candidate):
+                return candidate
+
+    # 4. Bundle (in-tree source package)
+    bundle_dir = os.path.join(root, "src", "libscid", "_native")
+    if os.path.isdir(bundle_dir):
+        for name in library_names:
+            candidate = os.path.join(bundle_dir, name)
+            if os.path.isfile(candidate):
+                return candidate
+
+    return None
 
 
 def _abort_unsupported_sdist_install() -> None:
@@ -132,8 +191,15 @@ class LibScidBuildHook(BuildHookInterface):
         if self.target_name != "wheel" or version != "standard":
             return
 
-        if not _has_bundled_native_library(self.root):
+        native_library = _find_native_library(self.root)
+        if not native_library:
             _abort_unsupported_sdist_install()
+
+        assert native_library is not None
+        force_include = build_data.setdefault("force_include", {})
+        if isinstance(force_include, dict):
+            filename = os.path.basename(native_library)
+            force_include[native_library] = f"libscid/_native/{filename}"
 
         build_data["pure_python"] = False
         build_data["tag"] = f"py3-none-{_platform_tag()}"
