@@ -10,6 +10,19 @@ set( LIBSCID_MKDOCS_CONFIG "${LIBSCID_SOURCE_ROOT}/capi/docs/mkdocs.yml" )
 set( LIBSCID_REFERENCE_DOCS_DIR "${LIBSCID_SOURCE_ROOT}/docs/reference" )
 set( LIBSCID_SITE_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/site" )
 set( LIBSCID_PLANTUML_JAR_PATH "" CACHE FILEPATH "Path to plantuml.jar for Doxygen diagram rendering." )
+if( NOT LIBSCID_PLANTUML_JAR_PATH )
+    find_file( LIBSCID_DETECTED_PLANTUML_JAR
+        NAMES plantuml.jar
+        PATHS
+            /opt/homebrew/opt/plantuml/libexec
+            /usr/local/opt/plantuml/libexec
+            /usr/share/plantuml
+            /usr/share/java
+        DOC "Path to plantuml.jar for Doxygen diagram rendering." )
+    if( LIBSCID_DETECTED_PLANTUML_JAR )
+        set( LIBSCID_PLANTUML_JAR_PATH "${LIBSCID_DETECTED_PLANTUML_JAR}" CACHE FILEPATH "Path to plantuml.jar for Doxygen diagram rendering." FORCE )
+    endif()
+endif()
 set( LIBSCID_PLANTUML_DIAGRAM_DIR "${LIBSCID_SOURCE_ROOT}/docs/diagrams" )
 
 configure_file(
@@ -30,7 +43,7 @@ endif()
 
 if( UV_EXECUTABLE )
     list( APPEND LIBSCID_DOCS_COMMANDS
-        COMMAND "${UV_EXECUTABLE}" run --project "${LIBSCID_SOURCE_ROOT}/capi/docs" mkdocs build -f "${LIBSCID_MKDOCS_CONFIG}" -d "${LIBSCID_SITE_OUTPUT_DIR}" )
+        COMMAND "${UV_EXECUTABLE}" run --no-sync --project "${LIBSCID_SOURCE_ROOT}/capi/docs" mkdocs build -f "${LIBSCID_MKDOCS_CONFIG}" -d "${LIBSCID_SITE_OUTPUT_DIR}" )
 elseif( MKDOCS_EXECUTABLE )
     list( APPEND LIBSCID_DOCS_COMMANDS
         COMMAND "${MKDOCS_EXECUTABLE}" build -f "${LIBSCID_MKDOCS_CONFIG}" -d "${LIBSCID_SITE_OUTPUT_DIR}" )

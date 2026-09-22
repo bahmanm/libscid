@@ -11,22 +11,21 @@ export ROOT ?= $(abspath $(libscid.capi.__project.dir)..)/
 
 include $(ROOT)etc/make/common.mk
 
-libscid.capi.__build.dir ?= $(libscid.capi.__project.dir)_build/
+libscid.capi.__component := capi
 libscid.capi.__cmake.build.targets := scid scid_tests_c scid_tests_cxx
 libscid.capi.__cmake.test.labels := capi
 
-libscid.capi.static.__build.dir ?= $(libscid.capi.__project.dir)_build/static/
 libscid.capi.static.__cmake.linkage := static
 libscid.capi.static.__cmake.install := OFF
 
-libscid.capi.__docs.build.dir ?= $(libscid.capi.__project.dir)_build/docs/
-libscid.capi.__release.build.dir ?= $(libscid.capi.__project.dir)_build/release/
-libscid.capi.__release.package.build.dir ?= $(libscid.capi.__project.dir)_build/package/
-libscid.capi.__release.smoke-test.dir ?= $(libscid.capi.__project.dir)_build/release-smoke-test/
+libscid.capi.__docs.build.dir ?= $(LIBSCID_STAGING_BUILD_DIR)capi/docs/
+libscid.capi.__release.build.dir ?= $(LIBSCID_STAGING_BUILD_DIR)capi/release/
+libscid.capi.__release.package.build.dir ?= $(LIBSCID_STAGING_BUILD_DIR)capi/package/
+libscid.capi.__release.smoke-test.dir ?= $(LIBSCID_STAGING_BUILD_DIR)capi/release-smoke-test/
 libscid.capi.__release.build.docs ?= ON
-libscid.capi.__release.artefact.dir ?= $(LIBSCID_RELEASE_ROOT)
-libscid.capi.artefact := $(libscid.capi.__build.dir)$(libscid.__library.name)
-libscid.capi.release.artefact := $(libscid.capi.__release.build.dir)$(libscid.__library.name)
+libscid.capi.__release.artefact.dir ?= $(LIBSCID_STAGING_RELEASE_DIR)capi/
+libscid.capi.artefact = $(libscid.capi.__build.dir)$(libscid.__library.name)
+libscid.capi.release.artefact = $(libscid.capi.__release.build.dir)$(libscid.__library.name)
 
 ####################################################################################################
 
@@ -60,6 +59,7 @@ libscid.capi.__release-% : export LIBSCID_HOST_SYSTEM := $(libscid.__host.system
 libscid.capi.__release-% : export LIBSCID_CMAKE := $(LIBSCID_CMAKE)
 libscid.capi.__release-% : export LIBSCID_CPACK := $(LIBSCID_CPACK)
 libscid.capi.__release-% : export LIBSCID_CTEST := $(LIBSCID_CTEST)
+libscid.capi.__release-% : export LIBSCID_CTEST_TIMEOUT := $(LIBSCID_CTEST_TIMEOUT)
 libscid.capi.__release-% : export LIBSCID_CMAKE_BUILD_ARGS := $(LIBSCID_CMAKE_BUILD_ARGS)
 libscid.capi.__release-% : export LIBSCID_CMAKE_CONFIGURE_ARGS := $(LIBSCID_CMAKE_CONFIGURE_ARGS)
 libscid.capi.__release-% : export LIBSCID_CMAKE_GENERATOR := $(LIBSCID_CMAKE_GENERATOR)
@@ -121,6 +121,7 @@ libscid.capi.docs : libscid.capi.__cmake.contract
 	    $(libscid.cmake.__cxx.compiler.arg) \
 	    -DBUILD_TESTING=OFF \
 	    -DLIBSCID_BUILD_DOCS=ON \
+	    -DLIBSCID_INSTALL=OFF \
 	    "-DLIBSCID_SOURCE_ROOT=$(libscid.capi.__cmake.source.root)" \
 	    $(LIBSCID_CMAKE_CONFIGURE_ARGS)
 	$(LIBSCID_CMAKE) \

@@ -75,5 +75,5 @@ runs:
       uses: actions/upload-artifact@v7
       with:
         name: release-build__${{ inputs.platform_label }}
-        path: _release/*
+        path: _staging/release/**
         if-no-files-found: error

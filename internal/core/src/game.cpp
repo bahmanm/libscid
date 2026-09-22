@@ -48,18 +48,79 @@ namespace scid::core
         }
     } // namespace
 
-    Game::Game()
+    void
+    GameHeader::clear() noexcept
     {
-        clear();
+        event.name.clear();
+        event.site.clear();
+        event.round.clear();
+        event.date = scid::core::ZERO_DATE;
+        event.eventDate = scid::core::ZERO_DATE;
+        white.name.clear();
+        white.rating = {};
+        black.name.clear();
+        black.rating = {};
+        result = scid::core::RESULT_None;
+        eco.clear();
+        tags.clear();
     }
+
+
+    void
+    GameHeader::swap(GameHeader& other) noexcept
+    {
+        using std::swap;
+        swap(event.name, other.event.name);
+        swap(event.site, other.event.site);
+        swap(event.round, other.event.round);
+        swap(event.date, other.event.date);
+        swap(event.eventDate, other.event.eventDate);
+        swap(white.name, other.white.name);
+        swap(white.rating, other.white.rating);
+        swap(black.name, other.black.name);
+        swap(black.rating, other.black.rating);
+        swap(result, other.result);
+        swap(eco, other.eco);
+        swap(tags, other.tags);
+    }
+
+
+    void
+    Movetext::clear() noexcept
+    {
+        initialComment.clear();
+        mainline.moves.clear();
+    }
+
+
+    void
+    Movetext::swap(Movetext& other) noexcept
+    {
+        using std::swap;
+        swap(initialComment, other.initialComment);
+        swap(mainline.moves, other.mainline.moves);
+    }
+
+
+    Game::Game() = default;
 
 
     void
     Game::clear()
     {
-        header_ = {};
-        movetext_ = {};
+        header_.clear();
+        movetext_.clear();
         startPosition_.reset();
+    }
+
+
+    void
+    Game::swap(Game& other) noexcept
+    {
+        using std::swap;
+        header_.swap(other.header_);
+        movetext_.swap(other.movetext_);
+        swap(startPosition_, other.startPosition_);
     }
 
 

@@ -14,13 +14,13 @@ include $(libscid.__components:%=$(ROOT)%/Makefile)
 ####################################################################################################
 
 libscid.python.test : libscid.capi.build
-libscid.python.test : export LIBSCID_LIBRARY := $(libscid.capi.artefact)
+libscid.python.test : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
 
 libscid.python.release : libscid.capi.release-library
-libscid.python.release : export LIBSCID_LIBRARY := $(libscid.capi.release.artefact)
+libscid.python.release : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
 
 libscid.python.install : libscid.capi.release-library
-libscid.python.install : export LIBSCID_LIBRARY := $(libscid.capi.release.artefact)
+libscid.python.install : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
 
 ####################################################################################################
 
@@ -64,13 +64,14 @@ install : libscid.install
 
 ####################################################################################################
 
-libscid.__docs.public.dir := $(ROOT)_build/docs/public/
+libscid.__docs.public.dir := $(LIBSCID_STAGING_BUILD_DIR)docs/public/
 libscid.__docs.hub.dir := $(ROOT)docs/hub/
 libscid.__docs.assets.dir := $(ROOT)docs/assets/
 
 libscid.clean : $(libscid.__components:%=libscid.%.clean)
-	-rm -rf $(LIBSCID_RELEASE_ROOT)
-	-rm -rf $(libscid.__docs.public.dir)
+	-rm -rf $(LIBSCID_STAGING_ROOT)
+	-rm -rf $(ROOT)_build/
+	-rm -rf $(ROOT)_release/
 
 .PHONY : libscid.clean
 
@@ -82,8 +83,8 @@ libscid.docs : $(libscid.__components:%=libscid.%.docs)
 	mkdir -p $(libscid.__docs.public.dir)python/
 	cp $(libscid.__docs.hub.dir)index.html $(libscid.__docs.public.dir)
 	cp -r $(libscid.__docs.assets.dir)img/* $(libscid.__docs.public.dir)assets/img/
-	cp -r $(ROOT)capi/_build/docs/site/* $(libscid.__docs.public.dir)capi/
-	cp -r $(ROOT)python/_build/docs/site/* $(libscid.__docs.public.dir)python/
+	cp -r $(LIBSCID_STAGING_BUILD_DIR)capi/docs/site/* $(libscid.__docs.public.dir)capi/
+	cp -r $(LIBSCID_STAGING_BUILD_DIR)python/docs/site/* $(libscid.__docs.public.dir)python/
 
 .PHONY : libscid.docs
 
@@ -96,7 +97,7 @@ libscid.release : $(libscid.__components:%=libscid.%.release)
 ####################################################################################################
 
 libscid.test-examples : libscid.test
-libscid.test-examples : export LIBSCID_LIBRARY := $(libscid.capi.artefact)
+libscid.test-examples : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
 libscid.test-examples : export PYTHONPATH := $(ROOT)python/src
 libscid.test-examples :
 	shopt -s nullglob; \

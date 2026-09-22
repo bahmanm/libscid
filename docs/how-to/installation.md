@@ -78,7 +78,7 @@ The package publishes the CMake target `LibScid::LibScid`.
 Configure, build, and install libscid with a specified installation prefix:
 
 ```sh
-cmake -S capi -B _build/release \
+cmake -S capi -B _staging/build/capi/release \
     -DCMAKE_BUILD_TYPE=Release \
     -DLIBSCID_INSTALL=ON \
     -DLIBSCID_SOURCE_ROOT="$PWD" \
@@ -86,14 +86,14 @@ cmake -S capi -B _build/release \
     -DCMAKE_CXX_COMPILER=clang++-20 \
     -DCMAKE_INSTALL_PREFIX="$PWD/install/libscid"
 
-cmake --build _build/release
-cmake --install _build/release
+cmake --build _staging/build/capi/release
+cmake --install _staging/build/capi/release
 ```
 
 To include generated API documentation in the package:
 
 ```sh
-cmake -S capi -B _build/package \
+cmake -S capi -B _staging/build/capi/package \
     -DCMAKE_BUILD_TYPE=Release \
     -DLIBSCID_INSTALL=ON \
     -DLIBSCID_BUILD_DOCS=ON \
@@ -102,8 +102,8 @@ cmake -S capi -B _build/package \
     -DCMAKE_CXX_COMPILER=clang++-20 \
     -DCMAKE_INSTALL_PREFIX="$PWD/install/libscid"
 
-cmake --build _build/package
-cmake --install _build/package
+cmake --build _staging/build/capi/package
+cmake --install _staging/build/capi/package
 ```
 
 Using repository presets:
@@ -119,6 +119,27 @@ cmake --build --preset package
 cpack --preset portable-tgz
 ```
 
+### Installing via Make
+
+You can also use the top-level Makefile to build and install components into a custom prefix:
+
+```sh
+make install PREFIX=/path/to/install
+```
+
+Or for individual components:
+
+```sh
+make libscid.capi.install PREFIX=/path/to/install
+make libscid.python.install PREFIX=/path/to/install
+```
+
+When staging package installations into a temporary root (e.g. for package managers), specify `DESTDIR`:
+
+```sh
+make install DESTDIR=/tmp/stage PREFIX=/usr/local
+```
+
 ---
 
 ## 4. Building and Running the Test Suite
@@ -126,23 +147,31 @@ cpack --preset portable-tgz
 Enable tests explicitly during configuration:
 
 ```sh
-cmake -S capi -B _build \
+cmake -S capi -B _staging/build/capi/debug \
     -DBUILD_TESTING=ON \
     -DLIBSCID_INSTALL=OFF \
     -DLIBSCID_SOURCE_ROOT="$PWD" \
     -DCMAKE_C_COMPILER=clang-20 \
     -DCMAKE_CXX_COMPILER=clang++-20
-cmake --build _build
-ctest --test-dir _build --output-on-failure
+cmake --build _staging/build/capi/debug
+ctest --test-dir _staging/build/capi/debug --output-on-failure
 ```
 
 Run focused subsystem test suites:
 
 ```sh
-ctest --test-dir _build -L core --output-on-failure
-ctest --test-dir _build -L database --output-on-failure
-ctest --test-dir _build -L eco --output-on-failure
-ctest --test-dir _build -L capi --output-on-failure
+ctest --test-dir _staging/build/capi/debug -L core --output-on-failure
+ctest --test-dir _staging/build/capi/debug -L database --output-on-failure
+ctest --test-dir _staging/build/capi/debug -L eco --output-on-failure
+ctest --test-dir _staging/build/capi/debug -L capi --output-on-failure
+```
+
+Or run all test suites through Make:
+
+```sh
+make libscid.capi.test
+make libscid.python.test
+make libscid.test-examples
 ```
 
 ---
@@ -157,4 +186,12 @@ cmake --preset docs
 cmake --build --preset docs
 ```
 
-The compiled static site will be generated in `capi/_build/docs/site`.
+The compiled C API static site will be generated in `_staging/build/capi/docs/site`.
+
+To build the unified documentation site combining both the C ABI and Python API references:
+
+```sh
+make libscid.docs
+```
+
+The unified static site will be generated in `_staging/build/docs/public`.

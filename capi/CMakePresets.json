@@ -10,7 +10,7 @@
       "name": "release",
       "displayName": "Release",
       "description": "Release build for libscid.",
-      "binaryDir": "${sourceDir}/_build/release",
+      "binaryDir": "${sourceDir}/../_staging/build/capi/release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "OFF",
@@ -23,7 +23,7 @@
       "name": "analysis",
       "displayName": "Analysis",
       "description": "Build tree for local static analysis tools.",
-      "binaryDir": "${sourceDir}/_build/analysis",
+      "binaryDir": "${sourceDir}/../_staging/build/capi/qc/analysis",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "BUILD_TESTING": "OFF",
@@ -35,7 +35,7 @@
       "name": "sanitisers",
       "displayName": "Sanitisers",
       "description": "Debug build with AddressSanitizer and UndefinedBehaviorSanitizer enabled.",
-      "binaryDir": "${sourceDir}/_build/sanitisers",
+      "binaryDir": "${sourceDir}/../_staging/build/capi/qc/sanitisers",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "BUILD_TESTING": "ON",
@@ -48,7 +48,7 @@
       "name": "package",
       "displayName": "Package",
       "description": "Release build configured for portable SDK archive packaging.",
-      "binaryDir": "${sourceDir}/_build/package",
+      "binaryDir": "${sourceDir}/../_staging/build/capi/package",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "OFF",
@@ -62,7 +62,7 @@
       "name": "docs",
       "displayName": "Documentation",
       "description": "Build generated API documentation.",
-      "binaryDir": "${sourceDir}/_build/docs",
+      "binaryDir": "${sourceDir}/../_staging/build/capi/docs",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "BUILD_TESTING": "OFF",

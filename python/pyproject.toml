@@ -44,9 +44,6 @@ Repository = "https://github.com/bahmanm/libscid"
 [dependency-groups]
 dev = [
     "hatchling>=1.27",
-    "mkdocs>=1.6",
-    "mkdocs-material>=9.5",
-    "mkdocstrings[python]>=0.28",
     "pyright>=1.1",
     "pytest>=8.0",
     "ruff>=0.14",
@@ -61,11 +58,6 @@ docs = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/libscid"]
-artifacts = [
-    "src/libscid/_native/*.dll",
-    "src/libscid/_native/*.dylib",
-    "src/libscid/_native/*.so",
-]
 
 [tool.hatch.build.targets.wheel.hooks.custom]
 path = "hatch_build.py"
