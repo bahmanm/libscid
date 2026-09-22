@@ -43,7 +43,7 @@ endif()
 
 if( UV_EXECUTABLE )
     list( APPEND LIBSCID_DOCS_COMMANDS
-        COMMAND "${UV_EXECUTABLE}" run --no-sync --project "${LIBSCID_SOURCE_ROOT}/capi/docs" mkdocs build -f "${LIBSCID_MKDOCS_CONFIG}" -d "${LIBSCID_SITE_OUTPUT_DIR}" )
+        COMMAND "${UV_EXECUTABLE}" run --project "${LIBSCID_SOURCE_ROOT}/capi/docs" mkdocs build -f "${LIBSCID_MKDOCS_CONFIG}" -d "${LIBSCID_SITE_OUTPUT_DIR}" )
 elseif( MKDOCS_EXECUTABLE )
     list( APPEND LIBSCID_DOCS_COMMANDS
         COMMAND "${MKDOCS_EXECUTABLE}" build -f "${LIBSCID_MKDOCS_CONFIG}" -d "${LIBSCID_SITE_OUTPUT_DIR}" )
