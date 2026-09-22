@@ -188,10 +188,10 @@ scid_database_filter_game_indices_get(
             return SCID_ERROR_BAD_ARG;
         }
 
-        if (out_game_indices == nullptr || out_game_indices_capacity < row_count)
+        scid::database::HFilter filter(nullptr);
+        if (!database_filter_get(database, filter_id, &filter))
         {
-            *out_game_indices_count = row_count;
-            return SCID_ERROR_BUFFER_FULL;
+            return SCID_ERROR_BAD_ARG;
         }
 
         if (row_count == 0)
@@ -199,16 +199,18 @@ scid_database_filter_game_indices_get(
             return write_size(0, out_game_indices_count);
         }
 
+        if (out_game_indices == nullptr || out_game_indices_capacity < row_count)
+        {
+            *out_game_indices_count = row_count;
+            return SCID_ERROR_BUFFER_FULL;
+        }
+
         std::vector<scid::database::gamenumT> game_indices(row_count);
         size_t                                listed = 0;
 
-        if (const scid_error error = database_filter_list_games(
-                database, filter_id, sort_criteria, start_row, row_count, game_indices.data(),
-                &listed);
-            error != SCID_OK)
-        {
-            return error;
-        }
+        auto& mutable_database = const_cast<scid::database::scidBaseT&>(database->value);
+        listed = mutable_database.listGames(
+            sort_criteria, start_row, row_count, filter, game_indices.data());
 
         for (size_t i = 0; i < listed; ++i)
         {
