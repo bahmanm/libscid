@@ -8,7 +8,7 @@ from pathlib import Path
 def _candidate_library_names() -> tuple[str, ...]:
     if sys.platform == "darwin":
         return ("libscid.dylib",)
-    if os.name == "nt":
+    if sys.platform.startswith("win") or os.name == "nt":
         return ("scid.dll", "libscid.dll")
     return ("libscid.so",)
 
@@ -24,12 +24,19 @@ def _prefix_candidate_directories(prefix: Path) -> tuple[Path, ...]:
 
 def _candidate_staging_directories() -> tuple[Path, ...]:
     package_dir = Path(__file__).resolve().parents[1]
+    if len(package_dir.parents) < 3:
+        return ()
+
     source_root = package_dir.parents[2]
+    staging_dir = source_root / "_staging"
+    if not staging_dir.is_dir():
+        return ()
+
     return (
-        source_root / "_staging" / "install" / "capi" / "release" / "lib",
-        source_root / "_staging" / "install" / "capi" / "debug" / "lib",
-        source_root / "_staging" / "build" / "capi" / "release" / "shared",
-        source_root / "_staging" / "build" / "capi" / "debug" / "shared",
+        staging_dir / "install" / "capi" / "release" / "lib",
+        staging_dir / "install" / "capi" / "debug" / "lib",
+        staging_dir / "build" / "capi" / "release" / "shared",
+        staging_dir / "build" / "capi" / "debug" / "shared",
     )
 
 

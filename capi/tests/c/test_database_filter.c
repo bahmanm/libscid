@@ -120,6 +120,11 @@ test_database_filter_pagination_and_sorting(void)
 
     TEST_ASSERT(
         scid_database_filter_game_indices_get(
+            database, SCID_FILTER_ALL_GAMES, "d+", 0, 0, NULL, 0, &list_count) == SCID_OK);
+    TEST_ASSERT(list_count == 0);
+
+    TEST_ASSERT(
+        scid_database_filter_game_indices_get(
             database, SCID_FILTER_ALL_GAMES, "d+", 1, 2, game_indexes, 4, &list_count) == SCID_OK);
     TEST_ASSERT(list_count == 2);
     TEST_ASSERT(game_indexes[0] == 1);

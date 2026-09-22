@@ -89,6 +89,9 @@ test_database_filter_query_nullguards(void)
         scid_database_filter_game_indices_get(
             database, 9999, "d+", 0, 1, game_indexes, 4, &list_count) == SCID_ERROR_BAD_ARG);
     TEST_ASSERT(
+        scid_database_filter_game_indices_get(database, 9999, "d+", 0, 0, NULL, 0, &list_count) ==
+        SCID_ERROR_BAD_ARG);
+    TEST_ASSERT(
         scid_database_filter_game_indices_get(
             database, SCID_FILTER_ALL_GAMES, NULL, 0, 1, game_indexes, 4, &list_count) ==
         SCID_ERROR_BAD_ARG);

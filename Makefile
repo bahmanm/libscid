@@ -13,6 +13,9 @@ include $(libscid.__components:%=$(ROOT)%/Makefile)
 
 ####################################################################################################
 
+libscid.python.build : libscid.capi.build
+libscid.python.build : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
+
 libscid.python.test : libscid.capi.build
 libscid.python.test : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
 
@@ -22,7 +25,7 @@ libscid.python.__release-wheel : export LIBSCID_LIBRARY_PATH := $(libscid.capi.r
 libscid.python.release : libscid.capi.release-library
 libscid.python.release : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
 
-libscid.python.install : libscid.capi.release-library
+libscid.python.install : libscid.capi.install libscid.capi.release-library
 libscid.python.install : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
 
 ####################################################################################################

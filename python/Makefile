@@ -79,6 +79,7 @@ libscid.python.install : libscid.python.__release-wheel
 			--no-deps \
 			$$(if [ -n "$${PREFIX:-}" ]; then echo "--prefix $${PREFIX}"; fi) \
 			--root "$${DESTDIR}" \
+			$(LIBSCID_PYTHON_INSTALL_ARGS) \
 			"$$wheel"; \
 	elif [ -n "$${PREFIX:-}" ]; then \
 		$(LIBSCID_UV) pip install \
@@ -231,17 +232,25 @@ libscid.python.qc-all : libscid.python.qc-format libscid.python.qc-static-analys
 
 ####################################################################################################
 
-libscid.python.docs : libscid.python.configure
+libscid.python.docs-configure : libscid.python.configure
 	cd $(libscid.python.__project.dir) \
-	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync mkdocs build -f mkdocs.yml -d $(libscid.python.__build.dir)docs/site
+	&& $(LIBSCID_UV) sync $(LIBSCID_UV_FLAGS) --group docs
+
+.PHONY : libscid.python.docs-configure
+
+####################################################################################################
+
+libscid.python.docs : libscid.python.docs-configure
+	cd $(libscid.python.__project.dir) \
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --group docs --no-sync mkdocs build -f mkdocs.yml -d $(libscid.python.__build.dir)docs/site
 
 .PHONY : libscid.python.docs
 
 ####################################################################################################
 
-libscid.python.docs-serve : libscid.python.configure
+libscid.python.docs-serve : libscid.python.docs-configure
 	cd $(libscid.python.__project.dir) \
-	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync mkdocs serve -f mkdocs.yml -d $(libscid.python.__build.dir)docs/site
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --group docs --no-sync mkdocs serve -f mkdocs.yml -d $(libscid.python.__build.dir)docs/site
 
 .PHONY : libscid.python.docs-serve
 
