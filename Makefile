@@ -14,13 +14,13 @@ include $(libscid.__components:%=$(ROOT)%/Makefile)
 ####################################################################################################
 
 libscid.python.test : libscid.capi.build
-libscid.python.test : export LIBSCID_LIBRARY := $(libscid.capi.artefact)
+libscid.python.test : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
 
 libscid.python.release : libscid.capi.release-library
-libscid.python.release : export LIBSCID_LIBRARY := $(libscid.capi.release.artefact)
+libscid.python.release : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
 
 libscid.python.install : libscid.capi.release-library
-libscid.python.install : export LIBSCID_LIBRARY := $(libscid.capi.release.artefact)
+libscid.python.install : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
 
 ####################################################################################################
 
@@ -97,7 +97,7 @@ libscid.release : $(libscid.__components:%=libscid.%.release)
 ####################################################################################################
 
 libscid.test-examples : libscid.test
-libscid.test-examples : export LIBSCID_LIBRARY := $(libscid.capi.artefact)
+libscid.test-examples : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
 libscid.test-examples : export PYTHONPATH := $(ROOT)python/src
 libscid.test-examples :
 	shopt -s nullglob; \
