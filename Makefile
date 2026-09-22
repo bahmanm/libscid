@@ -90,6 +90,25 @@ libscid.docs : $(libscid.__components:%=libscid.%.docs)
 
 ####################################################################################################
 
+libscid.__release.source.dir ?= $(LIBSCID_STAGING_RELEASE_DIR)source/
+libscid.__release.source.archive ?= $(libscid.__release.source.dir)libscid__$(LIBSCID_RELEASE_PACKAGE_VERSION_LABEL)__source.tar.gz
+LIBSCID_BUILD_SOURCE_ARCHIVE ?= true
+
+####################################################################################################
+
+libscid.__release-source-package :
+	mkdir -p $(libscid.__release.source.dir)
+	git -C $(ROOT) archive \
+		--worktree-attributes \
+		--format=tar.gz \
+		--prefix="libscid-$(LIBSCID_RELEASE_VERSION)/" \
+		--output="$(libscid.__release.source.archive)" \
+		HEAD
+
+.PHONY : libscid.__release-source-package
+
+####################################################################################################
+
 libscid.release : $(libscid.__components:%=libscid.%.release)
 
 .PHONY : libscid.release
