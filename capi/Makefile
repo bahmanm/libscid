@@ -121,6 +121,7 @@ libscid.capi.docs : libscid.capi.__cmake.contract
 	    $(libscid.cmake.__cxx.compiler.arg) \
 	    -DBUILD_TESTING=OFF \
 	    -DLIBSCID_BUILD_DOCS=ON \
+	    -DLIBSCID_INSTALL=OFF \
 	    "-DLIBSCID_SOURCE_ROOT=$(libscid.capi.__cmake.source.root)" \
 	    $(LIBSCID_CMAKE_CONFIGURE_ARGS)
 	$(LIBSCID_CMAKE) \

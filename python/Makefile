@@ -31,7 +31,7 @@ libscid.python.__qc.paths := src tests hatch_build.py ../examples/python
 
 libscid.python.configure :
 	cd $(libscid.python.__project.dir) \
-	&& $(LIBSCID_UV) sync --all-groups $(LIBSCID_UV_FLAGS)
+	&& $(LIBSCID_UV) sync $(LIBSCID_UV_FLAGS)
 
 .PHONY : libscid.python.configure
 
@@ -152,7 +152,9 @@ libscid.python.__release-sdist-smoke-test : libscid.python.__release-sdist
 	sdist="$${sdists[$$(($${#sdists[@]} - 1))]}"; \
 	rm -rf $(libscid.python.__release.smoke-test.dir); \
 	$(LIBSCID_UV) $(LIBSCID_UV_FLAGS) venv $(libscid.python.__release.smoke-test.dir); \
-	output=$$($(LIBSCID_UV) $(LIBSCID_UV_FLAGS) pip install --python $(libscid.python.__release.smoke-test.dir)$(libscid.__venv.python) "$$sdist" 2>&1 || true); \
+	unset LIBSCID_LIBRARY_PATH; \
+	unset LIBSCID_LIBRARY_PREFIX; \
+	output=$$($(LIBSCID_UV) $(LIBSCID_UV_FLAGS) pip install --no-cache --python $(libscid.python.__release.smoke-test.dir)$(libscid.__venv.python) "$$sdist" 2>&1 || true); \
 	echo "$$output"; \
 	echo "$$output" | grep -q "There are no prebuilt libscid packages for your platform"
 
@@ -201,17 +203,17 @@ libscid.python.qc-all : libscid.python.qc-format libscid.python.qc-static-analys
 
 ####################################################################################################
 
-libscid.python.docs : libscid.python.configure
+libscid.python.docs :
 	cd $(libscid.python.__project.dir) \
-	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync mkdocs build -f mkdocs.yml
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync mkdocs build -f mkdocs.yml -d $(libscid.python.__build.dir)docs/site
 
 .PHONY : libscid.python.docs
 
 ####################################################################################################
 
-libscid.python.docs-serve : libscid.python.configure
+libscid.python.docs-serve :
 	cd $(libscid.python.__project.dir) \
-	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync mkdocs serve -f mkdocs.yml
+	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync mkdocs serve -f mkdocs.yml -d $(libscid.python.__build.dir)docs/site
 
 .PHONY : libscid.python.docs-serve
 
