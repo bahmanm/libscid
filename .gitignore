@@ -63,7 +63,7 @@ _tmp/
 CTestTestfile.cmake
 out/
 dist/
-_release/
-_build/
 _build*/
+_release/
+/_staging/
 docs/reference/

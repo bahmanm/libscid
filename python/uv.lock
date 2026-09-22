@@ -330,9 +330,6 @@ source = { editable = "." }
 [package.dev-dependencies]
 dev = [
     { name = "hatchling" },
-    { name = "mkdocs" },
-    { name = "mkdocs-material" },
-    { name = "mkdocstrings", extra = ["python"] },
     { name = "pyright" },
     { name = "pytest" },
     { name = "ruff" },
@@ -350,9 +347,6 @@ docs = [
 [package.metadata.requires-dev]
 dev = [
     { name = "hatchling", specifier = ">=1.27" },
-    { name = "mkdocs", specifier = ">=1.6" },
-    { name = "mkdocs-material", specifier = ">=9.5" },
-    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.28" },
     { name = "pyright", specifier = ">=1.1" },
     { name = "pytest", specifier = ">=8.0" },
     { name = "ruff", specifier = ">=0.14" },
