@@ -13,6 +13,7 @@ include $(ROOT)etc/make/common.mk
 
 libscid.python.__build.dir ?= $(LIBSCID_STAGING_BUILD_DIR)python/
 libscid.python.__dist.dir ?= $(libscid.python.__build.dir)dist/
+libscid.python.__install.dir ?= $(LIBSCID_STAGING_INSTALL_DIR)python/$(LIBSCID_PROFILE)/
 libscid.python.__native.dir := $(libscid.python.__project.dir)src/libscid/_native/
 libscid.python.__release.library ?= $(if $(LIBSCID_LIBRARY_PATH),$(LIBSCID_LIBRARY_PATH),$(LIBSCID_STAGING_INSTALL_DIR)capi/release/lib/$(libscid.__library.name))
 libscid.python.__release.smoke-test.dir ?= $(libscid.python.__build.dir)release-smoke-test/
@@ -60,6 +61,7 @@ libscid.python.clean :
 	-rm -f $(libscid.python.__native.dir)*.dll $(libscid.python.__native.dir)*.dylib $(libscid.python.__native.dir)*.so
 	-rm -rf $(libscid.python.__build.dir)
 	-rm -rf $(libscid.python.__release.artefact.dir)
+	-rm -rf $(libscid.python.__install.dir)
 
 .PHONY : libscid.python.clean
 
@@ -87,6 +89,7 @@ libscid.python.install : libscid.python.__release-wheel
 		$(LIBSCID_UV) pip install \
 			--python "$(LIBSCID_PYTHON)" \
 			--no-deps \
+			--prefix "$(libscid.python.__install.dir)" \
 			$(LIBSCID_PYTHON_INSTALL_ARGS) \
 			"$$wheel"; \
 	fi
