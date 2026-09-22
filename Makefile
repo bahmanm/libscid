@@ -13,6 +13,9 @@ include $(libscid.__components:%=$(ROOT)%/Makefile)
 
 ####################################################################################################
 
+libscid.python.build : libscid.capi.build
+libscid.python.build : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
+
 libscid.python.test : libscid.capi.build
 libscid.python.test : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
 
