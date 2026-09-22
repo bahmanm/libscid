@@ -48,14 +48,13 @@ graph TD
 
 ## 2. Dynamic Library Discovery and Loading
 
-Native library loading is orchestrated by `_native/_loader.py`. The loader employs deterministic lookup heuristics:
+Native library loading is orchestrated by `_native/_loader.py`. The loader employs a strict four-tiered resolution model:
 
-- Explicit Override: If the environment variable `LIBSCID_LIBRARY` is set, the loader checks that specific path directly, raising `FileNotFoundError` if absent.
-- Standard Search Tree: The loader probes candidate paths in sequence:
-  1. The bundled native directory within the installed wheel (`libscid/_native/`).
-  2. The package root directory.
-  3. Repository build directories (`capi/_build/`, `build/libscid/`).
-  4. The current working directory.
+1. Exact File Path: If `LIBSCID_LIBRARY_PATH` is set, the loader resolves that specific file directly, raising `FileNotFoundError` if absent.
+2. Installation Prefix: If `LIBSCID_LIBRARY_PREFIX` is set, the loader searches candidate library directories under the prefix (`<prefix>/lib`, `<prefix>/lib64`, and `<prefix>/bin`).
+3. Staging Directory: The loader searches active workspace staging directories (`_staging/install/capi/` and `_staging/build/capi/`).
+4. Bundled Package: The loader inspects the bundled native directory within the package (`libscid/_native/`).
+
 - Platform Library Naming:
   - macOS: `libscid.dylib`
   - Linux / Unix: `libscid.so`

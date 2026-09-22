@@ -13,41 +13,70 @@ def _candidate_library_names() -> tuple[str, ...]:
     return ("libscid.so",)
 
 
-def _candidate_directories() -> tuple[Path, ...]:
-    native_dir = Path(__file__).resolve().parent
+def _prefix_candidate_directories(prefix: Path) -> tuple[Path, ...]:
+    return (
+        prefix / "lib",
+        prefix / "lib64",
+        prefix / "bin",
+        prefix,
+    )
+
+
+def _candidate_staging_directories() -> tuple[Path, ...]:
     package_dir = Path(__file__).resolve().parents[1]
     source_root = package_dir.parents[2]
     return (
-        native_dir,
-        package_dir,
-        source_root / "capi" / "_build",
-        source_root / "capi" / "_build" / "Release",
-        source_root / "capi" / "_build" / "release",
-        source_root / "capi" / "_build" / "release" / "Release",
-        source_root / "build" / "libscid",
-        Path.cwd(),
+        source_root / "_staging" / "install" / "capi" / "release" / "lib",
+        source_root / "_staging" / "install" / "capi" / "debug" / "lib",
+        source_root / "_staging" / "build" / "capi" / "release" / "shared",
+        source_root / "_staging" / "build" / "capi" / "debug" / "shared",
     )
 
 
 def find_library() -> Path:
-    override = os.environ.get("LIBSCID_LIBRARY")
-    if override:
-        path = Path(override)
-        if not path.exists():
-            raise FileNotFoundError(f"LIBSCID_LIBRARY does not exist: {path}")
+    # 1. LIBSCID_LIBRARY_PATH: explicit path to the library file
+    library_path = os.environ.get("LIBSCID_LIBRARY_PATH")
+    if library_path:
+        path = Path(library_path).resolve()
+        if not path.is_file():
+            raise FileNotFoundError(f"LIBSCID_LIBRARY_PATH does not exist: {path}")
         return path
 
-    for directory in _candidate_directories():
-        for name in _candidate_library_names():
+    library_names = _candidate_library_names()
+
+    # 2. LIBSCID_LIBRARY_PREFIX: installation prefix
+    prefix = os.environ.get("LIBSCID_LIBRARY_PREFIX")
+    if prefix:
+        prefix_path = Path(prefix).resolve()
+        for directory in _prefix_candidate_directories(prefix_path):
+            for name in library_names:
+                candidate = directory / name
+                if candidate.is_file():
+                    return candidate
+        raise FileNotFoundError(
+            "Could not find libscid shared library under "
+            f"LIBSCID_LIBRARY_PREFIX={prefix_path}"
+        )
+
+    # 3. Staging directory
+    for directory in _candidate_staging_directories():
+        for name in library_names:
             candidate = directory / name
-            if candidate.exists():
+            if candidate.is_file():
                 return candidate
 
-    searched = ", ".join(str(path) for path in _candidate_directories())
-    names = ", ".join(_candidate_library_names())
+    # 4. Bundle (installed wheel package or in-tree development)
+    native_dir = Path(__file__).resolve().parent
+    for name in library_names:
+        candidate = native_dir / name
+        if candidate.is_file():
+            return candidate
+
+    names = ", ".join(library_names)
     raise FileNotFoundError(
-        f"Could not find libscid shared library ({names}); searched {searched}. "
-        "Set LIBSCID_LIBRARY to the library path."
+        f"Could not find libscid shared library ({names}). "
+        "Set LIBSCID_LIBRARY_PATH to the library file, or "
+        "LIBSCID_LIBRARY_PREFIX to the installation directory."
     )
 
 
