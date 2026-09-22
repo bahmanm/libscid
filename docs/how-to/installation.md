@@ -121,23 +121,66 @@ cpack --preset portable-tgz
 
 ### Installing via Make
 
-You can also use the top-level Makefile to build and install components into a custom prefix:
+You can also use the top-level Makefile to compile and install libscid. By default, installation targets build using the Release profile and deploy into an isolated, user-scoped prefix (`~/.local/opt/libscid`):
+
+```sh
+make install
+```
+
+This installs both the C ABI (`include/`, `lib/`, `lib/pkgconfig/`) and Python bindings (`lib/python3.X/site-packages/`) into `~/.local/opt/libscid`.
+
+To install individual components:
+
+```sh
+make libscid.capi.install
+make libscid.python.install
+```
+
+#### Custom Installation Prefix
+
+To install into a custom prefix, specify `PREFIX`:
 
 ```sh
 make install PREFIX=/path/to/install
 ```
 
-Or for individual components:
-
-```sh
-make libscid.capi.install PREFIX=/path/to/install
-make libscid.python.install PREFIX=/path/to/install
-```
-
-When staging package installations into a temporary root (e.g. for package managers), specify `DESTDIR`:
+When staging package installations into a temporary root (e.g. for packaging systems), specify `DESTDIR`:
 
 ```sh
 make install DESTDIR=/tmp/stage PREFIX=/usr/local
+```
+
+#### Configuring Consumer Environments
+
+Because `~/.local/opt/libscid` is an isolated prefix, configure your shell environment so toolchains and the Python runtime can discover libscid:
+
+```sh
+export LIBSCID_PREFIX="$HOME/.local/opt/libscid"
+
+# pkg-config discovery
+export PKG_CONFIG_PATH="$LIBSCID_PREFIX/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+
+# Compiler and linker search paths (optional when using pkg-config)
+export CPATH="$LIBSCID_PREFIX/include${CPATH:+:$CPATH}"
+export LIBRARY_PATH="$LIBSCID_PREFIX/lib${LIBRARY_PATH:+:$LIBRARY_PATH}"
+
+# Dynamic linker runtime search paths
+# macOS:
+export DYLD_LIBRARY_PATH="$LIBSCID_PREFIX/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+# Linux:
+export LD_LIBRARY_PATH="$LIBSCID_PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+
+# Python package discovery
+python_version=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+export PYTHONPATH="$LIBSCID_PREFIX/lib/python${python_version}/site-packages${PYTHONPATH:+:$PYTHONPATH}"
+```
+
+#### Uninstallation
+
+Because all files are isolated within the designated prefix, uninstalling libscid is atomic:
+
+```sh
+rm -rf ~/.local/opt/libscid
 ```
 
 ---

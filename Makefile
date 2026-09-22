@@ -16,6 +16,9 @@ include $(libscid.__components:%=$(ROOT)%/Makefile)
 libscid.python.test : libscid.capi.build
 libscid.python.test : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
 
+libscid.python.__release-wheel : $(call libscid.__make.word.escape,$(libscid.capi.release.artefact))
+libscid.python.__release-wheel : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
+
 libscid.python.release : libscid.capi.release-library
 libscid.python.release : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
 
