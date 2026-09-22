@@ -22,8 +22,10 @@ libscid.capi.__docs.build.dir ?= $(LIBSCID_STAGING_BUILD_DIR)capi/docs/
 libscid.capi.__release.build.dir ?= $(LIBSCID_STAGING_BUILD_DIR)capi/release/
 libscid.capi.__release.package.build.dir ?= $(LIBSCID_STAGING_BUILD_DIR)capi/package/
 libscid.capi.__release.smoke-test.dir ?= $(LIBSCID_STAGING_BUILD_DIR)capi/release-smoke-test/
+libscid.capi.__release.source-smoke-test.dir ?= $(LIBSCID_STAGING_BUILD_DIR)capi/release-source-smoke-test/
 libscid.capi.__release.build.docs ?= ON
 libscid.capi.__release.artefact.dir ?= $(LIBSCID_STAGING_RELEASE_DIR)capi/
+libscid.capi.__release.source.artefact.dir ?= $(LIBSCID_STAGING_RELEASE_DIR)source/
 libscid.capi.artefact = $(libscid.capi.__build.dir)$(libscid.__library.name)
 libscid.capi.release.artefact = $(libscid.capi.__release.build.dir)$(libscid.__library.name)
 
@@ -53,13 +55,16 @@ libscid.capi.__release-% : export LIBSCID_CAPI_DIR := $(libscid.capi.__project.d
 libscid.capi.__release-% : export LIBSCID_CAPI_RELEASE_BUILD_DIR := $(libscid.capi.__release.build.dir)
 libscid.capi.__release-% : export LIBSCID_CAPI_RELEASE_PACKAGE_BUILD_DIR := $(libscid.capi.__release.package.build.dir)
 libscid.capi.__release-% : export LIBSCID_CAPI_RELEASE_SMOKE_TEST_DIR := $(libscid.capi.__release.smoke-test.dir)
+libscid.capi.__release-% : export LIBSCID_CAPI_RELEASE_SOURCE_SMOKE_TEST_DIR := $(libscid.capi.__release.source-smoke-test.dir)
 libscid.capi.__release-% : export LIBSCID_CAPI_RELEASE_BUILD_DOCS := $(libscid.capi.__release.build.docs)
 libscid.capi.__release-% : export LIBSCID_CAPI_RELEASE_ARTEFACT_DIR := $(libscid.capi.__release.artefact.dir)
+libscid.capi.__release-% : export LIBSCID_RELEASE_SOURCE_ARTEFACT_DIR := $(libscid.capi.__release.source.artefact.dir)
 libscid.capi.__release-% : export LIBSCID_HOST_SYSTEM := $(libscid.__host.system)
 libscid.capi.__release-% : export LIBSCID_CMAKE := $(LIBSCID_CMAKE)
 libscid.capi.__release-% : export LIBSCID_CPACK := $(LIBSCID_CPACK)
 libscid.capi.__release-% : export LIBSCID_CTEST := $(LIBSCID_CTEST)
 libscid.capi.__release-% : export LIBSCID_CTEST_TIMEOUT := $(LIBSCID_CTEST_TIMEOUT)
+libscid.capi.__release-% : export LIBSCID_MAKE := $(MAKE)
 libscid.capi.__release-% : export LIBSCID_CMAKE_BUILD_ARGS := $(LIBSCID_CMAKE_BUILD_ARGS)
 libscid.capi.__release-% : export LIBSCID_CMAKE_CONFIGURE_ARGS := $(LIBSCID_CMAKE_CONFIGURE_ARGS)
 libscid.capi.__release-% : export LIBSCID_CMAKE_GENERATOR := $(LIBSCID_CMAKE_GENERATOR)
@@ -106,7 +111,14 @@ libscid.capi.__release-smoke-test : libscid.capi.release-package
 
 ####################################################################################################
 
-libscid.capi.release : libscid.capi.release-package libscid.capi.__release-smoke-test
+libscid.capi.__release-source-smoke-test : libscid.__release-source-package
+	$(libscid.capi.__project.dir)etc/release-source-smoke-test
+
+.PHONY : libscid.capi.__release-source-smoke-test
+
+####################################################################################################
+
+libscid.capi.release : libscid.capi.release-package libscid.capi.__release-smoke-test libscid.capi.__release-source-smoke-test
 
 .PHONY : libscid.capi.release
 

@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+function append_shell_words
+{
+    local target="$1"
+    local words="$2"
+
+    if [[ -z "$words" ]]; then
+        return 0
+    fi
+
+    eval "$target+=( $words )"
+}
+
+function path_entry
+{
+    local path="$1"
+
+    if command -v cygpath >/dev/null 2>&1; then
+        cygpath -u "$path"
+    else
+        printf '%s\n' "$path"
+    fi
+}
+
+: "${LIBSCID_RELEASE_SOURCE_ARTEFACT_DIR:?}"
+: "${LIBSCID_CAPI_RELEASE_SOURCE_SMOKE_TEST_DIR:?}"
+: "${LIBSCID_HOST_SYSTEM:?}"
+: "${LIBSCID_CMAKE:=cmake}"
+: "${LIBSCID_CTEST:=ctest}"
+: "${LIBSCID_MAKE:=make}"
+
+shopt -s nullglob
+archives=( "$LIBSCID_RELEASE_SOURCE_ARTEFACT_DIR"/libscid__*__source.tar.gz )
+if [[ ${#archives[@]} -ne 1 ]]; then
+    echo "Release source smoke test failed: Expected 1 source archive in $LIBSCID_RELEASE_SOURCE_ARTEFACT_DIR, found ${#archives[@]}" >&2
+    exit 1
+fi
+
+archive="${archives[0]}"
+extract_root="${LIBSCID_CAPI_RELEASE_SOURCE_SMOKE_TEST_DIR}src"
+install_root="${LIBSCID_CAPI_RELEASE_SOURCE_SMOKE_TEST_DIR}install"
+examples_build_dir="${LIBSCID_CAPI_RELEASE_SOURCE_SMOKE_TEST_DIR}examples"
+
+rm -rf "$LIBSCID_CAPI_RELEASE_SOURCE_SMOKE_TEST_DIR"
+mkdir -p "$extract_root" "$install_root"
+
+tar_args=( -xzf "$archive" -C "$extract_root" --strip-components=1 )
+case "$LIBSCID_HOST_SYSTEM" in
+    MINGW*|MSYS*|CYGWIN*)
+        tar_args=( --force-local "${tar_args[@]}" )
+        ;;
+esac
+tar "${tar_args[@]}"
+
+# Build and install the C API from source into the isolated prefix
+"$LIBSCID_MAKE" -C "$extract_root" libscid.capi.install PREFIX="$install_root" PROFILE=release
+
+header_file="$install_root/include/scid/scid.h"
+if [[ ! -f "$header_file" ]]; then
+    echo "Release source smoke test failed: scid.h not found at $header_file" >&2
+    exit 1
+fi
+
+pc_file="$install_root/lib/pkgconfig/libscid.pc"
+if [[ ! -f "$pc_file" ]]; then
+    echo "Release source smoke test failed: libscid.pc not found at $pc_file" >&2
+    exit 1
+fi
+
+if command -v pkg-config >/dev/null 2>&1; then
+    PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --exists libscid
+    pc_cflags="$(PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --cflags libscid)"
+    if [[ "$pc_cflags" != *"-DSCID_SHARED"* ]]; then
+        echo "Release source smoke test failed: -DSCID_SHARED missing from pkg-config cflags: $pc_cflags" >&2
+        exit 1
+    fi
+    PKG_CONFIG_PATH="$install_root/lib/pkgconfig" pkg-config --libs libscid
+else
+    echo "pkg-config not found - skipping the related smoke tests." >&2
+fi
+
+case "$LIBSCID_HOST_SYSTEM" in
+    Darwin)
+        if [[ ! -L "$install_root/lib/libscid.dylib" || ! -e "$install_root/lib/libscid.dylib" ]]; then
+            echo "Release source smoke test failed: Linker symlink libscid.dylib not found" >&2
+            exit 1
+        fi
+        if nm -gU "$install_root"/lib/libscid.*dylib 2>/dev/null | grep -E '_ZN4scid|_ZTV4scid|_ZTS4scid'; then
+            echo "Release source smoke test failed: Leaked internal C++ symbols detected in libscid.dylib" >&2
+            exit 1
+        fi
+        ;;
+    Linux)
+        if [[ ! -L "$install_root/lib/libscid.so" || ! -e "$install_root/lib/libscid.so" ]]; then
+            echo "Release source smoke test failed: Linker symlink libscid.so not found" >&2
+            exit 1
+        fi
+        if nm -gD "$install_root"/lib/libscid.so* 2>/dev/null | grep -E '_ZN4scid|_ZTV4scid|_ZTS4scid'; then
+            echo "Release source smoke test failed: Leaked internal C++ symbols detected in libscid.so" >&2
+            exit 1
+        fi
+        ;;
+esac
+
+cmake_args=(
+    -S "$install_root/share/doc/libscid/examples/c"
+    -B "$examples_build_dir"
+    "-DCMAKE_PREFIX_PATH=$install_root"
+)
+
+if [[ -n "${LIBSCID_CMAKE_GENERATOR:-}" ]]; then
+    cmake_args+=( -G "$LIBSCID_CMAKE_GENERATOR" )
+fi
+
+if [[ -n "${LIBSCID_CMAKE_C_COMPILER:-}" ]]; then
+    cmake_args+=( "-DCMAKE_C_COMPILER=$LIBSCID_CMAKE_C_COMPILER" )
+fi
+
+if [[ -n "${LIBSCID_CMAKE_CXX_COMPILER:-}" ]]; then
+    cmake_args+=( "-DCMAKE_CXX_COMPILER=$LIBSCID_CMAKE_CXX_COMPILER" )
+fi
+
+append_shell_words cmake_args "${LIBSCID_CMAKE_CONFIGURE_ARGS:-}"
+
+"$LIBSCID_CMAKE" "${cmake_args[@]}"
+
+cmake_build_args=( --build "$examples_build_dir" )
+append_shell_words cmake_build_args "${LIBSCID_CMAKE_BUILD_ARGS:-}"
+"$LIBSCID_CMAKE" "${cmake_build_args[@]}"
+
+runtime_bin_dir="$(path_entry "$install_root/bin")"
+export PATH="$runtime_bin_dir:$PATH"
+
+case "$LIBSCID_HOST_SYSTEM" in
+    Darwin)
+        export DYLD_LIBRARY_PATH="$install_root/lib:${DYLD_LIBRARY_PATH:-}"
+        ;;
+    MINGW*|MSYS*|CYGWIN*|Windows*|Windows_NT)
+        if [[ ! -f "$runtime_bin_dir/scid.dll" ]]; then
+            echo "Could not find scid.dll in $runtime_bin_dir." >&2
+            exit 1
+        fi
+        ;;
+    *)
+        export LD_LIBRARY_PATH="$install_root/lib:${LD_LIBRARY_PATH:-}"
+        ;;
+esac
+
+"$LIBSCID_CTEST" --test-dir "$examples_build_dir" --timeout "${LIBSCID_CTEST_TIMEOUT:-60}" --output-on-failure
