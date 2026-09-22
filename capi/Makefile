@@ -118,7 +118,12 @@ libscid.capi.__release-source-smoke-test : libscid.__release-source-package
 
 ####################################################################################################
 
-libscid.capi.release : libscid.capi.release-package libscid.capi.__release-smoke-test libscid.capi.__release-source-smoke-test
+libscid.capi.__release.source.targets :=
+ifeq ($(LIBSCID_BUILD_SOURCE_ARCHIVE),true)
+libscid.capi.__release.source.targets := libscid.capi.__release-source-smoke-test
+endif
+
+libscid.capi.release : libscid.capi.release-package libscid.capi.__release-smoke-test $(libscid.capi.__release.source.targets)
 
 .PHONY : libscid.capi.release
 

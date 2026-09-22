@@ -185,12 +185,17 @@ libscid.python.__release-source-smoke-test : libscid.capi.__release-source-smoke
 
 ####################################################################################################
 
+libscid.python.__release.source.targets :=
+ifeq ($(LIBSCID_BUILD_SOURCE_ARCHIVE),true)
+libscid.python.__release.source.targets := libscid.python.__release-source-smoke-test
+endif
+
 libscid.python.__release.sdist.targets :=
 ifeq ($(LIBSCID_PYTHON_BUILD_SDIST),true)
 libscid.python.__release.sdist.targets := libscid.python.__release-sdist libscid.python.__release-sdist-smoke-test
 endif
 
-libscid.python.release : libscid.python.__release-wheel libscid.python.__release-smoke-test libscid.python.__release-source-smoke-test $(libscid.python.__release.sdist.targets)
+libscid.python.release : libscid.python.__release-wheel libscid.python.__release-smoke-test $(libscid.python.__release.source.targets) $(libscid.python.__release.sdist.targets)
 
 .PHONY : libscid.python.release
 

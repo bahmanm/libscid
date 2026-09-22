@@ -19,9 +19,11 @@ jobs:
           - os: ubuntu-24.04
             asset_label: linux
             build_sdist: "true"
+            build_source_archive: "true"
           - os: macos-15
             asset_label: macos-arm
             build_sdist: "false"
+            build_source_archive: "false"
 
     steps:
       - uses: actions/checkout@v7
@@ -33,7 +35,9 @@ jobs:
           platform_label: ${{ matrix.asset_label }}
           is_release: "true"
           docs: "true"
-          make_args: LIBSCID_PYTHON_BUILD_SDIST=${{ matrix.build_sdist }}
+          make_args: >-
+            LIBSCID_PYTHON_BUILD_SDIST=${{ matrix.build_sdist }}
+            LIBSCID_BUILD_SOURCE_ARCHIVE=${{ matrix.build_source_archive }}
 
   release-build__windoze:
     name: release-build__windoze
@@ -49,5 +53,7 @@ jobs:
           platform_label: windoze
           is_release: "true"
           docs: "true"
-          make_args: LIBSCID_PYTHON_BUILD_SDIST=false
+          make_args: >-
+            LIBSCID_PYTHON_BUILD_SDIST=false
+            LIBSCID_BUILD_SOURCE_ARCHIVE=false
 
