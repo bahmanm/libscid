@@ -10,6 +10,9 @@ LIBSCID_BMAKELIB_VERSION ?= v0.9.1
 LIBSCID_BMAKELIB_DIR ?= $(ROOT).bmakelib
 LIBSCID_BMAKELIB ?= $(LIBSCID_BMAKELIB_DIR)/bmakelib.mk
 
+bmakelib.conf.help.variables ?= no
+bmakelib.conf.help.scope ?= local
+
 -include $(LIBSCID_BMAKELIB)
 
 $(LIBSCID_BMAKELIB) :
