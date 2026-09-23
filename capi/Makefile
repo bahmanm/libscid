@@ -36,7 +36,22 @@ include $(ROOT)etc/make/cmake.mk
 $(eval $(call libscid.cmake.__project.rules,libscid.capi))
 $(eval $(call libscid.cmake.__project.rules,libscid.capi.static,libscid.capi))
 
-libscid.capi.test.all : libscid.capi.test libscid.capi.static.test
+libscid.capi.configure : ## Configure C API build with CMake
+libscid.capi.build : ## Compile C API shared library and test binaries
+libscid.capi.test : ## Run C API unit tests via CTest
+libscid.capi.test.all : libscid.capi.test libscid.capi.static.test ## Run C API tests against shared and static builds
+libscid.capi.static.test : ## Run unit tests against static C API library
+libscid.capi.static.build : ## Compile C API static library and test binaries
+libscid.capi.static.clean : ## Clean C API static build artefacts
+libscid.capi.static.configure : ## Configure C API static build with CMake
+libscid.capi.static.install : ## Install C API static library under PREFIX
+libscid.capi.static.qc-all : ## Run all quality control checks for static C API build
+libscid.capi.clean : ## Clean C API build and QC artefacts
+libscid.capi.install : ## Install C API library, headers, and CMake config under PREFIX
+libscid.capi.qc-format : ## Check C API formatting with clang-format
+libscid.capi.qc-static-analysis : ## Run static analysis (cppcheck, clang-tidy) on C API
+libscid.capi.qc-dynamic-analysis : ## Run C API tests under Address and Undefined Behaviour sanitisers
+libscid.capi.qc-all : ## Run all quality control checks for C API
 
 .PHONY : libscid.capi.test.all
 
@@ -85,7 +100,7 @@ libscid.capi.__release-library :
 
 ####################################################################################################
 
-libscid.capi.release-library : libscid.capi.__release-library
+libscid.capi.release-library : libscid.capi.__release-library ## Build release library package
 
 .PHONY : libscid.capi.release-library
 
@@ -98,7 +113,7 @@ libscid.capi.__release-package : libscid.capi.__release-library
 
 ####################################################################################################
 
-libscid.capi.release-package : libscid.capi.__release-package
+libscid.capi.release-package : libscid.capi.__release-package ## Build release distributable package
 
 .PHONY : libscid.capi.release-package
 
@@ -123,13 +138,13 @@ ifeq ($(LIBSCID_BUILD_SOURCE_ARCHIVE),true)
 libscid.capi.__release.source.targets := libscid.capi.__release-source-smoke-test
 endif
 
-libscid.capi.release : libscid.capi.release-package libscid.capi.__release-smoke-test $(libscid.capi.__release.source.targets)
+libscid.capi.release : libscid.capi.release-package libscid.capi.__release-smoke-test $(libscid.capi.__release.source.targets) ## Build release packages and execute smoke tests
 
 .PHONY : libscid.capi.release
 
 ####################################################################################################
 
-libscid.capi.docs : libscid.capi.__cmake.contract
+libscid.capi.docs : libscid.capi.__cmake.contract ## Generate C API documentation with Doxygen
 	$(LIBSCID_CMAKE) \
 	    -S $(libscid.capi.__cmake.source.dir) \
 	    -B $(libscid.capi.__docs.build.dir) \

@@ -22,7 +22,7 @@ libscid.python.test : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
 libscid.python.__release-wheel : $(call libscid.__make.word.escape,$(libscid.capi.release.artefact))
 libscid.python.__release-wheel : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
 
-libscid.python.release : libscid.capi.release-library
+libscid.python.release : libscid.capi.release-library ## Build Python wheel, sdist, and run smoke tests
 libscid.python.release : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.artefact)
 
 libscid.python.install : libscid.capi.install libscid.capi.release-library
@@ -30,41 +30,41 @@ libscid.python.install : export LIBSCID_LIBRARY_PATH := $(libscid.capi.release.a
 
 ####################################################################################################
 
-libscid.configure : $(libscid.__components:%=libscid.%.configure)
+libscid.configure : $(libscid.__components:%=libscid.%.configure) ## Initialise build environments and configure all components
 
 .PHONY : libscid.configure
 
 ####################################################################################################
 
-libscid.build : $(libscid.__components:%=libscid.%.build)
+libscid.build : $(libscid.__components:%=libscid.%.build) ## Compile all components (internal, capi, python)
 
 .PHONY : libscid.build
 
 ####################################################################################################
 
-libscid.test : $(libscid.__components:%=libscid.%.test)
+libscid.test : $(libscid.__components:%=libscid.%.test) ## Run dynamic test suites for all components
 
 .PHONY : libscid.test
 
 ####################################################################################################
 
-libscid.test.static : libscid.internal.static.test libscid.capi.static.test
+libscid.test.static : libscid.internal.static.test libscid.capi.static.test ## Run unit tests against static library builds
 
 .PHONY : libscid.test.static
 
 ####################################################################################################
 
-libscid.test.all : libscid.test libscid.test.static
+libscid.test.all : libscid.test libscid.test.static ## Run the full dynamic and static test matrix
 
 .PHONY : libscid.test.all
 
 ####################################################################################################
 
-libscid.install : $(libscid.__components:%=libscid.%.install)
+libscid.install : $(libscid.__components:%=libscid.%.install) ## Install all components under PREFIX
 
 .PHONY : libscid.install
 
-install : libscid.install
+install : libscid.install ## Convenience alias for libscid.install
 
 .PHONY : install
 
@@ -74,7 +74,7 @@ libscid.__docs.public.dir := $(LIBSCID_STAGING_BUILD_DIR)docs/public/
 libscid.__docs.hub.dir := $(ROOT)docs/hub/
 libscid.__docs.assets.dir := $(ROOT)docs/assets/
 
-libscid.clean : $(libscid.__components:%=libscid.%.clean)
+libscid.clean : $(libscid.__components:%=libscid.%.clean) ## Remove build, staging, and temporary artefacts
 	-rm -rf $(LIBSCID_STAGING_ROOT)
 	-rm -rf $(ROOT)_build/
 	-rm -rf $(ROOT)_release/
@@ -83,7 +83,7 @@ libscid.clean : $(libscid.__components:%=libscid.%.clean)
 
 ####################################################################################################
 
-libscid.docs : $(libscid.__components:%=libscid.%.docs)
+libscid.docs : $(libscid.__components:%=libscid.%.docs) ## Build consolidated documentation hub and component API sites
 	mkdir -p $(libscid.__docs.public.dir)assets/img/
 	mkdir -p $(libscid.__docs.public.dir)capi/
 	mkdir -p $(libscid.__docs.public.dir)python/
@@ -115,7 +115,7 @@ libscid.__release-source-package :
 
 ####################################################################################################
 
-libscid.release : $(libscid.__components:%=libscid.%.release)
+libscid.release : $(libscid.__components:%=libscid.%.release) ## Package release archives, packages, and wheels
 
 .PHONY : libscid.release
 
@@ -124,7 +124,7 @@ libscid.release : $(libscid.__components:%=libscid.%.release)
 libscid.test-examples : libscid.test
 libscid.test-examples : export LIBSCID_LIBRARY_PATH := $(libscid.capi.artefact)
 libscid.test-examples : export PYTHONPATH := $(ROOT)python/src
-libscid.test-examples :
+libscid.test-examples : ## Execute Python integration examples against compiled library
 	shopt -s nullglob; \
 	for script in $(ROOT)examples/python/*/main.py; do \
 	    $(LIBSCID_PYTHON) "$$script"; \
@@ -134,25 +134,25 @@ libscid.test-examples :
 
 ####################################################################################################
 
-libscid.qc-format : $(libscid.__components:%=libscid.%.qc-format)
+libscid.qc-format : $(libscid.__components:%=libscid.%.qc-format) ## Check source formatting across all components
 
 .PHONY : libscid.qc-format
 
 ####################################################################################################
 
-libscid.qc-static-analysis : $(libscid.__components:%=libscid.%.qc-static-analysis)
+libscid.qc-static-analysis : $(libscid.__components:%=libscid.%.qc-static-analysis) ## Run static analysis (cppcheck, clang-tidy, pyright)
 
 .PHONY : libscid.qc-static-analysis
 
 ####################################################################################################
 
-libscid.qc-dynamic-analysis : $(libscid.__components:%=libscid.%.qc-dynamic-analysis)
+libscid.qc-dynamic-analysis : $(libscid.__components:%=libscid.%.qc-dynamic-analysis) ## Run test suites under Address and Undefined Behaviour sanitisers
 
 .PHONY : libscid.qc-dynamic-analysis
 
 ####################################################################################################
 
-libscid.qc-all : $(libscid.__qc.stages:%=libscid.qc-%)
+libscid.qc-all : $(libscid.__qc.stages:%=libscid.qc-%) ## Run all quality control verification stages
 
 .PHONY : libscid.qc-all
 

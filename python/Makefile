@@ -31,7 +31,7 @@ libscid.python.__qc.paths := src tests hatch_build.py ../examples/python
 
 ####################################################################################################
 
-libscid.python.configure :
+libscid.python.configure : ## Synchronise Python virtual environment and dependencies using uv
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) sync $(LIBSCID_UV_FLAGS)
 
@@ -39,7 +39,7 @@ libscid.python.configure :
 
 ####################################################################################################
 
-libscid.python.build : libscid.python.configure
+libscid.python.build : libscid.python.configure ## Build Python wheel package
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) build --out-dir $(libscid.python.__dist.dir)
 
@@ -47,7 +47,7 @@ libscid.python.build : libscid.python.configure
 
 ####################################################################################################
 
-libscid.python.test : libscid.python.configure
+libscid.python.test : libscid.python.configure ## Run Python test matrix via tox
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run $(LIBSCID_TOX)
 
@@ -55,7 +55,7 @@ libscid.python.test : libscid.python.configure
 
 ####################################################################################################
 
-libscid.python.clean :
+libscid.python.clean : ## Remove Python virtual environments, build trees, and caches
 	-rm -rf $(libscid.python.__project.dir).tox $(libscid.python.__project.dir).venv
 	-rm -rf $(libscid.python.__project.dir)build $(libscid.python.__project.dir)dist
 	-rm -rf $(libscid.python.__project.dir)*.egg-info
@@ -69,7 +69,7 @@ libscid.python.clean :
 
 ####################################################################################################
 
-libscid.python.install : libscid.python.__release-wheel
+libscid.python.install : libscid.python.__release-wheel ## Install libscid Python package into active environment or prefix
 	shopt -s nullglob; \
 	wheels=( "$(libscid.python.__release.artefact.dir)"libscid-*.whl ); \
 	[[ $${#wheels[@]} -gt 0 ]] || { echo "No wheel found to install" >&2; exit 1; }; \
@@ -196,14 +196,14 @@ ifeq ($(LIBSCID_PYTHON_BUILD_SDIST),true)
 libscid.python.__release.sdist.targets := libscid.python.__release-sdist libscid.python.__release-sdist-smoke-test
 endif
 
-libscid.python.release : libscid.python.__release-wheel libscid.python.__release-smoke-test $(libscid.python.__release.source.targets) $(libscid.python.__release.sdist.targets)
+libscid.python.release : libscid.python.__release-wheel libscid.python.__release-smoke-test $(libscid.python.__release.source.targets) $(libscid.python.__release.sdist.targets) ## Build Python wheel, sdist, and run smoke tests
 
 .PHONY : libscid.python.release
 
 
 ####################################################################################################
 
-libscid.python.qc-format : libscid.python.configure
+libscid.python.qc-format : libscid.python.configure ## Check and verify Python formatting with ruff
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync ruff format --check $(libscid.python.__qc.paths) \
 	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync ruff check $(libscid.python.__qc.paths)
@@ -212,7 +212,7 @@ libscid.python.qc-format : libscid.python.configure
 
 ####################################################################################################
 
-libscid.python.qc-static-analysis : libscid.python.configure
+libscid.python.qc-static-analysis : libscid.python.configure ## Run static type checking with pyright
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --no-sync pyright
 
@@ -220,19 +220,19 @@ libscid.python.qc-static-analysis : libscid.python.configure
 
 ####################################################################################################
 
-libscid.python.qc-dynamic-analysis :
+libscid.python.qc-dynamic-analysis : ## Run dynamic analysis for Python package (noop)
 
 .PHONY : libscid.python.qc-dynamic-analysis
 
 ####################################################################################################
 
-libscid.python.qc-all : libscid.python.qc-format libscid.python.qc-static-analysis libscid.python.qc-dynamic-analysis
+libscid.python.qc-all : libscid.python.qc-format libscid.python.qc-static-analysis libscid.python.qc-dynamic-analysis ## Run all quality control checks for Python package
 
 .PHONY : libscid.python.qc-all
 
 ####################################################################################################
 
-libscid.python.docs-configure : libscid.python.configure
+libscid.python.docs-configure : libscid.python.configure ## Install documentation dependencies for Python package
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) sync $(LIBSCID_UV_FLAGS) --group docs
 
@@ -240,7 +240,7 @@ libscid.python.docs-configure : libscid.python.configure
 
 ####################################################################################################
 
-libscid.python.docs : libscid.python.docs-configure
+libscid.python.docs : libscid.python.docs-configure ## Build Python documentation site via MkDocs
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --group docs --no-sync mkdocs build -f mkdocs.yml -d $(libscid.python.__build.dir)docs/site
 
@@ -248,7 +248,7 @@ libscid.python.docs : libscid.python.docs-configure
 
 ####################################################################################################
 
-libscid.python.docs-serve : libscid.python.docs-configure
+libscid.python.docs-serve : libscid.python.docs-configure ## Launch local MkDocs live documentation server
 	cd $(libscid.python.__project.dir) \
 	&& $(LIBSCID_UV) $(LIBSCID_UV_FLAGS) run --group docs --no-sync mkdocs serve -f mkdocs.yml -d $(libscid.python.__build.dir)docs/site
 

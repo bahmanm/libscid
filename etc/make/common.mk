@@ -10,6 +10,9 @@ LIBSCID_BMAKELIB_VERSION ?= v0.9.1
 LIBSCID_BMAKELIB_DIR ?= $(ROOT).bmakelib
 LIBSCID_BMAKELIB ?= $(LIBSCID_BMAKELIB_DIR)/bmakelib.mk
 
+bmakelib.conf.help.variables ?= no
+bmakelib.conf.help.scope ?= local
+
 -include $(LIBSCID_BMAKELIB)
 
 $(LIBSCID_BMAKELIB) :
@@ -35,10 +38,10 @@ LIBSCID_PROFILE ?= $(or $(PROFILE),release)
 else
 LIBSCID_PROFILE ?= $(or $(PROFILE),debug)
 endif
-PROFILE := $(LIBSCID_PROFILE)
+PROFILE := $(LIBSCID_PROFILE) ## Build profile (debug|release)
 $(call bmakelib.enum.error-unless-member,LIBSCID_PROFILE,LIBSCID_PROFILE)
 
-PREFIX ?= $(HOME)/.local/opt/libscid
+PREFIX ?= $(HOME)/.local/opt/libscid ## Base installation directory prefix
 
 LIBSCID_CMAKE ?= cmake
 LIBSCID_CPACK ?= cpack
@@ -59,7 +62,7 @@ LIBSCID_CMAKE_BUILD_ARGS ?=
 LIBSCID_CMAKE_CONFIGURE_ARGS ?=
 LIBSCID_CMAKE_GENERATOR ?=
 $(call bmakelib.enum.define,LIBSCID_LINKAGE_TYPE/shared,static)
-LIBSCID_LINKAGE_TYPE ?= shared
+LIBSCID_LINKAGE_TYPE ?= shared ## Library linkage type (shared|static)
 libscid.__host.system := $(shell uname -s 2>/dev/null || echo Windows)
 
 ifeq ($(libscid.__host.system),Darwin)
