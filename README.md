@@ -31,15 +31,15 @@ database and ECO functionality without depending on a desktop application.
 
 ## Start Here
 
-- [Quick Start](https://libscid.bahmanm.com/tutorials/quick-start/): compile a small
+- [Quick Start](https://libscid.bahmanm.com/capi/tutorials/quick-start/): compile a small
   C ABI consumer with `cc`, Make or CMake.
-- [Installation](https://libscid.bahmanm.com/how-to/installation/): install a
+- [Installation](https://libscid.bahmanm.com/capi/how-to/installation/): install a
   release archive or build and install from source.
-- [How-To Guides](https://libscid.bahmanm.com/how-to/): practical task-oriented
+- [How-To Guides](https://libscid.bahmanm.com/capi/how-to/): practical task-oriented
   recipes for PGN editing, variation traversal and database queries.
-- [Explanation & Architecture](https://libscid.bahmanm.com/explanation/architecture/):
+- [Explanation & Architecture](https://libscid.bahmanm.com/capi/explanation/architecture/):
   understand the opaque handles, memory model and subsystem designs.
-- [C ABI Reference](https://libscid.bahmanm.com/reference/index_modules/): browse
+- [C ABI Reference](https://libscid.bahmanm.com/capi/reference/index_modules/): browse
   the generated public header and symbol specification.
 
 ## Minimal CMake Consumer
