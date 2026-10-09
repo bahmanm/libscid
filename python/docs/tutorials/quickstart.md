@@ -6,7 +6,7 @@ This tutorial guides you through installing `libscid`, initialising a chess game
 
 ## 1. Prerequisites and Installation
 
-`libscid` publishes pre-compiled wheels for macOS, Linux, and Windows bundling the native C engine. Install the package into your virtual environment:
+`libscid` publishes prebuilt wheels for mainstream platforms. Building a wheel for your platform is straightforward too; see [Installation and Platform Support](../how-to/installation.md) for the available wheels and how to roll your own:
 
 ```bash
 pip install libscid

@@ -10,8 +10,8 @@ In foreign-function interface design, memory allocations across library boundari
 
 To eliminate this vulnerability, the libscid C ABI adopts the caller-allocated buffer pattern for all variable-length text strings and arrays:
 
-- Explicit Buffer Parameters: Any ABI function outputting variable-length data requires three arguments: a destination buffer pointer (`char*` or array pointer), a capacity indicator (`size_t capacity`), and an optional output size pointer (`size_t* out_size`).
-- Safe Two-Pass Sizing: When a caller passes a buffer that is too small, the function does not truncate or corrupt memory. Instead, it returns `SCID_ERROR_BUFFER_FULL` and writes the exact number of bytes required into `*out_size`.
+- Explicit Buffer Parameters: Text-output functions take a destination buffer, its capacity in bytes, and an output-size pointer. For these functions, `out_size` is required even when querying the size or writing the result.
+- Safe Two-Pass Sizing: With a NULL buffer and zero capacity, a text-output function reports the text length (excluding the terminating NUL) in `*out_size` and returns `SCID_ERROR_BUFFER_FULL` when the text is nonempty. Allocate at least that length plus one byte, then call again with a valid size pointer. The second call succeeds only when the capacity includes space for the terminating NUL. On insufficient capacity, the function reports the text length, not the total capacity, in `*out_size`.
 - Zero Unnecessary Allocations: Callers with known stack limits (e.g. formatting a standard FEN string or square name) can provide stack-allocated buffers and avoid heap overhead entirely.
 
 ```c
@@ -20,11 +20,16 @@ size_t required_size = 0;
 scid_error err = scid_game_to_pgn(game, NULL, NULL, 0, &required_size);
 if (err == SCID_ERROR_BUFFER_FULL)
 {
-    char* buffer = malloc(required_size);
+    char* buffer = malloc(required_size + 1); /* Include space for the NUL. */
     if (buffer)
     {
-        err = scid_game_to_pgn(game, NULL, buffer, required_size, NULL);
-        /* ... process buffer ... */
+        size_t written_size = 0;
+        err = scid_game_to_pgn(game, NULL, buffer, required_size + 1, &written_size);
+        if (err == SCID_OK)
+        {
+            /* buffer is NUL-terminated; written_size excludes the NUL. */
+            /* ... process buffer ... */
+        }
         free(buffer);
     }
 }

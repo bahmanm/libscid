@@ -8,6 +8,7 @@ Each guide assumes familiarity with the foundational concepts introduced in the 
 
 ## 1. Available Recipes
 
+- [Installation and Platform Support](installation.md): Install the Python package and review wheel targets, system requirements, and source-build options.
 - [Parse and Serialise PGN](parse-and-serialise-pgn.md): Parse PGN movetext, configure formatting options, and attach custom metadata tags.
 - [Navigate and Edit Move Trees](navigate-and-edit-trees.md): Traverse branching variation trees, append sub-lines, and attach comments or NAG glyphs using immutable cursors.
 - [Filter and Search Databases](filter-and-search-databases.md): Build multi-criteria queries, combine filter bitsets with boolean algebra, and paginate sorted game indices.
