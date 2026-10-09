@@ -34,6 +34,13 @@ Install the pre-compiled binary wheel from PyPI:
 pip install libscid
 ```
 
+Prebuilt wheels are available for Linux x86-64 with glibc 2.39 or newer, Apple
+Silicon on macOS 15 or newer, and Windows x64. Linux needs compatible glibc and
+C++ runtime libraries; Windows needs the Microsoft Visual C++ 2015–2022
+Redistributable (x64). It's straightforward to build a wheel for other
+platforms too. See the [installation guide](https://libscid.bahmanm.com/python/how-to/installation/)
+for the full runtime requirements and steps to roll your own.
+
 ---
 
 ## 3. Quick Start

@@ -79,6 +79,7 @@ nav:
       - Analysing Master Archives: tutorials/database-queries.md
   - How-To Guides:
       - Overview: how-to/index.md
+      - Installation & Platform Support: how-to/installation.md
       - Parse & Serialise PGN: how-to/parse-and-serialise-pgn.md
       - Move Tree Traversal: how-to/navigate-and-edit-trees.md
       - Database Queries & Filters: how-to/filter-and-search-databases.md
