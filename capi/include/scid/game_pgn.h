@@ -192,8 +192,9 @@ extern "C"
      *                               May be NULL if @p out_text_capacity is 0 to query required
      * capacity.
      * @param[in]  out_text_capacity Capacity of @p out_text in bytes.
-     * @param[out] out_text_size     Pointer receiving the number of bytes written (excluding null
-     * terminator), or required capacity if the buffer is too small. Must not be NULL.
+     * @param[out] out_text_size     Required pointer receiving the PGN text length in bytes,
+     * excluding the null terminator. When the buffer is too small, this is still the text length;
+     * allocate at least this value plus one byte for the null terminator.
      *
      * @retval SCID_OK               PGN text encoded successfully.
      * @retval SCID_ERROR_BAD_ARG    If @p game or @p out_text_size is NULL.
