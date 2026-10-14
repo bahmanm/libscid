@@ -61,6 +61,11 @@ markdown_extensions:
 extra_css:
   - stylesheets/solarized.css
 
+extra:
+  analytics:
+    provider: google
+    property: G-YEPPD1ZGYJ
+
 nav:
   - Overview: index.md
   - Tutorials:
